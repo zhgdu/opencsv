@@ -1,25 +1,211 @@
 ---+General
 
-Opencsv is a very simple csv (comma-separated values) parser library for Java. It was developed because all of current csv parsers I've come across don't have commercial-friendly licenses.
+opencsv is an easy-to-use CSV (comma-separated values) parser library for Java.
+It was developed because all the CSV parsers at the time didn't have
+commercial-friendly licenses. It supports Java 6, but is compiled with a recent
+compiler. If you want to use it in a Java 6 project, you will need to compile
+the source yourself. Better yet, upgrade to the most recent Java.
 
----+FAQ
+---+Features
 
----+++Where can I get it?
-    Source and binaries are available from [[http://sourceforge.net/projects/opencsv/][SourceForge]]
+    opencsv supports all the basic CSV-type things you're likely to want to do:
 
----+++What features does opencsv support?
+   * Arbitrary numbers of values per line.
+   * Ignoring commas in quoted elements.
+   * Handling quoted entries with embedded carriage returns (i.e. entries that span multiple lines).
+   * Configurable separator and quote characters (or use sensible defaults).
 
-    opencsv supports all the basic csv-type things you're likely to want to do:
+All of these things can be done reading and writing, using a manifest of maleable methodologies:
 
-    * Arbitrary numbers of values per line.
-    * Ignoring commas in quoted elements.
-    * Handling quoted entries with embedded carriage returns (ie entries that span multiple lines).
-    * Configurable separator and quote characters (or use sensible defaults).
-    * Read all the entries at once, or use an Iterator style modell
-    * Creating csv files from String[] (ie. automatic escaping of embedded quote chars).
+   * To and from an array of strings.
+   * To and from annotated beans.
+   * From a database
+   * Read all the entries at once, or use an Iterator-style model
 
----+++How do I read and parse a CSV file?
-    If you want to use an Iterator style pattern, you might do something like this:
+---+Developer documentation
+Here is an overview of how to use opencsv in your project.
+
+   * Quick start
+   * Core concepts
+      * Configuration
+      * Error handling
+      * Annotations
+   * Reading
+      * Parsing
+      * Reading into an array of strings
+      * Reading into beans
+   * Writing
+      * Writing from an array of strings
+      * Stateless
+      * Stateful
+      * From a database table
+   * Nuts and bolts
+      * Flow of data through opencsv
+      * Mapping strategies
+Once you have absorbed the overview of how opencsv works, please consult the
+well-maintained Javadocs for further details.
+
+---++Quick start
+This is limited to the easiest, most powerful way of using opencsv to allow you
+to hit the ground running.
+
+For reading, create a bean to harbor the information you want to read, annotate
+the bean fields with the opencsv annotations, then do this:
+   <verbatim>
+     List<MyBean> beans = new CsvToBeanBuilder(FileReader("yourfile.csv"))
+       .withType(Visitors.class).build().parse();
+   </verbatim>
+
+For writing, create a bean to harbor the information you want to write, annotate
+the bean fields with the opencsv annotations, then do this:
+   <verbatim>
+     // List<MyBean> beans comes from somewhere earlier in your code.
+     Writer writer = new FileWriter("yourfile.csv");
+     StatefulBeanToCsvBuilder beanToCsv = StatefulBeanToCsvBuilder(writer).build();
+     beanToCsv.write(beans);
+     writer.close();
+   </verbatim>
+
+---++Core concepts
+
+There are a couple of concepts that most users of opencsv need to understand, and
+that apply equally to reading an writing.
+
+---+++Configuration
+
+"CSV" stands for "comma-separated values", but life would be too simple if that
+were always true. Often the separator is a semicolon. Sometimes the separator
+character is included in the data for a field itself, so quotation characters
+are necessary. Those quotation characters could be included in the data also,
+so an escape character is necessary. All of these configuration options and more
+are given to the parser or the CSVWriter as necessary. Naturally, it's easier for
+you to give them to a builder and the builder passes them on to the right class.
+
+Say you're using a tab for your separator, you can do something like
+this:
+
+   <verbatim>
+     CSVReader reader = new CSVReader(new FileReader("yourfile.csv"), '\t');
+   </verbatim>
+
+or for reading with annotations:
+
+   <verbatim>
+     CsvToBean csvToBean = CsvToBeanBuilder(new FileReader("yourfile.csv"))
+       .withSeparator('\t').build();
+   </verbatim>
+
+And if you single-quoted your escaped characters rather than double-quoting them,
+you can use the three-argument constructor:
+
+   <verbatim>
+     CSVReader reader = new CSVReader(new FileReader("yourfile.csv"), '\t', '\'');
+   </verbatim>
+
+or for reading with annotations:
+
+   <verbatim>
+     CsvToBean csvToBean = CsvToBeanBuilder(new FileReader("yourfile.csv"))
+       .withSeparator('\t').withQuoteChar('\'').build();
+   </verbatim>
+
+---+++Error handling
+
+opencsv uses structured exception handling, including checked and unchecked
+exceptions. The checked exceptions are typically errors in input data and do
+not have to impede further parsing. They could occur at any time during normal
+operation in a production environment. They occur during reading or writing.
+
+The unchecked errors are typically the result of incorrect programming and
+should not be thrown in a production environment with well-tested code.
+
+opencsv gives you two options for handling the checked exceptions both while
+reading and while writing. You may either choose to have all exceptions thrown
+and handle these, or you may choose to have them collected so you can inspect
+and deal with them after parsing. If you don't have them collected, the first
+error in the input file will force a cessation of parsing. The default is to
+throw exceptions.
+
+To change exception handling, simply use CsvToBeanBuilder.withThrowExceptions()
+for reading and StatefulBeanToCsvBuilder.withThrowExceptions(), then collect
+the results after data processing with CsvToBean.getCapturedExceptions() for
+reading and StatefulBeanToCsv.getCapturedExceptions() for writing.
+
+---+++Annotations
+
+The most powerful mechanism opencsv has for reading and writing CSV files involves
+defining beans that the fields of the CSV file can be mapped to and from, and
+annotating the fields of these beans so opencsv can do the rest. In brief, these
+annotations are:
+   * CsvBindByName: Maps a bean field to a field in the CSV file based on the name of the header for that field in the CSV input.
+   * CsvBindByPosition: Maps a bean field to a field in the CSV file based on the numerical position of the field in the CSV input.
+   * CsvCustomBindByName: The same as CsvBindByName, but must provide its own data conversion class.
+   * CsvCustomBindByPosition: The same as CsvBindByPosition, but must provide its own data conversion class.
+   * CsvDate: Must be applied to bean fields of date/time types for automatic conversion to work, and must be used in conjunction with one of the preceding four annotations.
+   * CsvBind: A deprecated annotation that can be replaced one-to-one with CsvBindByName.
+
+As you can infer, there are two strategies for annotating beans, depending on your input:
+   * Annotating by header name
+   * Annotating by column position
+
+It is possible to annotate bean fields both with header-based and position-based annotations.
+If you do, position-based annotations take precedence if the mapping strategy is
+automatically determined. To use the header-based annotations, you would need to
+instantiate and pass in a HeaderColumnNameMappingStrategy. When might this be
+useful? Possibly reading two different sources that provide the same data, but
+one includes headers and the other doesn't. Possibly to convert between headerless
+input and output with headers. Further use cases are left as an exercise for the
+reader.
+
+Most of the more detailed documentation on using annotations is in the section
+on reading data. The use of annotations applies equally well to writing data,
+though; the annotations define a two-way mapping between bean fields and fields
+in a CSV file. Writing is then simply reading in reverse.
+
+---++Reading
+
+Most users of opencsv find themselves needing to read CSV files, and opencsv excels
+at this. But then, opencsv excels at everything. :)
+
+---+++Parsing
+
+It's unlikely that you will need to concern yourself with exactly how parsing
+works in opencsv, but documentation wouldn't be documentation if it didn't cover
+all of the obscure nooks and crannies. So here we go.
+
+Parsers in opencsv implement the interface ICSVParser. You are free to write your
+own, if you feel the need to. opencsv itself provides two parsers, detailed in the
+following sections.
+
+Although opencsv attempts to be simple to use for most use cases, and thus tries
+not to make the choice of a parser obvious, you are still always free to instantiate
+whichever parser suits your needs and pass it to the builder or reader you are using.
+
+---++++CSVParser
+
+The original, tried and true parser that does fairly well everything you need to
+do, and does it well. If you don't tell opencsv otherwise, it uses this parser.
+
+TODO: What are the advantages and disadvantages of this parser? Why was RFC4180Parser
+necessary?
+
+---++++RFC4180Parser
+
+[[https://www.rfc-editor.org/rfc/rfc4180.txt][RFC4180]] defines a standard for
+all of the nitty-gritty questions of just precisely how CSV files are to be
+formatted, delimited, and escaped. Since opencsv predates RFC4180 by a few days
+and every effort was made to preserve backwards compatibility, it was necessary
+to write a new parser for full compliance with RFC4180.
+
+TODO: In what ways is CSVParser incompatible with RFC4180? What pitfalls exist
+in not using RFC4180?
+
+TODO: This information about both parsers ought to be included in the Javadoc
+for the two classes in question.
+
+---+++Reading into an array of strings
+
+At the most basic, you can use opencsv to parse an input and return a String[], thus:
    <verbatim>
      CSVReader reader = new CSVReader(new FileReader("yourfile.csv"));
      String [] nextLine;
@@ -29,127 +215,425 @@ Opencsv is a very simple csv (comma-separated values) parser library for Java. I
      }
    </verbatim>
 
-      Or, if you might just want to slurp the whole lot into a List, just call readAll()...
-
+One step up is reading all lines of the input file at once into a List<String[]>, thus:
    <verbatim>
      CSVReader reader = new CSVReader(new FileReader("yourfile.csv"));
-     List myEntries = reader.readAll();
+     List<String[]> myEntries = reader.readAll();
    </verbatim>
 
-      which will give you a List of String[] that you can iterate over. If all else fails, check out the Javadocs.
-
----+++Can I use my own separators and quote characters?
-    Yes. There are constructors that cater for supplying your own separator and quote characters. Say you're using a tab for your separator, you can do something like this:
-
+The last option for getting at an array of strings is to use an iterator:
    <verbatim>
-     CSVReader reader = new CSVReader(new FileReader("yourfile.csv"), '\t');
+     CSVIterator iterator = new CSVIterator(new CSVReader(new FileReader("yourfile.csv")));
+     for(String[] nextLine : iterator) {
+        // nextLine[] is an array of values from the line
+        System.out.println(nextLine[0] + nextLine[1] + "etc...");
+     }
    </verbatim>
 
-      And if you single quoted your escaped characters rather than double quote them, you can use the three arg constructor:
-
+or:
    <verbatim>
-     CSVReader reader = new CSVReader(new FileReader("yourfile.csv"), '\t', '\'');
+     CSVReader reader = new CSVReader(new FileReader("yourfile.csv"));
+     for(String[] nextLine : reader.iterator()) {
+        // nextLine[] is an array of values from the line
+        System.out.println(nextLine[0] + nextLine[1] + "etc...");
+     }
    </verbatim>
 
-      You may also skip the first few lines of the file if you know that the content doesn't start till later in the file. So, for example, you can skip the first two lines by doing:
+---+++Reading into beans
 
+Arrays of strings are all good and well, but there are simpler, more modern ways
+of data processing. Specifically, opencsv can read a CSV file directly into a list
+of beans. Quite often, that's what we want anyway, to be able to pass the data
+around and process it as a connected dataset instead of individual fields whose
+position in an array must be intuited. We shall start with the easiest and most
+powerful method of reading data into beans, and work our way down to the cogs
+that offer finer control, for those who have a need for such a thing.
+
+This work was begun by Kyle Miller and extended by Tom Squires and Andrew Jones.
+
+---++++Annotations
+
+By simply defining a bean and annotating the fields, opencsv can do all of the rest.
+Besides the basic mapping strategy, there are various mechanisms for processing
+certain kinds of data.
+
+---+++++Annotating by header name
+CSV files should have header names for all fields in the file, and these can
+be used to great advantage. By annotating a bean field with the name of the header
+whose data should be written in the field, opencsv can do all of the matching
+and copying for you. This also makes you independent of the order in which the
+headers occur in the file. For data like this:
    <verbatim>
-     CSVReader reader = new CSVReader(new FileReader("yourfile.csv"), '\t', '\'', 2);
+     firstName,lastName,visitsToWebsite
+     John,Doe,12
+     Jane,Doe,23
    </verbatim>
-
----+++Can I write csv files with opencsv?
-    Yes. There is a CSVWriter in the same package that follows the same semantics as the CSVReader. For example, to write a tab separated file:
-
+you could create the following bean:
    <verbatim>
-     CSVWriter writer = new CSVWriter(new FileWriter("yourfile.csv"), '\t');
-     // feed in your array (or convert your data to an array)
-     String[] entries = "first#second#third".split("#");
-     writer.writeNext(entries);
-	 writer.close();
+     public class Visitors {
+
+     @CsvBindByName
+     private String firstName;
+
+     @CsvBindByName
+     private String lastName;
+
+     @CsvBindByName
+     private int visitsToWebsite;
+
+     // Getters and setters go here.
+     }
    </verbatim>
 
-   If you'd prefer to use your own quote characters, you may use the three arg version of the constructor,  which takes a quote character (or feel free to pass in CSVWriter.NO_QUOTE_CHARACTER).
-
-   You can also customise the line terminators used in the generated file (which is handy when you're exporting from your Linux web application to Windows clients). There is a constructor argument for this purpose.
-
----+++Can I dump out SQL tables to CSV?
-    Yes you can. Sean Sullivan added a neat feature to CSVWriter so you can pass writeAll() a ResultSet.
-
+Here we simply name the fields identically to the header names. After that,
+reading is a simple job:
    <verbatim>
-     java.sql.ResultSet myResultSet = ....
-     writer.writeAll(myResultSet, includeHeaders);
+     List<Visitors> beans = new CsvToBeanBuilder(FileReader("yourfile.csv"))
+       .withType(Visitors.class).build().parse();
    </verbatim>
 
----+++Is there a way to bind my CSV file to a list of Javabeans?
-    Yes there is. Kyle Miller added a set of classes to allow you to bind a CSV file to a list of JavaBeans based on column name, column position, or a custom mapping strategy. You can find the new classes in the <code>com.opencsv.bean</code> package.  Here's how you can map to a java bean based on the field positions in your CSV file:
+This will give you a list of the two beans as defined in the example input file.
+Note how type conversions to basic data types (wrapped and unwrapped primitives
+and Strings) occur automatically.
+
+Input can get more complicated, though, and opencsv gives you the tools to deal
+with that. Let's start with the possibility that the header names can't be
+mapped to Java field names:
+   <verbatim>
+     First name,Last name,1 visit only
+     John,Doe,true
+     Jane,Doe,false
+   </verbatim>
+In this case, we have spaces in the names and one header with a number as the
+initial character. Other problems can be encountered, such as international
+characters in header names. Additionally, we would like to require that at least
+the name be mandatory. For this case, our bean doesn't look much different:
+   <verbatim>
+     public class Visitors {
+
+     @CsvBindByName(column = "First Name", required = true)
+     private String firstName;
+
+     @CsvBindByName(column = "Last Name", required = true)
+     private String lastName;
+
+     @CsvBindByName(column = "1 visit only")
+     private boolean onlyOneVisit;
+
+     // Getters and setters go here.
+     }
+   </verbatim>
+The code for reading remains unchanged.
+
+---+++++Annotating by column position
+Not every scribe of CSV files is kind enough to provide header names. This is a
+no-no, but we're not here to condemn the authors of poor data exports. Our goal
+is to provide our users with everything they could possibly need to parse CSV
+files, no matter how bad, as long as they're still logically coherent in some
+way.
+
+To that end, we have also accounted for the possibility that there are no
+headers, and data must be divined from column position. We will return to our
+previous input file sans header names:
+   <verbatim>
+     John,Doe,12
+     Jane,Doe,23
+   </verbatim>
+The bean for these data would be:
+   <verbatim>
+     public class Visitors {
+
+     @CsvBindByPosition(position = 0)
+     private String firstName;
+
+     @CsvBindByPosition(position = 1)
+     private String lastName;
+
+     @CsvBindByPosition(position = 2)
+     private int visitsToWebsite;
+
+     // Getters and setters go here.
+     }
+   </verbatim>
+Besides that, the annotations behave the same as their header name counterparts.
+
+---+++++Locales, dates
+We've considered primitives, but we haven't considered more complex yet common
+data types. We have also not considered locales other than the default locale.
+Here we shall do both at the same time. Consider this input file:
+   <verbatim>
+     username,valid since,annual salary
+     user1,01.01.2010,100.000
+     user2,31.07.2014,50.000
+   </verbatim>
+The dates are dd.MM.yyyy, and the salaries use a dot as the thousands delimiter.
+For this input we create the following bean:
+   <verbatim>
+     public class Employees {
+
+     @CsvBindByName(required = true)
+     private String username;
+
+     @CsvBindByName(column = "valid since")
+     @CsvDate("dd.MM.yyyy")
+     private Date validSince;
+
+     @CsvBindByName(column = "annual salary", locale = "de")
+     private int salary;
+
+     // Getters and setters go here.
+     }
+   </verbatim>
+The date is handled with the annotation @CsvDate in addition to the mapping annotation.
+@CsvDate can take a format string, and incidentally handles all common date-type
+classes. See the Javadocs for more details. The thousands separator in the salaries
+is dealt with by using the German locale, one of many countries where the thousands
+separator is a dot.
+
+---+++++Custom converters
+Now, we know that input data can get very messy, so we have provided our users
+with the ability to deal with the messiest of data by allowing you to define your
+own custom converters. Every converter must be derived from AbstractBeanField.
+For reading, the convert() method must be overriden. opencsv provides three custom
+converters in the package com.opencsv.bean.customconverter. These can be useful
+converters themselves, but they also exist for instructive purposes: If you want
+to write your own custom converter, look at these for examples of how it's done.
+
+Let's use two as illustrations. Let's say we have the following input file:
+   <verbatim>
+     cluster,nodes,production
+     cluster1,node1 node2,wahr
+     cluster2,node3 node4 node5,falsch
+   </verbatim>
+In this file we have a list of server clusters. The cluster name comes first,
+followed by a space-delimited list of names of servers in the cluster. The final
+field indicates whether the cluster is in production use or not, but the truth
+value uses German. Here is the appropriate bean, using the custom converters
+opencsv provides:
+   <verbatim>
+     public class Cluster {
+
+       @CsvBindByName
+       private String cluster;
+
+       @CsvCustomBindByName(converter = ConvertSplitOnWhitespace.class)
+       private String[] nodes;
+
+       @CsvCustomBindByName(converter = ConvertGermanToBoolean.class)
+       private boolean production;
+
+       // Getters and setters go here.
+     }
+   </verbatim>
+More than that is not necessary. If you need boolean values in other languages,
+take a gander at the code in ConvertGermanToBoolean; Apache BeanUtils provides
+a slick way of converting booleans.
+
+The corresponding annotations for custom converters based on column position are
+also provided.
+
+---++++Reading into beans without annotations
+
+If annotations are anathema to you, you can bypass them with carefully structured
+data, beans and with somewhat more code. For example, here's how you can map to
+a bean based on the field positions in your CSV file:
 
    <verbatim>
     ColumnPositionMappingStrategy strat = new ColumnPositionMappingStrategy();
     strat.setType(YourOrderBean.class);
-    String[] columns = new String[] {"name", "orderNumber", "id"}; // the fields to bind do in your JavaBean
+    String[] columns = new String[] {"name", "orderNumber", "id"}; // the fields to bind to in your bean
     strat.setColumnMapping(columns);
 
     CsvToBean csv = new CsvToBean();
     List list = csv.parse(strat, yourReader);
    </verbatim>
 
-    Tom Squires extended this feature to allow annotation-based binding of CSV file to Java Beans. Consider the following Bean:
+---++++Skipping and filtering
+With some input it can be helpful to skip the first few lines. opencsv provides
+for this need with CsvToBeanBuilder.withSkipLines(), which ultimately is used on
+the appropriate constructor for CSVReader, if you would prefer to do everything
+without the use of the builders. This will skip the first few lines of the raw
+input, not the CSV data, in case some input provides heaven knows what before the
+first line of CSV data, such as a legal disclaimer or copyright information.
 
-     <verbatim>
-         import com.opencsv.bean.CsvBind;
-         import java.util.Date;
+So, for example, you can skip the first two lines by doing:
 
-         public class SimpleAnnotatedMockBean {
-               @CsvBind
-               private String name;
-               @CsvBind
-               private String orderNumber;
-               @CsvBind(required = true)
-               private int num;
-               private Date someOtherField;
+   <verbatim>
+     CSVReader reader = new CSVReader(new FileReader("yourfile.csv"), '\t', '\'', 2);
+   </verbatim>
 
-               public String getName() {
-                   return name;
-               }
+or for reading with annotations:
+   <verbatim>
+     CsvToBean csvToBean = CsvToBeanBuilder(new FileReader("yourfile.csv"))
+       .withSeparator('\t').withQuoteChar('\'').withSkipLines(2).build();
+   </verbatim>
 
-               public String getOrderNumber() {
-                   return orderNumber;
-               }
+Filtering is different in that it works on CSV records and it applies to the whole
+input. It can also only be used with a bean mapping strategy. To filter input
+beans, implement CsvToBeanFilter and pass your implementation to
+CsvToBeanBuilder.withFilter() or IterableCSVToBeanBuilder.withFilter(), or
+equivalently if you're not using the builders, to the appropriate constructor for
+IterableCSVToBean or the appropriate parse() method from CsvToBean or even
+setFilter() in CsvToBean.
 
-               public int getNum() {
-                   return num;
-               }
-         }
-     </verbatim>
+Yes, filtering would be much nicer with Java 8 streams, but in order to preserve
+backward compatibility and serve a wide developer base, we won't be using Java
+8 for many years to come.
 
-     And the following code:
+---++Writing
+Less often used, but just as comfortable as reading CSV files is writing them.
+And believe me, a lot of work went into making writing CSV files as comfortable
+as possible for you, our users.
 
-     <verbatim>
-         HeaderColumnNameMappingStrategy<SimpleAnnotatedMockBean> strategy = new HeaderColumnNameMappingStrategy<>();
-         strategy.setType(SimpleAnnotatedMockBean.class);
-         CsvToBean<SimpleAnnotatedMockBean> csvToBean = new CsvToBean<>();
-         List<SimpleAnnotatedMockBean> beanList = csvToBean.parse(strategy, createReader());
-     </verbatim>
+There are four methods of writing CSV data:
+   * Writing from an array of strings
+   * Stateful from beans
+   * Stateless from beans
+   * From an SQL ResultSet
 
-   The resulting <code>beanList</code> variable will contain a <code>List</code> of <code>SimpleAnnotatedMockBean</code>
-      objects with the <code>name</code>, <code>orderNumber</code> and <code>num</code> fields populated.
+---+++Writing from an array of strings
 
-   The <code>someOtherField</code> property will not have been populated, because it was not annotated with <code>@CsvBind</code>.
+CSVWriter follows the same semantics as the CSVReader. For example, to write a tab-separated file:
 
-   For more detailed examples, check out the test cases for each of the available mapping strategies under the /test/java/com/opencsv/bean/.
+   <verbatim>
+     CSVWriter writer = new CSVWriter(new FileWriter("yourfile.csv"), '\t');
+     // feed in your array (or convert your data to an array)
+     String[] entries = "first#second#third".split("#");
+     writer.writeNext(entries);
+     writer.close();
+   </verbatim>
 
----+Other Stuff
+If you'd prefer to use your own quote characters, you may use the three argument
+version of the constructor, which takes a quote character (or feel free to pass
+in CSVWriter.NO_QUOTE_CHARACTER).
 
----+++Can I use opencsv in my commercial applications?
+You can also customize the line terminators used in the generated file (which is
+handy when you're exporting from your Linux web application to Windows clients).
+There is a constructor argument for this purpose.
 
-Yes. opencsv is available under a commercial-friendly Apache 2.0 license.  You are free to include it in your commericial applications without any fee or charge, and you are free to modify it to suit your circumstances. To find out more details of the license, read the [[http://www.apache.org/licenses/LICENSE-2.0][Apache 2.0 license agreement]]
+---+++Stateful writing of beans
+The easiest way to write CSV files will in most cases be StatefulBeanToCsv,
+which is simplest to create with StatefulBeanToCsvBuilder.
+   <verbatim>
+     // List<MyBean> beans comes from somewhere earlier in your code.
+     Writer writer = new FileWriter("yourfile.csv");
+     StatefulBeanToCsvBuilder beanToCsv = StatefulBeanToCsvBuilder(writer).build();
+     beanToCsv.write(beans);
+     writer.close();
+   </verbatim>
 
----+++Can I get the source? More example code?
+Notice, please, we did not tell opencsv what kind of bean we are writing or what
+mapping strategy is to be used. opencsv determines these things automatically.
+Naturally, the mapping strategy can be dictated, if necessary, though
+StatefulBeanToCsvBuilder.withMappingStrategy(), or the constructor for
+StatefulBeanToCsv.
 
-You can view the source from the [[http://sourceforge.net/p/opencsv/source/ci/master/tree/][opencsv source section]].  The source section also gives you the url to the git repository so you can download source code.
-There is also a sample addressbook csv reader in the /examples directory.  And for extra marks, there's a JUnit test suite in the /test directory.
+---+++Stateless writing of beans
+Now it becomes clear why "StatefulBeanToCsv" is thus named: BeanToCsv includes
+no state information while writing beans, forcing you, the developer, to keep
+track of whether or not you want to write a header, and whether it has already
+been written. I think we can all agree, this is no fun, so stateless writing of
+beans has been deprecated. Nonetheless, it still exists, and is used thus:
+   <verbatim>
+     // List<MyBean> beans comes from somewhere earlier in your code.
+     Writer writer = new FileWriter("yourfile.csv");
+     // MappingStrategy myStrategy comes from somewhere earlier in your code.
+     BeanToCsv.write(myStrategy, writer, beans);
+     writer.close();
+   </verbatim>
+What's so awful about this? Well, it's all good and well if you have all of your
+beans together and want to write them at one time, but if you don't, you have
+to write your beans one at a time and remember whether or not you have already
+written the header or not. On top of that, you have to specify the mapping
+strategy yourself. What a bummer.
 
----+++How can I use it in my Maven projects?
+---+++From a database table
+
+Here's a niffty little trick for those of you out there who often work directly
+with databases and want to write the results of a query directly to a CSV file.
+Sean Sullivan added a neat feature to CSVWriter so you can pass writeAll() a
+ResultSet from an SQL query.
+
+   <verbatim>
+     java.sql.ResultSet myResultSet = . . .
+     writer.writeAll(myResultSet, includeHeaders);
+   </verbatim>
+
+---++Nuts and bolts
+Now we start to poke around under the hood of opencsv.
+
+---+++Flow of data through opencsv
+We have tried to hide all of the classes and how they work together in opencsv
+by providing you with builders, since you will rarely need to know all the details
+of opencsv's internal workings. But for those blessed few, here is how all of
+the pieces fit together for reading:
+   1. You must provide a Reader. This can be any Reader, but a FileReader or StringReader are the most common options.
+   1. If you wish, you may provide a parser (anything implementing ICSVParser).
+   1. The Reader can be wrapped in a CSVReader, which is also given the parser, if you have used your own. Otherwise, opencsv creates its own parser and even its own CSVReader. If you are reading into an array of strings, this is where the trail ends.
+   1. For those reading into beans, a MappingStrategy is the next step.
+   1. If you want filtering, you can create a CsvToBeanFilter.
+   1. The MappingStrategy and the Reader or CSVReader and optionally the CsvToBeanFilter are passed to a CsvToBean, which uses them to parse input an populate beans.
+   1. If you have any custom converters, they are called for each bean field as CsvToBean is populating the bean fields.
+
+For writing it's a little simpler:
+   1. You must provide a Writer. This can be any Writer, but a FileWriter or a StringWriter are the most common options.
+   1. The Writer is wrapped in a CSVWriter. For stateful writing, this is always done for you. Otherwise you may do this yourself.
+   1. Create a MappingStrategy if you need to. Otherwise opencsv will automatically determine one.
+   1. Create a StatefulBeanToCsv, give it the MappingStrategy and the Writer, or pass the MappingStrategy and Writer/CSVWriter to BeanToCsv.write().
+   1. If you have any custom converters, they are called for each bean field as the field is written out to the CSV file.
+
+---+++Mapping strategies
+opencsv has the concept
+of a mapping strategy. This is what translates a column from an input file into
+a field in a bean or vice versa. As we have already implied in the documentation of the
+annotations, there are two basic mapping strategies: Mapping by header name and
+mapping by column position. These are incarnated in HeaderColumnNameMappingStrategy
+and ColumnPositionMappingStrategy respectively. There is one more addendum to
+the header name mapping strategy: If you need to translate names from the input
+file to field names, you will need to use HeaderColumnNameTranslateMappingStrategy.
+
+If you use annotations and CsvToBeanBuilder (for reading) or StatefulBeanToCsv
+(for writing), an appropriate mapping strategy is automatically determined, and
+you need worry about nothing else.
+
+Naturally, you can implement your own mapping strategies as you see fit. Your
+mapping strategy must implement the interface MappingStrategy, but has no other
+requirement. Feel free to derive a class from the existing implementations for
+simplicity.
+
+If you have implemented your own mapping strategy, or if you need to override
+the automatic selection of a mapping strategy, for example if you are reading the
+same bean with one mapping strategy, but writing it with a different one for
+conversion purposes, you need to let opencsv know which mapping strategy it must
+use. For reading, this is accomplished either by passing an instance of your
+mapping strategy to CsvToBeanBuilder.withMappingStrategy(), or, if you are
+iterating, passing it to IterableCSVToBeanBuilder.withMapper(). For writing, pass
+your strategy to StatefulBeanToCsvBuilder.withMappingStrategy() or one of the
+write() methods of BeanToCsv.
+
+---+FAQ
+
+---++Where can I get it?
+    Source and binaries are available from [[http://sourceforge.net/projects/opencsv/][SourceForge]]
+
+---++Can I use opencsv in my commercial applications?
+
+Yes. opencsv is available under a commercial-friendly Apache 2.0 license.
+You are free to include it in your commericial applications without any fee or
+charge, and you are free to modify it to suit your circumstances. To find out
+more details of the license, read the
+[[http://www.apache.org/licenses/LICENSE-2.0][Apache 2.0 license agreement]]
+
+---++Can I get the source? More example code?
+
+You can view the source from the
+[[http://sourceforge.net/p/opencsv/source/ci/master/tree/][opencsv source section]]. 
+The source section also gives you the URL to the git repository so you can
+download source code. There is also a sample addressbook CSV reader in the
+/examples directory. And for extra marks, there's a JUnit test suite in the
+/test directory.
+
+---++How can I use it in my Maven projects?
 
 Add a dependency element to your pom:
 <verbatim>
@@ -160,15 +644,19 @@ Add a dependency element to your pom:
   </dependency>
 </verbatim>
 
----+++Who maintains opencsv?
+---++Who maintains opencsv?
 
    * opencsv was developed in a couple of hours by Glen Smith. You can read his [[http://blogs.bytecode.com.au/glen][blog]] for more info and contact details.
-   * Kyle Miller contributed the bean binding work.
+   * Scott Conway has done tons of bug fixing including upgrading the source code to Java 5, and is the current (only) maintainer of the project.
    * Sean Sullivan contributed work and was maintainer for a time.
-   * Scott Conway has done tons of bug fixing including upgrading the source code to Java 5, and is the current (only) maintainer of the project.  Scott took a hiatus in 2012-2014 due to work/family demands but came back when Maciek Opala contacted him for fixes for issues the Groovy language was having using opencsv (that's right - you heard it!  Groovy uses opencsv!!).  But that was when he realized he was the only one still on the project because none of the other admins stepped in to fix issues :(
-   * J.C. Romanda contributed several fixes.
-   * Maciek Opala contributed alot of his time modernizing opencsv.  He upgraded the code to Java 7, moved the repository to git and fixed several issues.
+   * Kyle Miller contributed the bean binding work.
    * Tom Squires has expanded on the bean work done by Kyle Miller to add annotations.
+   * Andrew Rucker Jones expanded on the annotation work done by Tom Squires and put some extra polish on the documentation.
+   * Maciek Opala contributed alot of his time modernizing opencsv.  He moved the repository to git and fixed several issues.
+   * J.C. Romanda contributed several fixes.
 
----+++Reporting issues
-You can report it on the [[http://sourceforge.net/projects/opencsv/support][support page]] at Sourceforge. Please post a sample file that demonstrates your issue.  For bonus marks, post a patch too. :-)
+---++Reporting issues
+You can report issues on the
+[[http://sourceforge.net/projects/opencsv/support][support page]] at Sourceforge.
+Please post a sample file that demonstrates your issue.  For bonus marks, post a
+patch too. :-)

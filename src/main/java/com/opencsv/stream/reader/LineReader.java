@@ -13,7 +13,7 @@ import java.io.IOException;
  * remove them from the data being read.
  *
  * @author scott
- * @since 2/19/15
+ * @since 3.3
  */
 
 public class LineReader {
