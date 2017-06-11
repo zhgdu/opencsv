@@ -48,4 +48,34 @@ class CSVReaderAndParserIntegrationSpec extends Specification {
         rfc4180Parser | "RFC4180Parser"
 
     }
+
+    @Unroll
+    def 'Bug 143 - Quote Character should be the escaper for #parserName'() {
+        given:
+        StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
+        String value1 = "100"
+        String value2 = "\"that \"\"if the reptile is killed the baby will pine away and die a few weeks later.\"\"\r\n\r\nThese mystical snakes will protect their owner and be a topic of conversation for sure.\""
+        String readValue2 = "that \"if the reptile is killed the baby will pine away and die a few weeks later.\"\r\n\r\nThese mystical snakes will protect their owner and be a topic of conversation for sure."
+        String value3 = "300"
+
+        sb.append(value1 + "," + value2 + "," + value3)
+        StringReader sr = new StringReader(sb.toString())
+
+        CSVReaderBuilder builder = new CSVReaderBuilder(sr)
+        CSVReader reader = builder.withCSVParser(parser).withKeepCarriageReturn(true).build()
+
+        when:
+        String[] values = reader.readNext()
+
+        then:
+        values[0] == value1
+        values[1] == readValue2
+        values[2] == value3
+        values.length == 3
+
+        where:
+        parser        | parserName
+        csvParser     | "CSVParser"
+        rfc4180Parser | "RFC4180Parser"
+    }
 }
