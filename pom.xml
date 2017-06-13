@@ -10,10 +10,11 @@
     <url>http://opencsv.sf.net</url>
 
     <properties>
-        <maven.surefire.version>2.19.1</maven.surefire.version>
-        <jacoco.version>0.7.8</jacoco.version>
+        <maven.surefire.version>2.20</maven.surefire.version>
+        <maven.site.version>3.6</maven.site.version>
+        <jacoco.version>0.7.9</jacoco.version>
         <maven.javadoc.version>2.10.4</maven.javadoc.version>
-        <maven-assembly-plugin.version>2.6</maven-assembly-plugin.version>
+        <maven-assembly-plugin.version>3.0.0</maven-assembly-plugin.version>
     </properties>
 
     <licenses>
@@ -110,7 +111,7 @@
             <plugins>
                 <plugin>
                     <artifactId>maven-site-plugin</artifactId>
-                    <version>3.5.1</version>
+                    <version>${maven.site.version}</version>
                     <dependencies>
                         <dependency>
                             <groupId>org.apache.maven.doxia</groupId>
@@ -242,7 +243,7 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-                <version>3.2.0</version>
+                <version>3.3.0</version>
                 <extensions>true</extensions>
                 <executions>
                     <execution>
@@ -293,7 +294,7 @@
             <extension>
                 <groupId>org.apache.maven.wagon</groupId>
                 <artifactId>wagon-ssh</artifactId>
-                <version>2.10</version>
+                <version>2.12</version>
             </extension>
         </extensions>
     </build>
@@ -302,7 +303,7 @@
             <dependency>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
-                <version>3.6</version>
+                <version>${maven.site.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
@@ -326,19 +327,19 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>2.7.1</version>
+            <version>2.7.22</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.spockframework</groupId>
             <artifactId>spock-core</artifactId>
-            <version>1.0-groovy-2.4</version>
+            <version>1.1-groovy-2.4</version>
             <scope>test</scope>
         </dependency>
         <dependency> <!-- enables mocking of classes (in addition to interfaces) -->
             <groupId>cglib</groupId>
             <artifactId>cglib-nodep</artifactId>
-            <version>3.2.4</version>
+            <version>3.2.5</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -347,7 +348,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-site-plugin</artifactId>
-                <version>3.6</version>
+                <version>${maven.site.version}</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -361,7 +362,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
-                <version>3.6</version>
+                <version>3.8</version>
                 <configuration>
                     <rulesets>
                         <ruleset>pmd-ruleset.xml</ruleset>

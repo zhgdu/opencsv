@@ -2,6 +2,7 @@ package com.opencsv.bean;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvBadConverterException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
@@ -14,6 +15,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -70,6 +72,15 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
      */
     protected Map<String, BeanField> fieldMap = null;
     
+    /** A list of all fields in the bean that are required. */
+    protected final List<Field> requiredFields = new ArrayList<Field>();
+    
+    /**
+     * A copy of {@link #requiredFields} that is used for reading in each record
+     * to make certain all required fields were present.
+     */
+    protected List<Field> copyOfRequiredFields;
+    
     /** This is the class of the bean to be manipulated. */
     protected Class<? extends T> type;
     
@@ -80,8 +91,17 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
      */
     protected boolean annotationDriven;
     
-    /** An error message that is used when a custom converter cannot be instantiated. */
+    /**
+     * An error message that is used when a custom converter cannot be
+     * instantiated.
+     */
     private static final String CANNOT_INSTANTIATE = "There was a problem instantiating the custom converter ";
+    
+    /**
+     * An error message that is used when a mapping strategy is used without
+     * having first initialized the type of the bean that is to be created.
+     */
+    private static final String TYPE_NOT_SET = "The type has not been set in the MappingStrategy.";
 
     /**
      * Default constructor.
@@ -90,8 +110,52 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
     }
 
     @Override
-    public void captureHeader(CSVReader reader) throws IOException {
+    public void captureHeader(CSVReader reader) throws IOException, CsvRequiredFieldEmptyException {
+        // Validation
+        if(type == null) {
+            throw new IllegalStateException(TYPE_NOT_SET);
+        }
+        
+        // Read the header
         header = reader.readNext();
+        
+        // Verify that all required fields are present
+        for(Map.Entry<String, BeanField> entrySet : fieldMap.entrySet()) {
+            BeanField beanField = entrySet.getValue();
+            Field field = beanField.getField();
+            if(beanField.isRequired()) {
+                boolean found = false;
+                for(String h : header) {
+                    if(h.equalsIgnoreCase(entrySet.getKey())) {
+                        found = true;
+                        break;
+                    }
+                }
+                if(!found) {
+                    throw new CsvRequiredFieldEmptyException(type, field,
+                            String.format(
+                                    "Header for required field %s was not present",
+                                    field.getName()));
+                }
+            }
+        }
+    }
+    
+    @Override
+    public void registerBeginningOfRecordForReading() {
+        copyOfRequiredFields = new ArrayList<Field>(requiredFields);
+    }
+    
+    @Override
+    public void registerEndOfRecordForReading() throws CsvRequiredFieldEmptyException {
+        if(!copyOfRequiredFields.isEmpty()) {
+            StringBuilder sb = new StringBuilder("The following required fields were not present for one record of the input:");
+            for(Field f : copyOfRequiredFields) {
+                sb.append(' ');
+                sb.append(f.getName());
+            }
+            throw new CsvRequiredFieldEmptyException(type, sb.toString());
+        }
     }
     
     /**
@@ -164,10 +228,15 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
 
     @Override
     public BeanField findField(int col) throws CsvBadConverterException {
+        BeanField beanField = null;
         String columnName = getColumnName(col);
-        return (StringUtils.isNotBlank(columnName)) ?
-                fieldMap.get(columnName.toUpperCase().trim()) :
-                null;
+        if(StringUtils.isNotBlank(columnName)) {
+            beanField = fieldMap.get(columnName.toUpperCase().trim());
+            if(CollectionUtils.isNotEmpty(copyOfRequiredFields) && beanField != null) {
+                copyOfRequiredFields.remove(beanField.getField());
+            }
+        }
+        return beanField;
     }
     
     @Override
@@ -254,7 +323,9 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
      *                                  custom converter for an annotated field
      */
     protected void loadFieldMap() throws CsvBadConverterException {
+        boolean required;
         fieldMap = new HashMap<String, BeanField>();
+        requiredFields.clear();
 
         for (Field field : loadFields(getType())) {
             String columnName;
@@ -262,7 +333,8 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
 
             // Always check for a custom converter first.
             if (field.isAnnotationPresent(CsvCustomBindByName.class)) {
-                columnName = field.getAnnotation(CsvCustomBindByName.class).column().toUpperCase().trim();
+                CsvCustomBindByName annotation = field.getAnnotation(CsvCustomBindByName.class);
+                columnName = annotation.column().toUpperCase().trim();
                 if(StringUtils.isEmpty(columnName)) {
                     columnName = field.getName().toUpperCase();
                 }
@@ -271,14 +343,17 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
                         .converter();
                 BeanField bean = instantiateCustomConverter(converter);
                 bean.setField(field);
+                required = annotation.required();
+                bean.setRequired(required);
                 fieldMap.put(columnName, bean);
             }
 
             // Then check for CsvBindByName.
             else if (field.isAnnotationPresent(CsvBindByName.class)) {
-                boolean required = field.getAnnotation(CsvBindByName.class).required();
-                columnName = field.getAnnotation(CsvBindByName.class).column().toUpperCase().trim();
-                locale = field.getAnnotation(CsvBindByName.class).locale();
+                CsvBindByName annotation = field.getAnnotation(CsvBindByName.class);
+                required = annotation.required();
+                columnName = annotation.column().toUpperCase().trim();
+                locale = annotation.locale();
                 if (field.isAnnotationPresent(CsvDate.class)) {
                     String formatString = field.getAnnotation(CsvDate.class).value();
                     if (StringUtils.isEmpty(columnName)) {
@@ -300,9 +375,12 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
             // And only check for CsvBind if nothing else is there, because
             // CsvBind is deprecated.
             else {
-                boolean required = field.getAnnotation(CsvBind.class).required();
+                required = field.getAnnotation(CsvBind.class).required();
                 fieldMap.put(field.getName().toUpperCase(),
                         new BeanFieldPrimitiveTypes(field, required, null));
+            }
+            if(required) {
+                requiredFields.add(field);
             }
         }
     }
@@ -328,7 +406,7 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
     @Override
     public T createBean() throws InstantiationException, IllegalAccessException, IllegalStateException {
         if(type == null) {
-            throw new IllegalStateException("The type has not been set in the MappingStrategy.");
+            throw new IllegalStateException(TYPE_NOT_SET);
         }
         return type.newInstance();
     }

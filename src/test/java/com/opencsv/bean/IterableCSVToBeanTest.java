@@ -2,6 +2,7 @@ package com.opencsv.bean;
 
 import com.opencsv.CSVReader;
 import com.opencsv.bean.mocks.MockBean;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -50,7 +51,7 @@ public class IterableCSVToBeanTest {
     }
 
     @Test
-    public void nextLine() throws InvocationTargetException, IOException, IntrospectionException, InstantiationException, IllegalAccessException {
+    public void nextLine() throws InvocationTargetException, IOException, IntrospectionException, InstantiationException, IllegalAccessException, CsvRequiredFieldEmptyException {
         MockBean mockBean = bean.nextLine();
         assertEquals("kyle", mockBean.getName());
         assertEquals("abc123456", mockBean.getOrderNumber());
@@ -66,7 +67,7 @@ public class IterableCSVToBeanTest {
     }
 
     @Test
-    public void nextLineWithFilter() throws InvocationTargetException, IOException, IntrospectionException, InstantiationException, IllegalAccessException {
+    public void nextLineWithFilter() throws InvocationTargetException, IOException, IntrospectionException, InstantiationException, IllegalAccessException, CsvRequiredFieldEmptyException {
         bean = builder.withReader(createReader())
                 .withMapper(strategy)
                 .withFilter(createFilter())

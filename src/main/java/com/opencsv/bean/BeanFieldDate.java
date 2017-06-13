@@ -16,7 +16,6 @@
 package com.opencsv.bean;
 
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
-import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -40,7 +39,6 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class BeanFieldDate<T> extends AbstractBeanField<T> {
 
-    private final boolean required;
     private final String formatString;
     private final String locale;
     private static final String NOT_DATE = "@CsvDate annotation used on non-date field.";
@@ -55,8 +53,7 @@ public class BeanFieldDate<T> extends AbstractBeanField<T> {
      *                     converting locale-specific data types
      */
     public BeanFieldDate(Field field, boolean required, String formatString, String locale) {
-        super(field);
-        this.required = required;
+        super(field, required);
         this.formatString = formatString;
         this.locale = locale;
     }
@@ -252,15 +249,8 @@ public class BeanFieldDate<T> extends AbstractBeanField<T> {
     }
 
     @Override
-    protected Object convert(String value) throws CsvDataTypeMismatchException,
-            CsvRequiredFieldEmptyException {
-        if (StringUtils.isEmpty(value)) {
-            if(required) {
-                throw new CsvRequiredFieldEmptyException();
-            }
-            return null;
-        }
-        return convertCommon(value, field.getType());
+    protected Object convert(String value) throws CsvDataTypeMismatchException {
+        return StringUtils.isBlank(value) ? null : convertCommon(value, field.getType());
     }
 
     /**
@@ -275,23 +265,10 @@ public class BeanFieldDate<T> extends AbstractBeanField<T> {
      *   creating the return value.
      * @throws CsvDataTypeMismatchException If an unsupported type as been
      *   improperly annotated
-     * @throws CsvRequiredFieldEmptyException If the field is required, but
-     *   {@code value} is null
      */
     @Override
     protected String convertToWrite(Object value)
-            throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
-        
-        // Validation
-        if(value == null) {
-            if(required) {
-                throw new CsvRequiredFieldEmptyException();
-            }
-            else {
-                return null;
-            }
-        }
-        
-        return convertCommon(value, String.class);
+            throws CsvDataTypeMismatchException {
+        return value == null ? null : convertCommon(value, String.class);
     }
 }

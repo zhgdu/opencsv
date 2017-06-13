@@ -27,7 +27,13 @@ import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
  * 
  * @author Andrew Rucker Jones
  * @since 3.8
+ * @deprecated Use the {@code required} parameter to the appropriate annotation
+ *   along with {@link ConvertGermanToBoolean}.
  */
+// NOTE: As soon as this class is deleted, we should be able to change the
+// method signature of convert() and convertToWrite() not to include throwing
+// CsvRequiredFieldEmptyException.
+@Deprecated
 public class ConvertGermanToBooleanRequired<T> extends ConvertGermanToBoolean<T> {
 
     /**
@@ -39,7 +45,7 @@ public class ConvertGermanToBooleanRequired<T> extends ConvertGermanToBoolean<T>
     /**
      * @throws CsvRequiredFieldEmptyException If the input is empty
      */
-    // The rest of the JavaDoc is automatically inherited from the base class.
+    // The rest of the Javadoc is automatically inherited from the base class.
     @Override
     protected Object convert(String value)
             throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
@@ -54,7 +60,7 @@ public class ConvertGermanToBooleanRequired<T> extends ConvertGermanToBoolean<T>
      * @throws CsvRequiredFieldEmptyException If value is null, because this
      *   converter requires a value
      */
-    // The rest of the JavaDoc is automatically inherited from the base class.
+    // The rest of the Javadoc is automatically inherited from the base class.
     @Override
     protected String convertToWrite(Object value)
             throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {

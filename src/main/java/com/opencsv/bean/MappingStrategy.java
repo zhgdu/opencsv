@@ -19,6 +19,7 @@ package com.opencsv.bean;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvBadConverterException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
@@ -45,6 +46,9 @@ public interface MappingStrategy<T> {
 
     /**
      * Gets the field for a given column position.
+     * If reading a record had been indicated with
+     * {@link #registerBeginningOfRecordForReading()}, this method also marks
+     * the field indicated as having been present in the input.
      *
      * @param col The column to find the field for
      * @return BeanField containing the field for a given column position, or
@@ -81,8 +85,10 @@ public interface MappingStrategy<T> {
      *
      * @param reader The CSVReader to use for header parsing
      * @throws java.io.IOException If parsing fails
+     * @throws CsvRequiredFieldEmptyException If a field is required, but the
+     *   header or column position for the field is not present in the input
      */
-   void captureHeader(CSVReader reader) throws IOException;
+   void captureHeader(CSVReader reader) throws IOException, CsvRequiredFieldEmptyException;
    
    /**
     * Implementations of this method must return an array of column headers
@@ -110,4 +116,24 @@ public interface MappingStrategy<T> {
      * @return Whether the mapping strategy is driven by annotations
      */
    boolean isAnnotationDriven();
+   
+   /**
+    * Indicate to the mapping strategy that we are beginning to read a new
+    * record.
+    * @since 3.10
+    */
+   void registerBeginningOfRecordForReading();
+   
+   /**
+    * Must be called at the end of input for a line/record to verify that the
+    * line was complete.
+    * The issue here is, as long as a column is present but empty, we can
+    * check whether the field is required and throw an exception if it is not,
+    * but if the data end prematurely, we never have this chance without
+    * indication that no more data are on the way.
+    * 
+    * @throws CsvRequiredFieldEmptyException If a required column is missing
+    * @since 3.10
+    */
+   void registerEndOfRecordForReading() throws CsvRequiredFieldEmptyException;
 }

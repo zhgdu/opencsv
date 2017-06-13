@@ -242,6 +242,7 @@ public class AnnotationTest {
         assertEquals('c', bean.getComplexClass3().c);
         assertEquals("long,long.derived.string3", bean.getComplexClass3().s);
         assertEquals((float) 1.0, ((ComplexDerivedClassForCustomAnnotation) bean.getComplexClass3()).f, 0);
+        assertEquals("inside custom converter", bean.getRequiredWithCustom());
 
         bean = beanList.get(1);
         assertEquals(Arrays.asList("really"), bean.getComplexString());
@@ -618,6 +619,90 @@ public class AnnotationTest {
         }
     }
 
+    @Test
+    public void testRequiredColumnNonexistantHeaderNameMapping() throws FileNotFoundException {
+        HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat =
+                new HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull>();
+        strat.setType(AnnotatedMockBeanFull.class);
+        FileReader fin = new FileReader("src/test/resources/testinputcase84.csv");
+        CSVReader read = new CSVReader(fin, ';');
+        CsvToBean<AnnotatedMockBeanFull> ctb = new CsvToBean<AnnotatedMockBeanFull>();
+        try {
+            ctb.parse(strat, read);
+            fail("RuntimeException with inner exception CsvRequiredFieldEmpty should have been thrown because a required column is completely missing.");
+        }
+        catch(RuntimeException e) {
+            assertTrue(e.getCause() instanceof CsvRequiredFieldEmptyException);
+            CsvRequiredFieldEmptyException csve = (CsvRequiredFieldEmptyException)e.getCause();
+            assertEquals(AnnotatedMockBeanFull.class, csve.getBeanClass());
+            assertEquals(-1, csve.getLineNumber());
+            assertEquals("byteWrappedSetLocale", csve.getDestinationField().getName());
+        }
+    }
+
+    @Test
+    public void testRequiredColumnNonexistantColumnPositionMapping() throws FileNotFoundException {
+        ColumnPositionMappingStrategy<AnnotatedMockBeanFull> strat =
+                new ColumnPositionMappingStrategy<AnnotatedMockBeanFull>();
+        strat.setType(AnnotatedMockBeanFull.class);
+        FileReader fin = new FileReader("src/test/resources/testinputcase85.csv");
+        CSVReader read = new CSVReader(fin, ';');
+        CsvToBean<AnnotatedMockBeanFull> ctb = new CsvToBean<AnnotatedMockBeanFull>();
+        try {
+            ctb.parse(strat, read);
+            fail("RuntimeException with inner exception CsvRequiredFieldEmpty should have been thrown because a required column is completely missing.");
+        }
+        catch(RuntimeException e) {
+            assertTrue(e.getCause() instanceof CsvRequiredFieldEmptyException);
+            CsvRequiredFieldEmptyException csve = (CsvRequiredFieldEmptyException)e.getCause();
+            assertEquals(AnnotatedMockBeanFull.class, csve.getBeanClass());
+            assertEquals(2, csve.getLineNumber());
+            assertNull(csve.getDestinationField());
+        }
+    }
+
+    @Test
+    public void testPrematureEOLUsingHeaderNameMapping() throws FileNotFoundException {
+        HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat =
+                new HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull>();
+        strat.setType(AnnotatedMockBeanFull.class);
+        FileReader fin = new FileReader("src/test/resources/testinputcase86.csv");
+        CSVReader read = new CSVReader(fin, ';');
+        CsvToBean<AnnotatedMockBeanFull> ctb = new CsvToBean<AnnotatedMockBeanFull>();
+        try {
+            ctb.parse(strat, read);
+            fail("RuntimeException with inner exception CsvRequiredFieldEmpty should have been thrown because a required column is completely missing.");
+        }
+        catch(RuntimeException e) {
+            assertTrue(e.getCause() instanceof CsvRequiredFieldEmptyException);
+            CsvRequiredFieldEmptyException csve = (CsvRequiredFieldEmptyException)e.getCause();
+            assertEquals(AnnotatedMockBeanFull.class, csve.getBeanClass());
+            assertEquals(1, csve.getLineNumber());
+            assertNull(csve.getDestinationField());
+        }
+    }
+    
+    @Test
+    public void testCase88() throws FileNotFoundException {
+        HeaderColumnNameMappingStrategy<AnnotatedMockBeanCustom> strat =
+                new HeaderColumnNameMappingStrategy<AnnotatedMockBeanCustom>();
+        strat.setType(AnnotatedMockBeanCustom.class);
+        FileReader fin = new FileReader("src/test/resources/testinputcase88.csv");
+        CSVReader read = new CSVReader(fin, ';');
+        CsvToBean<AnnotatedMockBeanFull> ctb = new CsvToBean<AnnotatedMockBeanFull>();
+        try {
+            ctb.parse((MappingStrategy)strat, read);
+            fail("Exception should have been thrown for missing required value.");
+        }
+        catch(RuntimeException e) {
+            assertTrue(e.getCause() instanceof CsvRequiredFieldEmptyException);
+            CsvRequiredFieldEmptyException csve = (CsvRequiredFieldEmptyException)e.getCause();
+            assertEquals(AnnotatedMockBeanCustom.class, csve.getBeanClass());
+            assertEquals(1, csve.getLineNumber());
+            assertEquals("requiredWithCustom", csve.getDestinationField().getName());
+        }
+    }
+    
     @Test
     public void codeCoverageExceptions() throws NoSuchFieldException {
         Class c = TestCase80.class;

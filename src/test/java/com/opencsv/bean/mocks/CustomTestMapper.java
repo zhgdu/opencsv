@@ -25,8 +25,7 @@ import java.math.BigInteger;
 
 /**
  * A basic custom mapper that maps all primitives and wrapped primitives.
- * Always returns the same values, regardless of the input, unless the
- * destination type is a string.
+ * Always returns the same values, regardless of the input.
  *
  * @param <T> Type of the bean
  * @author Andrew Rucker Jones

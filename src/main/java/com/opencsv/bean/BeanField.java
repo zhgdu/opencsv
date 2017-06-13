@@ -31,6 +31,25 @@ public interface BeanField<T> {
      * @see java.lang.reflect.Field
      */
     Field getField();
+    
+    /**
+     * Answers the query, whether this field is required or not.
+     * 
+     * @return True if the field is required to be set (cannot be null or an
+     * empty string), false otherwise
+     */
+    boolean isRequired();
+    
+    /**
+     * Determines whether or not a field is required.
+     * 
+     * @param required Whether or not the field is required
+     */
+     // This method is necessary for custom converters. If we did not have it,
+     // every custom converter would be required to implement a constructor with
+     // this one boolean parameter, and the instantiation code for the custom
+     // converter would look much uglier.
+    void setRequired(boolean required);
 
     /**
      * Populates the selected field of the bean.
