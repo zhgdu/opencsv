@@ -103,13 +103,11 @@ public class StatefulBeanToCsv<T> {
         csvwriter = new CSVWriter(writer, separator, quotechar, escapechar, lineEnd);
         
         // Write the header
-        if(!headerWritten) {
-            String[] header = mappingStrategy.generateHeader();
-            if(header.length > 0) {
-                csvwriter.writeNext(header);
-            }
-            headerWritten = true;
+        String[] header = mappingStrategy.generateHeader();
+        if(header.length > 0) {
+            csvwriter.writeNext(header);
         }
+        headerWritten = true;
     }
     
     /**
@@ -127,7 +125,9 @@ public class StatefulBeanToCsv<T> {
             CsvRequiredFieldEmptyException {
         if(bean != null) {
             ++lineNumber;
-            beforeFirstWrite(bean);
+            if(!headerWritten) {
+                beforeFirstWrite(bean);
+            }
             List<String> contents = new ArrayList<String>();
             int numColumns = mappingStrategy.findMaxFieldIndex();
             if(mappingStrategy.isAnnotationDriven()) {
