@@ -391,6 +391,7 @@ public class CsvToBeanTest {
                        .withThrowExceptions(false)
                        .withType(AnnotatedMockBeanFull.class)
                        .withVerifyReader(false)
+                       .withMultilineLimit(Integer.MAX_VALUE)
                        .build();
        List<AnnotatedMockBeanFull> result = csvtb.parse();
        

@@ -352,9 +352,11 @@ public class CsvToBeanBuilder<T> {
      * 
      * @param multilineLimit No more than this number of lines is allowed in a
      *   single input record. The default is {@link CSVReader#DEFAULT_MULTILINE_LIMIT}.
+     * @return this
      * @see CSVReader#setMultilineLimit(int)
      */
-    public void withMultilineLimit(int multilineLimit) {
+    public CsvToBeanBuilder withMultilineLimit(int multilineLimit) {
         this.multilineLimit = multilineLimit;
+        return this;
     }
 }

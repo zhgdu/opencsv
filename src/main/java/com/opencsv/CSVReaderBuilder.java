@@ -91,6 +91,15 @@ public class CSVReaderBuilder {
     protected ICSVParser getCsvParser() {
         return icsvParser;
     }
+    
+    /**
+     * Used by unit tests.
+     *
+     * @return The upper limit on lines in multiline records.
+     */
+    protected int getMultilineLimit() {
+        return multilineLimit;
+    }
 
     /**
      * Sets the number of lines to skip before reading.
@@ -184,9 +193,11 @@ public class CSVReaderBuilder {
      * 
      * @param multilineLimit No more than this number of lines is allowed in a
      *   single input record. The default is {@link CSVReader#DEFAULT_MULTILINE_LIMIT}.
+     * @return The CSVReaderBuilder based on this criteria.
      * @see CSVReader#setMultilineLimit(int)
      */
-    public void withMultilineLimit(int multilineLimit) {
+    public CSVReaderBuilder withMultilineLimit(int multilineLimit) {
         this.multilineLimit = multilineLimit;
+        return this;
     }
 }

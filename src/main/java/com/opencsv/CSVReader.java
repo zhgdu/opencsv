@@ -355,6 +355,20 @@ public class CSVReader implements Closeable, Iterable<String[]> {
         return hasNext ? nextLine : null;
     }
     
+    /**
+     * @return The maximum number of lines allowed in a multiline record.
+     */
+    public int getMultilineLimit() {
+        return multilineLimit;
+    }
+    
+    /**
+     * Sets the maximum number of lines allowed in a multiline record.
+     * More than this number in one record results in an IOException.
+     * 
+     * @param multilineLimit No more than this number of lines is allowed in a
+     *   single input record. The default is {@link #DEFAULT_MULTILINE_LIMIT}.
+     */
     public void setMultilineLimit(int multilineLimit) {
         this.multilineLimit = multilineLimit;
     }

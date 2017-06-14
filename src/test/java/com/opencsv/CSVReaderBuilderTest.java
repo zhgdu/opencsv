@@ -27,6 +27,7 @@ public class CSVReaderBuilderTest {
       assertEquals(
             CSVReader.DEFAULT_SKIP_LINES,
               builder.getSkipLines());
+      assertEquals(0, builder.getMultilineLimit());
 
       final CSVReader csvReader = builder.build();
        assertEquals(
@@ -34,6 +35,7 @@ public class CSVReaderBuilderTest {
               csvReader.getSkipLines());
        assertEquals(CSVReader.DEFAULT_KEEP_CR, csvReader.keepCarriageReturns());
        assertEquals(CSVReader.DEFAULT_VERIFY_READER, csvReader.verifyReader());
+       assertEquals(CSVReader.DEFAULT_MULTILINE_LIMIT, csvReader.getMultilineLimit());
    }
 
    @Test(expected = IllegalArgumentException.class)
@@ -101,14 +103,21 @@ public class CSVReaderBuilderTest {
 
     @Test
     public void testWithVerifyReader() {
-        final CSVReader reader = builder.withVerifyReader(false).build();
-        assertFalse(reader.verifyReader());
+        final CSVReader r = builder.withVerifyReader(false).build();
+        assertFalse(r.verifyReader());
     }
 
     @Test
     public void builderWithNullFieldIndicator() {
-        final CSVReader reader = builder.withFieldAsNull(CSVReaderNullFieldIndicator.EMPTY_SEPARATORS).build();
+        final CSVReader r = builder.withFieldAsNull(CSVReaderNullFieldIndicator.EMPTY_SEPARATORS).build();
 
-        assertEquals(CSVReaderNullFieldIndicator.EMPTY_SEPARATORS, reader.getParser().nullFieldIndicator());
+        assertEquals(CSVReaderNullFieldIndicator.EMPTY_SEPARATORS, r.getParser().nullFieldIndicator());
+    }
+
+    @Test
+    public void builderWithMultilineLimit() {
+        final CSVReader r = builder.withMultilineLimit(Integer.MAX_VALUE).build();
+
+        assertEquals(Integer.MAX_VALUE, r.getMultilineLimit());
     }
 }
