@@ -2,9 +2,9 @@
 
 opencsv is an easy-to-use CSV (comma-separated values) parser library for Java.
 It was developed because all the CSV parsers at the time didn't have
-commercial-friendly licenses. It supports Java 6, but is compiled with a recent
-compiler. If you want to use it in a Java 6 project, you will need to compile
-the source yourself. Better yet, upgrade to the most recent Java.
+commercial-friendly licenses. Using the maven compiler plugin it is targeted for Java 7 but
+because of numerous request we have kept the code source compatible with Java 6 so you can recompile it
+if you situation does not allow you to use newer compilers.
 
 ---+Features
 
@@ -23,6 +23,7 @@ All of these things can be done reading and writing, using a manifest of maleabl
    * Read all the entries at once, or use an Iterator-style model
 
 ---+Developer documentation
+
 Here is an overview of how to use opencsv in your project.
 
    * Quick start
@@ -42,10 +43,12 @@ Here is an overview of how to use opencsv in your project.
    * Nuts and bolts
       * Flow of data through opencsv
       * Mapping strategies
+
 Once you have absorbed the overview of how opencsv works, please consult the
 well-maintained Javadocs for further details.
 
 ---++Quick start
+
 This is limited to the easiest, most powerful way of using opencsv to allow you
 to hit the ground running.
 
@@ -186,8 +189,9 @@ whichever parser suits your needs and pass it to the builder or reader you are u
 The original, tried and true parser that does fairly well everything you need to
 do, and does it well. If you don't tell opencsv otherwise, it uses this parser.
 
-TODO: What are the advantages and disadvantages of this parser? Why was RFC4180Parser
-necessary?
+The advantage of the CSVParser is that its highly configurable and has the best chance of
+parsing "non-standard" csv data.  The disadvantage is that while highly configurable it was
+found that there were RFC4180 data that it could not parse.  Thus the RFC4180Parser was created.
 
 ---++++RFC4180Parser
 
@@ -197,11 +201,10 @@ formatted, delimited, and escaped. Since opencsv predates RFC4180 by a few days
 and every effort was made to preserve backwards compatibility, it was necessary
 to write a new parser for full compliance with RFC4180.
 
-TODO: In what ways is CSVParser incompatible with RFC4180? What pitfalls exist
-in not using RFC4180?
-
-TODO: This information about both parsers ought to be included in the Javadoc
-for the two classes in question.
+The main difference between between the CSVParser and the RFC4180Parser is that the
+CSVParser uses an escape character to denote "unprintable" characters while the RFC4180 spec
+takes all characters between the first and last quote as gospel (with the exception of the double quote
+which is escaped by a double quote).
 
 ---+++Reading into an array of strings
 
