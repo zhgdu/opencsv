@@ -56,7 +56,7 @@ public class SR34Test {
     }
 
     @Test
-    public void usingNullAsDelimeterWillFailBecauseYouAreEscapingTheQuote() throws IOException {
+    public void usingNullAsDelimiterWillFailBecauseYouAreEscapingTheQuote() throws IOException {
         BufferedReader bufferedStringReader1 = new BufferedReader(new InputStreamReader(new FileInputStream(TEST_FILE), "UTF-8"));
         CSVReader reader1 = new CSVReader(bufferedStringReader1, ICSVParser.DEFAULT_SEPARATOR, ICSVParser.DEFAULT_QUOTE_CHARACTER, '\0');
 

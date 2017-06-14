@@ -35,10 +35,16 @@ public class CSVReader implements Closeable, Iterable<String[]> {
 
     public static final boolean DEFAULT_KEEP_CR = false;
     public static final boolean DEFAULT_VERIFY_READER = true;
-    /**
-     * The default line to start reading.
-     */
+    
+    /** The default line to start reading. */
     public static final int DEFAULT_SKIP_LINES = 0;
+    
+    /**
+     * The default limit for the number of lines in a multiline record.
+     * Less than one means no limit.
+     */
+    public static final int DEFAULT_MULTILINE_LIMIT = 0;
+    
     public static final int READ_AHEAD_LIMIT = Character.SIZE / Byte.SIZE;
     protected ICSVParser parser;
     protected int skipLines;
@@ -48,6 +54,7 @@ public class CSVReader implements Closeable, Iterable<String[]> {
     protected boolean linesSkiped;
     protected boolean keepCR;
     protected boolean verifyReader;
+    protected int multilineLimit = DEFAULT_MULTILINE_LIMIT;
 
     protected long linesRead = 0;
     protected long recordsRead = 0;
@@ -271,10 +278,15 @@ public class CSVReader implements Closeable, Iterable<String[]> {
     public String[] readNext() throws IOException {
 
         String[] result = null;
+        int linesInThisRecord = 0;
         do {
             String nextLine = getNextLine();
+            linesInThisRecord++;
             if (!hasNext) {
                 return validateResult(result);
+            }
+            if(multilineLimit > 0 && linesInThisRecord > multilineLimit) {
+                throw new IOException("Encountered single record with more lines than the specified upper limit of " + multilineLimit);
             }
             String[] r = parser.parseLineMulti(nextLine);
             if (r.length > 0) {
@@ -341,6 +353,10 @@ public class CSVReader implements Closeable, Iterable<String[]> {
         }
 
         return hasNext ? nextLine : null;
+    }
+    
+    public void setMultilineLimit(int multilineLimit) {
+        this.multilineLimit = multilineLimit;
     }
 
     /**

@@ -96,6 +96,8 @@ public class CsvToBeanBuilder<T> {
    /** @see HeaderColumnNameMappingStrategy#type */
    private Class<? extends T> type = null;
    
+   private Integer multilineLimit = null;
+   
    /** This constructor must never be called, because Reader must be set. */
    private CsvToBeanBuilder() {
        reader = null; // Otherwise the compiler complains that reader can't be final.
@@ -192,6 +194,9 @@ public class CsvToBeanBuilder<T> {
         }
         if(skipLines != null) {
             csvrb.withSkipLines(skipLines);
+        }
+        if(multilineLimit != null) {
+            csvrb.withMultilineLimit(multilineLimit);
         }
         return csvrb.build();
     }
@@ -339,5 +344,17 @@ public class CsvToBeanBuilder<T> {
     public CsvToBeanBuilder withType(Class<? extends T> type) {
         this.type = type;
         return this;
+    }
+    
+    /**
+     * Sets the maximum number of lines allowed in a multiline record.
+     * More than this number in one record results in an IOException.
+     * 
+     * @param multilineLimit No more than this number of lines is allowed in a
+     *   single input record. The default is {@link CSVReader#DEFAULT_MULTILINE_LIMIT}.
+     * @see CSVReader#setMultilineLimit(int)
+     */
+    public void withMultilineLimit(int multilineLimit) {
+        this.multilineLimit = multilineLimit;
     }
 }
