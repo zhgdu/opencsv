@@ -49,4 +49,13 @@ public @interface CsvCustomBindByPosition {
      * should be taken. This column number is zero-based.
      */
     int position();
+
+    /**
+     * Whether or not the annotated field is required to be present in every
+     * data set of the input.
+     *
+     * @return If the field is required to contain information.
+     * @since 3.10
+     */
+    boolean required() default false;
 }

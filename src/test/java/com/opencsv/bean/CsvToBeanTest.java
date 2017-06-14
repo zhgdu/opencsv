@@ -94,6 +94,12 @@ public class CsvToBeanTest {
          public int findMaxFieldIndex() {
              return -1;
          }
+         
+         @Override
+         public void registerBeginningOfRecordForReading() {}
+         
+         @Override
+         public void registerEndOfRecordForReading() {}
       };
    }
 
@@ -138,6 +144,12 @@ public class CsvToBeanTest {
          public int findMaxFieldIndex() {
              return -1;
          }
+         
+         @Override
+         public void registerBeginningOfRecordForReading() {}
+         
+         @Override
+         public void registerEndOfRecordForReading() {}
       };
    }
 

@@ -42,7 +42,7 @@ public class ColumnPositionMappingStrategy<T> extends HeaderColumnNameMappingStr
     public void captureHeader(CSVReader reader) throws IOException {
         //do nothing, first line is not header
     }
-    
+
     /**
      * This method returns an empty array.
      * The column position mapping strategy assumes that there is no header, and
@@ -147,6 +147,7 @@ public class ColumnPositionMappingStrategy<T> extends HeaderColumnNameMappingStr
 
     @Override
     protected void loadFieldMap() throws CsvBadConverterException {
+        boolean required;
         fieldMap = new HashMap<String, BeanField>();
 
         for (Field field : loadFields(getType())) {
@@ -156,19 +157,22 @@ public class ColumnPositionMappingStrategy<T> extends HeaderColumnNameMappingStr
             // Custom converters always have precedence.
             if (field.isAnnotationPresent(CsvCustomBindByPosition.class)) {
                 columnName = field.getName().toUpperCase().trim();
-                Class<? extends AbstractBeanField> converter = field
-                        .getAnnotation(CsvCustomBindByPosition.class)
-                        .converter();
+                CsvCustomBindByPosition annotation = field
+                        .getAnnotation(CsvCustomBindByPosition.class);
+                Class<? extends AbstractBeanField> converter = annotation.converter();
                 BeanField bean = instantiateCustomConverter(converter);
                 bean.setField(field);
+                required = annotation.required();
+                bean.setRequired(required);
                 fieldMap.put(columnName, bean);
             }
 
             // Then check for a normal bind by position.
             else if (field.isAnnotationPresent(CsvBindByPosition.class)) {
-                boolean required = field.getAnnotation(CsvBindByPosition.class).required();
+                CsvBindByPosition annotation = field.getAnnotation(CsvBindByPosition.class);
+                required = annotation.required();
                 columnName = field.getName().toUpperCase().trim();
-                locale = field.getAnnotation(CsvBindByPosition.class).locale();
+                locale = annotation.locale();
                 if (field.isAnnotationPresent(CsvDate.class)) {
                     String formatString = field.getAnnotation(CsvDate.class).value();
                     fieldMap.put(columnName, new BeanFieldDate(field, required, formatString, locale));
@@ -179,9 +183,12 @@ public class ColumnPositionMappingStrategy<T> extends HeaderColumnNameMappingStr
 
             // What's left must be the deprecated CsvBind
             else {
-                boolean required = field.getAnnotation(CsvBind.class).required();
+                required = field.getAnnotation(CsvBind.class).required();
                 columnName = field.getName().toUpperCase().trim();
                 fieldMap.put(columnName, new BeanFieldPrimitiveTypes(field, required, null));
+            }
+            if(required) {
+                requiredFields.add(field);
             }
         }
     }

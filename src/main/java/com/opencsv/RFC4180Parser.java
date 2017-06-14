@@ -10,23 +10,21 @@ import java.util.regex.Pattern;
 
 /**
  * This Parser is meant to parse according to the RFC4180 specification.
- * <p>
- * Since it shares the same interface with the CSVParser there are methods here that will do nothing.
+ * <p>Since it shares the same interface with the CSVParser there are methods here that will do nothing.
  * For example the RFC4180 specification does not have an concept of an escape character so the getEscape method
- * will return char 0.  The methods that are not supported are noted in the JavaDocs.
- * <p>
- * Another departure from the CSVParser is that there is only two constructors and only one is available publicly.
+ * will return char 0.  The methods that are not supported are noted in the Javadocs.</p>
+ * <p>Another departure from the CSVParser is that there is only two constructors and only one is available publicly.
  * The intent is that if you want to create anything other than a default RFC4180Parser you should use the
- * CSVParserBuilder.  This way the code will not become cluttered with constructors as the CSVParser did.
- * <p>
- * Examples:
- * <p>
+ * CSVParserBuilder.  This way the code will not become cluttered with constructors as the CSVParser did.</p>
+ * <p>Examples:</p>
+ * {@code
  * ICSVParser parser = new RFC4180Parser();
- * <p>
- * or
- * <p>
+ * }
+ * <p>or</p>
+ * {@code
  * CSVParserBuilder builder = new CSVParserBuilder()
  * ICSVParser parser = builder.withParserType(ParserType.RFC4180Parser).build()
+ * }
  *
  * @author Scott Conway
  * @since 3.9

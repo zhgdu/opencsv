@@ -17,6 +17,7 @@ package com.opencsv.bean;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvBeanIntrospectionException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import java.beans.IntrospectionException;
 import java.io.IOException;
 import java.io.StringReader;
@@ -92,6 +93,10 @@ public final class MappingUtils {
                 }
                 catch(IOException e) {
                     // Can't happen. It's a StringReader with a defined string.
+                }
+                catch(CsvRequiredFieldEmptyException e) {
+                    // Can't happen. Per definition we have all fields
+                    // represented in the header.
                 }
                 catch(IntrospectionException e) {
                     CsvBeanIntrospectionException csve = new CsvBeanIntrospectionException("");

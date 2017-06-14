@@ -198,8 +198,8 @@ public class CsvToBeanBuilder<T> {
     
     /**
      * @see CsvToBean#setMappingStrategy(com.opencsv.bean.MappingStrategy)
-     * @param mappingStrategy Silence JavaDoc warnings
-     * @return Silence JavaDoc warnings
+     * @param mappingStrategy Silence Javadoc warnings
+     * @return Silence Javadoc warnings
      */
     public CsvToBeanBuilder withMappingStrategy(MappingStrategy<T> mappingStrategy) {
         this.mappingStrategy = mappingStrategy;
@@ -208,8 +208,8 @@ public class CsvToBeanBuilder<T> {
 
     /**
      * @see CsvToBean#setFilter(com.opencsv.bean.CsvToBeanFilter)
-     * @param filter Silence JavaDoc warnings
-     * @return Silence JavaDoc warnings
+     * @param filter Silence Javadoc warnings
+     * @return Silence Javadoc warnings
      */
     public CsvToBeanBuilder withFilter(CsvToBeanFilter filter) {
         this.filter = filter;
@@ -218,8 +218,8 @@ public class CsvToBeanBuilder<T> {
 
     /**
      * @see CsvToBean#setThrowExceptions(boolean)
-     * @param throwExceptions Silence JavaDoc warnings
-     * @return Silence JavaDoc warnings
+     * @param throwExceptions Silence Javadoc warnings
+     * @return Silence Javadoc warnings
      */
     public CsvToBeanBuilder withThrowExceptions(boolean throwExceptions) {
         this.throwExceptions = throwExceptions;
@@ -228,8 +228,8 @@ public class CsvToBeanBuilder<T> {
     
     /**
      * @see CSVParser#CSVParser(char, char, char, boolean, boolean, boolean, CSVReaderNullFieldIndicator)
-     * @param indicator Silence JavaDoc warnings
-     * @return Silence JavaDoc warnings
+     * @param indicator Silence Javadoc warnings
+     * @return Silence Javadoc warnings
      */
     public CsvToBeanBuilder withFieldAsNull(CSVReaderNullFieldIndicator indicator) {
         this.nullFieldIndicator = indicator;
@@ -238,8 +238,8 @@ public class CsvToBeanBuilder<T> {
     
     /**
      * @see CSVReader#CSVReader(java.io.Reader, char, char, char, int, boolean, boolean, boolean)
-     * @param keepCR Silence JavaDoc warnings
-     * @return Silence JavaDoc warnings
+     * @param keepCR Silence Javadoc warnings
+     * @return Silence Javadoc warnings
      */
     public CsvToBeanBuilder withKeepCarriageReturn(boolean keepCR) {
         this.keepCR = keepCR;
@@ -248,8 +248,8 @@ public class CsvToBeanBuilder<T> {
     
     /**
      * @see CSVReader#CSVReader(Reader, int, ICSVParser, boolean, boolean)
-     * @param verifyReader Silence JavaDoc warnings
-     * @return Silence JavaDoc warnings
+     * @param verifyReader Silence Javadoc warnings
+     * @return Silence Javadoc warnings
      */
     public CsvToBeanBuilder withVerifyReader(boolean verifyReader) {
         this.verifyReader = verifyReader;
@@ -258,8 +258,8 @@ public class CsvToBeanBuilder<T> {
     
     /**
      * @see CSVReader#CSVReader(Reader, int, ICSVParser, boolean, boolean)
-     * @param skipLines Silence JavaDoc warnings
-     * @return Silence JavaDoc warnings
+     * @param skipLines Silence Javadoc warnings
+     * @return Silence Javadoc warnings
      */
     public CsvToBeanBuilder withSkipLines(
          final int skipLines) {
@@ -269,8 +269,8 @@ public class CsvToBeanBuilder<T> {
     
     /**
      * @see CSVParser#CSVParser(char)
-     * @param separator Silence JavaDoc warnings
-     * @return Silence JavaDoc warnings
+     * @param separator Silence Javadoc warnings
+     * @return Silence Javadoc warnings
      */
     public CsvToBeanBuilder withSeparator(char separator) {
         this.separator = separator;
@@ -279,8 +279,8 @@ public class CsvToBeanBuilder<T> {
     
     /**
      * @see CSVParser#CSVParser(char, char)
-     * @param quoteChar Silence JavaDoc warnings
-     * @return Silence JavaDoc warnings
+     * @param quoteChar Silence Javadoc warnings
+     * @return Silence Javadoc warnings
      */
     public CsvToBeanBuilder withQuoteChar(char quoteChar) {
         this.quoteChar = quoteChar;
@@ -289,8 +289,8 @@ public class CsvToBeanBuilder<T> {
     
     /**
      * @see CSVParser#CSVParser(char, char, char)
-     * @param escapeChar Silence JavaDoc warnings
-     * @return Silence JavaDoc warnings
+     * @param escapeChar Silence Javadoc warnings
+     * @return Silence Javadoc warnings
      */
     public CsvToBeanBuilder withEscapeChar(char escapeChar) {
         this.escapeChar = escapeChar;
@@ -299,8 +299,8 @@ public class CsvToBeanBuilder<T> {
     
     /**
      * @see CSVParser#CSVParser(char, char, char, boolean)
-     * @param strictQuotes Silence JavaDoc warnings
-     * @return Silence JavaDoc warnings
+     * @param strictQuotes Silence Javadoc warnings
+     * @return Silence Javadoc warnings
      */
     public CsvToBeanBuilder withStrictQuotes(boolean strictQuotes) {
         this.strictQuotes = strictQuotes;
@@ -309,8 +309,8 @@ public class CsvToBeanBuilder<T> {
     
     /**
      * @see CSVParser#CSVParser(char, char, char, boolean, boolean)
-     * @param ignoreLeadingWhiteSpace Silence JavaDoc warnings
-     * @return Silence JavaDoc warnings
+     * @param ignoreLeadingWhiteSpace Silence Javadoc warnings
+     * @return Silence Javadoc warnings
      */
     public CsvToBeanBuilder withIgnoreLeadingWhiteSpace(boolean ignoreLeadingWhiteSpace) {
         this.ignoreLeadingWhiteSpace = ignoreLeadingWhiteSpace;
@@ -319,8 +319,8 @@ public class CsvToBeanBuilder<T> {
     
     /**
      * @see CSVParser#CSVParser(char, char, char, boolean, boolean, boolean)
-     * @param ignoreQuotations Silence JavaDoc warnings
-     * @return Silence JavaDoc warnings
+     * @param ignoreQuotations Silence Javadoc warnings
+     * @return Silence Javadoc warnings
      */
     public CsvToBeanBuilder withIgnoreQuotations(boolean ignoreQuotations) {
         this.ignoreQuotations = ignoreQuotations;

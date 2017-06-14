@@ -50,4 +50,13 @@ public @interface CsvCustomBindByName {
      * should be taken.
      */
     String column() default "";
+
+    /**
+     * Whether or not the annotated field is required to be present in every
+     * data set of the input.
+     *
+     * @return If the field is required to contain information.
+     * @since 3.10
+     */
+    boolean required() default false;
 }

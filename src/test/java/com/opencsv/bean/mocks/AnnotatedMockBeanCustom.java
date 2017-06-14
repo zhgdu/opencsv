@@ -446,6 +446,16 @@ public class AnnotatedMockBeanCustom {
     @CsvCustomBindByName(column = "complex3", converter = ConverterComplexClassForCustomAnnotation.class)
     @CsvCustomBindByPosition(position = 50, converter = ConverterComplexClassForCustomAnnotation.class)
     private ComplexClassForCustomAnnotation complexClass3;
+    
+    /**
+     * <p>Used for the following test cases:<ul>
+     * <li>87</li>
+     * <li>88</li>
+     * </ul></p>
+     */
+    @CsvCustomBindByName(column = "requiredWithCustom", converter = CustomTestMapper.class, required = true)
+    @CsvCustomBindByPosition(position = 51, converter = CustomTestMapper.class, required = true)
+    private String requiredWithCustom;
 
     public Boolean getBoolWrapped() {
         return boolWrapped;
@@ -766,6 +776,14 @@ public class AnnotatedMockBeanCustom {
         this.complexClass3.i = -1;
         this.complexClass3.c = 'z';
         this.complexClass3.s = "Inserted in setter method";
+    }
+
+    public String getRequiredWithCustom() {
+        return requiredWithCustom;
+    }
+
+    public void setRequiredWithCustom(String requiredWithCustom) {
+        this.requiredWithCustom = requiredWithCustom;
     }
 
 }

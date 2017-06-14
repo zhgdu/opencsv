@@ -17,6 +17,7 @@ package com.opencsv.bean;
  */
 
 import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
@@ -87,9 +88,11 @@ public class IterableCSVToBean<T> extends AbstractCSVToBean implements Iterable<
      * @throws IOException Thrown when there is an unexpected error reading the file.
      * @throws IntrospectionException Thrown if there is a failure in introspection.
      * @throws InvocationTargetException Thrown if there is a failure in introspection.
+     * @throws CsvRequiredFieldEmptyException If a field is required, but the
+     *   header or column position for the field is not present in the input
      */
     public T nextLine() throws IllegalAccessException, InstantiationException,
-            IOException, IntrospectionException, InvocationTargetException {
+            IOException, IntrospectionException, InvocationTargetException, CsvRequiredFieldEmptyException {
         if (!hasHeader) {
             strategy.captureHeader(csvReader);
             hasHeader = true;
@@ -148,6 +151,8 @@ public class IterableCSVToBean<T> extends AbstractCSVToBean implements Iterable<
                     e.printStackTrace();
                 } catch (InvocationTargetException e) {
                     e.printStackTrace();
+                } catch(CsvRequiredFieldEmptyException e) {
+                    e.printStackTrace(); // Just following precedent . . .
                 }
 
                 return nextBean != null;

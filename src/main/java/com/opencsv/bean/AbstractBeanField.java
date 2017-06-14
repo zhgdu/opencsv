@@ -23,6 +23,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import org.apache.commons.beanutils.PropertyUtilsBean;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 
 /**
@@ -44,20 +45,28 @@ abstract public class AbstractBeanField<T> implements BeanField<T> {
      * time it needs to be used.
      */
     private PropertyUtilsBean propUtils;
+    
+    /** Whether or not this field is required. */
+    protected boolean required;
+    
+    /** Message text for missing required fields. */
+    private static final String REQUIRED_FIELD_EMPTY_MESSAGE = "Field '%s' is mandatory but no value was provided.";
 
     /**
      * Default nullary constructor, so derived classes aren't forced to create
-     * a constructor with one Field parameter.
+     * a constructor identical to the one below.
      */
     public AbstractBeanField() {
-
+        required = false;
     }
 
     /**
      * @param field A {@link java.lang.reflect.Field} object.
+     * @param required Whether or not this field is required in input
      */
-    public AbstractBeanField(Field field) {
+    public AbstractBeanField(Field field, boolean required) {
         this.field = field;
+        this.required = required;
     }
 
     @Override
@@ -69,18 +78,38 @@ abstract public class AbstractBeanField<T> implements BeanField<T> {
     public Field getField() {
         return this.field;
     }
+    
+    @Override
+    public boolean isRequired() {
+        return required;
+    }
+    
+    @Override
+    public void setRequired(boolean required) {
+        this.required = required;
+    }
 
     @Override
     public final <T> void setFieldValue(T bean, String value)
             throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException,
             CsvConstraintViolationException {
-        Object o;
+        if (required && StringUtils.isBlank(value)) {
+            throw new CsvRequiredFieldEmptyException(
+                    bean.getClass(), field,
+                    String.format(REQUIRED_FIELD_EMPTY_MESSAGE, field.getName()));
+        }
+        
         try {
-            o = convert(value);
-        } catch (CsvRequiredFieldEmptyException e) {
+            assignValueToField(bean, convert(value));
+        }
+        catch(CsvRequiredFieldEmptyException e) {
+            // This catch block is historically necessary for custom converters
+            // that implement their own empty field checking, such as
+            // ConvertGermanToBooleanRequired. As soon as we can remove
+            // throws CsvRequiredFieldEmptyException
+            // from the method signature of convert(), this block can be deleted.
             throw new CsvRequiredFieldEmptyException(bean.getClass(), field, e.getLocalizedMessage());
         }
-        assignValueToField(bean, o);
     }
 
     /**
@@ -167,7 +196,7 @@ abstract public class AbstractBeanField<T> implements BeanField<T> {
      * @throws CsvDataTypeMismatchException    If the input string cannot be converted into
      *                                         the proper type
      * @throws CsvRequiredFieldEmptyException  If the field is mandatory but the input is
-     *                                         empty
+     *                                         empty. Empty means empty or only whitespace.
      * @throws CsvConstraintViolationException When the internal structure of
      *                                         data would be violated by the data in the CSV file
      */
@@ -184,7 +213,7 @@ abstract public class AbstractBeanField<T> implements BeanField<T> {
      * validation consists of verifying that both {@code bean} and {@link #field}
      * are not null before calling {@link #convertToWrite(java.lang.Object)}.
      */
-    // The rest of the JavaDoc is automatically inherited
+    // The rest of the Javadoc is automatically inherited
     @Override
     public final String write(T bean) throws CsvDataTypeMismatchException,
             CsvRequiredFieldEmptyException {
@@ -193,21 +222,9 @@ abstract public class AbstractBeanField<T> implements BeanField<T> {
             if(propUtils == null) {
                 propUtils = new PropertyUtilsBean();
             }
+            Object value;
             try {
-                Object value = propUtils.getSimpleProperty(bean, field.getName());
-                result = convertToWrite(value);
-            }
-            catch(CsvDataTypeMismatchException e) {
-                CsvDataTypeMismatchException csve = new CsvDataTypeMismatchException(
-                        bean, field.getType(), e.getMessage());
-                csve.initCause(e.getCause());
-                throw csve;
-            }
-            catch(CsvRequiredFieldEmptyException e) {
-                CsvRequiredFieldEmptyException csve = new CsvRequiredFieldEmptyException(
-                        bean.getClass(), field, e.getMessage());
-                csve.initCause(csve.getCause());
-                throw csve;
+                value = propUtils.getSimpleProperty(bean, field.getName());
             }
             // Replace with multi-catch once we support Java 7
             catch(IllegalAccessException e) {
@@ -223,6 +240,31 @@ abstract public class AbstractBeanField<T> implements BeanField<T> {
             catch(NoSuchMethodException e) {
                 CsvBeanIntrospectionException csve = new CsvBeanIntrospectionException(bean, field);
                 csve.initCause(e);
+                throw csve;
+            }
+            
+            if(value == null && required) {
+                throw new CsvRequiredFieldEmptyException(
+                        bean.getClass(), field,
+                        String.format(REQUIRED_FIELD_EMPTY_MESSAGE, field.getName()));
+            }
+            
+            try {
+                result = convertToWrite(value);
+            }
+            catch(CsvDataTypeMismatchException e) {
+                CsvDataTypeMismatchException csve = new CsvDataTypeMismatchException(
+                        bean, field.getType(), e.getMessage());
+                csve.initCause(e.getCause());
+                throw csve;
+            }
+            // This catch clause can be removed after the method signature for
+            // convertToWrite() no longer includes
+            // throws CsvRequiredFieldEmptyException
+            catch(CsvRequiredFieldEmptyException e) {
+                CsvRequiredFieldEmptyException csve = new CsvRequiredFieldEmptyException(
+                        bean.getClass(), field, e.getMessage());
+                csve.initCause(e.getCause());
                 throw csve;
             }
         }

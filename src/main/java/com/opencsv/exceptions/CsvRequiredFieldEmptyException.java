@@ -58,6 +58,20 @@ public class CsvRequiredFieldEmptyException extends CsvException {
         this.beanClass = beanClass;
         this.destinationField = destinationField;
     }
+    
+    /**
+     * Constructor for setting the intended class of the target bean and a
+     * human-readable error message.
+     * These may not be known in every context.
+     *
+     * @param beanClass Class of the destination bean
+     * @param message Human-readable error text
+     */
+    public CsvRequiredFieldEmptyException(Class beanClass, String message) {
+        super(message);
+        this.beanClass = beanClass;
+        this.destinationField = null;
+    }
 
     /**
      * Constructor for setting the intended class and field of the target bean

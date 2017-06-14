@@ -18,6 +18,7 @@ package com.opencsv.bean;
 
 import com.opencsv.CSVReader;
 import com.opencsv.bean.mocks.MockBean;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -58,7 +59,7 @@ public class HeaderColumnNameMappingStrategyTest {
 
    @Test
    public void getColumnIndexAfterParse() {
-      List<MockBean> list = createTestParseResult(TEST_STRING);
+      createTestParseResult(TEST_STRING);
       assertEquals(0, strat.getColumnIndex("name").intValue());
       assertEquals(1, strat.getColumnIndex("orderNumber").intValue());
       assertEquals(2, strat.getColumnIndex("num").intValue());
@@ -99,8 +100,8 @@ public class HeaderColumnNameMappingStrategyTest {
    }
 
    @Test
-   public void verifyColumnNames() throws IOException, IntrospectionException {
-      HeaderColumnNameMappingStrategy<MockBean> strat = new HeaderColumnNameMappingStrategy<MockBean>();
+   public void verifyColumnNames() throws IOException, IntrospectionException, CsvRequiredFieldEmptyException {
+      strat = new HeaderColumnNameMappingStrategy<MockBean>();
       strat.setType(MockBean.class);
       assertNull(strat.getColumnName(0));
       assertNull(strat.findDescriptor(0));
@@ -117,7 +118,7 @@ public class HeaderColumnNameMappingStrategyTest {
    
    @Test
    public void throwsIllegalStateExceptionIfTypeNotSet() throws IOException {
-      HeaderColumnNameMappingStrategy<MockBean> strat = new HeaderColumnNameMappingStrategy<MockBean>();
+      strat = new HeaderColumnNameMappingStrategy<MockBean>();
       StringReader reader = new StringReader(TEST_STRING);
       CSVReader csvReader = new CSVReader(reader);
       CsvToBean csvtb = new CsvToBean();

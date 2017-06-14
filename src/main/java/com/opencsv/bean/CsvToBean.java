@@ -207,12 +207,14 @@ public class CsvToBean<T> extends AbstractCSVToBean {
       long lineProcessed = 0;
       String[] line = null;
 
+      // Get the header information
       try {
          mappingStrategy.captureHeader(csvReader);
       } catch (Exception e) {
          throw new RuntimeException("Error capturing CSV header!", e);
       }
-
+      
+      // Parse through each line of the file
       try {
          List<T> list = new ArrayList<T>();
          while (null != (line = csvReader.readNext())) {
@@ -269,6 +271,7 @@ public class CsvToBean<T> extends AbstractCSVToBean {
            InstantiationException, IntrospectionException,
            CsvBadConverterException, CsvDataTypeMismatchException,
            CsvRequiredFieldEmptyException, CsvConstraintViolationException {
+      mapper.registerBeginningOfRecordForReading();
       T bean = mapper.createBean();
       for (int col = 0; col < line.length; col++) {
          if (mapper.isAnnotationDriven()) {
@@ -277,6 +280,7 @@ public class CsvToBean<T> extends AbstractCSVToBean {
             processProperty(mapper, line, bean, col);
          }
       }
+      mapper.registerEndOfRecordForReading();
       return bean;
    }
 

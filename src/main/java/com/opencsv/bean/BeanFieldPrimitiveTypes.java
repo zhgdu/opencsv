@@ -16,7 +16,6 @@
 package com.opencsv.bean;
 
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
-import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import org.apache.commons.beanutils.ConversionException;
 import org.apache.commons.lang3.StringUtils;
 
@@ -35,7 +34,6 @@ import org.apache.commons.beanutils.locale.LocaleConvertUtilsBean;
  */
 public class BeanFieldPrimitiveTypes<T> extends AbstractBeanField<T> {
 
-    private final boolean required;
     private final String locale;
     
     /**
@@ -46,28 +44,13 @@ public class BeanFieldPrimitiveTypes<T> extends AbstractBeanField<T> {
      *                 converting locale-specific data types
      */
     public BeanFieldPrimitiveTypes(Field field, boolean required, String locale) {
-        super(field);
-        this.required = required;
+        super(field, required);
         this.locale = locale;
-    }
-
-    /**
-     * @return True if the field is required to be set (cannot be null or an
-     * empty string), false otherwise
-     */
-    public boolean isRequired() {
-        return this.required;
     }
 
     @Override
     protected Object convert(String value)
-            throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
-        if (required && StringUtils.isBlank(value)) {
-            throw new CsvRequiredFieldEmptyException(String.format(
-                    "Field '%s' is mandatory but no value was provided.",
-                    field.getName()));
-        }
-
+            throws CsvDataTypeMismatchException {
         Object o = null;
 
         if (StringUtils.isNotBlank(value)) {
@@ -103,38 +86,29 @@ public class BeanFieldPrimitiveTypes<T> extends AbstractBeanField<T> {
      * @throws CsvDataTypeMismatchException If there is an error converting
      *   value to a string
      */
-    // The rest of the JavaDoc is automatically inherited from the base class.
+    // The rest of the Javadoc is automatically inherited from the base class.
     @Override
     protected String convertToWrite(Object value)
-            throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
-        // Validation
-        if(value == null) {
-            if(required) {
-                throw new CsvRequiredFieldEmptyException();
+            throws CsvDataTypeMismatchException {
+        String result = null;
+        if(value != null) {
+            try {
+                if(StringUtils.isEmpty(locale)) {
+                    ConvertUtilsBean converter = new ConvertUtilsBean();
+                    result = converter.convert(value);
+                }
+                else {
+                    LocaleConvertUtilsBean converter = new LocaleConvertUtilsBean();
+                    converter.setDefaultLocale(new Locale(locale));
+                    result = converter.convert(value);
+                }
             }
-            else {
-                return null;
+            catch(ConversionException e) {
+                CsvDataTypeMismatchException csve = new CsvDataTypeMismatchException(
+                        "The field must be primitive, boxed primitive, BigDecimal, BigInteger or String types only.");
+                csve.initCause(e);
+                throw csve;
             }
-        }
-        
-        // Conversion
-        String result;
-        try {
-            if(StringUtils.isEmpty(locale)) {
-                ConvertUtilsBean converter = new ConvertUtilsBean();
-                result = converter.convert(value);
-            }
-            else {
-                LocaleConvertUtilsBean converter = new LocaleConvertUtilsBean();
-                converter.setDefaultLocale(new Locale(locale));
-                result = converter.convert(value);
-            }
-        }
-        catch(ConversionException e) {
-            CsvDataTypeMismatchException csve = new CsvDataTypeMismatchException(
-                    "The field must be primitive, boxed primitive, BigDecimal, BigInteger or String types only.");
-            csve.initCause(e);
-            throw csve;
         }
         return result;
     }
