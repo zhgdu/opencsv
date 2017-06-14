@@ -272,7 +272,7 @@ public class CSVReader implements Closeable, Iterable<String[]> {
      * Reads the next line from the buffer and converts to a string array.
      *
      * @return A string array with each comma-separated element as a separate
-     * entry.
+     * entry, or null if there is no more input.
      * @throws IOException If bad things happen during the read
      */
     public String[] readNext() throws IOException {
@@ -329,7 +329,8 @@ public class CSVReader implements Closeable, Iterable<String[]> {
     /**
      * Reads the next line from the file.
      *
-     * @return The next line from the file without trailing newline
+     * @return The next line from the file without trailing newline, or null if
+     *   there is no more input.
      * @throws IOException If bad things happen during the read
      */
     protected String getNextLine() throws IOException {
