@@ -3,7 +3,7 @@
 opencsv is an easy-to-use CSV (comma-separated values) parser library for Java.
 It was developed because all the CSV parsers at the time didn't have
 commercial-friendly licenses. Using the maven compiler plugin it is targeted for Java 7 but
-because of numerous request we have kept the code source compatible with Java 6 so you can recompile it
+due to of numerous requests we have kept the code source compatible with Java 6 so you can recompile it
 if you situation does not allow you to use newer compilers.
 
 ---+Features
@@ -189,8 +189,8 @@ whichever parser suits your needs and pass it to the builder or reader you are u
 The original, tried and true parser that does fairly well everything you need to
 do, and does it well. If you don't tell opencsv otherwise, it uses this parser.
 
-The advantage of the CSVParser is that its highly configurable and has the best chance of
-parsing "non-standard" csv data.  The disadvantage is that while highly configurable it was
+The advantage of the CSVParser is that it's highly configurable and has the best chance of
+parsing "non-standard" CSV data.  The disadvantage is that while highly configurable it was
 found that there were RFC4180 data that it could not parse.  Thus the RFC4180Parser was created.
 
 ---++++RFC4180Parser
@@ -552,7 +552,7 @@ strategy yourself. What a bummer.
 
 ---+++From a database table
 
-Here's a niffty little trick for those of you out there who often work directly
+Here's a nifty little trick for those of you out there who often work directly
 with databases and want to write the results of a query directly to a CSV file.
 Sean Sullivan added a neat feature to CSVWriter so you can pass writeAll() a
 ResultSet from an SQL query.
