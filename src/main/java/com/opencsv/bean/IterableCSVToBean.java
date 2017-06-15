@@ -92,13 +92,15 @@ public class IterableCSVToBean<T> extends AbstractCSVToBean implements Iterable<
      *   header or column position for the field is not present in the input
      */
     public T nextLine() throws IllegalAccessException, InstantiationException,
-            IOException, IntrospectionException, InvocationTargetException, CsvRequiredFieldEmptyException {
+            IOException, IntrospectionException, InvocationTargetException,
+            CsvRequiredFieldEmptyException {
         if (!hasHeader) {
             strategy.captureHeader(csvReader);
             hasHeader = true;
         }
         T bean = null;
         String[] line;
+        strategy.registerBeginningOfRecordForReading();
         do {
             line = csvReader.readNext();
         } while (line != null && (filter != null && !filter.allowLine(line)));
@@ -113,11 +115,13 @@ public class IterableCSVToBean<T> extends AbstractCSVToBean implements Iterable<
                 }
             }
         }
+        strategy.registerEndOfRecordForReading();
         return bean;
     }
 
     @Override
-    protected PropertyEditor getPropertyEditor(PropertyDescriptor desc) throws InstantiationException, IllegalAccessException {
+    protected PropertyEditor getPropertyEditor(PropertyDescriptor desc)
+            throws InstantiationException, IllegalAccessException {
         Class<?> cls = desc.getPropertyEditorClass();
         if (null != cls) {
             return (PropertyEditor) cls.newInstance();
