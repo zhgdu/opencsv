@@ -50,6 +50,7 @@ public class CSVReaderBuilder {
     private boolean keepCR;
     private boolean verifyReader = CSVReader.DEFAULT_VERIFY_READER;
     private CSVReaderNullFieldIndicator nullFieldIndicator = CSVReaderNullFieldIndicator.NEITHER;
+    private int multilineLimit = CSVReader.DEFAULT_MULTILINE_LIMIT;
 
    /**
     * Sets the reader to an underlying CSV source.
@@ -90,6 +91,15 @@ public class CSVReaderBuilder {
     protected ICSVParser getCsvParser() {
         return icsvParser;
     }
+    
+    /**
+     * Used by unit tests.
+     *
+     * @return The upper limit on lines in multiline records.
+     */
+    protected int getMultilineLimit() {
+        return multilineLimit;
+    }
 
     /**
      * Sets the number of lines to skip before reading.
@@ -124,7 +134,9 @@ public class CSVReaderBuilder {
     public CSVReader build() {
         final ICSVParser parser =
                 icsvParser != null ? icsvParser : parserBuilder.withFieldAsNull(nullFieldIndicator).build();
-       return new CSVReader(reader, skipLines, parser, keepCR, verifyReader);
+        CSVReader tempReader = new CSVReader(reader, skipLines, parser, keepCR, verifyReader);
+        tempReader.setMultilineLimit(multilineLimit);
+        return tempReader;
    }
 
     /**
@@ -172,6 +184,20 @@ public class CSVReaderBuilder {
      */
     public CSVReaderBuilder withFieldAsNull(CSVReaderNullFieldIndicator indicator) {
         this.nullFieldIndicator = indicator;
+        return this;
+    }
+
+    /**
+     * Sets the maximum number of lines allowed in a multiline record.
+     * More than this number in one record results in an IOException.
+     * 
+     * @param multilineLimit No more than this number of lines is allowed in a
+     *   single input record. The default is {@link CSVReader#DEFAULT_MULTILINE_LIMIT}.
+     * @return The CSVReaderBuilder based on this criteria.
+     * @see CSVReader#setMultilineLimit(int)
+     */
+    public CSVReaderBuilder withMultilineLimit(int multilineLimit) {
+        this.multilineLimit = multilineLimit;
         return this;
     }
 }

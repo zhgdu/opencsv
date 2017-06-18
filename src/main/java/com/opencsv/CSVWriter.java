@@ -208,16 +208,18 @@ public class CSVWriter implements Closeable, Flushable {
     * Writes the column names.
     *
     * @param rs ResultSet containing column names.
+    * @param applyQuotesToAll Whether all header names should be quoted.
     * @throws SQLException Thrown by {@link com.opencsv.ResultSetHelper#getColumnNames(java.sql.ResultSet)}
     */
-   protected void writeColumnNames(ResultSet rs) throws SQLException {
-      writeNext(resultService().getColumnNames(rs));
+   protected void writeColumnNames(ResultSet rs, boolean applyQuotesToAll) throws SQLException {
+      writeNext(resultService().getColumnNames(rs), applyQuotesToAll);
    }
 
    /**
     * Writes the entire ResultSet to a CSV file.
     *
-    * The caller is responsible for closing the ResultSet.
+    * The caller is responsible for closing the ResultSet. Values are not trimmed.
+    * Quotes are applied to all values in the output.
     *
     * @param rs                 The result set to write
     * @param includeColumnNames True if you want column names in the output, false otherwise
@@ -227,13 +229,14 @@ public class CSVWriter implements Closeable, Flushable {
     * @return Number of lines written.
     */
    public int writeAll(ResultSet rs, boolean includeColumnNames) throws SQLException, IOException {
-      return writeAll(rs, includeColumnNames, false);
+      return writeAll(rs, includeColumnNames, false, true);
    }
 
    /**
     * Writes the entire ResultSet to a CSV file.
     *
-    * The caller is responsible for closing the ResultSet.
+    * The caller is responsible for closing the ResultSet. Quotes are applied to
+    * all values in the output.
     *
     * @param rs The Result set to write.
     * @param includeColumnNames Include the column names in the output.
@@ -245,15 +248,34 @@ public class CSVWriter implements Closeable, Flushable {
     * @return Number of lines written - including header.
     */
    public int writeAll(ResultSet rs, boolean includeColumnNames, boolean trim) throws SQLException, IOException {
+       return writeAll(rs, includeColumnNames, trim, true);
+   }
+   
+   /**
+    * Writes the entire ResultSet to a CSV file.
+    *
+    * The caller is responsible for closing the ResultSet.
+    *
+    * @param rs The Result set to write.
+    * @param includeColumnNames Include the column names in the output.
+    * @param trim Remove spaces from the data before writing.
+    * @param applyQuotesToAll Whether all values should be quoted.
+    *
+    * @throws java.io.IOException   Thrown by ResultSetHelper.getColumnValues()
+    * @throws java.sql.SQLException Thrown by ResultSetHelper.getColumnValues()
+    *
+    * @return Number of lines written - including header.
+    */
+   public int writeAll(ResultSet rs, boolean includeColumnNames, boolean trim, boolean applyQuotesToAll) throws SQLException, IOException {
       int linesWritten = 0;
 
       if (includeColumnNames) {
-         writeColumnNames(rs);
+         writeColumnNames(rs, applyQuotesToAll);
          linesWritten++;
       }
 
       while (rs.next()) {
-         writeNext(resultService().getColumnValues(rs, trim));
+         writeNext(resultService().getColumnValues(rs, trim), applyQuotesToAll);
          linesWritten++;
       }
 

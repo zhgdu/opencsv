@@ -66,6 +66,7 @@ public class CSVParser implements ICSVParser {
     private final boolean ignoreQuotations;
     private final CSVReaderNullFieldIndicator nullFieldIndicator;
     private String pending;
+    private int tokensOnLastCompleteLine = -1;
     private boolean inField = false;
 
     /**
@@ -305,58 +306,58 @@ public class CSVParser implements ICSVParser {
             return null;
         }
 
-        List<String> tokensOnThisLine = new ArrayList<String>();
-        StringBuilder sb = new StringBuilder(nextLine.length() + READ_BUFFER_SIZE);
+        final List<String> tokensOnThisLine = tokensOnLastCompleteLine <= 0 ? new ArrayList<String>() : new ArrayList<String>(tokensOnLastCompleteLine);
+        final StringFragmentCopier sfc = new StringFragmentCopier(nextLine);
         boolean inQuotes = false;
         boolean fromQuotedField = false;
         if (pending != null) {
-            sb.append(pending);
+            sfc.append(pending);
             pending = null;
             inQuotes = !this.ignoreQuotations;
         }
-        for (int i = 0; i < nextLine.length(); i++) {
-
-            char c = nextLine.charAt(i);
+        while (!sfc.isEmptyInput()) {
+            final char c = sfc.takeInput();
             if (c == this.escape) {
-                if (isNextCharacterEscapable(nextLine, inQuotes(inQuotes), i)) {
-                    i = appendNextCharacterAndAdvanceLoop(nextLine, sb, i);
+                if (isNextCharacterEscapable(nextLine, inQuotes(inQuotes), sfc.i - 1)) {
+                    sfc.takeInput();
+                    sfc.appendPrev();
                 }
             } else if (c == quotechar) {
-                if (isNextCharacterEscapedQuote(nextLine, inQuotes(inQuotes), i)) {
-                    i = appendNextCharacterAndAdvanceLoop(nextLine, sb, i);
+                if (isNextCharacterEscapedQuote(nextLine, inQuotes(inQuotes), sfc.i - 1)) {
+                    sfc.takeInput();
+                    sfc.appendPrev();
                 } else {
 
                     inQuotes = !inQuotes;
-                    if (atStartOfField(sb)) {
+                    if (sfc.isEmptyOutput()) {
                         fromQuotedField = true;
                     }
 
                     // the tricky case of an embedded quote in the middle: a,bc"d"ef,g
                     if (!strictQuotes) {
-                        if (i > 2 //not on the beginning of the line
-                                && nextLine.charAt(i - 1) != this.separator //not at the beginning of an escape sequence
-                                && nextLine.length() > (i + 1) &&
-                                nextLine.charAt(i + 1) != this.separator //not at the	end of an escape sequence
+                        final int i = sfc.i;
+                        if (i > 3 //not on the beginning of the line
+                                && nextLine.charAt(i - 2) != this.separator //not at the beginning of an escape sequence
+                                && nextLine.length() > (i) &&
+                                nextLine.charAt(i) != this.separator //not at the	end of an escape sequence
                                 ) {
 
-                            if (ignoreLeadingWhiteSpace && sb.length() > 0 && StringUtils.isWhitespace(sb)) {
-                                sb.setLength(0);
+                            if (ignoreLeadingWhiteSpace && !sfc.isEmptyOutput() && StringUtils.isWhitespace(sfc.peekOutput())) {
+                                sfc.clearOutput();
                             } else {
-                                sb.append(c);
+                                sfc.appendPrev();
                             }
-
                         }
                     }
                 }
                 inField = !inField;
             } else if (c == separator && !(inQuotes && !ignoreQuotations)) {
-                tokensOnThisLine.add(convertEmptyToNullIfNeeded(sb.toString(), fromQuotedField));
+                tokensOnThisLine.add(convertEmptyToNullIfNeeded(sfc.takeOutput(), fromQuotedField));
                 fromQuotedField = false;
-                sb.setLength(0);
                 inField = false;
             } else {
                 if (!strictQuotes || (inQuotes && !ignoreQuotations)) {
-                    sb.append(c);
+                    sfc.appendPrev();
                     inField = true;
                     fromQuotedField = true;
                 }
@@ -364,31 +365,26 @@ public class CSVParser implements ICSVParser {
 
         }
         // line is done - check status
-        if (inQuotes && !ignoreQuotations) {
-            if (multi) {
-                // continuing a quoted section, re-append newline
-                sb.append('\n');
-                pending = sb.toString();
-                sb = null; // this partial content is not to be added to field list yet
+        line_done: {
+            if (inQuotes && !ignoreQuotations) {
+                if (multi) {
+                    // continuing a quoted section, re-append newline
+                    sfc.append('\n');
+                    pending = sfc.peekOutput();
+                    break line_done; // this partial content is not to be added to field list yet
+                } else {
+                    throw new IOException("Un-terminated quoted field at end of CSV line");
+                }
             } else {
-                throw new IOException("Un-terminated quoted field at end of CSV line");
+                inField = false;
             }
-            if (inField) {
-                fromQuotedField = true;
-            }
-        } else {
-            inField = false;
+
+            tokensOnThisLine.add(convertEmptyToNullIfNeeded(sfc.takeOutput(), fromQuotedField));
         }
 
-        if (sb != null) {
-            tokensOnThisLine.add(convertEmptyToNullIfNeeded(sb.toString(), fromQuotedField));
-        }
+        tokensOnLastCompleteLine = tokensOnThisLine.size();
         return tokensOnThisLine.toArray(new String[tokensOnThisLine.size()]);
 
-    }
-
-    private boolean atStartOfField(StringBuilder sb) {
-        return sb.length() == 0;
     }
 
     private String convertEmptyToNullIfNeeded(String s, boolean fromQuotedField) {
@@ -409,20 +405,6 @@ public class CSVParser implements ICSVParser {
             default:
                 return false;
         }
-    }
-
-    /**
-     * Appends the next character in the line to the string buffer.
-     *
-     * @param line Line to process
-     * @param sb Contains the processed character
-     * @param i Current position in the line.
-     * @return New position in the line.
-     */
-    private int appendNextCharacterAndAdvanceLoop(String line, StringBuilder sb, int i) {
-        sb.append(line.charAt(i + 1));
-        i++;
-        return i;
     }
 
     /**
@@ -508,5 +490,93 @@ public class CSVParser implements ICSVParser {
     @Override
     public CSVReaderNullFieldIndicator nullFieldIndicator() {
         return nullFieldIndicator;
+    }
+    
+    /**
+     * This class serves to optimize {@link CSVParser#parseLine(java.lang.String)},
+     * which is the hot inner loop of opencsv.
+     */
+    private static class StringFragmentCopier {
+        private final String input;
+        // Index of the next character in input to consume
+        private int i = 0;
+
+        // This holds what is known of the next token to be output so far. We initialize this lazily because for
+        // CSVs where there are no escaped characters we can actually avoid creating this entirely.
+        private StringBuilder sb;
+        // Indexes of a substring of nextLine that is logically already appended to the sb buffer. If possible,
+        // we just fiddle these indexes rather than actually appending anything to sb.
+        private int pendingSubstrFrom = 0;
+        private int pendingSubstrTo = 0;
+
+        public StringFragmentCopier(String input) {
+            this.input = input;
+        }
+
+        public boolean isEmptyInput() {
+            return i >= input.length();
+        }
+
+        public char takeInput() {
+            return input.charAt(i++);
+        }
+
+        private StringBuilder materializeBuilder() {
+            if (sb == null) {
+                sb = new StringBuilder(input.length() + READ_BUFFER_SIZE);
+            }
+
+            if (pendingSubstrFrom < pendingSubstrTo) {
+                sb.append(input, pendingSubstrFrom, pendingSubstrTo);
+                pendingSubstrFrom = pendingSubstrTo = i;
+            }
+
+            return sb;
+        }
+
+        public void append(String pending) {
+            materializeBuilder().append(pending);
+        }
+
+        public void append(char pending) {
+            materializeBuilder().append(pending);
+        }
+
+        public void appendPrev() {
+            if (pendingSubstrTo == pendingSubstrFrom) {
+                pendingSubstrFrom = i - 1;
+                pendingSubstrTo = i;
+            } else if (pendingSubstrTo == i - 1) {
+                pendingSubstrTo++;
+            } else {
+                materializeBuilder().append(input.charAt(i - 1));
+            }
+        }
+
+        public boolean isEmptyOutput() {
+            return pendingSubstrFrom >= pendingSubstrTo && (sb == null || sb.length() == 0);
+        }
+
+        public void clearOutput() {
+            if (sb != null) {
+                sb.setLength(0);
+            }
+
+            pendingSubstrFrom = pendingSubstrTo = i;
+        }
+
+        public String peekOutput() {
+            if (sb == null || sb.length() == 0) {
+                return input.substring(pendingSubstrFrom, pendingSubstrTo);
+            } else {
+                return materializeBuilder().toString();
+            }
+        }
+
+        public String takeOutput() {
+            final String result = peekOutput();
+            clearOutput();
+            return result;
+        }
     }
 }

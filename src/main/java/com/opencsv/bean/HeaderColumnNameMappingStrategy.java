@@ -231,7 +231,20 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
     public PropertyDescriptor findDescriptor(int col)
             throws IntrospectionException {
         String columnName = getColumnName(col);
-        return (StringUtils.isNotBlank(columnName)) ? findDescriptor(columnName) : null;
+        BeanField beanField = null;
+        if(StringUtils.isNotBlank(columnName)) {
+            beanField = fieldMap.get(columnName.toUpperCase().trim());
+            if(CollectionUtils.isNotEmpty(copyOfRequiredFields) && beanField != null) {
+                copyOfRequiredFields.remove(beanField.getField());
+            }
+        }
+        if(beanField != null) {
+            return findDescriptor(beanField.getField().getName());
+        }
+        if(StringUtils.isNotBlank(columnName)) {
+            return findDescriptor(columnName);
+        }
+        return null;
     }
 
     @Override

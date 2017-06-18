@@ -382,9 +382,22 @@ public class AnnotationTest {
         HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat =
                 new HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull>();
         strat.setType(AnnotatedMockBeanFull.class);
-        Reader fin = new FileReader("src/test/resources/testinputcase78.csv");
+        Reader fin = new FileReader("src/test/resources/testinputcase78null.csv");
         CSVReader read = new CSVReader(fin, ';');
         CsvToBean ctb = new CsvToBean();
+        try {
+            ctb.parse(strat, read);
+            fail("Expected parse to throw exception.");
+        } catch (RuntimeException e) {
+            assertTrue(e.getCause() instanceof CsvRequiredFieldEmptyException);
+            CsvRequiredFieldEmptyException csve = (CsvRequiredFieldEmptyException) e.getCause();
+            assertEquals(1, csve.getLineNumber());
+            assertEquals(AnnotatedMockBeanFull.class, csve.getBeanClass());
+            assertEquals("dateDefaultLocale", csve.getDestinationField().getName());
+        }
+
+        fin = new FileReader("src/test/resources/testinputcase78blank.csv");
+        read = new CSVReader(fin, ';');
         try {
             ctb.parse(strat, read);
             fail("Expected parse to throw exception.");

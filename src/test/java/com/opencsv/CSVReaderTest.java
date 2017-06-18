@@ -679,4 +679,11 @@ public class CSVReaderTest {
         assertNull(item[4]);
     }
 
+
+    @Test(expected = IOException.class)
+    public void testMultilineLimit() throws IOException {
+        CSVReader r = new CSVReader(new StringReader("This,is,a,\"test\na\",test"));
+        r.setMultilineLimit(1);
+        r.readNext();
+    }
 }

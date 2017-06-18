@@ -1,13 +1,18 @@
 package com.opencsv.bean;
 
 import com.opencsv.CSVReader;
+import com.opencsv.bean.mocks.AnnotatedMockBeanForIterator;
+import com.opencsv.bean.mocks.AnnotatedMockBeanFull;
+import com.opencsv.bean.mocks.MinimalCsvBindByNameBeanForWriting;
 import com.opencsv.bean.mocks.MockBean;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.beans.IntrospectionException;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.Reader;
 import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
@@ -88,14 +93,7 @@ public class IterableCSVToBeanTest {
 
         try {
             iterator.remove();
-            assertTrue(false); // not reached
-        } catch (UnsupportedOperationException e) {
-            // Good
-        }
-
-        try {
-            iterator.remove();
-            assertTrue(false); // not reached
+            fail("Removing from an IterableCsvToBean should not be supported.");
         } catch (UnsupportedOperationException e) {
             // Good
         }
@@ -115,8 +113,9 @@ public class IterableCSVToBeanTest {
         assertFalse(iterator.hasNext());
         try {
             iterator.next();
-            assertFalse(true);
+            fail("IterableCSVToBean.iterator().next() did not throw NoSuchElementException despite being empty.");
         } catch (NoSuchElementException e) {
+            // Good
         }
         assertFalse(iterator.hasNext());
     }
@@ -139,9 +138,80 @@ public class IterableCSVToBeanTest {
         assertFalse(iterator.hasNext());
         try {
             iterator.next();
-            assertFalse(true);
+            fail("IterableCSVToBean.iterator().next() did not throw NoSuchElementException despite being empty.");
         } catch (NoSuchElementException e) {
+            // Good
         }
         assertFalse(iterator.hasNext());
+    }
+
+    @Test
+    public void readWithIteratorOfAnnotatedBean() {
+        IterableCSVToBeanBuilder<MinimalCsvBindByNameBeanForWriting> minimalBuilder = new IterableCSVToBeanBuilder<MinimalCsvBindByNameBeanForWriting>();
+        HeaderColumnNameMappingStrategy<MinimalCsvBindByNameBeanForWriting> minimalStrategy = new HeaderColumnNameMappingStrategy<MinimalCsvBindByNameBeanForWriting>();
+        minimalStrategy.setType(MinimalCsvBindByNameBeanForWriting.class);
+        StringReader reader = new StringReader("finda,findb,c\n1,2,3\n4,5,6");
+        CSVReader csvreader = new CSVReader(reader);
+        Iterator<MinimalCsvBindByNameBeanForWriting> iterator = minimalBuilder.withReader(csvreader)
+                .withMapper(minimalStrategy)
+                .build()
+                .iterator();
+
+        assertTrue(iterator.hasNext());
+        MinimalCsvBindByNameBeanForWriting mockBean = iterator.next();
+        assertEquals(1, mockBean.getA());
+        assertEquals(2, mockBean.getB());
+        assertEquals(3, mockBean.getC());
+
+        assertTrue(iterator.hasNext());
+        mockBean = iterator.next();
+        assertEquals(4, mockBean.getA());
+        assertEquals(5, mockBean.getB());
+        assertEquals(6, mockBean.getC());
+
+        assertFalse(iterator.hasNext());
+    }
+
+    @Test
+    public void testRequiredHeaderMissing() throws FileNotFoundException {
+        IterableCSVToBeanBuilder<AnnotatedMockBeanForIterator> minimalBuilder = new IterableCSVToBeanBuilder<AnnotatedMockBeanForIterator>();
+        HeaderColumnNameMappingStrategy<AnnotatedMockBeanForIterator> strat =
+                new HeaderColumnNameMappingStrategy<AnnotatedMockBeanForIterator>();
+        strat.setType(AnnotatedMockBeanForIterator.class);
+        Reader fin = new StringReader("a\n1;2\n3,4");
+        CSVReader read = new CSVReader(fin, ';');
+        Iterator<AnnotatedMockBeanForIterator> iterator = minimalBuilder.withReader(read)
+                .withMapper(strat)
+                .build()
+                .iterator();
+        try {
+            iterator.next();
+            fail("The bean should not have been returned since the headers are incomplete.");
+        }
+        catch(NoSuchElementException e) {
+            // Good
+        }
+    }
+
+    @Test
+    public void testPrematureEOLUsingHeaderNameMapping() throws FileNotFoundException {
+        IterableCSVToBeanBuilder<AnnotatedMockBeanForIterator> minimalBuilder = new IterableCSVToBeanBuilder<AnnotatedMockBeanForIterator>();
+        HeaderColumnNameMappingStrategy<AnnotatedMockBeanForIterator> strat =
+                new HeaderColumnNameMappingStrategy<AnnotatedMockBeanForIterator>();
+        strat.setType(AnnotatedMockBeanForIterator.class);
+        Reader fin = new StringReader("a;b\n1;2\n3");
+        CSVReader read = new CSVReader(fin, ';');
+        Iterator<AnnotatedMockBeanForIterator> iterator = minimalBuilder.withReader(read)
+                .withMapper(strat)
+                .build()
+                .iterator();
+        iterator.next(); // The first bean is okay.
+        try {
+            iterator.next();
+            fail("The second bean should not have been returned since it is incomplete.");
+        }
+        catch(NoSuchElementException e) {
+            // Good
+        }
     }
 }

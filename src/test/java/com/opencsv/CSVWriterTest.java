@@ -486,6 +486,25 @@ public class CSVWriterTest {
    }
 
    @Test
+   public void testResultSetWithHeadersWithoutQuotes() throws SQLException, IOException {
+      String[] header = {"Foo", "Bar", "baz"};
+      String[] value = {"v1", "v2", "v3"};
+
+      StringWriter sw = new StringWriter();
+      CSVWriter csvw = new CSVWriter(sw);
+
+      ResultSet rs = MockResultSetBuilder.buildResultSet(header, value, 1);
+
+      int linesWritten = csvw.writeAll(rs, true, false, false); // don't need a result set since I am mocking the result.
+      assertFalse(csvw.checkError());
+      String result = sw.toString();
+
+      assertNotNull(result);
+      assertEquals("Foo,Bar,baz\nv1,v2,v3\n", result);
+      assertEquals(2, linesWritten);
+   }
+
+   @Test
    public void testMultiLineResultSetWithHeaders() throws SQLException, IOException {
       String[] header = {"Foo", "Bar", "baz"};
       String[] value = {"v1", "v2", "v3"};
@@ -525,6 +544,26 @@ public class CSVWriterTest {
       assertEquals(1, linesWritten);
    }
 
+   @Test
+   public void testResultSetWithoutHeadersAndQuotes() throws SQLException, IOException {
+      String[] header = {"Foo", "Bar", "baz"};
+      String[] value = {"v1", "v2", "v3"};
+
+      StringWriter sw = new StringWriter();
+      CSVWriter csvw = new CSVWriter(sw);
+      csvw.setResultService(new ResultSetHelperService());
+
+      ResultSet rs = MockResultSetBuilder.buildResultSet(header, value, 1);
+
+      int linesWritten = csvw.writeAll(rs, false, false, false); // don't need a result set since I am mocking the result.
+      assertFalse(csvw.checkError());
+      String result = sw.toString();
+
+      assertNotNull(result);
+      assertEquals("v1,v2,v3\n", result);
+      assertEquals(1, linesWritten);
+   }
+   
    @Test
    public void testMultiLineResultSetWithoutHeaders() throws SQLException, IOException {
       String[] header = {"Foo", "Bar", "baz"};
