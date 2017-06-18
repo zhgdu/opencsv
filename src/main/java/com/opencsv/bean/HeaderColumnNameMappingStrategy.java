@@ -3,22 +3,19 @@ package com.opencsv.bean;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvBadConverterException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.reflect.FieldUtils;
+import org.apache.commons.lang3.text.StrBuilder;
+
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.ArrayUtils;
-import org.apache.commons.lang3.reflect.FieldUtils;
-import org.apache.commons.lang3.StringUtils;
+import java.util.*;
 
 /*
  * Copyright 2007 Kyle Miller.
@@ -118,26 +115,37 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
         
         // Read the header
         header = reader.readNext();
-        
-        // Verify that all required fields are present
+
+        // Create a list for the Required fields keys.
+        List<String> requiredKeys = new ArrayList<String>();
+
         for(Map.Entry<String, BeanField> entrySet : fieldMap.entrySet()) {
             BeanField beanField = entrySet.getValue();
-            Field field = beanField.getField();
-            if(beanField.isRequired()) {
-                boolean found = false;
-                for(String h : header) {
-                    if(h.equalsIgnoreCase(entrySet.getKey())) {
-                        found = true;
-                        break;
-                    }
-                }
-                if(!found) {
-                    throw new CsvRequiredFieldEmptyException(type, field,
-                            String.format(
-                                    "Header for required field %s was not present",
-                                    field.getName()));
-                }
+            if (beanField.isRequired()) {
+                requiredKeys.add(entrySet.getKey().toUpperCase());
             }
+        }
+
+        if (requiredKeys.isEmpty()) {
+            return;
+        }
+
+        // remove out fields that are in the header
+
+        for (int i = 0; i < header.length && !requiredKeys.isEmpty(); i++) {
+            requiredKeys.remove(header[i].toUpperCase());
+        }
+
+        // Throw an exception if anything is left
+
+        if (!requiredKeys.isEmpty()) {
+            StrBuilder builder = new StrBuilder(128);
+            String missingRequiredFields = builder.appendWithSeparators(requiredKeys, ",").toString();
+            // TODO consider CsvRequiredFieldsEmpty for multiple missing required fields.
+            throw new CsvRequiredFieldEmptyException(type, fieldMap.get(requiredKeys.get(0)).getField(),
+                    String.format(
+                            "Header is missing required fields [%s]",
+                            missingRequiredFields));
         }
     }
     
