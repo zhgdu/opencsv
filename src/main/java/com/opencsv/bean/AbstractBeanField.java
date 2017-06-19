@@ -61,6 +61,15 @@ abstract public class AbstractBeanField<T> implements BeanField<T> {
     }
 
     /**
+     * Constructor for an optional field.
+     * @param field A {@link java.lang.reflect.Field} object.
+     */
+    public AbstractBeanField(Field field) {
+        this.field = field;
+        this.required = false;
+    }
+
+    /**
      * @param field A {@link java.lang.reflect.Field} object.
      * @param required Whether or not this field is required in input
      */

@@ -42,13 +42,13 @@ public interface BeanField<T> {
     
     /**
      * Determines whether or not a field is required.
+     * Implementation note: This method is necessary for custom converters. If
+     * we did not have it, every custom converter would be required to implement
+     * a constructor with this one boolean parameter, and the instantiation code
+     * for the custom converter would look much uglier.
      * 
      * @param required Whether or not the field is required
      */
-     // This method is necessary for custom converters. If we did not have it,
-     // every custom converter would be required to implement a constructor with
-     // this one boolean parameter, and the instantiation code for the custom
-     // converter would look much uglier.
     void setRequired(boolean required);
 
     /**
