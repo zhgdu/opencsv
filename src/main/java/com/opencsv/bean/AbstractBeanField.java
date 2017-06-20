@@ -72,6 +72,7 @@ abstract public class AbstractBeanField<T> implements BeanField<T> {
     /**
      * @param field A {@link java.lang.reflect.Field} object.
      * @param required Whether or not this field is required in input
+     * @since 3.10
      */
     public AbstractBeanField(Field field, boolean required) {
         this.field = field;

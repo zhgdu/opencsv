@@ -66,6 +66,7 @@ public class CsvRequiredFieldEmptyException extends CsvException {
      *
      * @param beanClass Class of the destination bean
      * @param message Human-readable error text
+     * @since 3.10
      */
     public CsvRequiredFieldEmptyException(Class beanClass, String message) {
         super(message);

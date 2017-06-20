@@ -37,6 +37,7 @@ public interface BeanField<T> {
      * 
      * @return True if the field is required to be set (cannot be null or an
      * empty string), false otherwise
+     * @since 3.10
      */
     boolean isRequired();
     
@@ -48,6 +49,7 @@ public interface BeanField<T> {
      * for the custom converter would look much uglier.
      * 
      * @param required Whether or not the field is required
+     * @since 3.10
      */
     void setRequired(boolean required);
 
