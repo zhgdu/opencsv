@@ -6,6 +6,9 @@ import java.util.NoSuchElementException;
 
 /**
  * Provides an Iterator over the data found in opencsv.
+ * <p><em>Fair warning!</em> This mechanism of getting at the data opencsv
+ * delivers has limitations when used with the opencsv annotations. Locales and
+ * custom converters are not supported. Further features may or may not work.</p>
  */
 public class CSVIterator implements Iterator<String[]> {
    private final CSVReader reader;
