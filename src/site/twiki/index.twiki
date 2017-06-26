@@ -242,6 +242,11 @@ or:
      }
    </verbatim>
 
+*Warning:* The iterator does not support all features of annotation-driven
+parsing. In particular, the use of locales definitely does not work and is not
+supported. The use of custom converters likely does not work either, and is
+also not supported.
+
 ---+++Reading into beans
 
 Arrays of strings are all good and well, but there are simpler, more modern ways
