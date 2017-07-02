@@ -14,7 +14,7 @@ public class MockResultSetBuilder {
 
    public static ResultSet buildResultSet(ResultSetMetaData metaData, String[] columnValues, int[] columnTypes) throws SQLException {
       ResultSet resultSet = mock(ResultSet.class);
-      List<Boolean> wnrl = new ArrayList<Boolean>();
+      List<Boolean> wnrl = new ArrayList<>();
       when(resultSet.getMetaData()).thenReturn(metaData);
 
       for (int i = 0; i < columnValues.length; i++) {

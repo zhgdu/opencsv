@@ -2,7 +2,6 @@ package com.opencsv.bean;
 
 import com.opencsv.CSVReader;
 import com.opencsv.bean.mocks.AnnotatedMockBeanForIterator;
-import com.opencsv.bean.mocks.AnnotatedMockBeanFull;
 import com.opencsv.bean.mocks.MinimalCsvBindByNameBeanForWriting;
 import com.opencsv.bean.mocks.MockBean;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
@@ -32,8 +31,8 @@ public class IterableCSVToBeanTest {
 
     @Before
     public void setUp() {
-        builder = new IterableCSVToBeanBuilder<MockBean>();
-        strategy = new HeaderColumnNameMappingStrategy<MockBean>();
+        builder = new IterableCSVToBeanBuilder<>();
+        strategy = new HeaderColumnNameMappingStrategy<>();
         strategy.setType(MockBean.class);
         bean = builder.withReader(createReader())
                 .withMapper(strategy)
@@ -147,8 +146,8 @@ public class IterableCSVToBeanTest {
 
     @Test
     public void readWithIteratorOfAnnotatedBean() {
-        IterableCSVToBeanBuilder<MinimalCsvBindByNameBeanForWriting> minimalBuilder = new IterableCSVToBeanBuilder<MinimalCsvBindByNameBeanForWriting>();
-        HeaderColumnNameMappingStrategy<MinimalCsvBindByNameBeanForWriting> minimalStrategy = new HeaderColumnNameMappingStrategy<MinimalCsvBindByNameBeanForWriting>();
+        IterableCSVToBeanBuilder<MinimalCsvBindByNameBeanForWriting> minimalBuilder = new IterableCSVToBeanBuilder<>();
+        HeaderColumnNameMappingStrategy<MinimalCsvBindByNameBeanForWriting> minimalStrategy = new HeaderColumnNameMappingStrategy<>();
         minimalStrategy.setType(MinimalCsvBindByNameBeanForWriting.class);
         StringReader reader = new StringReader("finda,findb,c\n1,2,3\n4,5,6");
         CSVReader csvreader = new CSVReader(reader);
@@ -174,9 +173,9 @@ public class IterableCSVToBeanTest {
 
     @Test
     public void testRequiredHeaderMissing() throws FileNotFoundException {
-        IterableCSVToBeanBuilder<AnnotatedMockBeanForIterator> minimalBuilder = new IterableCSVToBeanBuilder<AnnotatedMockBeanForIterator>();
+        IterableCSVToBeanBuilder<AnnotatedMockBeanForIterator> minimalBuilder = new IterableCSVToBeanBuilder<>();
         HeaderColumnNameMappingStrategy<AnnotatedMockBeanForIterator> strat =
-                new HeaderColumnNameMappingStrategy<AnnotatedMockBeanForIterator>();
+                new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanForIterator.class);
         Reader fin = new StringReader("a\n1;2\n3,4");
         CSVReader read = new CSVReader(fin, ';');
@@ -195,9 +194,9 @@ public class IterableCSVToBeanTest {
 
     @Test
     public void testPrematureEOLUsingHeaderNameMapping() throws FileNotFoundException {
-        IterableCSVToBeanBuilder<AnnotatedMockBeanForIterator> minimalBuilder = new IterableCSVToBeanBuilder<AnnotatedMockBeanForIterator>();
+        IterableCSVToBeanBuilder<AnnotatedMockBeanForIterator> minimalBuilder = new IterableCSVToBeanBuilder<>();
         HeaderColumnNameMappingStrategy<AnnotatedMockBeanForIterator> strat =
-                new HeaderColumnNameMappingStrategy<AnnotatedMockBeanForIterator>();
+                new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanForIterator.class);
         Reader fin = new StringReader("a;b\n1;2\n3");
         CSVReader read = new CSVReader(fin, ';');

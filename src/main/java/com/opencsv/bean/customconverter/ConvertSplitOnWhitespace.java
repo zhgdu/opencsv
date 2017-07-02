@@ -63,7 +63,7 @@ public class ConvertSplitOnWhitespace<T> extends AbstractBeanField<T> {
             CsvConstraintViolationException {
         List<String> l = null;
         if (!StringUtils.isEmpty(value)) {
-            l = new ArrayList<String>(Arrays.asList(value.split("\\s+")));
+            l = new ArrayList<>(Arrays.asList(value.split("\\s+")));
         }
         return l;
     }

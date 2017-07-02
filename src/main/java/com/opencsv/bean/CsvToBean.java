@@ -216,7 +216,7 @@ public class CsvToBean<T> extends AbstractCSVToBean {
       
       // Parse through each line of the file
       try {
-         List<T> list = new ArrayList<T>();
+         List<T> list = new ArrayList<>();
          while (null != (line = csvReader.readNext())) {
             lineProcessed++;
             try {
@@ -321,7 +321,7 @@ public class CsvToBean<T> extends AbstractCSVToBean {
     */
    public List<CsvException> getCapturedExceptions() {
       if (capturedExceptions == null) {
-         capturedExceptions = new ArrayList<CsvException>();
+         capturedExceptions = new ArrayList<>();
         }
         return capturedExceptions;
     }

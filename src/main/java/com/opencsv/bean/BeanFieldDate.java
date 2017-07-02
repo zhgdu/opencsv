@@ -106,28 +106,9 @@ public class BeanFieldDate<T> extends AbstractBeanField<T> {
             // illogical: I know all of the data types I expect here, and they
             // should all be instantiated with no problems. Ergo, this must be
             // the wrong data type.
-            // Multi-catch in Java 7
-            catch(ParseException e) {
-                CsvDataTypeMismatchException csve = new CsvDataTypeMismatchException(value, fieldType);
-                csve.initCause(e);
-                throw csve;
-            }
-            catch(InstantiationException e) {
-                CsvDataTypeMismatchException csve = new CsvDataTypeMismatchException(value, fieldType);
-                csve.initCause(e);
-                throw csve;
-            }
-            catch(IllegalAccessException e) {
-                CsvDataTypeMismatchException csve = new CsvDataTypeMismatchException(value, fieldType);
-                csve.initCause(e);
-                throw csve;
-            }
-            catch(NoSuchMethodException e) {
-                CsvDataTypeMismatchException csve = new CsvDataTypeMismatchException(value, fieldType);
-                csve.initCause(e);
-                throw csve;
-            }
-            catch(InvocationTargetException e) {
+            catch(ParseException | InstantiationException
+                    | IllegalAccessException | NoSuchMethodException
+                    | InvocationTargetException e) {
                 CsvDataTypeMismatchException csve = new CsvDataTypeMismatchException(value, fieldType);
                 csve.initCause(e);
                 throw csve;

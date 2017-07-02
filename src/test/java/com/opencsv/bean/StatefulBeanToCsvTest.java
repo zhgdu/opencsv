@@ -84,7 +84,7 @@ public class StatefulBeanToCsvTest {
         List<AnnotatedMockBeanFull> beans = new CsvToBeanBuilder(
                 new FileReader("src/test/resources/testinputwriteposfullgood.csv"))
                 .withType(AnnotatedMockBeanFull.class).withSeparator(';').build().parse();
-        return new ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull>(beans.get(0), beans.get(1));
+        return new ImmutablePair<>(beans.get(0), beans.get(1));
     }
     
     private ImmutablePair<AnnotatedMockBeanCustom, AnnotatedMockBeanCustom> createTwoGoodCustomBeans()
@@ -92,7 +92,7 @@ public class StatefulBeanToCsvTest {
         List<AnnotatedMockBeanCustom> beans = new CsvToBeanBuilder(
                 new FileReader("src/test/resources/testinputwritecustomposfullgood.csv"))
                 .withType(AnnotatedMockBeanCustom.class).withSeparator(';').build().parse();
-        return new ImmutablePair<AnnotatedMockBeanCustom, AnnotatedMockBeanCustom>(beans.get(0), beans.get(1));
+        return new ImmutablePair<>(beans.get(0), beans.get(1));
     }
     
     private ImmutablePair<AnnotatedMockBeanFullDerived, AnnotatedMockBeanFullDerived> createTwoGoodDerivedBeans()
@@ -106,7 +106,7 @@ public class StatefulBeanToCsvTest {
                 .withMappingStrategy(strat)
                 .build()
                 .parse();
-        return new ImmutablePair<AnnotatedMockBeanFullDerived, AnnotatedMockBeanFullDerived>(beans.get(0), beans.get(1));
+        return new ImmutablePair<>(beans.get(0), beans.get(1));
     }
     
     /**
@@ -146,7 +146,7 @@ public class StatefulBeanToCsvTest {
     @Test
     public void writeMultipleBeans() throws IOException, CsvException {
         ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
-        List<AnnotatedMockBeanFull> beanList = new ArrayList<AnnotatedMockBeanFull>();
+        List<AnnotatedMockBeanFull> beanList = new ArrayList<>();
         beanList.add(beans.left); beanList.add(beans.right);
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv btcsv = new StatefulBeanToCsvBuilder(writer)
@@ -165,7 +165,7 @@ public class StatefulBeanToCsvTest {
     @Test
     public void writeMixedSingleMultipleBeans() throws IOException, CsvException {
         ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
-        List<AnnotatedMockBeanFull> beanList = new ArrayList<AnnotatedMockBeanFull>();
+        List<AnnotatedMockBeanFull> beanList = new ArrayList<>();
         beanList.add(beans.left); beanList.add(beans.right);
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv btcsv = new StatefulBeanToCsvBuilder(writer)

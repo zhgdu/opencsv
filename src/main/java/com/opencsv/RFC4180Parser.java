@@ -165,7 +165,7 @@ public class RFC4180Parser implements ICSVParser {
 
     private String[] splitWhileNotInQuotes(String nextLine, boolean multi) {
         int currentPosition = 0;
-        List<String> elements = new ArrayList<String>();
+        List<String> elements = new ArrayList<>();
         int nextSeparator;
         int nextQuote;
 

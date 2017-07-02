@@ -42,9 +42,9 @@ public class CsvToBeanDoubleTest {
 
     @Test
     public void parseBeanWithNoAnnotations() {
-        HeaderColumnNameMappingStrategy<MockBean> strategy = new HeaderColumnNameMappingStrategy<MockBean>();
+        HeaderColumnNameMappingStrategy<MockBean> strategy = new HeaderColumnNameMappingStrategy<>();
         strategy.setType(MockBean.class);
-        CsvToBean<MockBean> bean = new CsvToBean<MockBean>();
+        CsvToBean<MockBean> bean = new CsvToBean<>();
 
         List<MockBean> beanList = bean.parse(strategy, createReader());
         assertEquals(2, beanList.size());

@@ -73,7 +73,7 @@ public abstract class AbstractCSVToBean {
      */
     protected PropertyEditor getPropertyEditorValue(Class<?> cls) {
         if (editorMap == null) {
-            editorMap = new HashMap<Class<?>, PropertyEditor>();
+            editorMap = new HashMap<>();
         }
 
         PropertyEditor editor = editorMap.get(cls);

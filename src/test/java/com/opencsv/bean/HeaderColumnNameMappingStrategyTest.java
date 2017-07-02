@@ -43,12 +43,12 @@ public class HeaderColumnNameMappingStrategyTest {
 
    @Before
    public void setUp() {
-      strat = new HeaderColumnNameMappingStrategy<MockBean>();
+      strat = new HeaderColumnNameMappingStrategy<>();
    }
 
    private List<MockBean> createTestParseResult(String parseString) {
       strat.setType(MockBean.class);
-      CsvToBean<MockBean> csv = new CsvToBean<MockBean>();
+      CsvToBean<MockBean> csv = new CsvToBean<>();
       return csv.parse(strat, new StringReader(parseString));
    }
 
@@ -101,7 +101,7 @@ public class HeaderColumnNameMappingStrategyTest {
 
    @Test
    public void verifyColumnNames() throws IOException, IntrospectionException, CsvRequiredFieldEmptyException {
-      strat = new HeaderColumnNameMappingStrategy<MockBean>();
+      strat = new HeaderColumnNameMappingStrategy<>();
       strat.setType(MockBean.class);
       assertNull(strat.getColumnName(0));
       assertNull(strat.findDescriptor(0));
@@ -118,7 +118,7 @@ public class HeaderColumnNameMappingStrategyTest {
    
    @Test
    public void throwsIllegalStateExceptionIfTypeNotSet() throws IOException {
-      strat = new HeaderColumnNameMappingStrategy<MockBean>();
+      strat = new HeaderColumnNameMappingStrategy<>();
       StringReader reader = new StringReader(TEST_STRING);
       CSVReader csvReader = new CSVReader(reader);
       CsvToBean csvtb = new CsvToBean();

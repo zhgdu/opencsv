@@ -168,7 +168,7 @@ public class CSVWriterTest {
    @Test
    public void testWriteAllAsList() throws IOException {
 
-      List<String[]> allElements = new ArrayList<String[]>();
+      List<String[]> allElements = new ArrayList<>();
       String[] line1 = "Name#Phone#Email".split("#");
       String[] line2 = "Glen#1234#glen@abcd.com".split("#");
       String[] line3 = "John#5678#john@efgh.com".split("#");
@@ -241,7 +241,7 @@ public class CSVWriterTest {
    @Test
    public void testWriteAllObjects() throws IOException {
 
-      List<String[]> allElements = new ArrayList<String[]>(3);
+      List<String[]> allElements = new ArrayList<>(3);
       String[] line1 = "Name#Phone#Email".split("#");
       String[] line2 = "Glen#1234#glen@abcd.com".split("#");
       String[] line3 = "John#5678#john@efgh.com".split("#");
@@ -630,7 +630,7 @@ public class CSVWriterTest {
       String[] header = {"Foo", "Bar", "baz"};
       String[] value = {"v1", "v2" + CSVWriter.DEFAULT_ESCAPE_CHARACTER + "v2a", "v3"};
 
-      List<String[]> lines = new ArrayList<String[]>();
+      List<String[]> lines = new ArrayList<>();
       lines.add(header);
       lines.add(value);
       StringWriter sw = new StringWriter();
@@ -647,7 +647,7 @@ public class CSVWriterTest {
       String[] header = {"Foo", "Bar", "baz"};
       char escapeCharacter = '\\';
       String[] value = {"v1", "v2" + escapeCharacter + "v2a" + CSVWriter.DEFAULT_SEPARATOR + "v2b", "v3"};
-      List<String[]> lines = new ArrayList<String[]>();
+      List<String[]> lines = new ArrayList<>();
       lines.add(header);
       lines.add(value);
       StringWriter sw = new StringWriter();
@@ -664,7 +664,7 @@ public class CSVWriterTest {
       String[] header = {"Foo", "Bar", "baz"};
       char escapeCharacter = '\\';
       String[] value = {"v1", "v2", "v3\n"};
-      List<String[]> lines = new ArrayList<String[]>();
+      List<String[]> lines = new ArrayList<>();
       lines.add(header);
       lines.add(value);
       StringWriter sw = new StringWriter();

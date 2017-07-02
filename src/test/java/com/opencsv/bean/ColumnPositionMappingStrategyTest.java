@@ -32,7 +32,7 @@ public class ColumnPositionMappingStrategyTest {
 
    @Before
    public void setUp() throws Exception {
-      strat = new ColumnPositionMappingStrategy<MockBean>();
+      strat = new ColumnPositionMappingStrategy<>();
       strat.setType(MockBean.class);
    }
 
@@ -68,7 +68,7 @@ public class ColumnPositionMappingStrategyTest {
 
       strat.setColumnMapping("name", "orderNumber", "id", "num");
 
-      CsvToBean<MockBean> csv = new CsvToBean<MockBean>();
+      CsvToBean<MockBean> csv = new CsvToBean<>();
       List<MockBean> list = csv.parse(strat, new StringReader(s));
       assertNotNull(list);
       assertTrue(list.size() == 2);
@@ -88,7 +88,7 @@ public class ColumnPositionMappingStrategyTest {
       String[] columns = new String[]{"name", "orderNumber", "id", "num"};
       strat.setColumnMapping(columns);
 
-      CsvToBean<MockBean> csv = new CsvToBean<MockBean>();
+      CsvToBean<MockBean> csv = new CsvToBean<>();
       List<MockBean> list = csv.parse(strat, new StringReader(s));
       assertNotNull(list);
       assertTrue(list.size() == 2);
@@ -167,7 +167,7 @@ public class ColumnPositionMappingStrategyTest {
    
    @Test
    public void throwsIllegalStateExceptionIfTypeNotSet() throws IOException {
-      ColumnPositionMappingStrategy<MockBean> s = new ColumnPositionMappingStrategy<MockBean>();
+      ColumnPositionMappingStrategy<MockBean> s = new ColumnPositionMappingStrategy<>();
       StringReader reader = new StringReader("doesnt,matter\nat,all");
       CSVReader csvReader = new CSVReader(reader);
       CsvToBean csvtb = new CsvToBean();

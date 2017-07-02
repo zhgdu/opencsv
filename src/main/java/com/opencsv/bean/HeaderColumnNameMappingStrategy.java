@@ -7,8 +7,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
-import org.apache.commons.lang3.text.StrBuilder;
-
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
@@ -16,6 +14,7 @@ import java.beans.PropertyDescriptor;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.*;
+import org.apache.commons.text.StrBuilder;
 
 /*
  * Copyright 2007 Kyle Miller.
@@ -55,7 +54,7 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
     protected String[] header;
     
     /** This map makes finding the column index of a header name easy. */
-    protected Map<String, Integer> indexLookup = new HashMap<String, Integer>();
+    protected Map<String, Integer> indexLookup = new HashMap<>();
     
     /**
      * Given a header name, this map allows one to find the corresponding
@@ -70,7 +69,7 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
     protected Map<String, BeanField> fieldMap = null;
     
     /** A list of all fields in the bean that are required. */
-    protected final List<Field> requiredFields = new ArrayList<Field>();
+    protected final List<Field> requiredFields = new ArrayList<>();
     
     /**
      * A copy of {@link #requiredFields} that is used for reading in each record
@@ -117,7 +116,7 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
         header = reader.readNext();
 
         // Create a list for the Required fields keys.
-        List<String> requiredKeys = new ArrayList<String>();
+        List<String> requiredKeys = new ArrayList<>();
 
         for(Map.Entry<String, BeanField> entrySet : fieldMap.entrySet()) {
             BeanField beanField = entrySet.getValue();
@@ -151,7 +150,7 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
     
     @Override
     public void registerBeginningOfRecordForReading() {
-        copyOfRequiredFields = new ArrayList<Field>(requiredFields);
+        copyOfRequiredFields = new ArrayList<>(requiredFields);
     }
     
     @Override
@@ -299,7 +298,7 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
      *                                about the bean.
      */
     protected Map<String, PropertyDescriptor> loadDescriptorMap() throws IntrospectionException {
-        Map<String, PropertyDescriptor> map = new HashMap<String, PropertyDescriptor>();
+        Map<String, PropertyDescriptor> map = new HashMap<>();
 
         PropertyDescriptor[] descriptors = loadDescriptors(getType());
         for (PropertyDescriptor descriptor : descriptors) {
@@ -320,15 +319,7 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
             throws CsvBadConverterException {
         try {
             return converter.newInstance();
-        } catch (IllegalAccessException oldEx) {
-            // Combine this block with the next one as soon as Java 7
-            // is the minimum supported version.
-            CsvBadConverterException newEx =
-                    new CsvBadConverterException(converter,
-                            CANNOT_INSTANTIATE + converter.getCanonicalName());
-            newEx.initCause(oldEx);
-            throw newEx;
-        } catch (InstantiationException oldEx) {
+        } catch (IllegalAccessException | InstantiationException oldEx) {
             CsvBadConverterException newEx =
                     new CsvBadConverterException(converter,
                             CANNOT_INSTANTIATE + converter.getCanonicalName());
@@ -345,7 +336,7 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
      */
     protected void loadFieldMap() throws CsvBadConverterException {
         boolean required;
-        fieldMap = new HashMap<String, BeanField>();
+        fieldMap = new HashMap<>();
         requiredFields.clear();
 
         for (Field field : loadFields(getType())) {
@@ -412,7 +403,7 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
     }
 
     private List<Field> loadFields(Class<? extends T> cls) {
-        List<Field> fields = new ArrayList<Field>();
+        List<Field> fields = new ArrayList<>();
         for (Field field : FieldUtils.getAllFields(cls)) {
             if (field.isAnnotationPresent(CsvBind.class)
                     || field.isAnnotationPresent(CsvBindByName.class)

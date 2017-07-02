@@ -35,13 +35,13 @@ public class BeanToCsvTest {
 
    @Before
    public void setUp() {
-      bean = new BeanToCsv<MockBean>();
-      annotatedBean = new BeanToCsv<SimpleAnnotatedMockBean>();
+      bean = new BeanToCsv<>();
+      annotatedBean = new BeanToCsv<>();
    }
 
    @Before
    public void setTestData() {
-      testData = new ArrayList<MockBean>();
+      testData = new ArrayList<>();
       testData.add(createMockBean("kyle", "abc123456", 123));
       testData.add(createMockBean("jimmy", "def098765", 456));
    }
@@ -95,7 +95,7 @@ public class BeanToCsvTest {
 
    @Before
    public void setNullData() {
-      nullData = new ArrayList<MockBean>();
+      nullData = new ArrayList<>();
       MockBean mb = new MockBean();
       mb.setName(null);
       mb.setOrderNumber(null);
@@ -208,7 +208,7 @@ public class BeanToCsvTest {
 
    @Test
    public void beanReturnsFalseOnEmptyList() {
-      ColumnPositionMappingStrategy<MockBean> strat = new ColumnPositionMappingStrategy<MockBean>();
+      ColumnPositionMappingStrategy<MockBean> strat = new ColumnPositionMappingStrategy<>();
       strat.setType(MockBean.class);
       String[] columns = new String[]{"name", "orderNumber", "num"};
       strat.setColumnMapping(columns);
@@ -220,7 +220,7 @@ public class BeanToCsvTest {
 
    @Test
    public void beanReturnsFalseOnNull() {
-      ColumnPositionMappingStrategy<MockBean> strat = new ColumnPositionMappingStrategy<MockBean>();
+      ColumnPositionMappingStrategy<MockBean> strat = new ColumnPositionMappingStrategy<>();
       strat.setType(MockBean.class);
       String[] columns = new String[]{"name", "orderNumber", "num"};
       strat.setColumnMapping(columns);
@@ -232,7 +232,7 @@ public class BeanToCsvTest {
 
    @Test
    public void testWriteQuotes() throws IOException {
-      ColumnPositionMappingStrategy<MockBean> strat = new ColumnPositionMappingStrategy<MockBean>();
+      ColumnPositionMappingStrategy<MockBean> strat = new ColumnPositionMappingStrategy<>();
       strat.setType(MockBean.class);
       String[] columns = new String[]{"name", "orderNumber", "num"};
       strat.setColumnMapping(columns);
@@ -250,7 +250,7 @@ public class BeanToCsvTest {
 
    @Test
    public void writeBeansOneAtATime() {
-      ColumnPositionMappingStrategy<MockBean> strat = new ColumnPositionMappingStrategy<MockBean>();
+      ColumnPositionMappingStrategy<MockBean> strat = new ColumnPositionMappingStrategy<>();
       strat.setType(MockBean.class);
       String[] columns = new String[]{"name", "orderNumber", "num"};
       strat.setColumnMapping(columns);
@@ -272,7 +272,7 @@ public class BeanToCsvTest {
 
    @Test
    public void writeSingleBeanMethodReturnsFalseIfNullPassedIn() {
-      ColumnPositionMappingStrategy<MockBean> strat = new ColumnPositionMappingStrategy<MockBean>();
+      ColumnPositionMappingStrategy<MockBean> strat = new ColumnPositionMappingStrategy<>();
       strat.setType(MockBean.class);
       String[] columns = new String[]{"name", "orderNumber", "num"};
       strat.setColumnMapping(columns);
@@ -292,7 +292,7 @@ public class BeanToCsvTest {
 
    @Test
    public void testWriteQuotesWithAnnotatedBean() throws IOException {
-      ColumnPositionMappingStrategy<SimpleAnnotatedMockBean> strat = new ColumnPositionMappingStrategy<SimpleAnnotatedMockBean>();
+      ColumnPositionMappingStrategy<SimpleAnnotatedMockBean> strat = new ColumnPositionMappingStrategy<>();
       strat.setType(SimpleAnnotatedMockBean.class);
       String[] columns = new String[]{"name", "orderNumber", "num"};
       strat.setColumnMapping(columns);
@@ -310,7 +310,7 @@ public class BeanToCsvTest {
 
    @Test
    public void testWriteNulls() throws IOException {
-      ColumnPositionMappingStrategy<MockBean> strat = new ColumnPositionMappingStrategy<MockBean>();
+      ColumnPositionMappingStrategy<MockBean> strat = new ColumnPositionMappingStrategy<>();
       strat.setType(MockBean.class);
       String[] columns = new String[]{"name", "orderNumber", "num"};
       strat.setColumnMapping(columns);
@@ -328,7 +328,7 @@ public class BeanToCsvTest {
 
    @Test
    public void testWriteNullsWithAnnotatedBean() throws IOException {
-      ColumnPositionMappingStrategy<SimpleAnnotatedMockBean> strat = new ColumnPositionMappingStrategy<SimpleAnnotatedMockBean>();
+      ColumnPositionMappingStrategy<SimpleAnnotatedMockBean> strat = new ColumnPositionMappingStrategy<>();
       strat.setType(SimpleAnnotatedMockBean.class);
       String[] columns = new String[]{"name", "orderNumber", "num"};
       strat.setColumnMapping(columns);
@@ -353,7 +353,7 @@ public class BeanToCsvTest {
 
    @Test
    public void beanReturnsFalseOnEmptyListStatic() {
-      ColumnPositionMappingStrategy<MockBean> strat = new ColumnPositionMappingStrategy<MockBean>();
+      ColumnPositionMappingStrategy<MockBean> strat = new ColumnPositionMappingStrategy<>();
       strat.setType(MockBean.class);
       String[] columns = new String[]{"name", "orderNumber", "num"};
       strat.setColumnMapping(columns);
@@ -365,7 +365,7 @@ public class BeanToCsvTest {
 
    @Test
    public void beanReturnsFalseOnNullStatic() {
-      ColumnPositionMappingStrategy<MockBean> strat = new ColumnPositionMappingStrategy<MockBean>();
+      ColumnPositionMappingStrategy<MockBean> strat = new ColumnPositionMappingStrategy<>();
       strat.setType(MockBean.class);
       String[] columns = new String[]{"name", "orderNumber", "num"};
       strat.setColumnMapping(columns);
@@ -377,7 +377,7 @@ public class BeanToCsvTest {
 
    @Test
    public void testWriteQuotesStatic() throws IOException {
-      ColumnPositionMappingStrategy<MockBean> strat = new ColumnPositionMappingStrategy<MockBean>();
+      ColumnPositionMappingStrategy<MockBean> strat = new ColumnPositionMappingStrategy<>();
       strat.setType(MockBean.class);
       String[] columns = new String[]{"name", "orderNumber", "num"};
       strat.setColumnMapping(columns);
@@ -395,7 +395,7 @@ public class BeanToCsvTest {
 
    @Test
    public void writeBeansOneAtATimeStatic() {
-      ColumnPositionMappingStrategy<MockBean> strat = new ColumnPositionMappingStrategy<MockBean>();
+      ColumnPositionMappingStrategy<MockBean> strat = new ColumnPositionMappingStrategy<>();
       strat.setType(MockBean.class);
       String[] columns = new String[]{"name", "orderNumber", "num"};
       strat.setColumnMapping(columns);
@@ -417,7 +417,7 @@ public class BeanToCsvTest {
 
    @Test
    public void writeSingleBeanMethodReturnsFalseIfNullPassedInStatic() {
-      ColumnPositionMappingStrategy<MockBean> strat = new ColumnPositionMappingStrategy<MockBean>();
+      ColumnPositionMappingStrategy<MockBean> strat = new ColumnPositionMappingStrategy<>();
       strat.setType(MockBean.class);
       String[] columns = new String[]{"name", "orderNumber", "num"};
       strat.setColumnMapping(columns);
@@ -437,7 +437,7 @@ public class BeanToCsvTest {
 
    @Test
    public void testWriteQuotesWithAnnotatedBeanStatic() throws IOException {
-      ColumnPositionMappingStrategy<SimpleAnnotatedMockBean> strat = new ColumnPositionMappingStrategy<SimpleAnnotatedMockBean>();
+      ColumnPositionMappingStrategy<SimpleAnnotatedMockBean> strat = new ColumnPositionMappingStrategy<>();
       strat.setType(SimpleAnnotatedMockBean.class);
       String[] columns = new String[]{"name", "orderNumber", "num"};
       strat.setColumnMapping(columns);
@@ -455,7 +455,7 @@ public class BeanToCsvTest {
 
    @Test
    public void testWriteNullsStatic() throws IOException {
-      ColumnPositionMappingStrategy<MockBean> strat = new ColumnPositionMappingStrategy<MockBean>();
+      ColumnPositionMappingStrategy<MockBean> strat = new ColumnPositionMappingStrategy<>();
       strat.setType(MockBean.class);
       String[] columns = new String[]{"name", "orderNumber", "num"};
       strat.setColumnMapping(columns);
@@ -473,7 +473,7 @@ public class BeanToCsvTest {
 
    @Test
    public void testWriteNullsWithAnnotatedBeanStatic() throws IOException {
-      ColumnPositionMappingStrategy<SimpleAnnotatedMockBean> strat = new ColumnPositionMappingStrategy<SimpleAnnotatedMockBean>();
+      ColumnPositionMappingStrategy<SimpleAnnotatedMockBean> strat = new ColumnPositionMappingStrategy<>();
       strat.setType(SimpleAnnotatedMockBean.class);
       String[] columns = new String[]{"name", "orderNumber", "num"};
       strat.setColumnMapping(columns);

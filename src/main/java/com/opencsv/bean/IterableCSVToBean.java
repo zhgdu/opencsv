@@ -145,18 +145,11 @@ public class IterableCSVToBean<T> extends AbstractCSVToBean implements Iterable<
 
                 try {
                     nextBean = bean.nextLine();
-                } catch (IllegalAccessException e) { // Replace with a multi-catch as soon as we support Java 7
+                } catch (IllegalAccessException | InstantiationException
+                        | IOException | IntrospectionException
+                        | InvocationTargetException
+                        | CsvRequiredFieldEmptyException e) {
                     e.printStackTrace();
-                } catch (InstantiationException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (IntrospectionException e) {
-                    e.printStackTrace();
-                } catch (InvocationTargetException e) {
-                    e.printStackTrace();
-                } catch(CsvRequiredFieldEmptyException e) {
-                    e.printStackTrace(); // Just following precedent . . .
                 }
 
                 return nextBean != null;

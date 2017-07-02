@@ -69,18 +69,18 @@ public final class MappingUtils {
         // Set the mapping strategy according to what we've found.
         MappingStrategy<T> mappingStrategy;
         if(positionAnnotationsPresent) {
-            ColumnPositionMappingStrategy<T> ms = new ColumnPositionMappingStrategy<T>();
+            ColumnPositionMappingStrategy<T> ms = new ColumnPositionMappingStrategy<>();
             ms.setType(type);
             mappingStrategy = ms;
         }
         else {
-            HeaderColumnNameMappingStrategy<T> ms = new HeaderColumnNameMappingStrategy<T>();
+            HeaderColumnNameMappingStrategy<T> ms = new HeaderColumnNameMappingStrategy<>();
             ms.setType(type);
             
             // Ugly hack, but I have to get the field names into the stupid
             // strategy somehow.
             if(!ms.isAnnotationDriven()) {
-                SortedSet<String> sortedFields = new TreeSet<String>();
+                SortedSet<String> sortedFields = new TreeSet<>();
                 for(Field f : fields) {
                     if(!f.isSynthetic()) { // Otherwise JaCoCo breaks tests
                         sortedFields.add(f.getName());

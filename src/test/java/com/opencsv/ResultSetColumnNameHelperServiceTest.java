@@ -153,7 +153,7 @@ public class ResultSetColumnNameHelperServiceTest {
 
         // end expects
 
-        String[] columnNames = service.getColumnNames(resultSet);
+        service.getColumnNames(resultSet);
     }
 
     @Test

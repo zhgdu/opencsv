@@ -158,11 +158,7 @@ abstract public class AbstractBeanField<T> implements BeanField<T> {
                     csve.initCause(e);
                     throw csve;
                 }
-            } catch (NoSuchMethodException e1) {
-                // Replace with a multi-catch as soon as we support Java 7
-                // Otherwise set the field directly.
-                writeWithoutSetter(bean, obj);
-            } catch (SecurityException e1) {
+            } catch (NoSuchMethodException | SecurityException e1) {
                 // Otherwise set the field directly.
                 writeWithoutSetter(bean, obj);
             }
@@ -236,18 +232,7 @@ abstract public class AbstractBeanField<T> implements BeanField<T> {
             try {
                 value = propUtils.getSimpleProperty(bean, field.getName());
             }
-            // Replace with multi-catch once we support Java 7
-            catch(IllegalAccessException e) {
-                CsvBeanIntrospectionException csve = new CsvBeanIntrospectionException(bean, field);
-                csve.initCause(e);
-                throw csve;
-            }
-            catch(InvocationTargetException e) {
-                CsvBeanIntrospectionException csve = new CsvBeanIntrospectionException(bean, field);
-                csve.initCause(e);
-                throw csve;
-            }
-            catch(NoSuchMethodException e) {
+            catch(IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
                 CsvBeanIntrospectionException csve = new CsvBeanIntrospectionException(bean, field);
                 csve.initCause(e);
                 throw csve;

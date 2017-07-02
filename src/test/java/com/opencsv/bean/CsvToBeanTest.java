@@ -167,9 +167,9 @@ public class CsvToBeanTest {
 
    @Test
    public void parseBeanWithNoAnnotations() {
-      HeaderColumnNameMappingStrategy<MockBean> strategy = new HeaderColumnNameMappingStrategy<MockBean>();
+      HeaderColumnNameMappingStrategy<MockBean> strategy = new HeaderColumnNameMappingStrategy<>();
       strategy.setType(MockBean.class);
-      CsvToBean<MockBean> bean = new CsvToBean<MockBean>();
+      CsvToBean<MockBean> bean = new CsvToBean<>();
 
       List<MockBean> beanList = bean.parse(strategy, createReader());
       assertEquals(2, beanList.size());
@@ -187,9 +187,9 @@ public class CsvToBeanTest {
 
    @Test
    public void parseBeanWithAnnotations() {
-      HeaderColumnNameMappingStrategy<SimpleAnnotatedMockBean> strategy = new HeaderColumnNameMappingStrategy<SimpleAnnotatedMockBean>();
+      HeaderColumnNameMappingStrategy<SimpleAnnotatedMockBean> strategy = new HeaderColumnNameMappingStrategy<>();
       strategy.setType(SimpleAnnotatedMockBean.class);
-      CsvToBean<SimpleAnnotatedMockBean> csvToBean = new CsvToBean<SimpleAnnotatedMockBean>();
+      CsvToBean<SimpleAnnotatedMockBean> csvToBean = new CsvToBean<>();
 
       List<SimpleAnnotatedMockBean> beanList = csvToBean.parse(strategy, createReader());
       assertEquals(2, beanList.size());
@@ -206,9 +206,9 @@ public class CsvToBeanTest {
 
    @Test
    public void parseBeanWithSomeAnnotations() {
-      HeaderColumnNameMappingStrategy<SimplePartiallyAnnotatedMockBean> strategy = new HeaderColumnNameMappingStrategy<SimplePartiallyAnnotatedMockBean>();
+      HeaderColumnNameMappingStrategy<SimplePartiallyAnnotatedMockBean> strategy = new HeaderColumnNameMappingStrategy<>();
       strategy.setType(SimplePartiallyAnnotatedMockBean.class);
-      CsvToBean<SimplePartiallyAnnotatedMockBean> csvToBean = new CsvToBean<SimplePartiallyAnnotatedMockBean>();
+      CsvToBean<SimplePartiallyAnnotatedMockBean> csvToBean = new CsvToBean<>();
 
       List<SimplePartiallyAnnotatedMockBean> beanList = csvToBean.parse(strategy, createReader());
       assertEquals(2, beanList.size());
@@ -224,9 +224,9 @@ public class CsvToBeanTest {
 
    @Test
    public void parseAnnotatedBeanWithAllValidDataTypes() {
-      HeaderColumnNameMappingStrategy<AnnotatedMockBean> strategy = new HeaderColumnNameMappingStrategy<AnnotatedMockBean>();
+      HeaderColumnNameMappingStrategy<AnnotatedMockBean> strategy = new HeaderColumnNameMappingStrategy<>();
       strategy.setType(AnnotatedMockBean.class);
-      CsvToBean<AnnotatedMockBean> csvToBean = new CsvToBean<AnnotatedMockBean>();
+      CsvToBean<AnnotatedMockBean> csvToBean = new CsvToBean<>();
 
       List<AnnotatedMockBean> beanList = csvToBean.parse(strategy, createReader(TEST_STRING_ALL_DATATYPES));
 
@@ -245,9 +245,9 @@ public class CsvToBeanTest {
 
    @Test
    public void parseAnnotatedBeanWithPrivateField() {
-      HeaderColumnNameMappingStrategy<SimpleAnnotatedMockBeanPrivateFields> strategy = new HeaderColumnNameMappingStrategy<SimpleAnnotatedMockBeanPrivateFields>();
+      HeaderColumnNameMappingStrategy<SimpleAnnotatedMockBeanPrivateFields> strategy = new HeaderColumnNameMappingStrategy<>();
       strategy.setType(SimpleAnnotatedMockBeanPrivateFields.class);
-      CsvToBean<SimpleAnnotatedMockBeanPrivateFields> csvToBean = new CsvToBean<SimpleAnnotatedMockBeanPrivateFields>();
+      CsvToBean<SimpleAnnotatedMockBeanPrivateFields> csvToBean = new CsvToBean<>();
 
       List<SimpleAnnotatedMockBeanPrivateFields> beanList = csvToBean.parse(strategy, createReader(TEST_STRING_PRIVATE_FIELDS));
       assertEquals(1, beanList.size());
@@ -259,9 +259,9 @@ public class CsvToBeanTest {
 
    @Test
    public void parseAnnotatedBeanWithFieldsOfAllAccessModifierTypes() {
-      HeaderColumnNameMappingStrategy<SimpleAnnotatedMockBeanAllModifierTypes> strategy = new HeaderColumnNameMappingStrategy<SimpleAnnotatedMockBeanAllModifierTypes>();
+      HeaderColumnNameMappingStrategy<SimpleAnnotatedMockBeanAllModifierTypes> strategy = new HeaderColumnNameMappingStrategy<>();
       strategy.setType(SimpleAnnotatedMockBeanAllModifierTypes.class);
-      CsvToBean<SimpleAnnotatedMockBeanAllModifierTypes> csvToBean = new CsvToBean<SimpleAnnotatedMockBeanAllModifierTypes>();
+      CsvToBean<SimpleAnnotatedMockBeanAllModifierTypes> csvToBean = new CsvToBean<>();
 
       List<SimpleAnnotatedMockBeanAllModifierTypes> beanList = csvToBean.parse(strategy, createReader(TEST_STRING_ALL_MODIFIER_TYPES));
       assertEquals(1, beanList.size());
@@ -275,7 +275,7 @@ public class CsvToBeanTest {
 
    @Test
    public void bug133ShouldNotThrowNullPointerExceptionWhenProcessingEmptyWithNoAnnotations() {
-      HeaderColumnNameMappingStrategy<Bug133Bean> strategy = new HeaderColumnNameMappingStrategy<Bug133Bean>();
+      HeaderColumnNameMappingStrategy<Bug133Bean> strategy = new HeaderColumnNameMappingStrategy<>();
       strategy.setType(Bug133Bean.class);
 
       StringReader reader = new StringReader("one;two;three\n" +
@@ -288,7 +288,7 @@ public class CsvToBeanTest {
       CSVParser parser = parserBuilder.withFieldAsNull(CSVReaderNullFieldIndicator.BOTH).withSeparator(';').build();
       CSVReader csvReader = readerBuilder.withCSVParser(parser).build();
 
-      CsvToBean<Bug133Bean> bean = new CsvToBean<Bug133Bean>();
+      CsvToBean<Bug133Bean> bean = new CsvToBean<>();
 
       List<Bug133Bean> beanList = bean.parse(strategy, csvReader);
       assertEquals(2, beanList.size());
@@ -296,18 +296,18 @@ public class CsvToBeanTest {
 
    @Test(expected = RuntimeException.class)
    public void throwRuntimeExceptionWhenUnsupportedDataTypeUsedInAnnotatedBean() {
-      HeaderColumnNameMappingStrategy<UnbindableMockBean> strategy = new HeaderColumnNameMappingStrategy<UnbindableMockBean>();
+      HeaderColumnNameMappingStrategy<UnbindableMockBean> strategy = new HeaderColumnNameMappingStrategy<>();
       strategy.setType(UnbindableMockBean.class);
-      CsvToBean<UnbindableMockBean> csvToBean = new CsvToBean<UnbindableMockBean>();
+      CsvToBean<UnbindableMockBean> csvToBean = new CsvToBean<>();
 
       csvToBean.parse(strategy, createReader(TEST_STRING_UNBINDABLE_TYPE));
    }
 
    @Test(expected = RuntimeException.class)
    public void throwRuntimeExceptionWhenRequiredFieldNotProvidedInAnnotatedBean() {
-      HeaderColumnNameMappingStrategy<SimpleAnnotatedMockBean> strategy = new HeaderColumnNameMappingStrategy<SimpleAnnotatedMockBean>();
+      HeaderColumnNameMappingStrategy<SimpleAnnotatedMockBean> strategy = new HeaderColumnNameMappingStrategy<>();
       strategy.setType(SimpleAnnotatedMockBean.class);
-      CsvToBean<SimpleAnnotatedMockBean> csvToBean = new CsvToBean<SimpleAnnotatedMockBean>();
+      CsvToBean<SimpleAnnotatedMockBean> csvToBean = new CsvToBean<>();
 
       csvToBean.parse(strategy, createReader(TEST_STRING_WITHOUT_MANDATORY_FIELD));
    }
@@ -369,7 +369,7 @@ public class CsvToBeanTest {
 
    @Test
    public void testMaximumBuilder() throws FileNotFoundException {
-       HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> map = new HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull>();
+       HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> map = new HeaderColumnNameMappingStrategy<>();
        map.setType(AnnotatedMockBeanFull.class);
        
        // Yeah, some of these are the default values, but I'm having trouble concocting

@@ -26,8 +26,8 @@ import java.io.Writer;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -53,7 +53,7 @@ public class StatefulBeanToCsv<T> {
     private final Writer writer;
     private CSVWriter csvwriter;
     private boolean throwExceptions;
-    private List<CsvException> capturedExceptions = new ArrayList<CsvException>();
+    private List<CsvException> capturedExceptions = new ArrayList<>();
     private static final String INTROSPECTION_ERROR = "There was an error while manipulating the bean to be written.";
     
     /** The nullary constructor should never be used. */
@@ -128,7 +128,7 @@ public class StatefulBeanToCsv<T> {
             if(!headerWritten) {
                 beforeFirstWrite(bean);
             }
-            List<String> contents = new ArrayList<String>();
+            List<String> contents = new ArrayList<>();
             int numColumns = mappingStrategy.findMaxFieldIndex();
             if(mappingStrategy.isAnnotationDriven()) {
                 BeanField beanField;
@@ -138,13 +138,7 @@ public class StatefulBeanToCsv<T> {
                         String s = beanField != null ? beanField.write(bean) : "";
                         contents.add(StringUtils.defaultString(s));
                     }
-                    // Combine to a multi-catch once we support Java 7
-                    catch(CsvDataTypeMismatchException e) {
-                        e.setLineNumber(lineNumber);
-                        if(throwExceptions) {throw e;}
-                        else {capturedExceptions.add(e);}
-                    }
-                    catch(CsvRequiredFieldEmptyException e) {
+                    catch(CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
                         e.setLineNumber(lineNumber);
                         if(throwExceptions) {throw e;}
                         else {capturedExceptions.add(e);}
@@ -157,24 +151,9 @@ public class StatefulBeanToCsv<T> {
                     try {
                         desc = mappingStrategy.findDescriptor(i);
                         Object o = desc != null ? desc.getReadMethod().invoke(bean, (Object[]) null) : null;
-                        contents.add(ObjectUtils.toString(o, ""));
-                        // Once we support Java 7
-//                        contents.add(Objects.toString(o, ""));
+                        contents.add(Objects.toString(o, ""));
                     }
-                    // Combine in a multi-catch with Java 7
-                    catch(IntrospectionException e) {
-                        CsvBeanIntrospectionException csve = new CsvBeanIntrospectionException(
-                                bean, null, INTROSPECTION_ERROR);
-                        csve.initCause(e);
-                        throw csve;
-                    }
-                    catch(IllegalAccessException e) {
-                        CsvBeanIntrospectionException csve = new CsvBeanIntrospectionException(
-                                bean, null, INTROSPECTION_ERROR);
-                        csve.initCause(e);
-                        throw csve;
-                    }
-                    catch(InvocationTargetException e) {
+                    catch(IntrospectionException | IllegalAccessException | InvocationTargetException e) {
                         CsvBeanIntrospectionException csve = new CsvBeanIntrospectionException(
                                 bean, null, INTROSPECTION_ERROR);
                         csve.initCause(e);
@@ -226,7 +205,7 @@ public class StatefulBeanToCsv<T> {
      */
     public List<CsvException> getCapturedExceptions() {
         List<CsvException> intermediate = capturedExceptions;
-        capturedExceptions = new ArrayList<CsvException>();
+        capturedExceptions = new ArrayList<>();
         return intermediate;
     }
 }

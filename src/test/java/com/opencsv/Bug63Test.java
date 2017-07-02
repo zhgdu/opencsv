@@ -31,7 +31,7 @@ public class Bug63Test {
                 "\"\";\"\";\"2\";\"this is a test for row, two\"\n";
 
         Contents c2 = new Contents();
-        List<Contents> cl2 = new ArrayList<Contents>();
+        List<Contents> cl2 = new ArrayList<>();
 
         c2.setKey("");
         c2.setPosition(1);
