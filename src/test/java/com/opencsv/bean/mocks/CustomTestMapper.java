@@ -16,9 +16,7 @@
 package com.opencsv.bean.mocks;
 
 import com.opencsv.bean.AbstractBeanField;
-import com.opencsv.exceptions.CsvConstraintViolationException;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
-import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -33,8 +31,7 @@ import java.math.BigInteger;
 public class CustomTestMapper<T> extends AbstractBeanField<T> {
     @Override
     protected Object convert(String value)
-            throws CsvDataTypeMismatchException,
-            CsvRequiredFieldEmptyException, CsvConstraintViolationException {
+            throws CsvDataTypeMismatchException {
         Class fieldType = field.getType();
         if (fieldType.equals(Boolean.TYPE) || fieldType.equals(Boolean.class))
             return Boolean.TRUE;

@@ -197,7 +197,6 @@ public class AnnotationTest {
         assertEquals(Byte.MAX_VALUE, (long) bean.getByteWrappedDefaultLocale());
         assertEquals(Byte.MAX_VALUE, (long) bean.getByteWrappedSetLocale());
         assertEquals(Byte.MAX_VALUE, (long) bean.getBytePrimitiveDefaultLocale());
-        assertEquals(Byte.MAX_VALUE, (long) bean.getBytePrimitiveSetLocale());
         assertEquals(Double.MAX_VALUE, (double) bean.getDoubleWrappedDefaultLocale(), 0);
         assertEquals(Double.MAX_VALUE, (double) bean.getDoubleWrappedSetLocale(), 0);
         assertEquals(Double.MAX_VALUE, bean.getDoublePrimitiveDefaultLocale(), 0);

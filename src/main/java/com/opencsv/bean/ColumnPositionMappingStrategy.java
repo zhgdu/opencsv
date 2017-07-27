@@ -167,8 +167,8 @@ public class ColumnPositionMappingStrategy<T> extends HeaderColumnNameMappingStr
                 fieldMap.put(columnName, bean);
             }
 
-            // Then check for a normal bind by position.
-            else if (field.isAnnotationPresent(CsvBindByPosition.class)) {
+            // Then it must be a bind by position.
+            else {
                 CsvBindByPosition annotation = field.getAnnotation(CsvBindByPosition.class);
                 required = annotation.required();
                 columnName = field.getName().toUpperCase().trim();
@@ -181,12 +181,6 @@ public class ColumnPositionMappingStrategy<T> extends HeaderColumnNameMappingStr
                 }
             }
 
-            // What's left must be the deprecated CsvBind
-            else {
-                required = field.getAnnotation(CsvBind.class).required();
-                columnName = field.getName().toUpperCase().trim();
-                fieldMap.put(columnName, new BeanFieldPrimitiveTypes(field, required, null));
-            }
             if(required) {
                 requiredFields.add(field);
             }
@@ -197,8 +191,7 @@ public class ColumnPositionMappingStrategy<T> extends HeaderColumnNameMappingStr
         List<Field> fields = new ArrayList<>();
         for (Field field : cls.getDeclaredFields()) {
             if (field.isAnnotationPresent(CsvBindByPosition.class)
-                    || field.isAnnotationPresent(CsvCustomBindByPosition.class)
-                    || field.isAnnotationPresent(CsvBind.class)) {
+                    || field.isAnnotationPresent(CsvCustomBindByPosition.class)) {
                 fields.add(field);
             }
         }

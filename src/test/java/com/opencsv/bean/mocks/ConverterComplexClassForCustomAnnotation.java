@@ -16,9 +16,7 @@
 package com.opencsv.bean.mocks;
 
 import com.opencsv.bean.AbstractBeanField;
-import com.opencsv.exceptions.CsvConstraintViolationException;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
-import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 
 /**
  * This class converts to {@link com.opencsv.bean.mocks.ComplexClassForCustomAnnotation}.
@@ -28,8 +26,7 @@ import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 public class ConverterComplexClassForCustomAnnotation<T> extends AbstractBeanField<T> {
 
     @Override
-    protected Object convert(String value) throws CsvDataTypeMismatchException,
-            CsvRequiredFieldEmptyException, CsvConstraintViolationException {
+    protected Object convert(String value) {
         ComplexClassForCustomAnnotation o;
         String[] sa = value.split("\\.", 3);
         if (sa[2].contains("derived")) {

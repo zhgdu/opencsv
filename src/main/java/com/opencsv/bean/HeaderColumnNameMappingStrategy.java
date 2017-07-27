@@ -360,8 +360,8 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
                 fieldMap.put(columnName, bean);
             }
 
-            // Then check for CsvBindByName.
-            else if (field.isAnnotationPresent(CsvBindByName.class)) {
+            // Otherwise it must be CsvBindByName.
+            else {
                 CsvBindByName annotation = field.getAnnotation(CsvBindByName.class);
                 required = annotation.required();
                 columnName = annotation.column().toUpperCase().trim();
@@ -384,13 +384,6 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
                 }
             }
 
-            // And only check for CsvBind if nothing else is there, because
-            // CsvBind is deprecated.
-            else {
-                required = field.getAnnotation(CsvBind.class).required();
-                fieldMap.put(field.getName().toUpperCase(),
-                        new BeanFieldPrimitiveTypes(field, required, null));
-            }
             if(required) {
                 requiredFields.add(field);
             }
@@ -405,8 +398,7 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
     private List<Field> loadFields(Class<? extends T> cls) {
         List<Field> fields = new ArrayList<>();
         for (Field field : FieldUtils.getAllFields(cls)) {
-            if (field.isAnnotationPresent(CsvBind.class)
-                    || field.isAnnotationPresent(CsvBindByName.class)
+            if (field.isAnnotationPresent(CsvBindByName.class)
                     || field.isAnnotationPresent(CsvCustomBindByName.class)) {
                 fields.add(field);
             }

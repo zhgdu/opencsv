@@ -15,7 +15,6 @@
  */
 package com.opencsv.bean.mocks;
 
-import com.opencsv.bean.CsvBind;
 import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvBindByPosition;
 import com.opencsv.bean.CsvDate;
@@ -269,7 +268,6 @@ public class AnnotatedMockBeanFull {
      */
     @CsvBindByName(column = "integer3")
     @CsvBindByPosition(position = 17)
-    @CsvBind
     private int integerPrimitiveDefaultLocale;
 
     /**

@@ -17,7 +17,6 @@ package com.opencsv.bean.customconverter;
 
 import com.opencsv.bean.AbstractBeanField;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
-import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import org.apache.commons.beanutils.ConversionException;
 import org.apache.commons.beanutils.Converter;
 import org.apache.commons.beanutils.converters.BooleanConverter;
@@ -53,12 +52,10 @@ public class ConvertGermanToBoolean<T> extends AbstractBeanField<T> {
      * @return Boolean
      * @throws CsvDataTypeMismatchException   If anything other than the
      *                                        explicitly translated pairs is found
-     * @throws CsvRequiredFieldEmptyException Is not thrown by this
-     *                                        implementation. See {@link com.opencsv.bean.customconverter.ConvertGermanToBooleanRequired}.
      */
     @Override
     protected Object convert(String value)
-            throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
+            throws CsvDataTypeMismatchException {
         if (StringUtils.isEmpty(value)) {
             return null;
         }
@@ -83,11 +80,10 @@ public class ConvertGermanToBoolean<T> extends AbstractBeanField<T> {
      * @return "wahr" if true, "falsch" if false
      * @throws CsvDataTypeMismatchException If the field is not a {@code boolean}
      *   or {@link java.lang.Boolean}
-     * @throws CsvRequiredFieldEmptyException Not thrown by this implementation
      */
     @Override
     protected String convertToWrite(Object value)
-            throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
+            throws CsvDataTypeMismatchException {
         String result = "";
         try {
             if(value != null) {

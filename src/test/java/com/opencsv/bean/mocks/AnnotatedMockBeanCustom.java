@@ -17,7 +17,6 @@ package com.opencsv.bean.mocks;
 
 import com.opencsv.bean.*;
 import com.opencsv.bean.customconverter.ConvertGermanToBoolean;
-import com.opencsv.bean.customconverter.ConvertGermanToBooleanRequired;
 import com.opencsv.bean.customconverter.ConvertSplitOnWhitespace;
 
 import java.math.BigDecimal;
@@ -35,28 +34,21 @@ public class AnnotatedMockBeanCustom {
     /**
      * <p>Used for the following test cases:<ul>
      * <li>12</li>
-     * <li>39</li>
-     * <li>40</li>
-     * <li>41</li>
      * <li>56</li>
      * </ul></p>
-     * <p>Used for the following test cases, writing:<ul>
-     * <li>Writing with ConvertGermanToBooleanRequired</li>
-     * </ul></p>
      */
-    @CsvCustomBindByName(column = "bool1", converter = ConvertGermanToBooleanRequired.class)
-    @CsvCustomBindByPosition(position = 1, converter = ConvertGermanToBooleanRequired.class)
+    @CsvCustomBindByName(column = "bool1", converter = ConvertGermanToBoolean.class, required = true)
+    @CsvCustomBindByPosition(position = 1, converter = ConvertGermanToBoolean.class, required = true)
     private Boolean boolWrapped;
 
     /**
      * <p>Used for the following test cases:<ul>
      * <li>13</li>
-     * <li>39</li>
      * <li>57</li>
      * </ul></p>
      */
-    @CsvCustomBindByName(converter = ConvertGermanToBooleanRequired.class)
-    @CsvCustomBindByPosition(position = 2, converter = ConvertGermanToBooleanRequired.class)
+    @CsvCustomBindByName(converter = ConvertGermanToBoolean.class, required = true)
+    @CsvCustomBindByPosition(position = 2, converter = ConvertGermanToBoolean.class, required = true)
     private boolean boolPrimitive;
 
     /**
@@ -120,21 +112,6 @@ public class AnnotatedMockBeanCustom {
     @CsvCustomBindByPosition(position = 5, converter = CustomTestMapper.class)
     @CsvBindByPosition(position = 3)
     private byte bytePrimitiveDefaultLocale;
-
-    /**
-     * <p>Used for the following test cases:<ul>
-     * <li>19</li>
-     * </ul></p>
-     * <p>Used for the following test cases, writing:<ul>
-     * <li>Writing with @CsvBindByName, @CsvCustomBindByName and @CsvBind</li>
-     * </ul></p>
-     */
-    @CsvCustomBindByName(column = "byte4", converter = CustomTestMapper.class)
-    @CsvBindByName(column = "byte2")
-    @CsvCustomBindByPosition(position = 6, converter = CustomTestMapper.class)
-    @CsvBindByPosition(position = 4)
-    @CsvBind
-    private byte bytePrimitiveSetLocale;
 
     /**
      * <p>Used for the following test cases:<ul>
@@ -495,14 +472,6 @@ public class AnnotatedMockBeanCustom {
 
     public void setBytePrimitiveDefaultLocale(byte bytePrimitiveDefaultLocale) {
         this.bytePrimitiveDefaultLocale = bytePrimitiveDefaultLocale;
-    }
-
-    public byte getBytePrimitiveSetLocale() {
-        return bytePrimitiveSetLocale;
-    }
-
-    public void setBytePrimitiveSetLocale(byte bytePrimitiveSetLocale) {
-        this.bytePrimitiveSetLocale = bytePrimitiveSetLocale;
     }
 
     public Double getDoubleWrappedDefaultLocale() {

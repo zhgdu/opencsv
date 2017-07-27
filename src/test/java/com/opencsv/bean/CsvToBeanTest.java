@@ -14,7 +14,6 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.*;
@@ -33,15 +32,8 @@ public class CsvToBeanTest {
            "238801727291675293,Smith,3,28.74826489578307,56643.82631345,2,2,A,false\n" +
            "882101432432123445,,3,38.48347628462843,74200.73912766,0,3,Z,false\n" +
            "619364584659026342,Woods,4,17.12739636774893,48612.12395295,1,,M,true";
-
-   private static final String TEST_STRING_PRIVATE_FIELDS = "privateField1,privateField2\n" +
-           "firstValue,secondValue";
-
-   private static final String TEST_STRING_ALL_MODIFIER_TYPES = "publicField,privateField,protectedField,packagePrivateField\n" +
-           "firstValue,secondValue,thirdValue,fourthValue";
-
-   private static final String TEST_STRING_UNBINDABLE_TYPE = "date\n" +
-           "\"Sat, 12 Aug 1995 13:30:00 GMT+0430\"";
+   
+   private static final String TEST_STRING_FOR_MINIMAL_BUILDER = "1,2,3";
 
    private CSVReader createReader() {
       return createReader(TEST_STRING);
@@ -186,94 +178,6 @@ public class CsvToBeanTest {
    }
 
    @Test
-   public void parseBeanWithAnnotations() {
-      HeaderColumnNameMappingStrategy<SimpleAnnotatedMockBean> strategy = new HeaderColumnNameMappingStrategy<>();
-      strategy.setType(SimpleAnnotatedMockBean.class);
-      CsvToBean<SimpleAnnotatedMockBean> csvToBean = new CsvToBean<>();
-
-      List<SimpleAnnotatedMockBean> beanList = csvToBean.parse(strategy, createReader());
-      assertEquals(2, beanList.size());
-
-      List<String> expectedNames = Arrays.asList("kyle", "jimmy");
-      List<String> expectedOrderNumbers = Arrays.asList("abc123456", "def098765");
-      List<Integer> expectedNums = Arrays.asList(123, 456);
-      for (SimpleAnnotatedMockBean bean : beanList) {
-         assertTrue(expectedNames.contains(bean.getName()));
-         assertTrue(expectedOrderNumbers.contains(bean.getOrderNumber()));
-         assertTrue(expectedNums.contains(bean.getNum()));
-      }
-   }
-
-   @Test
-   public void parseBeanWithSomeAnnotations() {
-      HeaderColumnNameMappingStrategy<SimplePartiallyAnnotatedMockBean> strategy = new HeaderColumnNameMappingStrategy<>();
-      strategy.setType(SimplePartiallyAnnotatedMockBean.class);
-      CsvToBean<SimplePartiallyAnnotatedMockBean> csvToBean = new CsvToBean<>();
-
-      List<SimplePartiallyAnnotatedMockBean> beanList = csvToBean.parse(strategy, createReader());
-      assertEquals(2, beanList.size());
-
-      List<String> expectedNames = Arrays.asList("kyle", "jimmy");
-      List<Integer> expectedNums = Arrays.asList(123, 456);
-      for (SimplePartiallyAnnotatedMockBean bean : beanList) {
-         assertTrue(expectedNames.contains(bean.getName()));
-         assertTrue(expectedNums.contains(bean.getNum()));
-         assertNull(bean.getOrderNumber());
-      }
-   }
-
-   @Test
-   public void parseAnnotatedBeanWithAllValidDataTypes() {
-      HeaderColumnNameMappingStrategy<AnnotatedMockBean> strategy = new HeaderColumnNameMappingStrategy<>();
-      strategy.setType(AnnotatedMockBean.class);
-      CsvToBean<AnnotatedMockBean> csvToBean = new CsvToBean<>();
-
-      List<AnnotatedMockBean> beanList = csvToBean.parse(strategy, createReader(TEST_STRING_ALL_DATATYPES));
-
-      assertEquals(4, beanList.size());
-      AnnotatedMockBean bean = beanList.get(0);
-      assertTrue(bean.getFamilyId() == 922337203685477580L);
-      assertTrue(bean.getFamilyName().equals("Jones"));
-      assertTrue(bean.getFamilySize() == 5);
-      assertTrue(bean.getAverageAge() == 18.77293748162537D);
-      assertTrue(bean.getAverageIncome() == 32000.729F);
-      assertTrue(bean.getNumberOfPets() == 1);
-      assertTrue(bean.getNumberOfBedrooms() == 4);
-      assertTrue(bean.getZipcodePrefix() == 'Z');
-      assertTrue(bean.isHasBeenContacted());
-   }
-
-   @Test
-   public void parseAnnotatedBeanWithPrivateField() {
-      HeaderColumnNameMappingStrategy<SimpleAnnotatedMockBeanPrivateFields> strategy = new HeaderColumnNameMappingStrategy<>();
-      strategy.setType(SimpleAnnotatedMockBeanPrivateFields.class);
-      CsvToBean<SimpleAnnotatedMockBeanPrivateFields> csvToBean = new CsvToBean<>();
-
-      List<SimpleAnnotatedMockBeanPrivateFields> beanList = csvToBean.parse(strategy, createReader(TEST_STRING_PRIVATE_FIELDS));
-      assertEquals(1, beanList.size());
-
-      SimpleAnnotatedMockBeanPrivateFields bean = beanList.get(0);
-      assertTrue("firstValue".equals(bean.getPrivateField1()));
-      assertTrue("secondValue".equals(bean.getPrivateField2()));
-   }
-
-   @Test
-   public void parseAnnotatedBeanWithFieldsOfAllAccessModifierTypes() {
-      HeaderColumnNameMappingStrategy<SimpleAnnotatedMockBeanAllModifierTypes> strategy = new HeaderColumnNameMappingStrategy<>();
-      strategy.setType(SimpleAnnotatedMockBeanAllModifierTypes.class);
-      CsvToBean<SimpleAnnotatedMockBeanAllModifierTypes> csvToBean = new CsvToBean<>();
-
-      List<SimpleAnnotatedMockBeanAllModifierTypes> beanList = csvToBean.parse(strategy, createReader(TEST_STRING_ALL_MODIFIER_TYPES));
-      assertEquals(1, beanList.size());
-
-      SimpleAnnotatedMockBeanAllModifierTypes bean = beanList.get(0);
-      assertTrue("firstValue".equals(bean.getPublicField()));
-      assertTrue("secondValue".equals(bean.getPrivateField()));
-      assertTrue("thirdValue".equals(bean.getProtectedField()));
-      assertTrue("fourthValue".equals(bean.getPackagePrivateField()));
-   }
-
-   @Test
    public void bug133ShouldNotThrowNullPointerExceptionWhenProcessingEmptyWithNoAnnotations() {
       HeaderColumnNameMappingStrategy<Bug133Bean> strategy = new HeaderColumnNameMappingStrategy<>();
       strategy.setType(Bug133Bean.class);
@@ -294,24 +198,6 @@ public class CsvToBeanTest {
       assertEquals(2, beanList.size());
    }
 
-   @Test(expected = RuntimeException.class)
-   public void throwRuntimeExceptionWhenUnsupportedDataTypeUsedInAnnotatedBean() {
-      HeaderColumnNameMappingStrategy<UnbindableMockBean> strategy = new HeaderColumnNameMappingStrategy<>();
-      strategy.setType(UnbindableMockBean.class);
-      CsvToBean<UnbindableMockBean> csvToBean = new CsvToBean<>();
-
-      csvToBean.parse(strategy, createReader(TEST_STRING_UNBINDABLE_TYPE));
-   }
-
-   @Test(expected = RuntimeException.class)
-   public void throwRuntimeExceptionWhenRequiredFieldNotProvidedInAnnotatedBean() {
-      HeaderColumnNameMappingStrategy<SimpleAnnotatedMockBean> strategy = new HeaderColumnNameMappingStrategy<>();
-      strategy.setType(SimpleAnnotatedMockBean.class);
-      CsvToBean<SimpleAnnotatedMockBean> csvToBean = new CsvToBean<>();
-
-      csvToBean.parse(strategy, createReader(TEST_STRING_WITHOUT_MANDATORY_FIELD));
-   }
-   
    @Test(expected = IllegalStateException.class)
    public void throwIllegalStateWhenParseWithoutArgumentsIsCalled() {
        CsvToBean csvtb = new CsvToBean();
@@ -328,28 +214,30 @@ public class CsvToBeanTest {
    @Test(expected = IllegalStateException.class)
    public void throwIllegalStateWhenOnlyMapperIsSpecifiedToParseWithoutArguments() {
        CsvToBean csvtb = new CsvToBean();
-       csvtb.setMappingStrategy(new HeaderColumnNameMappingStrategy<SimpleAnnotatedMockBean>());
+       HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat = new HeaderColumnNameMappingStrategy<>();
+       strat.setType(AnnotatedMockBeanFull.class);
+       csvtb.setMappingStrategy(strat);
        csvtb.parse();
    }
    
    @Test(expected = IllegalArgumentException.class)
    public void throwIllegalStateWhenReaderNotProvidedInBuilder() {
-       new CsvToBeanBuilder<SimpleAnnotatedMockBean>(null)
-               .withType(SimpleAnnotatedMockBean.class)
+       new CsvToBeanBuilder<>(null)
+               .withType(AnnotatedMockBeanFull.class)
                .build();
    }
    
    @Test(expected = IllegalStateException.class)
    public void throwIllegalStateWhenTypeAndMapperNotProvidedInBuilder() {
-       new CsvToBeanBuilder<SimpleAnnotatedMockBean>(new StringReader(TEST_STRING_WITHOUT_MANDATORY_FIELD))
+       new CsvToBeanBuilder<>(new StringReader(TEST_STRING_WITHOUT_MANDATORY_FIELD))
                .build();
    }
    
    @Test
    public void testMinimumBuilder() {
-       List<SimpleAnnotatedMockBean> result =
-               new CsvToBeanBuilder<SimpleAnnotatedMockBean>(new StringReader(TEST_STRING))
-                       .withType(SimpleAnnotatedMockBean.class)
+       List<MinimalCsvBindByPositionBeanForWriting> result =
+               new CsvToBeanBuilder<>(new StringReader("1,2,3\n4,5,6"))
+                       .withType(MinimalCsvBindByPositionBeanForWriting.class)
                        .build()
                        .parse();
        assertEquals(2, result.size());

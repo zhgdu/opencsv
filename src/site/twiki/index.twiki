@@ -2,9 +2,7 @@
 
 opencsv is an easy-to-use CSV (comma-separated values) parser library for Java.
 It was developed because all the CSV parsers at the time didn't have
-commercial-friendly licenses. Using the maven compiler plugin it is targeted for Java 7 but
-due to of numerous requests we have kept the code source compatible with Java 6 so you can recompile it
-if you situation does not allow you to use newer compilers.
+commercial-friendly licenses. Java 7 is currently the minimum supported version.
 
 ---+Features
 
@@ -145,7 +143,6 @@ annotations are:
    * CsvCustomBindByName: The same as CsvBindByName, but must provide its own data conversion class.
    * CsvCustomBindByPosition: The same as CsvBindByPosition, but must provide its own data conversion class.
    * CsvDate: Must be applied to bean fields of date/time types for automatic conversion to work, and must be used in conjunction with one of the preceding four annotations.
-   * CsvBind: A deprecated annotation that can be replaced one-to-one with CsvBindByName.
 
 As you can infer, there are two strategies for annotating beans, depending on your input:
    * Annotating by header name
@@ -243,9 +240,8 @@ or:
    </verbatim>
 
 *Warning:* The iterator does not support all features of annotation-driven
-parsing. In particular, the use of locales definitely does not work and is not
-supported. The use of custom converters likely does not work either, and is
-also not supported.
+parsing. In particular, the use of locales and custom converters definitely do
+not work and are not supported.
 
 ---+++Reading into beans
 
@@ -402,7 +398,7 @@ separator is a dot.
 Now, we know that input data can get very messy, so we have provided our users
 with the ability to deal with the messiest of data by allowing you to define your
 own custom converters. Every converter must be derived from AbstractBeanField.
-For reading, the convert() method must be overriden. opencsv provides three custom
+For reading, the convert() method must be overriden. opencsv provides two custom
 converters in the package com.opencsv.bean.customconverter. These can be useful
 converters themselves, but they also exist for instructive purposes: If you want
 to write your own custom converter, look at these for examples of how it's done.
@@ -493,10 +489,9 @@ Less often used, but just as comfortable as reading CSV files is writing them.
 And believe me, a lot of work went into making writing CSV files as comfortable
 as possible for you, our users.
 
-There are four methods of writing CSV data:
+There are three methods of writing CSV data:
    * Writing from an array of strings
    * Stateful from beans
-   * Stateless from beans
    * From an SQL ResultSet
 
 ---+++Writing from an array of strings
@@ -521,7 +516,8 @@ There is a constructor argument for this purpose.
 
 ---+++Stateful writing of beans
 The easiest way to write CSV files will in most cases be StatefulBeanToCsv,
-which is simplest to create with StatefulBeanToCsvBuilder.
+which is simplest to create with StatefulBeanToCsvBuilder, and which is thus
+named because there used to be a BeanToCsv. Thankfully, no more.
    <verbatim>
      // List<MyBean> beans comes from somewhere earlier in your code.
      Writer writer = new FileWriter("yourfile.csv");
@@ -535,25 +531,6 @@ mapping strategy is to be used. opencsv determines these things automatically.
 Naturally, the mapping strategy can be dictated, if necessary, though
 StatefulBeanToCsvBuilder.withMappingStrategy(), or the constructor for
 StatefulBeanToCsv.
-
----+++Stateless writing of beans
-Now it becomes clear why "StatefulBeanToCsv" is thus named: BeanToCsv includes
-no state information while writing beans, forcing you, the developer, to keep
-track of whether or not you want to write a header, and whether it has already
-been written. I think we can all agree, this is no fun, so stateless writing of
-beans has been deprecated. Nonetheless, it still exists, and is used thus:
-   <verbatim>
-     // List<MyBean> beans comes from somewhere earlier in your code.
-     Writer writer = new FileWriter("yourfile.csv");
-     // MappingStrategy myStrategy comes from somewhere earlier in your code.
-     BeanToCsv.write(myStrategy, writer, beans);
-     writer.close();
-   </verbatim>
-What's so awful about this? Well, it's all good and well if you have all of your
-beans together and want to write them at one time, but if you don't, you have
-to write your beans one at a time and remember whether or not you have already
-written the header or not. On top of that, you have to specify the mapping
-strategy yourself. What a bummer.
 
 ---+++From a database table
 
@@ -580,14 +557,14 @@ the pieces fit together for reading:
    1. The Reader can be wrapped in a CSVReader, which is also given the parser, if you have used your own. Otherwise, opencsv creates its own parser and even its own CSVReader. If you are reading into an array of strings, this is where the trail ends.
    1. For those reading into beans, a MappingStrategy is the next step.
    1. If you want filtering, you can create a CsvToBeanFilter.
-   1. The MappingStrategy and the Reader or CSVReader and optionally the CsvToBeanFilter are passed to a CsvToBean, which uses them to parse input an populate beans.
+   1. The MappingStrategy and the Reader or CSVReader and optionally the CsvToBeanFilter are passed to a CsvToBean, which uses them to parse input and populate beans.
    1. If you have any custom converters, they are called for each bean field as CsvToBean is populating the bean fields.
 
 For writing it's a little simpler:
    1. You must provide a Writer. This can be any Writer, but a FileWriter or a StringWriter are the most common options.
-   1. The Writer is wrapped in a CSVWriter. For stateful writing, this is always done for you. Otherwise you may do this yourself.
+   1. The Writer is wrapped in a CSVWriter. This is always done for you.
    1. Create a MappingStrategy if you need to. Otherwise opencsv will automatically determine one.
-   1. Create a StatefulBeanToCsv, give it the MappingStrategy and the Writer, or pass the MappingStrategy and Writer/CSVWriter to BeanToCsv.write().
+   1. Create a StatefulBeanToCsv, give it the MappingStrategy and the Writer.
    1. If you have any custom converters, they are called for each bean field as the field is written out to the CSV file.
 
 ---+++Mapping strategies
@@ -616,8 +593,7 @@ conversion purposes, you need to let opencsv know which mapping strategy it must
 use. For reading, this is accomplished either by passing an instance of your
 mapping strategy to CsvToBeanBuilder.withMappingStrategy(), or, if you are
 iterating, passing it to IterableCSVToBeanBuilder.withMapper(). For writing, pass
-your strategy to StatefulBeanToCsvBuilder.withMappingStrategy() or one of the
-write() methods of BeanToCsv.
+your strategy to StatefulBeanToCsvBuilder.withMappingStrategy().
 
 ---+FAQ
 
@@ -648,7 +624,7 @@ Add a dependency element to your pom:
   <dependency>
      <groupId>com.opencsv</groupId>
      <artifactId>opencsv</artifactId>
-     <version>3.10</version>
+     <version>4.0</version>
   </dependency>
 </verbatim>
 

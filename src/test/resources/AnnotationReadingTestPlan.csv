@@ -17,7 +17,6 @@ Test case,Test,Expected behavior,Status
 16,Mapping fields of a complex destination object by @CsvCustomBindByName with unassignable types,RuntimeException with inner exception CsvDataTypeMismatchException,pass
 17,Mapping fields of a complex destination object by @CsvCustomBindByName with an assignable derived type,Members are filled correctly,pass
 18,Mapping fields annotated with @CsvBindByName and @CsvCustomBindByName,The custom converter is used,pass
-19,Mapping fields annotated with @CsvBindByName and @CsvCustomBindByName and @CsvBind,The custom converter is used,pass
 20,Mapping fields annotated with @CsvBindByName and @CsvBind,@CsvBindByName is used,pass
 21,Mapping to unbindable fields with @CsvBindByName,RuntimeException with inner exception CsvDataTypeMismatchException,pass
 22,Mapping to primitive types with private access and no setter method with @CsvBindByName,Members are filled correctly,pass
@@ -37,9 +36,6 @@ Test case,Test,Expected behavior,Status
 36,Mapping with ConvertGermanToBoolean using all available values,Members are filled correctly,pass
 37,Mapping with ConvertGermanToBoolean using an empty input,Members contain VM defaults,pass
 38,Mapping with ConvertGermanToBoolean using an invalid string,RuntimeException with inner exception CsvDataTypeMismatchException,pass
-39,Mapping with ConvertGermanToBooleanRequired using all available values,Members are filled correctly,pass
-40,Mapping with ConvertGermanToBooleanRequired using an empty input,RuntimeException with inner exception CsvRequiredFieldEmptyException,pass
-41,Mapping with ConvertGermanToBooleanRequired using an invalid string,RuntimeException with inner exception CsvDataTypeMismatchException,pass
 42,"Mapping with ConvertSplitOnWhitespace using multiple whitespace-separated values (space, tab)",Members are filled correctly,pass
 43,Mapping with ConvertSplitOnWhitespace using a null input string,Member is null,pass
 44,Mapping with ConvertSplitOnWhitespace using a single string with no whitespace,Members are filled correctly,pass
