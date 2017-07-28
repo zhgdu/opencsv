@@ -30,11 +30,15 @@ import com.opencsv.exceptions.CsvException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.Reader;
+import java.io.StringReader;
 import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.After;
 import static org.junit.Assert.*;
@@ -615,5 +619,42 @@ public class StatefulBeanToCsvTest {
             assertEquals(AnnotatedMockBeanCustom.class, e.getBeanClass());
             assertEquals("boolWrapped", e.getDestinationField().getName());
         }
+    }
+    
+    @Test
+    public void testPerformance()
+            throws IOException, CsvDataTypeMismatchException,
+            CsvRequiredFieldEmptyException {
+        int numBeans = 10000;
+        List<AnnotatedMockBeanFull> beanList = new ArrayList<>(numBeans);
+        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> pair;
+        for(int i = 0; i < numBeans/2; i++) {
+            pair = createTwoGoodBeans();
+            beanList.add(pair.left);
+            beanList.add(pair.right);
+        }
+        
+        // Writing
+        Writer writer = new StringWriter();
+        HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat = new HeaderColumnNameMappingStrategy<>();
+        strat.setType(AnnotatedMockBeanFull.class);
+        StatefulBeanToCsv<AnnotatedMockBeanFull> btcsv = new StatefulBeanToCsvBuilder<>(writer)
+                .withMappingStrategy((MappingStrategy)strat).build();
+        StopWatch watch = StopWatch.createStarted();
+        btcsv.write(beanList);
+        watch.stop();
+        System.out.println("The following are performance data. Please keep an eye on them as you develop.");
+        System.out.println("Time taken to write " + numBeans + " beans: " + watch.toString());
+        
+        // Reading
+        Reader reader = new StringReader(writer.toString());
+        CsvToBean<AnnotatedMockBeanFull> csvtb = new CsvToBeanBuilder<>(reader)
+                .withType(AnnotatedMockBeanFull.class)
+                .withMappingStrategy(strat).build();
+        watch = StopWatch.createStarted();
+        List<AnnotatedMockBeanFull> beans = csvtb.parse();
+        watch.stop();
+        assertEquals(numBeans, beans.size());
+        System.out.println("Time taken to read " + numBeans + " beans: " + watch.toString());
     }
 }
