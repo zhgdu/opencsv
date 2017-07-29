@@ -20,6 +20,7 @@ import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.enums.CSVReaderNullFieldIndicator;
+
 import java.io.Reader;
 
 /**
@@ -123,14 +124,14 @@ public class CsvToBeanBuilder<T> {
      *   Currently this means that both the mapping strategy and the bean type
      *   are not set, so it is impossible to determine a mapping strategy.
      */
-    public CsvToBean build() throws IllegalStateException {
+    public CsvToBean<T> build() throws IllegalStateException {
         // Check for errors in the configuration first
         if(mappingStrategy == null && type == null) {
             throw new IllegalStateException("Either a mapping strategy or the type of the bean to be populated must be specified.");
         }
         
         // Build Parser and Reader
-        CsvToBean bean = new CsvToBean();
+        CsvToBean<T> bean = new CsvToBean();
         CSVParser parser = buildParser();
         bean.setCsvReader(buildReader(parser));
         
