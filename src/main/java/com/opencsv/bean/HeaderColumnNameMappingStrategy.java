@@ -2,8 +2,8 @@ package com.opencsv.bean;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvBadConverterException;
+import com.opencsv.exceptions.CsvBeanIntrospectionException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
@@ -40,7 +40,7 @@ import org.apache.commons.text.StrBuilder;
  */
 public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
 
-    // header and indexLookup should be replaced with a BidiMap from Apache
+    // TODO: header and indexLookup should be replaced with a BidiMap from Apache
     // Commons Collections once Apache Commons BeanUtils supports Collections
     // version 4.0 or newer. Until then I don't like BidiMaps, because they
     // aren't done with Generics, meaning everything is an Object and there is
@@ -67,15 +67,6 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
      * {@link BeanField}.
      */
     protected Map<String, BeanField> fieldMap = null;
-    
-    /** A list of all fields in the bean that are required. */
-    protected final List<Field> requiredFields = new ArrayList<>();
-    
-    /**
-     * A copy of {@link #requiredFields} that is used for reading in each record
-     * to make certain all required fields were present.
-     */
-    protected List<Field> copyOfRequiredFields;
     
     /** This is the class of the bean to be manipulated. */
     protected Class<? extends T> type;
@@ -149,19 +140,23 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
     }
     
     @Override
-    public void registerBeginningOfRecordForReading() {
-        copyOfRequiredFields = new ArrayList<>(requiredFields);
-    }
-    
-    @Override
-    public void registerEndOfRecordForReading() throws CsvRequiredFieldEmptyException {
-        if(!copyOfRequiredFields.isEmpty()) {
-            StringBuilder sb = new StringBuilder("The following required fields were not present for one record of the input:");
-            for(Field f : copyOfRequiredFields) {
-                sb.append(' ');
-                sb.append(f.getName());
+    public void verifyLineLength(int numberOfFields) throws CsvRequiredFieldEmptyException {
+        if(header != null) {
+            BeanField f;
+            StringBuilder sb = null;
+            for(int i = numberOfFields; i < header.length; i++) {
+                f = findField(i);
+                if(f.isRequired()) {
+                    if(sb == null) {
+                        sb = new StringBuilder("The following required fields were not present for one record of the input:");
+                    }
+                    sb.append(' ');
+                    sb.append(f.getField().getName());
+                }
             }
-            throw new CsvRequiredFieldEmptyException(type, sb.toString());
+            if(sb != null) {
+                throw new CsvRequiredFieldEmptyException(type, sb.toString());
+            }
         }
     }
     
@@ -174,15 +169,13 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
      */
     @Override
     public String[] generateHeader() {
+        if(type == null) {
+            throw new IllegalStateException("You must call MappingStrategy.setType() before calling MappingStrategy.generateHeader().");
+        }
+        
         // Always take what's been given or previously determined first.
         if(header == null) {
 
-            // We will have to generate a new header, which means this instance
-            // has not been used for importing data.
-            if(fieldMap == null) {
-                loadFields(type);
-            }
-            
             // To make testing simpler and because not all receivers are
             // guaranteed to be as flexible with column order as opencsv,
             // make the column ordering deterministic by sorting the column
@@ -227,15 +220,11 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
     }
 
     @Override
-    public PropertyDescriptor findDescriptor(int col)
-            throws IntrospectionException {
+    public PropertyDescriptor findDescriptor(int col) {
         String columnName = getColumnName(col);
         BeanField beanField = null;
         if(StringUtils.isNotBlank(columnName)) {
             beanField = fieldMap.get(columnName.toUpperCase().trim());
-            if(CollectionUtils.isNotEmpty(copyOfRequiredFields) && beanField != null) {
-                copyOfRequiredFields.remove(beanField.getField());
-            }
         }
         if(beanField != null) {
             return findDescriptor(beanField.getField().getName());
@@ -252,9 +241,6 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
         String columnName = getColumnName(col);
         if(StringUtils.isNotBlank(columnName)) {
             beanField = fieldMap.get(columnName.toUpperCase().trim());
-            if(CollectionUtils.isNotEmpty(copyOfRequiredFields) && beanField != null) {
-                copyOfRequiredFields.remove(beanField.getField());
-            }
         }
         return beanField;
     }
@@ -280,13 +266,8 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
      *
      * @param name Column name to look up.
      * @return The property descriptor for the column.
-     * @throws IntrospectionException Thrown on error loading the property
-     *                                descriptors.
      */
-    protected PropertyDescriptor findDescriptor(String name) throws IntrospectionException {
-        if (null == descriptorMap) {
-            descriptorMap = loadDescriptorMap(); //lazy load descriptors
-        }
+    protected PropertyDescriptor findDescriptor(String name) {
         return descriptorMap.get(name.toUpperCase().trim());
     }
 
@@ -337,7 +318,6 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
     protected void loadFieldMap() throws CsvBadConverterException {
         boolean required;
         fieldMap = new HashMap<>();
-        requiredFields.clear();
 
         for (Field field : loadFields(getType())) {
             String columnName;
@@ -382,10 +362,6 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
                         fieldMap.put(columnName, new BeanFieldPrimitiveTypes(field, required, locale));
                     }
                 }
-            }
-
-            if(required) {
-                requiredFields.add(field);
             }
         }
     }
@@ -437,6 +413,20 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
     public void setType(Class<? extends T> type) throws CsvBadConverterException {
         this.type = type;
         loadFieldMap();
+        try {
+            descriptorMap = loadDescriptorMap();
+        }
+        catch(IntrospectionException e) {
+            // For the record, especially with respect to code coverage, I have
+            // tried to trigger this exception, and I can't. I have read the
+            // source code for Java 8, and I can find no possible way for
+            // IntrospectionException to be thrown by our code.
+            // -Andrew Jones 31.07.2017
+            CsvBeanIntrospectionException csve = new CsvBeanIntrospectionException(
+                    "Map of bean descriptors could not be initialized.");
+            csve.initCause(e);
+            throw csve;
+        }
     }
 
     /**
@@ -444,7 +434,6 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
      * For this mapping strategy, the supported annotations are:
      * <ul><li>{@link com.opencsv.bean.CsvBindByName}</li>
      * <li>{@link com.opencsv.bean.CsvCustomBindByName}</li>
-     * <li>{@link com.opencsv.bean.CsvBind}</li>
      * </ul>
      *
      * @return Whether the mapping strategy is driven by annotations

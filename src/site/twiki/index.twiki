@@ -25,6 +25,7 @@ All of these things can be done reading and writing, using a manifest of maleabl
 Here is an overview of how to use opencsv in your project.
 
    * Quick start
+   * Upgrading from 3.x to 4.x
    * Core concepts
       * Configuration
       * Error handling
@@ -35,8 +36,7 @@ Here is an overview of how to use opencsv in your project.
       * Reading into beans
    * Writing
       * Writing from an array of strings
-      * Stateless
-      * Stateful
+      * Writing from a list of beans
       * From a database table
    * Nuts and bolts
       * Flow of data through opencsv
@@ -66,6 +66,30 @@ the bean fields with the opencsv annotations, then do this:
      beanToCsv.write(beans);
      writer.close();
    </verbatim>
+
+---++Upgrading from 3.x to 4.x
+
+4.0 is a major release because it breaks backward compatibility. What do you get
+for that? Here is a list of the improvements in opencsv 4.0.
+
+   * We have rewritten the bean code to be multi-threaded so that reading from an input directly into beans is significantly faster. Performance benefits depend largely on your data and hardware, but our non-rigorous tests indicate that reading now takes a <em>third</em> of the time it used to.
+   * We have rewritten the bean code to be multi-threaded so that writing from a list of beans is significantly faster. Performance benefits depend largely on your data and hardware, but our non-rigorous tests indicate that writing now takes <em>half</em> of the time it used to.
+   * There is a new iterator available for iterating through the input into beans. This iterator is consistent in every way with the behavior of the code that reads all data sets at once into a list of beans. The old iterator did not support all features, like locales and custom converters.
+
+Here are the things you can expect to encounter during an upgrade, and what to
+do about them.
+
+   * Java 7 is now the minimum supported version. Tough noogies.
+   * Everything that was deprecated has been removed.
+      * BeanToCsv is no more. Please use StatefulBeanToCsv instead. The quick start guide above gives you an example.
+      * @CsvBind was replaced with @CsvBindByName. It really is as simple as search and replace.
+      * ConvertGermanToBooleanRequired was removed. Replace it with @CsvCustomBindByName(converter = ConvertGermanToBoolean.class, required = true).
+   * In the rare case that you have written your own mapping strategy:
+      * MappingStrategy now includes a method verifyLineLength(). If you derive your mapping strategy from one of ours, you're okay. Otherwise, you will have to implement it.
+      * In the rare case that you used opencsv 3.10, registerBeginningOfRecordForReading() and registerEndOfRecordForReading() were removed from MappingStrategy. They were the result of thought processes worthy of nothing more accomplished than a drunken monkey. I may write that because I wrote the bad code. If you derived your mapping strategy from one of ours, you're okay. Otherwise, you'll have to remove these methods.
+      * findDescriptor no longer includes "throws IntrospectionException" in its method signature. If you had it, you'll have to get rid of it. If you had it an needed it, you'll have to rewrite your code.
+      * There are now requirements for thread-safety imposed on certain methods in every mapping strategy. See the Javadoc for MappingStrategy for details.
+   * IterableCSVToBean and IterableCSVToBeanBuilder have both been deprecated. CsvToBean itself is now iterable; use it instead.
 
 ---++Core concepts
 
@@ -128,9 +152,9 @@ error in the input file will force a cessation of parsing. The default is to
 throw exceptions.
 
 To change exception handling, simply use CsvToBeanBuilder.withThrowExceptions()
-for reading and StatefulBeanToCsvBuilder.withThrowExceptions(), then collect
-the results after data processing with CsvToBean.getCapturedExceptions() for
-reading and StatefulBeanToCsv.getCapturedExceptions() for writing.
+for reading and StatefulBeanToCsvBuilder.withThrowExceptions() for writing, then
+collect the results after data processing with CsvToBean.getCapturedExceptions()
+for reading and StatefulBeanToCsv.getCapturedExceptions() for writing.
 
 ---+++Annotations
 
@@ -239,10 +263,6 @@ or:
      }
    </verbatim>
 
-*Warning:* The iterator does not support all features of annotation-driven
-parsing. In particular, the use of locales and custom converters definitely do
-not work and are not supported.
-
 ---+++Reading into beans
 
 Arrays of strings are all good and well, but there are simpler, more modern ways
@@ -253,11 +273,24 @@ position in an array must be intuited. We shall start with the easiest and most
 powerful method of reading data into beans, and work our way down to the cogs
 that offer finer control, for those who have a need for such a thing.
 
-This work was begun by Kyle Miller and extended by Tom Squires and Andrew Jones.
+Performance always being one of our top concerns, reading is written to be
+multi-threaded, which truly speeds the library up by quite a bit. There are two
+performance choices left in your hands:
+   1. Time vs. memory: The classic trade-off. If memory is not a problem, read using CsvToBean.parse(), which will read all beans at once and is multi-threaded. If your memory is limited, use CsvToBean.iterator() and iterate over the input. Only one bean is read at a time, making multi-threading impossible and slowing down reading, but only one object is in memory at a time (assuming you process and release the object for the garbage collector immediately).
+   1. Ordered vs. unordered. opencsv preserves the order of the data given to it by default. Maintaining order when using parallel programming requires some extra effort which means extra CPU time. If order does not matter to you, use CsvToBeanBuilder.withOrderedResults(false). The performance benefit is not large, but it is measurable. The ordering or lack thereof applies to data as well as any captured exceptions.
+
+The bean work was begun by Kyle Miller and extended by Tom Squires and Andrew Jones.
 
 ---++++Annotations
 
-By simply defining a bean and annotating the fields, opencsv can do all of the rest.
+By simply defining a bean and annotating the fields, opencsv can do all of the
+rest. When we write "bean", that's a loose approximation of the requirements.
+Actually, if you use annotations, opencsv uses reflection (not introspection),
+so all you need is a POJO (plain old Java object) that does not have to conform
+to the Java Bean Specification. If getters and setters are present and
+accessible, they are used. Otherwise, opencsv bypasses access control
+restrictions to get to member variables. This is true for reading and writing.
+
 Besides the basic mapping strategy, there are various mechanisms for processing
 certain kinds of data.
 
@@ -438,9 +471,9 @@ also provided.
 
 ---++++Reading into beans without annotations
 
-If annotations are anathema to you, you can bypass them with carefully structured
-data, beans and with somewhat more code. For example, here's how you can map to
-a bean based on the field positions in your CSV file:
+If annotations are anathema to you, you can bypass them with carefully
+structured data, beans and with somewhat more code. For example, here's how you
+can map to a bean based on the field positions in your CSV file:
 
    <verbatim>
     ColumnPositionMappingStrategy strat = new ColumnPositionMappingStrategy();
@@ -451,6 +484,9 @@ a bean based on the field positions in your CSV file:
     CsvToBean csv = new CsvToBean();
     List list = csv.parse(strat, yourReader);
    </verbatim>
+
+Please note, if you do not use annotations, opencsv uses introspection to access
+member variables, so your objects will have to be honest-to-God beans.
 
 ---++++Skipping and filtering
 With some input it can be helpful to skip the first few lines. opencsv provides
@@ -475,14 +511,11 @@ or for reading with annotations:
 Filtering is different in that it works on CSV records and it applies to the whole
 input. It can also only be used with a bean mapping strategy. To filter input
 beans, implement CsvToBeanFilter and pass your implementation to
-CsvToBeanBuilder.withFilter() or IterableCSVToBeanBuilder.withFilter(), or
-equivalently if you're not using the builders, to the appropriate constructor for
-IterableCSVToBean or the appropriate parse() method from CsvToBean or even
-setFilter() in CsvToBean.
+CsvToBeanBuilder.withFilter(), or equivalently if you're not using the builders,
+to the appropriate parse() method from CsvToBean or even setFilter().
 
-Yes, filtering would be much nicer with Java 8 streams, but in order to preserve
-backward compatibility and serve a wide developer base, we won't be using Java
-8 for many years to come.
+Yes, filtering would be much nicer with Java 8 streams, but in order to serve a
+wide developer base, we won't be using Java 8 for many years to come.
 
 ---++Writing
 Less often used, but just as comfortable as reading CSV files is writing them.
@@ -491,8 +524,8 @@ as possible for you, our users.
 
 There are three methods of writing CSV data:
    * Writing from an array of strings
-   * Stateful from beans
-   * From an SQL ResultSet
+   * Writing from a list of beans
+   * Writing from an SQL ResultSet
 
 ---+++Writing from an array of strings
 
@@ -514,7 +547,7 @@ You can also customize the line terminators used in the generated file (which is
 handy when you're exporting from your Linux web application to Windows clients).
 There is a constructor argument for this purpose.
 
----+++Stateful writing of beans
+---+++Writing from a list of beans
 The easiest way to write CSV files will in most cases be StatefulBeanToCsv,
 which is simplest to create with StatefulBeanToCsvBuilder, and which is thus
 named because there used to be a BeanToCsv. Thankfully, no more.
@@ -528,9 +561,15 @@ named because there used to be a BeanToCsv. Thankfully, no more.
 
 Notice, please, we did not tell opencsv what kind of bean we are writing or what
 mapping strategy is to be used. opencsv determines these things automatically.
-Naturally, the mapping strategy can be dictated, if necessary, though
+Naturally, the mapping strategy can be dictated, if necessary, through
 StatefulBeanToCsvBuilder.withMappingStrategy(), or the constructor for
 StatefulBeanToCsv.
+
+Just as in reading into beans, there is a performance trade-off while writing
+that is left in your hands: ordered vs. unordered data. If the order of the data
+written to the output and the order of any exceptions captured during processing
+do not matter to you, use StatefulBeanToCsv.withOrderedResults(false) to obtain
+slightly better performance.
 
 ---+++From a database table
 
@@ -575,9 +614,10 @@ annotations, there are two basic mapping strategies: Mapping by header name and
 mapping by column position. These are incarnated in HeaderColumnNameMappingStrategy
 and ColumnPositionMappingStrategy respectively. There is one more addendum to
 the header name mapping strategy: If you need to translate names from the input
-file to field names, you will need to use HeaderColumnNameTranslateMappingStrategy.
+file to field names and you are not using annotations, you will need to use
+HeaderColumnNameTranslateMappingStrategy.
 
-If you use annotations and CsvToBeanBuilder (for reading) or StatefulBeanToCsv
+If you use annotations and CsvToBeanBuilder (for reading) or StatefulBeanToCsv(Builder)
 (for writing), an appropriate mapping strategy is automatically determined, and
 you need worry about nothing else.
 
@@ -590,9 +630,8 @@ If you have implemented your own mapping strategy, or if you need to override
 the automatic selection of a mapping strategy, for example if you are reading the
 same bean with one mapping strategy, but writing it with a different one for
 conversion purposes, you need to let opencsv know which mapping strategy it must
-use. For reading, this is accomplished either by passing an instance of your
-mapping strategy to CsvToBeanBuilder.withMappingStrategy(), or, if you are
-iterating, passing it to IterableCSVToBeanBuilder.withMapper(). For writing, pass
+use. For reading, this is accomplished by passing an instance of your
+mapping strategy to CsvToBeanBuilder.withMappingStrategy(). For writing, pass
 your strategy to StatefulBeanToCsvBuilder.withMappingStrategy().
 
 ---+FAQ
@@ -631,7 +670,7 @@ Add a dependency element to your pom:
 ---++Who maintains opencsv?
 
    * opencsv was developed in a couple of hours by Glen Smith. You can read his [[http://blogs.bytecode.com.au/glen][blog]] for more info and contact details.
-   * Scott Conway has done tons of bug fixing including upgrading the source code to Java 5, and is the current (only) maintainer of the project.
+   * opencsv owes much of what it currently is to Scott Conway, whose contributions are too numerous to list, and who is the current (only) maintainer of the project.
    * Sean Sullivan contributed work and was maintainer for a time.
    * Kyle Miller contributed the bean binding work.
    * Tom Squires has expanded on the bean work done by Kyle Miller to add annotations.

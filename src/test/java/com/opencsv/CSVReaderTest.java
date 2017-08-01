@@ -526,11 +526,9 @@ public class CSVReaderTest {
 
     /**
      * Tests iterating over a reader.
-     *
-     * @throws IOException if the reader fails.
      */
     @Test
-    public void testIteratorFunctionality() throws IOException {
+    public void testIteratorFunctionality() {
         String[][] expectedResult = new String[7][];
         expectedResult[0] = new String[]{"a", "b", "c"};
         expectedResult[1] = new String[]{"a", "b,b,b", "c"};
@@ -543,6 +541,20 @@ public class CSVReaderTest {
         for (String[] line : csvr) {
             String[] expectedLine = expectedResult[idx++];
             assertArrayEquals(expectedLine, line);
+        }
+    }
+
+    @Test
+    public void testIteratorWithBadReader() {
+        CSVReader r = new CSVReader(new StringReader("This,is,a,\"test\na\",test"));
+        r.setMultilineLimit(1);
+        try {
+            for (String[] line : r) {}
+            fail("The Reader should always throw an exception.");
+        }
+        catch(RuntimeException re) {
+            assertNotNull(re.getCause());
+            assertTrue(re.getCause() instanceof IOException);
         }
     }
 

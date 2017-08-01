@@ -23,6 +23,7 @@ import java.io.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -206,7 +207,7 @@ public class CSVWriterTest {
 
       Answer<Iterator> iteratorAnswer = new Answer<Iterator>() {
          @Override
-         public Iterator answer(InvocationOnMock invocationOnMock) throws Throwable {
+         public Iterator answer(InvocationOnMock invocationOnMock) throws Exception {
             Iterator<String[]> iterator = mock(Iterator.class);
             when(iterator.hasNext()).thenReturn(true).thenReturn(true).thenReturn(true)
                     .thenReturn(false);
@@ -679,12 +680,23 @@ public class CSVWriterTest {
    public void testIOException() throws IOException {
       Writer writer = mock(Writer.class);
       doThrow(IOException.class).when(writer).write(anyString());
+      
+      // Using writeNext()
       CSVWriter csvWriter = new CSVWriter(writer);
-
       csvWriter.writeNext(SIMPLE_STRING_ARRAY);
-
       csvWriter.close();
-
+      assertTrue(csvWriter.checkError());
+      
+      // Using writeAll(Iterable<String[]>, boolean)
+      csvWriter = new CSVWriter(writer);
+      csvWriter.writeAll(Collections.singletonList(SIMPLE_STRING_ARRAY), false);
+      csvWriter.close();
+      assertTrue(csvWriter.checkError());
+      
+      // Using writeAll(Iterable<String[]>)
+      csvWriter = new CSVWriter(writer);
+      csvWriter.writeAll(Collections.singletonList(SIMPLE_STRING_ARRAY));
+      csvWriter.close();
       assertTrue(csvWriter.checkError());
    }
 

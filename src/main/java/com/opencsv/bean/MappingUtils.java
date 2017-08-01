@@ -16,14 +16,13 @@
 package com.opencsv.bean;
 
 import com.opencsv.CSVReader;
-import com.opencsv.exceptions.CsvBeanIntrospectionException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
-import java.beans.IntrospectionException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.lang.reflect.Field;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import java.util.concurrent.BlockingQueue;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 
@@ -95,19 +94,34 @@ public final class MappingUtils {
                     // Can't happen. It's a StringReader with a defined string.
                 }
                 catch(CsvRequiredFieldEmptyException e) {
-                    // Can't happen. Per definition we have all fields
+                    // Can't happen. By definition we have all fields
                     // represented in the header.
-                }
-                catch(IntrospectionException e) {
-                    CsvBeanIntrospectionException csve = new CsvBeanIntrospectionException("");
-                    csve.initCause(e);
-                    throw csve;
                 }
             }
             
             mappingStrategy = ms;
         }
         return mappingStrategy;
+    }
+    
+    /**
+     * I find it annoying that when I want to queue something in a blocking
+     * queue, the thread might be interrupted and I have to try again; this
+     * method fixes that.
+     * @param <E> The type of the object to be queued
+     * @param queue The queue the object should be added to
+     * @param object The object to be queued
+     * @since 4.0
+     */
+    public static <E> void queueRefuseToAcceptDefeat(BlockingQueue<E> queue, E object) {
+        boolean interrupted = true;
+        while(interrupted) {
+            try {
+                queue.put(object);
+                interrupted = false;
+            }
+            catch(InterruptedException ie) {/* Do nothing. */}
+        }
     }
 
 }

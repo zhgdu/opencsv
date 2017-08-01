@@ -17,12 +17,16 @@
 package com.opencsv.bean;
 
 /**
- * Here's an example showing how to use {@link CsvToBean} with a column
+ * Filters allow lines of input to be ignored before a bean is created.
+ * <p>Using a filter means you are looking at the data from the input after it
+ * has been parsed, but before a bean has been created and populated.</p>
+ * <p>Filters <em>must</em> be thread-safe.</p>
+ * <p>Here's an example showing how to use {@link CsvToBean} with a column
  * name mapping and line filtering.  It assumes that there is a class named
  * <code>Feature</code> defined with setters <code>setName(String)</code> and
  * <code>setState(String)</code>.  The FEATURE_NAME and STATE columns in the
  * CSV file will be used.  Any additional columns will be ignored.  The filter
- * will eliminate any lines where the STATE value is "production".
+ * will eliminate any lines where the STATE value is "production".</p>
  *
  * <pre>
  * {@code

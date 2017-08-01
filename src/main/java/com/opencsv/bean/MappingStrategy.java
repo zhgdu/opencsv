@@ -1,6 +1,5 @@
 package com.opencsv.bean;
 
-
 /*
  Copyright 2007 Kyle Miller.
 
@@ -21,13 +20,20 @@ import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvBadConverterException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 
-import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
 
 /**
  * The interface for the classes that handle translating between the columns in
  * the CSV file to an actual object.
+ * <p>Any implementing class <em>must</em> be thread-safe. Specifically, the
+ * following methods must be thread-safe:</p>
+ * <ul><li>{@link #createBean()}</li>
+ * <li>{@link #findDescriptor(int)}</li>
+ * <li>{@link #findField(int)}</li>
+ * <li>{@link #findMaxFieldIndex()}</li>
+ * <li>{@link #isAnnotationDriven()}</li>
+ * <li>{@link #verifyLineLength(int)}</li></ul>
  *
  * @param <T> Type of object you are converting the data to.
  */
@@ -39,16 +45,11 @@ public interface MappingStrategy<T> {
      * @param col The column to find the description for
      * @return The property descriptor for the column position or null if one
      * could not be found.
-     * @throws IntrospectionException Thrown on error retrieving the property
-     *                                description.
      */
-   PropertyDescriptor findDescriptor(int col) throws IntrospectionException;
+   PropertyDescriptor findDescriptor(int col);
 
     /**
      * Gets the field for a given column position.
-     * If reading a record had been indicated with
-     * {@link #registerBeginningOfRecordForReading()}, this method also marks
-     * the field indicated as having been present in the input.
      *
      * @param col The column to find the field for
      * @return BeanField containing the field for a given column position, or
@@ -102,8 +103,9 @@ public interface MappingStrategy<T> {
 
     /**
      * Gets the column index that corresponds to a specific column name.
-     * If the CSV file doesn't have a header row, this method will always return
-     * null.
+     * <p>If the CSV file doesn't have a header row, this method will always return
+     * null.</p>
+     * <p>Inside of opencsv itself this method is only used for testing.</p>
      *
      * @param name The column name
      * @return The column index, or null if the name doesn't exist
@@ -118,22 +120,17 @@ public interface MappingStrategy<T> {
    boolean isAnnotationDriven();
    
    /**
-    * Indicate to the mapping strategy that we are beginning to read a new
-    * record.
-    * @since 3.10
-    */
-   void registerBeginningOfRecordForReading();
-   
-   /**
-    * Must be called at the end of input for a line/record to verify that the
-    * line was complete.
-    * The issue here is, as long as a column is present but empty, we can
-    * check whether the field is required and throw an exception if it is not,
-    * but if the data end prematurely, we never have this chance without
-    * indication that no more data are on the way.
+    * Must be called once the length of input for a line/record is known to
+    * verify that the line was complete.
+    * Complete in this context means, no required fields are missing. The issue
+    * here is, as long as a column is present but empty, we can check whether
+    * the field is required and throw an exception if it is not, but if the data
+    * end prematurely, we never have this chance without indication that no more
+    * data are on the way.
     * 
+    * @param numberOfFields The number of fields present in the line of input
     * @throws CsvRequiredFieldEmptyException If a required column is missing
-    * @since 3.10
+    * @since 4.0
     */
-   void registerEndOfRecordForReading() throws CsvRequiredFieldEmptyException;
+   void verifyLineLength(int numberOfFields) throws CsvRequiredFieldEmptyException;
 }

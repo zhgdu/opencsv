@@ -16,19 +16,25 @@
 package com.opencsv.bean;
 
 import com.opencsv.CSVWriter;
-import com.opencsv.exceptions.CsvBeanIntrospectionException;
+import com.opencsv.bean.concurrent.AccumulateCsvResults;
+import com.opencsv.bean.concurrent.IntolerantThreadPoolExecutor;
+import com.opencsv.bean.concurrent.OrderedObject;
+import com.opencsv.bean.concurrent.ProcessCsvBean;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
-import java.beans.IntrospectionException;
-import java.beans.PropertyDescriptor;
+import com.opencsv.exceptions.CsvRuntimeException;
 import java.io.Writer;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentNavigableMap;
+import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * This class writes beans out in CSV format to a {@link java.io.Writer},
@@ -54,7 +60,14 @@ public class StatefulBeanToCsv<T> {
     private CSVWriter csvwriter;
     private boolean throwExceptions;
     private List<CsvException> capturedExceptions = new ArrayList<>();
-    private static final String INTROSPECTION_ERROR = "There was an error while manipulating the bean to be written.";
+    private boolean orderedResults = true;
+    private IntolerantThreadPoolExecutor executor = null;
+    private BlockingQueue<OrderedObject<String[]>> resultantLineQueue;
+    private BlockingQueue<OrderedObject<CsvException>> thrownExceptionsQueue;
+    private AccumulateCsvResults accumulateThread = null;
+    private ConcurrentNavigableMap<Long, String[]> resultantBeansMap = null;
+    private ConcurrentNavigableMap<Long, CsvException> thrownExceptionsMap = null;
+    private static final String UNRECOVERABLE_ERROR = "There was an unrecoverable error while writing beans.";
     
     /** The nullary constructor should never be used. */
     private StatefulBeanToCsv() {
@@ -90,7 +103,8 @@ public class StatefulBeanToCsv<T> {
      * Custodial tasks that must be performed before beans are written to a CSV
      * destination for the first time.
      * @param bean Any bean to be written. Used to determine the mapping
-     *   strategy automatically.
+     *   strategy automatically. The bean itself is not written to the output by
+     *   this method.
      */
     private void beforeFirstWrite(T bean) {
         
@@ -123,45 +137,148 @@ public class StatefulBeanToCsv<T> {
      */
     public void write(T bean) throws CsvDataTypeMismatchException,
             CsvRequiredFieldEmptyException {
+        
+        // Write header
         if(bean != null) {
-            ++lineNumber;
             if(!headerWritten) {
                 beforeFirstWrite(bean);
             }
-            List<String> contents = new ArrayList<>();
-            int numColumns = mappingStrategy.findMaxFieldIndex();
-            if(mappingStrategy.isAnnotationDriven()) {
-                BeanField beanField;
-                for(int i = 0; i <= numColumns; i++) {
-                    beanField = mappingStrategy.findField(i);
-                    try {
-                        String s = beanField != null ? beanField.write(bean) : "";
-                        contents.add(StringUtils.defaultString(s));
-                    }
-                    catch(CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
-                        e.setLineNumber(lineNumber);
-                        if(throwExceptions) {throw e;}
-                        else {capturedExceptions.add(e);}
-                    }
-                }
+            
+            // Process the bean
+            resultantLineQueue = new ArrayBlockingQueue<>(1);
+            thrownExceptionsQueue = new ArrayBlockingQueue<>(1);
+            ProcessCsvBean proc = new ProcessCsvBean(++lineNumber,
+                    mappingStrategy, bean, resultantLineQueue,
+                    thrownExceptionsQueue, throwExceptions);
+            try {
+                proc.run();
             }
-            else {
-                PropertyDescriptor desc;
-                for(int i = 0; i <= numColumns; i++) {
-                    try {
-                        desc = mappingStrategy.findDescriptor(i);
-                        Object o = desc != null ? desc.getReadMethod().invoke(bean, (Object[]) null) : null;
-                        contents.add(Objects.toString(o, ""));
+            catch(RuntimeException re) {
+                if(re.getCause() != null) {
+                    if(re.getCause() instanceof CsvRuntimeException) {
+                        // Can't currently happen, but who knows what might be
+                        // in the future? I'm certain we wouldn't want to wrap
+                        // these in another RuntimeException.
+                        CsvRuntimeException csve = (CsvRuntimeException) re.getCause();
+                        throw csve;
                     }
-                    catch(IntrospectionException | IllegalAccessException | InvocationTargetException e) {
-                        CsvBeanIntrospectionException csve = new CsvBeanIntrospectionException(
-                                bean, null, INTROSPECTION_ERROR);
-                        csve.initCause(e);
+                    if(re.getCause() instanceof CsvDataTypeMismatchException) {
+                        CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) re.getCause();
+                        throw csve;
+                    }
+                    if(re.getCause() instanceof CsvRequiredFieldEmptyException) {
+                        CsvRequiredFieldEmptyException csve = (CsvRequiredFieldEmptyException) re.getCause();
                         throw csve;
                     }
                 }
+                throw re;
             }
-            csvwriter.writeNext(contents.toArray(new String[contents.size()]));
+            
+            // Write out the result
+            if(!thrownExceptionsQueue.isEmpty()) {
+                OrderedObject<CsvException> o = thrownExceptionsQueue.poll();
+                if(o != null && o.getElement() != null) {
+                    capturedExceptions.add(o.getElement());
+                }
+            }
+            else {
+                // No exception, so there really must always be a string
+                OrderedObject<String[]> result = resultantLineQueue.poll();
+                if(result != null && result.getElement() != null) {
+                    csvwriter.writeNext(result.getElement());
+                }
+            }
+        }
+    }
+    
+    /**
+     * Prepare for parallel processing.
+     * <p>The structure is:
+     * <ol><li>The main thread parses input and passes it on to</li>
+     * <li>The executor, which creates a number of beans in parallel and passes
+     * these and any resultant errors to</li>
+     * <li>The accumulator, which creates an ordered list of the results.</li></ol></p>
+     * <p>The threads in the executor queue their results in a thread-safe
+     * queue, which should be O(1), minimizing wait time due to synchronization.
+     * The accumulator then removes items from the queue and inserts them into a
+     * sorted data structure, which is O(log n) on average and O(n) in the worst
+     * case. If the user has told us she doesn't need sorted data, the
+     * accumulator is not necessary, and thus is not started.</p>
+     */
+    private void prepareForParallelProcessing() {
+        executor = new IntolerantThreadPoolExecutor();
+        executor.prestartAllCoreThreads();
+        resultantLineQueue = new LinkedBlockingQueue<>();
+        thrownExceptionsQueue = new LinkedBlockingQueue<>();
+
+        // The ordered maps and accumulator are only necessary if ordering is
+        // stipulated. After this, the presence or absence of the accumulator is
+        // used to indicate ordering or not so as to guard against the unlikely
+        // problem that someone sets orderedResults right in the middle of
+        // processing.
+        if(orderedResults) {
+            resultantBeansMap = new ConcurrentSkipListMap<>();
+            thrownExceptionsMap = new ConcurrentSkipListMap<>();
+
+            // Start the process for accumulating results and cleaning up
+            accumulateThread = new AccumulateCsvResults<>(
+                    resultantLineQueue, thrownExceptionsQueue, resultantBeansMap,
+                    thrownExceptionsMap);
+            accumulateThread.start();
+        }
+    }
+    
+    private void submitAllLines(List<T> beans) throws InterruptedException {
+        for(T bean : beans) {
+            if(bean != null) {
+                executor.execute(new ProcessCsvBean(
+                        ++lineNumber, mappingStrategy, bean,
+                        resultantLineQueue, thrownExceptionsQueue,
+                        throwExceptions));
+            }
+        }
+
+        // Normal termination
+        executor.shutdown();
+        executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS); // Wait indefinitely
+        if(accumulateThread != null) {
+            accumulateThread.setMustStop(true);
+            accumulateThread.join();
+        }
+
+        // There's one more possibility: The very last bean caused a problem.
+        if(executor.getTerminalException() != null) {
+            // Trigger first catch clause
+            throw new RejectedExecutionException();
+        }
+    }
+    
+    private void writeResultsOfParallelProcessingToFile() {
+        // Prepare results. Checking for these maps to be != null makes the
+        // compiler feel better than checking that the accumulator is not null.
+        if(thrownExceptionsMap != null && resultantBeansMap != null) {
+            capturedExceptions = new ArrayList<>(thrownExceptionsMap.values());
+            for(String[] oneLine : resultantBeansMap.values()) {
+                csvwriter.writeNext(oneLine);
+            }
+        }
+        else {
+            capturedExceptions = new ArrayList<>(thrownExceptionsQueue.size());
+            OrderedObject<CsvException> oocsve;
+            while(!thrownExceptionsQueue.isEmpty()) {
+                oocsve = thrownExceptionsQueue.poll();
+                if(oocsve != null && oocsve.getElement() != null) {
+                    capturedExceptions.add(oocsve.getElement());
+                }
+            }
+            OrderedObject<String[]> ooresult;
+            while(!resultantLineQueue.isEmpty()) {
+                try {
+                    ooresult = resultantLineQueue.take();
+                    csvwriter.writeNext(ooresult.getElement());
+                }
+                catch(InterruptedException e) {/* We'll get it during the next loop through. */}
+            }
         }
     }
     
@@ -179,8 +296,70 @@ public class StatefulBeanToCsv<T> {
     public void write(List<T> beans) throws CsvDataTypeMismatchException,
             CsvRequiredFieldEmptyException {
         if(CollectionUtils.isNotEmpty(beans)) {
-            for(T bean : beans) {write(bean);}
+            // Write header
+            if(!headerWritten) {
+                beforeFirstWrite(beans.get(0));
+            }
+            
+            prepareForParallelProcessing();
+
+            // Process the beans
+            try {
+                submitAllLines(beans);
+            }
+            catch(RejectedExecutionException e) {
+                // An exception in one of the bean writing threads prompted the
+                // executor service to shutdown before we were done.
+                if(accumulateThread != null) {
+                    accumulateThread.setMustStop(true);
+                }
+                if(executor.getTerminalException() instanceof RuntimeException) {
+                    RuntimeException re = (RuntimeException) executor.getTerminalException();
+                    throw re;
+                }
+                if(executor.getTerminalException() instanceof CsvDataTypeMismatchException) {
+                    CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) executor.getTerminalException();
+                    throw csve;
+                }
+                if(executor.getTerminalException() instanceof CsvRequiredFieldEmptyException) {
+                    CsvRequiredFieldEmptyException csve = (CsvRequiredFieldEmptyException) executor.getTerminalException();
+                    throw csve;
+                }
+                throw new RuntimeException(
+                        UNRECOVERABLE_ERROR, executor.getTerminalException());
+            } catch (Exception e) {
+                // Exception during parsing. Always unrecoverable.
+                // I can't find a way to create this condition in the current
+                // code, but we must have a catch-all clause.
+                executor.shutdownNow();
+                if(accumulateThread != null) {
+                    accumulateThread.setMustStop(true);
+                }
+                if(executor.getTerminalException() instanceof RuntimeException) {
+                    RuntimeException re = (RuntimeException) executor.getTerminalException();
+                    throw re;
+                }
+                throw new RuntimeException(UNRECOVERABLE_ERROR, e);
+            }
+
+            writeResultsOfParallelProcessingToFile();
         }
+    }
+    
+    /**
+     * Sets whether or not results must be written in the same order in which
+     * they appear in the list of beans provided as input.
+     * The default is that order is preserved. If your data do not need to be
+     * ordered, you can get a slight performance boost by setting
+     * {@code orderedResults} to {@code false}. The lack of ordering then also
+     * applies to any captured exceptions, if you have chosen not to have
+     * exceptions thrown.
+     * @param orderedResults Whether or not the lines written are in the same
+     *   order they appeared in the input
+     * @since 4.0
+     */
+    public void setOrderedResults(boolean orderedResults) {
+        this.orderedResults = orderedResults;
     }
 
     /**

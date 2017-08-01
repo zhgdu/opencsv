@@ -2,6 +2,7 @@ package com.opencsv.bean;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvBadConverterException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
@@ -124,7 +125,6 @@ public class ColumnPositionMappingStrategy<T> extends HeaderColumnNameMappingStr
                             .getAnnotation(CsvBindByPosition.class)
                             .position(), beanField);
                 }
-                // We must purposefully ignore CsvBind here.
             }
 
             if (!cols.isEmpty()) {
@@ -180,13 +180,30 @@ public class ColumnPositionMappingStrategy<T> extends HeaderColumnNameMappingStr
                     fieldMap.put(columnName, new BeanFieldPrimitiveTypes(field, required, locale));
                 }
             }
-
-            if(required) {
-                requiredFields.add(field);
-            }
         }
     }
 
+    @Override
+    public void verifyLineLength(int numberOfFields) throws CsvRequiredFieldEmptyException {
+        if(columnMapping != null) {
+            BeanField f;
+            StringBuilder sb = null;
+            for(int i = numberOfFields; i < columnMapping.length; i++) {
+                f = findField(i);
+                if(f != null && f.isRequired()) {
+                    if(sb == null) {
+                        sb = new StringBuilder("The following required fields were not present for one record of the input:");
+                    }
+                    sb.append(' ');
+                    sb.append(f.getField().getName());
+                }
+            }
+            if(sb != null) {
+                throw new CsvRequiredFieldEmptyException(type, sb.toString());
+            }
+        }
+    }
+    
     private List<Field> loadFields(Class<? extends T> cls) {
         List<Field> fields = new ArrayList<>();
         for (Field field : cls.getDeclaredFields()) {

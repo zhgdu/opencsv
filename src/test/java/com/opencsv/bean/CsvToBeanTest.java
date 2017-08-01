@@ -6,13 +6,11 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.bean.mocks.*;
 import com.opencsv.enums.CSVReaderNullFieldIndicator;
+import com.opencsv.exceptions.CsvException;
 import org.junit.Test;
 
-import java.beans.IntrospectionException;
-import java.beans.PropertyDescriptor;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
 
@@ -27,14 +25,6 @@ public class CsvToBeanTest {
            "kyle,abc123456,123\n" +
            "jimmy,def098765,";
 
-   private static final String TEST_STRING_ALL_DATATYPES = "familyId,familyName,familySize,averageAge,averageIncome,numberOfPets,numberOfBedrooms,zipcodePrefix,hasBeenContacted\n" +
-           "922337203685477580,Jones,5,18.77293748162537,32000.72937634,1,4,Z,true\n" +
-           "238801727291675293,Smith,3,28.74826489578307,56643.82631345,2,2,A,false\n" +
-           "882101432432123445,,3,38.48347628462843,74200.73912766,0,3,Z,false\n" +
-           "619364584659026342,Woods,4,17.12739636774893,48612.12395295,1,,M,true";
-   
-   private static final String TEST_STRING_FOR_MINIMAL_BUILDER = "1,2,3";
-
    private CSVReader createReader() {
       return createReader(TEST_STRING);
    }
@@ -44,117 +34,16 @@ public class CsvToBeanTest {
       return new CSVReader(reader);
    }
 
-   private MappingStrategy createErrorHeaderMappingStrategy() {
-      return new MappingStrategy() {
-
-         @Override
-         public PropertyDescriptor findDescriptor(int col) throws IntrospectionException {
-            return null;
-         }
-
-         @Override
-         public BeanField findField(int col) {
-            return null;
-         }
-
-         @Override
-         public Object createBean() throws InstantiationException, IllegalAccessException {
-            return null;
-         }
-
-         @Override
-         public void captureHeader(CSVReader reader) throws IOException {
-            throw new IOException("This is the test exception");
-         }
-
-         @Override
-         public Integer getColumnIndex(String name) {
-            return null;
-         }
-
-         @Override
-         public boolean isAnnotationDriven() {
-            return false;
-         }
-         
-         @Override
-         public String[] generateHeader() {
-             return new String[0];
-         }
-         
-         @Override
-         public int findMaxFieldIndex() {
-             return -1;
-         }
-         
-         @Override
-         public void registerBeginningOfRecordForReading() {}
-         
-         @Override
-         public void registerEndOfRecordForReading() {}
-      };
-   }
-
-   private MappingStrategy createErrorLineMappingStrategy() {
-      return new MappingStrategy() {
-
-         @Override
-         public PropertyDescriptor findDescriptor(int col) throws IntrospectionException {
-            return null;
-         }
-
-         @Override
-         public BeanField findField(int col) {
-            return null;
-         }
-
-         @Override
-         public Object createBean() throws InstantiationException, IllegalAccessException {
-            throw new InstantiationException("this is a test Exception");
-         }
-
-         @Override
-         public void captureHeader(CSVReader reader) throws IOException {
-         }
-
-         @Override
-         public Integer getColumnIndex(String name) {
-            return null;
-         }
-
-         @Override
-         public boolean isAnnotationDriven() {
-            return false;
-         }
-         
-         @Override
-         public String[] generateHeader() {
-             return new String[0];
-         }
-         
-         @Override
-         public int findMaxFieldIndex() {
-             return -1;
-         }
-         
-         @Override
-         public void registerBeginningOfRecordForReading() {}
-         
-         @Override
-         public void registerEndOfRecordForReading() {}
-      };
-   }
-
    @Test(expected = RuntimeException.class)
    public void throwRuntimeExceptionWhenExceptionIsThrown() {
       CsvToBean bean = new CsvToBean();
-      bean.parse(createErrorHeaderMappingStrategy(), createReader());
+      bean.parse(new ErrorHeaderMappingStrategy(), createReader());
    }
 
    @Test(expected = RuntimeException.class)
    public void throwRuntimeExceptionLineWhenExceptionIsThrown() {
       CsvToBean bean = new CsvToBean();
-      bean.parse(createErrorLineMappingStrategy(), createReader());
+      bean.parse(new ErrorLineMappingStrategy(), new StringReader(TEST_STRING), false); // Extra arguments for code coverage
    }
 
    @Test
@@ -163,7 +52,7 @@ public class CsvToBeanTest {
       strategy.setType(MockBean.class);
       CsvToBean<MockBean> bean = new CsvToBean<>();
 
-      List<MockBean> beanList = bean.parse(strategy, createReader());
+      List<MockBean> beanList = bean.parse(strategy, new StringReader(TEST_STRING), null); // Extra arguments for code coverage
       assertEquals(2, beanList.size());
       assertTrue(beanList.contains(createMockBean("kyle", "abc123456", 123)));
       assertTrue(beanList.contains(createMockBean("jimmy", "def098765", 456)));
@@ -194,7 +83,7 @@ public class CsvToBeanTest {
 
       CsvToBean<Bug133Bean> bean = new CsvToBean<>();
 
-      List<Bug133Bean> beanList = bean.parse(strategy, csvReader);
+      List<Bug133Bean> beanList = bean.parse(strategy, csvReader, null, true); // Extra arguments for code coverage
       assertEquals(2, beanList.size());
    }
 
@@ -236,7 +125,7 @@ public class CsvToBeanTest {
    @Test
    public void testMinimumBuilder() {
        List<MinimalCsvBindByPositionBeanForWriting> result =
-               new CsvToBeanBuilder<>(new StringReader("1,2,3\n4,5,6"))
+               new CsvToBeanBuilder<MinimalCsvBindByPositionBeanForWriting>(new StringReader("1,2,3\n4,5,6"))
                        .withType(MinimalCsvBindByPositionBeanForWriting.class)
                        .build()
                        .parse();
@@ -281,6 +170,9 @@ public class CsvToBeanTest {
                        .withVerifyReader(false)
                        .withMultilineLimit(Integer.MAX_VALUE)
                        .build();
+       List<CsvException> capturedExceptions = csvtb.getCapturedExceptions();
+       assertNotNull(capturedExceptions);
+       assertEquals(0, capturedExceptions.size());
        List<AnnotatedMockBeanFull> result = csvtb.parse();
        
        // Three lines, one filtered, one throws an exception

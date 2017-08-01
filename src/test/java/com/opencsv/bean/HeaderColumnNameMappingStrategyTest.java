@@ -117,7 +117,7 @@ public class HeaderColumnNameMappingStrategyTest {
    }
    
    @Test
-   public void throwsIllegalStateExceptionIfTypeNotSet() throws IOException {
+   public void throwsIllegalStateExceptionIfTypeNotSetBeforeParse() throws IOException {
       strat = new HeaderColumnNameMappingStrategy<>();
       StringReader reader = new StringReader(TEST_STRING);
       CSVReader csvReader = new CSVReader(reader);
@@ -128,5 +128,11 @@ public class HeaderColumnNameMappingStrategyTest {
       catch(RuntimeException e) {
           assertEquals(IllegalStateException.class, e.getCause().getClass());
       }
+   }
+   
+   @Test(expected = IllegalStateException.class)
+   public void throwsIllegalStateExceptionIfTypeNotSetBeforeGenerateHeaders() {
+      strat = new HeaderColumnNameMappingStrategy<>();
+      strat.generateHeader();
    }
 }

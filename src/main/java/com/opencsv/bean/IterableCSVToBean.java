@@ -32,8 +32,9 @@ import java.util.NoSuchElementException;
  * Unlike CsvToBean it returns a single record at a time.
  *
  * @param <T> Class to convert the objects to.
+ * @deprecated Use {@link CsvToBean#iterator()} instead.
  */
-
+@Deprecated
 public class IterableCSVToBean<T> extends AbstractCSVToBean implements Iterable<T> {
     private final MappingStrategy<T> strategy;
     private final CSVReader csvReader;
@@ -100,11 +101,11 @@ public class IterableCSVToBean<T> extends AbstractCSVToBean implements Iterable<
         }
         T bean = null;
         String[] line;
-        strategy.registerBeginningOfRecordForReading();
         do {
             line = csvReader.readNext();
         } while (line != null && (filter != null && !filter.allowLine(line)));
         if (line != null) {
+            strategy.verifyLineLength(line.length);
             bean = strategy.createBean();
             for (int col = 0; col < line.length; col++) {
                 PropertyDescriptor prop = strategy.findDescriptor(col);
@@ -115,7 +116,6 @@ public class IterableCSVToBean<T> extends AbstractCSVToBean implements Iterable<
                 }
             }
         }
-        strategy.registerEndOfRecordForReading();
         return bean;
     }
 

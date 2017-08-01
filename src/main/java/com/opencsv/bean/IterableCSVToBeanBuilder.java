@@ -37,7 +37,10 @@ import com.opencsv.CSVReader;
  * @see IterableCSVToBean
  *
  * @param <T> Type of the bean to be iterated over
+ * @deprecated Use {@link CsvToBeanBuilder} instead, then call
+ *   {@link CsvToBean#iterator() } on the result
  */
+@Deprecated
 public class IterableCSVToBeanBuilder<T> {
 
     public static final String NO_MAPPING_STRATEGY_DEFINED = "Unable to instantiate IterableCSVToBeanBuilder because there is no MappingStrategy defined.";

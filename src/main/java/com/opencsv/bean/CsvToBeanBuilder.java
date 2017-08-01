@@ -28,7 +28,7 @@ import java.io.Reader;
  * <p>This is the place to start if you're reading a CSV source into beans,
  * especially if you're binding the input's columns to the bean's variables
  * using the annotations {@link CsvBindByName}, {@link CsvCustomBindByName},
- * {@link CsvBindByPosition}, {@link CsvCustomBindByPosition}, or {@link CsvBind}.</p>
+ * {@link CsvBindByPosition}, or {@link CsvCustomBindByPosition}.</p>
  * <p>If you want nothing but defaults for the entire import, your code can look
  * as simple as this, where {@code myreader} is any valid {@link java.io.Reader Reader}:<br>
  * {@code List<MyBean> result = new CsvToBeanBuilder(myreader).withType(MyBean.class).build().parse();}</p>
@@ -38,9 +38,8 @@ import java.io.Reader;
  * <li>If {@link CsvBindByPosition} or {@link CsvCustomBindByPosition} is present,
  * {@link ColumnPositionMappingStrategy} is used.</li>
  * <li>Otherwise, {@link HeaderColumnNameMappingStrategy} is used. This includes
- * the case when {@link CsvBindByName}, {@link CsvCustomBindByName}, or
- * {@link CsvBind} are being used. The annotations will automatically be
- * recognized.</li></ol>
+ * the case when {@link CsvBindByName} or {@link CsvCustomBindByName} are being
+ * used. The annotations will automatically be recognized.</li></ol>
  * 
  * @param <T> Type of the bean to be populated
  * @author Andrew Rucker Jones
@@ -98,6 +97,8 @@ public class CsvToBeanBuilder<T> {
    
    private Integer multilineLimit = null;
    
+   private boolean orderedResults = true;
+   
    /** This constructor must never be called, because Reader must be set. */
    private CsvToBeanBuilder() {
        reader = null; // Otherwise the compiler complains that reader can't be final.
@@ -123,7 +124,7 @@ public class CsvToBeanBuilder<T> {
      *   Currently this means that both the mapping strategy and the bean type
      *   are not set, so it is impossible to determine a mapping strategy.
      */
-    public CsvToBean build() throws IllegalStateException {
+    public CsvToBean<T> build() throws IllegalStateException {
         // Check for errors in the configuration first
         if(mappingStrategy == null && type == null) {
             throw new IllegalStateException("Either a mapping strategy or the type of the bean to be populated must be specified.");
@@ -136,6 +137,7 @@ public class CsvToBeanBuilder<T> {
         
         // Set variables in CsvToBean itself
         bean.setThrowExceptions(throwExceptions);
+        bean.setOrderedResults(orderedResults);
         if(filter != null) { bean.setFilter(filter); }
         
         // Now find the mapping strategy.
@@ -206,7 +208,7 @@ public class CsvToBeanBuilder<T> {
      * @param mappingStrategy Silence Javadoc warnings
      * @return Silence Javadoc warnings
      */
-    public CsvToBeanBuilder withMappingStrategy(MappingStrategy<T> mappingStrategy) {
+    public CsvToBeanBuilder<T> withMappingStrategy(MappingStrategy<T> mappingStrategy) {
         this.mappingStrategy = mappingStrategy;
         return this;
     }
@@ -216,7 +218,7 @@ public class CsvToBeanBuilder<T> {
      * @param filter Silence Javadoc warnings
      * @return Silence Javadoc warnings
      */
-    public CsvToBeanBuilder withFilter(CsvToBeanFilter filter) {
+    public CsvToBeanBuilder<T> withFilter(CsvToBeanFilter filter) {
         this.filter = filter;
         return this;
     }
@@ -226,7 +228,7 @@ public class CsvToBeanBuilder<T> {
      * @param throwExceptions Silence Javadoc warnings
      * @return Silence Javadoc warnings
      */
-    public CsvToBeanBuilder withThrowExceptions(boolean throwExceptions) {
+    public CsvToBeanBuilder<T> withThrowExceptions(boolean throwExceptions) {
         this.throwExceptions = throwExceptions;
         return this;
     }
@@ -236,7 +238,7 @@ public class CsvToBeanBuilder<T> {
      * @param indicator Silence Javadoc warnings
      * @return Silence Javadoc warnings
      */
-    public CsvToBeanBuilder withFieldAsNull(CSVReaderNullFieldIndicator indicator) {
+    public CsvToBeanBuilder<T> withFieldAsNull(CSVReaderNullFieldIndicator indicator) {
         this.nullFieldIndicator = indicator;
         return this;
     }
@@ -246,7 +248,7 @@ public class CsvToBeanBuilder<T> {
      * @param keepCR Silence Javadoc warnings
      * @return Silence Javadoc warnings
      */
-    public CsvToBeanBuilder withKeepCarriageReturn(boolean keepCR) {
+    public CsvToBeanBuilder<T> withKeepCarriageReturn(boolean keepCR) {
         this.keepCR = keepCR;
         return this;
     }
@@ -256,7 +258,7 @@ public class CsvToBeanBuilder<T> {
      * @param verifyReader Silence Javadoc warnings
      * @return Silence Javadoc warnings
      */
-    public CsvToBeanBuilder withVerifyReader(boolean verifyReader) {
+    public CsvToBeanBuilder<T> withVerifyReader(boolean verifyReader) {
         this.verifyReader = verifyReader;
         return this;
     }
@@ -266,7 +268,7 @@ public class CsvToBeanBuilder<T> {
      * @param skipLines Silence Javadoc warnings
      * @return Silence Javadoc warnings
      */
-    public CsvToBeanBuilder withSkipLines(
+    public CsvToBeanBuilder<T> withSkipLines(
          final int skipLines) {
       this.skipLines = skipLines;
       return this;
@@ -277,7 +279,7 @@ public class CsvToBeanBuilder<T> {
      * @param separator Silence Javadoc warnings
      * @return Silence Javadoc warnings
      */
-    public CsvToBeanBuilder withSeparator(char separator) {
+    public CsvToBeanBuilder<T> withSeparator(char separator) {
         this.separator = separator;
         return this;
     }
@@ -287,7 +289,7 @@ public class CsvToBeanBuilder<T> {
      * @param quoteChar Silence Javadoc warnings
      * @return Silence Javadoc warnings
      */
-    public CsvToBeanBuilder withQuoteChar(char quoteChar) {
+    public CsvToBeanBuilder<T> withQuoteChar(char quoteChar) {
         this.quoteChar = quoteChar;
         return this;
     }
@@ -297,7 +299,7 @@ public class CsvToBeanBuilder<T> {
      * @param escapeChar Silence Javadoc warnings
      * @return Silence Javadoc warnings
      */
-    public CsvToBeanBuilder withEscapeChar(char escapeChar) {
+    public CsvToBeanBuilder<T> withEscapeChar(char escapeChar) {
         this.escapeChar = escapeChar;
         return this;
     }
@@ -307,7 +309,7 @@ public class CsvToBeanBuilder<T> {
      * @param strictQuotes Silence Javadoc warnings
      * @return Silence Javadoc warnings
      */
-    public CsvToBeanBuilder withStrictQuotes(boolean strictQuotes) {
+    public CsvToBeanBuilder<T> withStrictQuotes(boolean strictQuotes) {
         this.strictQuotes = strictQuotes;
         return this;
     }
@@ -317,7 +319,7 @@ public class CsvToBeanBuilder<T> {
      * @param ignoreLeadingWhiteSpace Silence Javadoc warnings
      * @return Silence Javadoc warnings
      */
-    public CsvToBeanBuilder withIgnoreLeadingWhiteSpace(boolean ignoreLeadingWhiteSpace) {
+    public CsvToBeanBuilder<T> withIgnoreLeadingWhiteSpace(boolean ignoreLeadingWhiteSpace) {
         this.ignoreLeadingWhiteSpace = ignoreLeadingWhiteSpace;
         return this;
     }
@@ -327,7 +329,7 @@ public class CsvToBeanBuilder<T> {
      * @param ignoreQuotations Silence Javadoc warnings
      * @return Silence Javadoc warnings
      */
-    public CsvToBeanBuilder withIgnoreQuotations(boolean ignoreQuotations) {
+    public CsvToBeanBuilder<T> withIgnoreQuotations(boolean ignoreQuotations) {
         this.ignoreQuotations = ignoreQuotations;
         return this;
     }
@@ -341,7 +343,7 @@ public class CsvToBeanBuilder<T> {
      * @see HeaderColumnNameMappingStrategy#setType(java.lang.Class)
      * @see ColumnPositionMappingStrategy#setType(java.lang.Class)
      */
-    public CsvToBeanBuilder withType(Class<? extends T> type) {
+    public CsvToBeanBuilder<T> withType(Class<? extends T> type) {
         this.type = type;
         return this;
     }
@@ -355,8 +357,21 @@ public class CsvToBeanBuilder<T> {
      * @return this
      * @see CSVReader#setMultilineLimit(int)
      */
-    public CsvToBeanBuilder withMultilineLimit(int multilineLimit) {
+    public CsvToBeanBuilder<T> withMultilineLimit(int multilineLimit) {
         this.multilineLimit = multilineLimit;
+        return this;
+    }
+    
+    /**
+     * Sets whether the resulting beans must be ordered as in the input.
+     * 
+     * @param orderedResults Whether to order the results or not
+     * @return this
+     * @see CsvToBean#setOrderedResults(boolean) 
+     * @since 4.0
+     */
+    public CsvToBeanBuilder<T> withOrderedResults(boolean orderedResults) {
+        this.orderedResults = orderedResults;
         return this;
     }
 }

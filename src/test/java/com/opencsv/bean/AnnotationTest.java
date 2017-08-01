@@ -74,13 +74,13 @@ public class AnnotationTest {
                 new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanFull.class);
         FileReader fin = new FileReader("src/test/resources/testinputfullgood.csv");
-        testGoodData(strat, fin);
+        testGoodData(strat, fin, true);
         
         HeaderColumnNameMappingStrategy<AnnotatedMockBeanFullDerived> stratd =
                 new HeaderColumnNameMappingStrategy<>();
         stratd.setType(AnnotatedMockBeanFullDerived.class);
         fin = new FileReader("src/test/resources/testinputderivedgood.csv");
-        List<AnnotatedMockBeanFull> beanList = testGoodData(stratd, fin);
+        List<AnnotatedMockBeanFull> beanList = testGoodData(stratd, fin, true);
         AnnotatedMockBeanFullDerived bean = (AnnotatedMockBeanFullDerived) beanList.get(0);
         assertEquals(7, bean.getIntInSubclass());
         bean = (AnnotatedMockBeanFullDerived) beanList.get(1);
@@ -93,77 +93,105 @@ public class AnnotationTest {
                 new ColumnPositionMappingStrategy<>();
         strat.setType(AnnotatedMockBeanFull.class);
         FileReader fin = new FileReader("src/test/resources/testinputposfullgood.csv");
-        testGoodData(strat, fin);
+        testGoodData(strat, fin, true);
     }
 
-    private static List<AnnotatedMockBeanFull> testGoodData(MappingStrategy strat, Reader fin) {
+    @Test
+    public void testGoodDataByNameUnordered() throws FileNotFoundException {
+        HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat =
+                new HeaderColumnNameMappingStrategy<>();
+        strat.setType(AnnotatedMockBeanFull.class);
+        FileReader fin = new FileReader("src/test/resources/testinputfullgood.csv");
+        testGoodData(strat, fin, false);
+        
+        HeaderColumnNameMappingStrategy<AnnotatedMockBeanFullDerived> stratd =
+                new HeaderColumnNameMappingStrategy<>();
+        stratd.setType(AnnotatedMockBeanFullDerived.class);
+        fin = new FileReader("src/test/resources/testinputderivedgood.csv");
+        testGoodData(stratd, fin, false);
+    }
+
+    @Test
+    public void testGoodDataByPositionUnordered() throws FileNotFoundException {
+        ColumnPositionMappingStrategy<AnnotatedMockBeanFull> strat =
+                new ColumnPositionMappingStrategy<>();
+        strat.setType(AnnotatedMockBeanFull.class);
+        FileReader fin = new FileReader("src/test/resources/testinputposfullgood.csv");
+        testGoodData(strat, fin, false);
+    }
+
+    private static List<AnnotatedMockBeanFull> testGoodData(MappingStrategy strat, Reader fin, boolean ordered) {
         CSVReader read = new CSVReader(fin, ';');
         CsvToBean<AnnotatedMockBeanFull> ctb = new CsvToBean<>();
+        ctb.setOrderedResults(ordered);
         List<AnnotatedMockBeanFull> beanList = ctb.parse(strat, read);
-        AnnotatedMockBeanFull bean = beanList.get(0);
-        assertTrue(bean.getBoolWrapped());
-        assertFalse(bean.isBoolPrimitive());
-        assertEquals(1L, (long) bean.getByteWrappedDefaultLocale());
-        assertEquals(2L, (long) bean.getByteWrappedSetLocale());
-        assertEquals(3L, (long) bean.getBytePrimitiveDefaultLocale());
-        assertEquals(4L, (long) bean.getBytePrimitiveSetLocale());
-        assertEquals((double) 123101.101, (double) bean.getDoubleWrappedDefaultLocale(), 0);
-        assertEquals((double) 123202.202, (double) bean.getDoubleWrappedSetLocale(), 0);
-        assertEquals(123303.303, bean.getDoublePrimitiveDefaultLocale(), 0);
-        assertEquals(123404.404, bean.getDoublePrimitiveSetLocale(), 0);
-        assertEquals((float) 123101.101, (float) bean.getFloatWrappedDefaultLocale(), 0);
-        assertEquals((float) 123202.202, (float) bean.getFloatWrappedSetLocale(), 0);
+        assertEquals(2, beanList.size());
+        if(ordered) {
+            AnnotatedMockBeanFull bean = beanList.get(0);
+            assertTrue(bean.getBoolWrapped());
+            assertFalse(bean.isBoolPrimitive());
+            assertEquals(1L, (long) bean.getByteWrappedDefaultLocale());
+            assertEquals(2L, (long) bean.getByteWrappedSetLocale());
+            assertEquals(3L, (long) bean.getBytePrimitiveDefaultLocale());
+            assertEquals(4L, (long) bean.getBytePrimitiveSetLocale());
+            assertEquals((double) 123101.101, (double) bean.getDoubleWrappedDefaultLocale(), 0);
+            assertEquals((double) 123202.202, (double) bean.getDoubleWrappedSetLocale(), 0);
+            assertEquals(123303.303, bean.getDoublePrimitiveDefaultLocale(), 0);
+            assertEquals(123404.404, bean.getDoublePrimitiveSetLocale(), 0);
+            assertEquals((float) 123101.101, (float) bean.getFloatWrappedDefaultLocale(), 0);
+            assertEquals((float) 123202.202, (float) bean.getFloatWrappedSetLocale(), 0);
 
-        // There appear to be rounding errors when converting from Float to float.
-        assertEquals(123303.303, bean.getFloatPrimitiveDefaultLocale(), 0.002);
-        assertEquals(123404.404, bean.getFloatPrimitiveSetLocale(), 0.003);
+            // There appear to be rounding errors when converting from Float to float.
+            assertEquals(123303.303, bean.getFloatPrimitiveDefaultLocale(), 0.002);
+            assertEquals(123404.404, bean.getFloatPrimitiveSetLocale(), 0.003);
 
-        assertEquals(5000, (int) bean.getIntegerWrappedDefaultLocale());
-        assertEquals(6000, (int) bean.getIntegerWrappedSetLocale());
-        assertEquals(Integer.MAX_VALUE - 7000, bean.getIntegerPrimitiveDefaultLocale());
-        assertEquals(8000, bean.getIntegerPrimitiveSetLocale());
-        assertEquals(9000L, (long) bean.getLongWrappedDefaultLocale());
-        assertEquals(10000L, (long) bean.getLongWrappedSetLocale());
-        assertEquals(11000L, bean.getLongPrimitiveDefaultLocale());
-        assertEquals(12000L, bean.getLongPrimitiveSetLocale());
-        assertEquals((short) 13000, (short) bean.getShortWrappedDefaultLocale());
-        assertEquals((short) 14000, (short) bean.getShortWrappedSetLocale());
-        assertEquals(15000, bean.getShortPrimitiveDefaultLocale());
-        assertEquals(16000, bean.getShortPrimitiveSetLocale());
-        assertEquals('a', (char) bean.getCharacterWrapped());
-        assertEquals('b', bean.getCharacterPrimitive());
-        assertEquals(BigDecimal.valueOf(123101.101), bean.getBigdecimalDefaultLocale());
-        assertEquals(BigDecimal.valueOf(123102.102), bean.getBigdecimalSetLocale());
-        assertEquals(BigInteger.valueOf(101), bean.getBigintegerDefaultLocale());
-        assertEquals(BigInteger.valueOf(102), bean.getBigintegerSetLocale());
-        assertEquals(createDefaultTime().getTimeInMillis(), bean.getDateDefaultLocale().getTime());
-        assertEquals(createDefaultTime().getTimeInMillis(), bean.getGcalDefaultLocale().getTimeInMillis());
-        assertEquals(createDefaultTime().getTimeInMillis(), bean.getCalDefaultLocale().getTimeInMillis());
-        assertEquals(createDefaultTime().getTimeInMillis(), bean.getXmlcalDefaultLocale().toGregorianCalendar().getTimeInMillis());
-        assertEquals(createDefaultTime().getTimeInMillis(), bean.getSqltimeDefaultLocale().getTime());
-        assertEquals(createDefaultTime().getTimeInMillis(), bean.getSqltimestampDefaultLocale().getTime());
-        assertEquals(createDefaultTime().getTimeInMillis(), bean.getDateSetLocale().getTime());
-        assertEquals(createDefaultTime().getTimeInMillis(), bean.getGcalSetLocale().getTimeInMillis());
-        assertEquals(createDefaultTime().getTimeInMillis(), bean.getCalSetLocale().getTimeInMillis());
-        assertEquals(createDefaultTime().getTimeInMillis(), bean.getXmlcalSetLocale().toGregorianCalendar().getTimeInMillis());
-        assertEquals(createDefaultTime().getTimeInMillis(), bean.getSqltimeSetLocale().getTime());
-        assertEquals(createDefaultTime().getTimeInMillis(), bean.getSqltimestampSetLocale().getTime());
-        assertEquals("1978-01-15", bean.getSqldateDefaultLocale().toString());
-        assertEquals("1978-01-15", bean.getSqldateSetLocale().toString());
-        assertEquals("test string", bean.getStringClass());
-        assertEquals(new GregorianCalendar(1978, 0, 15).getTimeInMillis(), bean.getGcalFormatDefaultLocale().getTimeInMillis());
-        assertEquals(new GregorianCalendar(2018, 11, 13).getTimeInMillis(), bean.getGcalFormatSetLocale().getTimeInMillis());
-        assertEquals(1.01, bean.getFloatBadLocale(), 0.001);
-        assertNull(bean.getColumnDoesntExist());
-        assertNull(bean.getUnmapped());
+            assertEquals(5000, (int) bean.getIntegerWrappedDefaultLocale());
+            assertEquals(6000, (int) bean.getIntegerWrappedSetLocale());
+            assertEquals(Integer.MAX_VALUE - 7000, bean.getIntegerPrimitiveDefaultLocale());
+            assertEquals(8000, bean.getIntegerPrimitiveSetLocale());
+            assertEquals(9000L, (long) bean.getLongWrappedDefaultLocale());
+            assertEquals(10000L, (long) bean.getLongWrappedSetLocale());
+            assertEquals(11000L, bean.getLongPrimitiveDefaultLocale());
+            assertEquals(12000L, bean.getLongPrimitiveSetLocale());
+            assertEquals((short) 13000, (short) bean.getShortWrappedDefaultLocale());
+            assertEquals((short) 14000, (short) bean.getShortWrappedSetLocale());
+            assertEquals(15000, bean.getShortPrimitiveDefaultLocale());
+            assertEquals(16000, bean.getShortPrimitiveSetLocale());
+            assertEquals('a', (char) bean.getCharacterWrapped());
+            assertEquals('b', bean.getCharacterPrimitive());
+            assertEquals(BigDecimal.valueOf(123101.101), bean.getBigdecimalDefaultLocale());
+            assertEquals(BigDecimal.valueOf(123102.102), bean.getBigdecimalSetLocale());
+            assertEquals(BigInteger.valueOf(101), bean.getBigintegerDefaultLocale());
+            assertEquals(BigInteger.valueOf(102), bean.getBigintegerSetLocale());
+            assertEquals(createDefaultTime().getTimeInMillis(), bean.getDateDefaultLocale().getTime());
+            assertEquals(createDefaultTime().getTimeInMillis(), bean.getGcalDefaultLocale().getTimeInMillis());
+            assertEquals(createDefaultTime().getTimeInMillis(), bean.getCalDefaultLocale().getTimeInMillis());
+            assertEquals(createDefaultTime().getTimeInMillis(), bean.getXmlcalDefaultLocale().toGregorianCalendar().getTimeInMillis());
+            assertEquals(createDefaultTime().getTimeInMillis(), bean.getSqltimeDefaultLocale().getTime());
+            assertEquals(createDefaultTime().getTimeInMillis(), bean.getSqltimestampDefaultLocale().getTime());
+            assertEquals(createDefaultTime().getTimeInMillis(), bean.getDateSetLocale().getTime());
+            assertEquals(createDefaultTime().getTimeInMillis(), bean.getGcalSetLocale().getTimeInMillis());
+            assertEquals(createDefaultTime().getTimeInMillis(), bean.getCalSetLocale().getTimeInMillis());
+            assertEquals(createDefaultTime().getTimeInMillis(), bean.getXmlcalSetLocale().toGregorianCalendar().getTimeInMillis());
+            assertEquals(createDefaultTime().getTimeInMillis(), bean.getSqltimeSetLocale().getTime());
+            assertEquals(createDefaultTime().getTimeInMillis(), bean.getSqltimestampSetLocale().getTime());
+            assertEquals("1978-01-15", bean.getSqldateDefaultLocale().toString());
+            assertEquals("1978-01-15", bean.getSqldateSetLocale().toString());
+            assertEquals("test string", bean.getStringClass());
+            assertEquals(new GregorianCalendar(1978, 0, 15).getTimeInMillis(), bean.getGcalFormatDefaultLocale().getTimeInMillis());
+            assertEquals(new GregorianCalendar(2018, 11, 13).getTimeInMillis(), bean.getGcalFormatSetLocale().getTimeInMillis());
+            assertEquals(1.01, bean.getFloatBadLocale(), 0.001);
+            assertNull(bean.getColumnDoesntExist());
+            assertNull(bean.getUnmapped());
 
-        bean = beanList.get(1);
-        assertNull(bean.getBoolWrapped());
-        assertFalse(bean.isBoolPrimitive());
-        GregorianCalendar gc = createDefaultTime();
-        gc.set(Calendar.HOUR_OF_DAY, 16);
-        assertEquals(gc.getTimeInMillis(), bean.getGcalDefaultLocale().getTimeInMillis());
-        assertNull(bean.getCalDefaultLocale());
+            bean = beanList.get(1);
+            assertNull(bean.getBoolWrapped());
+            assertFalse(bean.isBoolPrimitive());
+            GregorianCalendar gc = createDefaultTime();
+            gc.set(Calendar.HOUR_OF_DAY, 16);
+            assertEquals(gc.getTimeInMillis(), bean.getGcalDefaultLocale().getTimeInMillis());
+            assertNull(bean.getCalDefaultLocale());
+        }
         
         return beanList;
     }
@@ -374,6 +402,27 @@ public class AnnotationTest {
             assertEquals("true false true", (String) csve.getSourceObject());
             assertEquals(List.class, csve.getDestinationClass());
         }
+    }
+    
+    @Test
+    public void testBadDataExceptionsCapturedUnordered() {
+        CsvToBean ctb = new CsvToBeanBuilder(new StringReader("isnotdate\n19780115T063209"))
+                .withType(TestCase34.class)
+                .withThrowExceptions(false)
+                .withOrderedResults(false)
+                .build();
+        List<TestCase34> beanList = ctb.parse();
+        assertNotNull(beanList);
+        assertEquals(0, beanList.size());
+        List<CsvException> exceptionList = ctb.getCapturedExceptions();
+        assertNotNull(exceptionList);
+        assertEquals(1, exceptionList.size());
+        assertTrue(exceptionList.get(0) instanceof CsvDataTypeMismatchException);
+        CsvDataTypeMismatchException innere = (CsvDataTypeMismatchException) exceptionList.get(0);
+        assertEquals(1, innere.getLineNumber());
+        assertTrue(innere.getSourceObject() instanceof String);
+        assertEquals("19780115T063209", (String) innere.getSourceObject());
+        assertEquals(String.class, innere.getDestinationClass());
     }
 
     @Test
@@ -722,8 +771,22 @@ public class AnnotationTest {
         CsvRequiredFieldEmptyException e1 = new CsvRequiredFieldEmptyException(c, f);
         assertEquals(TestCase80.class, e1.getBeanClass());
         assertEquals(f, e1.getDestinationField());
+        
+        e1 = new CsvRequiredFieldEmptyException();
+        assertNull(e1.getBeanClass());
+        assertNull(e1.getDestinationField());
+        assertNull(e1.getCause());
+        assertNull(e1.getMessage());
+        assertEquals(-1, e1.getLineNumber());
 
         String err = "Test";
+        e1 = new CsvRequiredFieldEmptyException(err);
+        assertNull(e1.getBeanClass());
+        assertNull(e1.getDestinationField());
+        assertNull(e1.getCause());
+        assertEquals(err, e1.getMessage());
+        assertEquals(-1, e1.getLineNumber());
+        
         CsvDataTypeMismatchException e2 = new CsvDataTypeMismatchException();
         assertNull(e2.getDestinationClass());
         assertNull(e2.getSourceObject());

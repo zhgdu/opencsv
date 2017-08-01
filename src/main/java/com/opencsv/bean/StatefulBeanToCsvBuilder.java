@@ -36,6 +36,7 @@ public class StatefulBeanToCsvBuilder<T> {
     private MappingStrategy<T> mappingStrategy = null;
     private final Writer writer;
     private boolean throwExceptions = true;
+    private boolean orderedResults = true;
     
     /** The nullary constructor may never be used. */
     private StatefulBeanToCsvBuilder() {
@@ -63,7 +64,7 @@ public class StatefulBeanToCsvBuilder<T> {
      * @param mappingStrategy The mapping strategy to be used for write operations
      * @return this
      */
-    public StatefulBeanToCsvBuilder withMappingStrategy(MappingStrategy<T> mappingStrategy) {
+    public StatefulBeanToCsvBuilder<T> withMappingStrategy(MappingStrategy<T> mappingStrategy) {
         this.mappingStrategy = mappingStrategy;
         return this;
     }
@@ -73,7 +74,7 @@ public class StatefulBeanToCsvBuilder<T> {
      * @param separator The field separator to be used when writing a CSV file
      * @return this
      */
-    public StatefulBeanToCsvBuilder withSeparator(char separator) {
+    public StatefulBeanToCsvBuilder<T> withSeparator(char separator) {
         this.separator = separator;
         return this;
     }
@@ -83,7 +84,7 @@ public class StatefulBeanToCsvBuilder<T> {
      * @param quotechar The quote character to be used when writing a CSV file
      * @return this
      */
-    public StatefulBeanToCsvBuilder withQuotechar(char quotechar) {
+    public StatefulBeanToCsvBuilder<T> withQuotechar(char quotechar) {
         this.quotechar = quotechar;
         return this;
     }
@@ -93,7 +94,7 @@ public class StatefulBeanToCsvBuilder<T> {
      * @param escapechar The escape character to be used when writing a CSV file
      * @return this
      */
-    public StatefulBeanToCsvBuilder withEscapechar(char escapechar) {
+    public StatefulBeanToCsvBuilder<T> withEscapechar(char escapechar) {
         this.escapechar = escapechar;
         return this;
     }
@@ -103,7 +104,7 @@ public class StatefulBeanToCsvBuilder<T> {
      * @param lineEnd The line ending to be used when writing a CSV file
      * @return this
      */
-    public StatefulBeanToCsvBuilder withLineEnd(String lineEnd) {
+    public StatefulBeanToCsvBuilder<T> withLineEnd(String lineEnd) {
         this.lineEnd = lineEnd;
         return this;
     }
@@ -114,8 +115,23 @@ public class StatefulBeanToCsvBuilder<T> {
      *   {@link com.opencsv.bean.StatefulBeanToCsv#getCapturedExceptions() }.
      * @return this
      */
-    public StatefulBeanToCsvBuilder withThrowExceptions(boolean throwExceptions) {
+    public StatefulBeanToCsvBuilder<T> withThrowExceptions(boolean throwExceptions) {
         this.throwExceptions = throwExceptions;
+        return this;
+    }
+    
+    /**
+     * Sets whether or not results must be written in the same order in which
+     * they appear in the list of beans provided as input.
+     * 
+     * @param orderedResults Whether or not the lines written are in the same
+     *   order they appeared in the input
+     * @return this
+     * @see StatefulBeanToCsv#setOrderedResults(boolean)
+     * @since 4.0
+     */
+    public StatefulBeanToCsvBuilder<T> withOrderedResults(boolean orderedResults) {
+        this.orderedResults = orderedResults;
         return this;
     }
     
@@ -124,8 +140,10 @@ public class StatefulBeanToCsvBuilder<T> {
      * default values where none have been specified.
      * @return A new {@link StatefulBeanToCsv}
      */
-    public StatefulBeanToCsv build() {
-        return new StatefulBeanToCsv(escapechar, lineEnd, mappingStrategy,
+    public StatefulBeanToCsv<T> build() {
+        StatefulBeanToCsv<T> sbtcsv = new StatefulBeanToCsv(escapechar, lineEnd, mappingStrategy,
                 quotechar, separator, throwExceptions, writer);
+        sbtcsv.setOrderedResults(orderedResults);
+        return sbtcsv;
     }
 }

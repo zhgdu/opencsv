@@ -505,7 +505,7 @@ public class CSVParser implements ICSVParser {
         // CSVs where there are no escaped characters we can actually avoid creating this entirely.
         private StringBuilder sb;
         // Indexes of a substring of nextLine that is logically already appended to the sb buffer. If possible,
-        // we just fiddle these indexes rather than actually appending anything to sb.
+        // we just fiddle these indices rather than actually appending anything to sb.
         private int pendingSubstrFrom = 0;
         private int pendingSubstrTo = 0;
 

@@ -17,7 +17,6 @@ Test case,Test,Expected behavior,Status
 16,Mapping fields of a complex destination object by @CsvCustomBindByName with unassignable types,RuntimeException with inner exception CsvDataTypeMismatchException,pass
 17,Mapping fields of a complex destination object by @CsvCustomBindByName with an assignable derived type,Members are filled correctly,pass
 18,Mapping fields annotated with @CsvBindByName and @CsvCustomBindByName,The custom converter is used,pass
-20,Mapping fields annotated with @CsvBindByName and @CsvBind,@CsvBindByName is used,pass
 21,Mapping to unbindable fields with @CsvBindByName,RuntimeException with inner exception CsvDataTypeMismatchException,pass
 22,Mapping to primitive types with private access and no setter method with @CsvBindByName,Members are filled correctly,pass
 23,Mapping to complex destination objects with private access and no setter method with @CsvCustomBindByName,Members are filled correctly,pass
