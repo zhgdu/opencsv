@@ -20,6 +20,7 @@ import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.enums.CSVReaderNullFieldIndicator;
+
 import java.io.Reader;
 
 /**
@@ -131,7 +132,7 @@ public class CsvToBeanBuilder<T> {
         }
         
         // Build Parser and Reader
-        CsvToBean bean = new CsvToBean();
+        CsvToBean<T> bean = new CsvToBean();
         CSVParser parser = buildParser();
         bean.setCsvReader(buildReader(parser));
         
