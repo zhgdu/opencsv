@@ -22,7 +22,10 @@ import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import org.apache.commons.beanutils.PropertyUtilsBean;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 
@@ -49,15 +52,16 @@ abstract public class AbstractBeanField<T> implements BeanField<T> {
     /** Whether or not this field is required. */
     protected boolean required;
     
-    /** Message text for missing required fields. */
-    private static final String REQUIRED_FIELD_EMPTY_MESSAGE = "Field '%s' is mandatory but no value was provided.";
-
+    /** Locale for error messages. */
+    protected Locale errorLocale;
+    
     /**
      * Default nullary constructor, so derived classes aren't forced to create
      * a constructor identical to the one below.
      */
     public AbstractBeanField() {
         required = false;
+        errorLocale = Locale.getDefault();
     }
 
     /**
@@ -65,8 +69,7 @@ abstract public class AbstractBeanField<T> implements BeanField<T> {
      * @param field A {@link java.lang.reflect.Field} object.
      */
     public AbstractBeanField(Field field) {
-        this.field = field;
-        this.required = false;
+        this(field, false, Locale.getDefault());
     }
 
     /**
@@ -75,8 +78,19 @@ abstract public class AbstractBeanField<T> implements BeanField<T> {
      * @since 3.10
      */
     public AbstractBeanField(Field field, boolean required) {
+        this(field, required, Locale.getDefault());
+    }
+
+    /**
+     * @param field A {@link java.lang.reflect.Field} object.
+     * @param required Whether or not this field is required in input
+     * @param errorLocale The errorLocale to use for error messages.
+     * @since 4.0
+     */
+    public AbstractBeanField(Field field, boolean required, Locale errorLocale) {
         this.field = field;
         this.required = required;
+        this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
     }
 
     @Override
@@ -98,6 +112,11 @@ abstract public class AbstractBeanField<T> implements BeanField<T> {
     public void setRequired(boolean required) {
         this.required = required;
     }
+    
+    @Override
+    public void setErrorLocale(Locale errorLocale) {
+        this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
+    }
 
     @Override
     public final <T> void setFieldValue(T bean, String value)
@@ -106,7 +125,8 @@ abstract public class AbstractBeanField<T> implements BeanField<T> {
         if (required && StringUtils.isBlank(value)) {
             throw new CsvRequiredFieldEmptyException(
                     bean.getClass(), field,
-                    String.format(REQUIRED_FIELD_EMPTY_MESSAGE, field.getName()));
+                    String.format(ResourceBundle.getBundle("opencsv", errorLocale).getString("required.field.empty"),
+                            field.getName()));
         }
         
         assignValueToField(bean, convert(value));
@@ -228,7 +248,8 @@ abstract public class AbstractBeanField<T> implements BeanField<T> {
             if(value == null && required) {
                 throw new CsvRequiredFieldEmptyException(
                         bean.getClass(), field,
-                        String.format(REQUIRED_FIELD_EMPTY_MESSAGE, field.getName()));
+                        String.format(ResourceBundle.getBundle("opencsv", errorLocale).getString("required.field.empty"),
+                                field.getName()));
             }
             
             try {

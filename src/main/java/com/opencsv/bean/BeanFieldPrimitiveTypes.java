@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Field;
 import java.util.Locale;
+import java.util.ResourceBundle;
 import org.apache.commons.beanutils.ConvertUtilsBean;
 import org.apache.commons.beanutils.locale.LocaleConvertUtilsBean;
 
@@ -42,9 +43,10 @@ public class BeanFieldPrimitiveTypes<T> extends AbstractBeanField<T> {
      *                 if it is allowed to be null or a blank string
      * @param locale   If not null or empty, specifies the locale used for
      *                 converting locale-specific data types
+     * @param errorLocale The locale to use for error messages.
      */
-    public BeanFieldPrimitiveTypes(Field field, boolean required, String locale) {
-        super(field, required);
+    public BeanFieldPrimitiveTypes(Field field, boolean required, String locale, Locale errorLocale) {
+        super(field, required, errorLocale);
         this.locale = locale;
     }
 
@@ -68,7 +70,9 @@ public class BeanFieldPrimitiveTypes<T> extends AbstractBeanField<T> {
             } catch (ConversionException e) {
                 CsvDataTypeMismatchException csve = new CsvDataTypeMismatchException(
                         value, field.getType(),
-                        "Conversion of " + value + " to " + field.getType().getCanonicalName() + " failed.");
+                        String.format(
+                                ResourceBundle.getBundle("opencsv", errorLocale).getString("conversion.impossible"),
+                                value, field.getType().getCanonicalName()));
                 csve.initCause(e);
                 throw csve;
             }
@@ -105,7 +109,7 @@ public class BeanFieldPrimitiveTypes<T> extends AbstractBeanField<T> {
             }
             catch(ConversionException e) {
                 CsvDataTypeMismatchException csve = new CsvDataTypeMismatchException(
-                        "The field must be primitive, boxed primitive, BigDecimal, BigInteger or String types only.");
+                        ResourceBundle.getBundle("opencsv", errorLocale).getString("field.not.primitive"));
                 csve.initCause(e);
                 throw csve;
             }

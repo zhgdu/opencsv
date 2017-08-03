@@ -25,6 +25,9 @@ import java.io.Reader;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
+import org.apache.commons.lang3.ObjectUtils;
 
 /**
  * A very simple CSV reader released under a commercial-friendly license.
@@ -55,6 +58,7 @@ public class CSVReader implements Closeable, Iterable<String[]> {
     protected boolean keepCR;
     protected boolean verifyReader;
     protected int multilineLimit = DEFAULT_MULTILINE_LIMIT;
+    protected Locale errorLocale = Locale.getDefault();
 
     protected long linesRead = 0;
     protected long recordsRead = 0;
@@ -221,6 +225,7 @@ public class CSVReader implements Closeable, Iterable<String[]> {
         this.keepCR = keepCR;
         this.verifyReader = verifyReader;
     }
+    
     /**
      * @return The CSVParser used by the reader.
      */
@@ -286,7 +291,7 @@ public class CSVReader implements Closeable, Iterable<String[]> {
                 return validateResult(result);
             }
             if(multilineLimit > 0 && linesInThisRecord > multilineLimit) {
-                throw new IOException("Encountered single record with more lines than the specified upper limit of " + multilineLimit);
+                throw new IOException(String.format(errorLocale, ResourceBundle.getBundle("opencsv", errorLocale).getString("multiline.limit.broken"), multilineLimit));
             }
             String[] r = parser.parseLineMulti(nextLine);
             if (r.length > 0) {
@@ -375,6 +380,16 @@ public class CSVReader implements Closeable, Iterable<String[]> {
     }
 
     /**
+     * Sets the locale for error messages.
+     * @param errorLocale Locale for error messages. If null, the default locale
+     *   is used.
+     * @since 4.0
+     */
+    public void setErrorLocale(Locale errorLocale) {
+        this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
+    }
+    
+    /**
      * Checks to see if the file is closed.
      * @return True if the reader can no longer be read from.
      */
@@ -409,7 +424,9 @@ public class CSVReader implements Closeable, Iterable<String[]> {
     @Override
     public Iterator<String[]> iterator() {
         try {
-            return new CSVIterator(this);
+            CSVIterator it = new CSVIterator(this);
+            it.setErrorLocale(errorLocale);
+            return it;
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

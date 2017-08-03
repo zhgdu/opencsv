@@ -41,7 +41,6 @@ public class BeanFieldDate<T> extends AbstractBeanField<T> {
 
     private final String formatString;
     private final String locale;
-    private static final String NOT_DATE = "@CsvDate annotation used on non-date field.";
 
     /**
      * @param field        A {@link java.lang.reflect.Field} object.
@@ -51,9 +50,10 @@ public class BeanFieldDate<T> extends AbstractBeanField<T> {
      *                     {@link com.opencsv.bean.CsvDate#value()}
      * @param locale       If not null or empty, specifies the locale used for
      *                     converting locale-specific data types
+     * @param errorLocale The locale to use for error messages.
      */
-    public BeanFieldDate(Field field, boolean required, String formatString, String locale) {
-        super(field, required);
+    public BeanFieldDate(Field field, boolean required, String formatString, String locale, Locale errorLocale) {
+        super(field, required, errorLocale);
         this.formatString = formatString;
         this.locale = locale;
     }
@@ -118,7 +118,8 @@ public class BeanFieldDate<T> extends AbstractBeanField<T> {
             o = fieldType.cast(getFormat().format((Date)value));
         }
         else {
-            throw new CsvDataTypeMismatchException(value, fieldType, NOT_DATE);
+            throw new CsvDataTypeMismatchException(value, fieldType,
+                    ResourceBundle.getBundle("opencsv", errorLocale).getString("csvdate.not.date"));
         }
         
         return o;
@@ -174,7 +175,7 @@ public class BeanFieldDate<T> extends AbstractBeanField<T> {
                     // especially since I can't conceive of the circumstances
                     // under which it is thrown.
                     CsvDataTypeMismatchException ex = new CsvDataTypeMismatchException(
-                            "It was not possible to initialize an XMLGregorianCalendar.");
+                            ResourceBundle.getBundle("opencsv", errorLocale).getString("xmlgregoriancalendar.impossible"));
                     ex.initCause(e);
                     throw ex;
                 }
@@ -192,7 +193,8 @@ public class BeanFieldDate<T> extends AbstractBeanField<T> {
                 c = (Calendar)value;
             }
             else {
-                throw new CsvDataTypeMismatchException(value, fieldType, NOT_DATE);
+                throw new CsvDataTypeMismatchException(value, fieldType,
+                        ResourceBundle.getBundle("opencsv", errorLocale).getString("csvdate.not.date"));
             }
             o = fieldType.cast(getFormat().format(c.getTime()));
         }
@@ -223,7 +225,8 @@ public class BeanFieldDate<T> extends AbstractBeanField<T> {
                 || XMLGregorianCalendar.class.isAssignableFrom(conversionClass)) {
             o = convertCalendar(value, fieldType);
         } else {
-            throw new CsvDataTypeMismatchException(value, fieldType, NOT_DATE);
+            throw new CsvDataTypeMismatchException(value, fieldType,
+                    ResourceBundle.getBundle("opencsv", errorLocale).getString("csvdate.not.date"));
         }
         
         return o;

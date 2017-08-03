@@ -27,6 +27,7 @@ import org.junit.Test;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
 import java.lang.reflect.Field;
@@ -337,26 +338,41 @@ public class AnnotationTest {
     }
 
     @Test
-    public void testCase11() throws FileNotFoundException {
+    public void testCase11() throws FileNotFoundException, IOException {
         HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat =
                 new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanFull.class);
-        FileReader fin = new FileReader("src/test/resources/testinputcase11.csv");
-        testCases11And55(strat, fin);
+        Reader fin = new FileReader("src/test/resources/testinputcase11.csv");
+        String englishErrorMessage = testCases11And55(strat, fin);
+        
+        // Now with another locale
+        strat = new HeaderColumnNameMappingStrategy<>();
+        strat.setErrorLocale(Locale.GERMAN);
+        strat.setType(AnnotatedMockBeanFull.class);
+        fin = new FileReader("src/test/resources/testinputcase11.csv");
+        assertNotEquals(englishErrorMessage, testCases11And55(strat, fin));
     }
 
     @Test
-    public void testCase55() throws FileNotFoundException {
+    public void testCase55() throws FileNotFoundException, IOException {
         ColumnPositionMappingStrategy<AnnotatedMockBeanFull> strat =
                 new ColumnPositionMappingStrategy<>();
         strat.setType(AnnotatedMockBeanFull.class);
-        FileReader fin = new FileReader("src/test/resources/testinputcase55.csv");
-        testCases11And55(strat, fin);
+        Reader fin = new FileReader("src/test/resources/testinputcase55.csv");
+        String englishErrorMessage = testCases11And55(strat, fin);
+        
+        // Now with a different locale
+        strat = new ColumnPositionMappingStrategy<>();
+        strat.setErrorLocale(Locale.GERMAN);
+        strat.setType(AnnotatedMockBeanFull.class);
+        fin = new FileReader("src/test/resources/testinputcase55.csv");
+        assertNotEquals(englishErrorMessage, testCases11And55(strat, fin));
     }
 
-    private void testCases11And55(MappingStrategy strat, Reader fin) {
+    private String testCases11And55(MappingStrategy strat, Reader fin) {
         CSVReader read = new CSVReader(fin, ';');
         CsvToBean ctb = new CsvToBean();
+        String errorMessage = null;
         try {
             ctb.parse(strat, read);
             fail("The parse should have thrown an Exception.");
@@ -367,8 +383,11 @@ public class AnnotationTest {
             assertTrue(csve.getSourceObject() instanceof String);
             assertEquals("mismatchedtype", (String) csve.getSourceObject());
             assertEquals(Byte.class, csve.getDestinationClass());
+            errorMessage = csve.getLocalizedMessage();
             assertTrue(csve.getCause() instanceof ConversionException);
         }
+        
+        return errorMessage;
     }
 
     @Test

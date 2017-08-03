@@ -17,6 +17,9 @@ package com.opencsv.bean;
  */
 
 import com.opencsv.CSVReader;
+import java.util.Locale;
+import java.util.ResourceBundle;
+import org.apache.commons.lang3.ObjectUtils;
 
 /**
  * Builder for creating an IterableCSVToBean.
@@ -43,12 +46,10 @@ import com.opencsv.CSVReader;
 @Deprecated
 public class IterableCSVToBeanBuilder<T> {
 
-    public static final String NO_MAPPING_STRATEGY_DEFINED = "Unable to instantiate IterableCSVToBeanBuilder because there is no MappingStrategy defined.";
-    public static final String NO_READER_DEFINED = "Unable to instantiate IterableCSVToBeanBuilder because there is no CSVReader defined.";
-
     private MappingStrategy<T> mapper;
     private CSVReader csvReader;
     private CsvToBeanFilter filter;
+    private Locale errorLocale = Locale.getDefault();
 
     /**
      * Default constructor.
@@ -65,12 +66,14 @@ public class IterableCSVToBeanBuilder<T> {
      */
     public IterableCSVToBean<T> build() {
         if (mapper == null) {
-            throw new RuntimeException(NO_MAPPING_STRATEGY_DEFINED);
+            throw new RuntimeException(ResourceBundle.getBundle("opencsv", errorLocale).getString("strategy.undefined"));
         }
         if (csvReader == null) {
-            throw new RuntimeException(NO_READER_DEFINED);
+            throw new RuntimeException(ResourceBundle.getBundle("opencsv", errorLocale).getString("csvreader.null"));
         }
-        return new IterableCSVToBean<>(csvReader, mapper, filter);
+        IterableCSVToBean<T> result = new IterableCSVToBean<>(csvReader, mapper, filter);
+        result.setErrorLocale(errorLocale);
+        return result;
     }
 
     /**
@@ -128,6 +131,18 @@ public class IterableCSVToBeanBuilder<T> {
      */
     public IterableCSVToBeanBuilder<T> withFilter(final CsvToBeanFilter filter) {
         this.filter = filter;
+        return this;
+    }
+    
+    /**
+     * Sets the locale for all error messages.
+     * @param errorLocale The locale to be used for all error messages. If null,
+     *   the default locale is used.
+     * @return this
+     * @since 4.0
+     */
+    public IterableCSVToBeanBuilder<T> withErrorLocale(Locale errorLocale) {
+        this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
         return this;
     }
 }

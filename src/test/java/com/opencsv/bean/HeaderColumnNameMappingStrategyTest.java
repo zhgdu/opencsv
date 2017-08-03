@@ -26,8 +26,11 @@ import java.beans.IntrospectionException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
+import java.util.Locale;
+import org.junit.After;
 
 import static org.junit.Assert.*;
+import org.junit.BeforeClass;
 
 public class HeaderColumnNameMappingStrategyTest {
 
@@ -40,9 +43,21 @@ public class HeaderColumnNameMappingStrategyTest {
          "\"jimmy\",\"def098765\",\"456\"";
 
    private HeaderColumnNameMappingStrategy<MockBean> strat;
+   private static Locale systemLocale;
+
+    @BeforeClass
+    public static void storeSystemLocale() {
+        systemLocale = Locale.getDefault();
+    }
+
+    @After
+    public void setSystemLocaleBackToDefault() {
+        Locale.setDefault(systemLocale);
+    }
 
    @Before
    public void setUp() {
+      Locale.setDefault(Locale.US);
       strat = new HeaderColumnNameMappingStrategy<>();
    }
 
@@ -52,9 +67,26 @@ public class HeaderColumnNameMappingStrategyTest {
       return csv.parse(strat, new StringReader(parseString));
    }
 
-   @Test(expected = IllegalStateException.class)
+   @Test
    public void getColumnIndexWithoutHeaderThrowsException() {
-      assertNull(strat.getColumnIndex("some index name"));
+       String englishErrorMessage = null;
+       try {
+           strat.getColumnIndex("some index name");
+           fail("An IllegalStateException should have been thrown since the header has not yet been read.");
+       }
+       catch(IllegalStateException e) {
+           englishErrorMessage = e.getLocalizedMessage();
+       }
+       
+       // Now with another locale
+       strat.setErrorLocale(Locale.GERMAN);
+       try {
+           strat.getColumnIndex("some index name");
+           fail("An IllegalStateException should have been thrown since the header has not yet been read.");
+       }
+       catch(IllegalStateException e) {
+           assertNotEquals(englishErrorMessage, e.getLocalizedMessage());
+       }
    }
 
    @Test

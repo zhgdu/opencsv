@@ -13,8 +13,12 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.StringReader;
 import java.util.List;
+import java.util.Locale;
+import org.junit.After;
 
 import static org.junit.Assert.*;
+import org.junit.Before;
+import org.junit.BeforeClass;
 
 public class CsvToBeanTest {
    private static final String TEST_STRING = "name,orderNumber,num\n" +
@@ -24,6 +28,23 @@ public class CsvToBeanTest {
    private static final String TEST_STRING_WITHOUT_MANDATORY_FIELD = "name,orderNumber,num\n" +
            "kyle,abc123456,123\n" +
            "jimmy,def098765,";
+   
+   private static Locale systemLocale;
+
+    @BeforeClass
+    public static void storeSystemLocale() {
+        systemLocale = Locale.getDefault();
+    }
+
+    @Before
+    public void setSystemLocaleToValueNotGerman() {
+        Locale.setDefault(Locale.US);
+    }
+
+    @After
+    public void setSystemLocaleBackToDefault() {
+        Locale.setDefault(systemLocale);
+    }
 
    private CSVReader createReader() {
       return createReader(TEST_STRING);
@@ -87,10 +108,27 @@ public class CsvToBeanTest {
       assertEquals(2, beanList.size());
    }
 
-   @Test(expected = IllegalStateException.class)
+   @Test
    public void throwIllegalStateWhenParseWithoutArgumentsIsCalled() {
        CsvToBean csvtb = new CsvToBean();
-       csvtb.parse();
+       String englishErrorMessage = null;
+       try {
+           csvtb.parse();
+           fail("IllegalStateException should have been thrown.");
+       }
+       catch(IllegalStateException e) {
+           englishErrorMessage = e.getLocalizedMessage();
+       }
+       
+       // Now with another locale
+       csvtb.setErrorLocale(Locale.GERMAN);
+       try {
+           csvtb.parse();
+           fail("IllegalStateException should have been thrown.");
+       }
+       catch(IllegalStateException e) {
+           assertNotEquals(englishErrorMessage, e.getLocalizedMessage());
+       }
    }
    
    @Test(expected = IllegalStateException.class)
@@ -115,11 +153,29 @@ public class CsvToBeanTest {
                .withType(AnnotatedMockBeanFull.class)
                .build();
    }
-   
-   @Test(expected = IllegalStateException.class)
+       
+   @Test
    public void throwIllegalStateWhenTypeAndMapperNotProvidedInBuilder() {
-       new CsvToBeanBuilder<>(new StringReader(TEST_STRING_WITHOUT_MANDATORY_FIELD))
-               .build();
+       String englishErrorMessage = null;
+       try {
+           new CsvToBeanBuilder<>(new StringReader(TEST_STRING_WITHOUT_MANDATORY_FIELD))
+                   .build();
+           fail("IllegalStateException should have been thrown.");
+       }
+       catch(IllegalStateException e) {
+           englishErrorMessage = e.getLocalizedMessage();
+       }
+       
+       // Now with a different locale
+       try {
+           new CsvToBeanBuilder<>(new StringReader(TEST_STRING_WITHOUT_MANDATORY_FIELD))
+                   .withErrorLocale(Locale.GERMAN)
+                   .build();
+           fail("IllegalStateException should have been thrown.");
+       }
+       catch(IllegalStateException e) {
+           assertNotEquals(englishErrorMessage, e.getLocalizedMessage());
+       }
    }
    
    @Test

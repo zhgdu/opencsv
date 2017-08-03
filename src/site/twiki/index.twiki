@@ -75,6 +75,7 @@ for that? Here is a list of the improvements in opencsv 4.0.
    * We have rewritten the bean code to be multi-threaded so that reading from an input directly into beans is significantly faster. Performance benefits depend largely on your data and hardware, but our non-rigorous tests indicate that reading now takes a <em>third</em> of the time it used to.
    * We have rewritten the bean code to be multi-threaded so that writing from a list of beans is significantly faster. Performance benefits depend largely on your data and hardware, but our non-rigorous tests indicate that writing now takes <em>half</em> of the time it used to.
    * There is a new iterator available for iterating through the input into beans. This iterator is consistent in every way with the behavior of the code that reads all data sets at once into a list of beans. The old iterator did not support all features, like locales and custom converters.
+   * opencsv now supports internationalization for all error messages it produces. The easiest way to benefit from this is to make certain the default locale is the one you want. Otherwise, look for the withErrorLocale() and setErrorLocale() methods in various classes. Localizations are provided for American English and German. TODO: Perhaps others? Further submissions are welcome, but with a submission you enter into a life-long contract to provide updates for any new messages for the language(s) you submit. If you break this contract, you forefit your soul.
 
 Here are the things you can expect to encounter during an upgrade, and what to
 do about them.
@@ -89,7 +90,13 @@ do about them.
       * In the rare case that you used opencsv 3.10, registerBeginningOfRecordForReading() and registerEndOfRecordForReading() were removed from MappingStrategy. They were the result of thought processes worthy of nothing more accomplished than a drunken monkey. I may write that because I wrote the bad code. If you derived your mapping strategy from one of ours, you're okay. Otherwise, you'll have to remove these methods.
       * findDescriptor no longer includes "throws IntrospectionException" in its method signature. If you had it, you'll have to get rid of it. If you had it an needed it, you'll have to rewrite your code.
       * There are now requirements for thread-safety imposed on certain methods in every mapping strategy. See the Javadoc for MappingStrategy for details.
+      * The method setErrorLocale() is now required. If you derive your implementation from one of ours, you're fine. If not, implement it, of make it a no-op.
    * IterableCSVToBean and IterableCSVToBeanBuilder have both been deprecated. CsvToBean itself is now iterable; use it instead.
+   * MappingUtils was really meant to be for internal use, but of course we can't control that, so let it be said that:
+      * the class is now named opencsvUtils, because it encompasses more than mapping, and
+      * the determineMappingStrategy() method now requires a locale for error messages.
+   * The constructors for BeanFieldDate and BeanFieldPrimitiveType now require a locale for error messages. This is to avoid a proliferation of constructors or setters. These classes probably ought not to be used in your code directly, and probably ought to be final, but we still thought it best to inform you.
+   * The interface BeanField requires the method setErrorLocale(). Assuming you derive all of your BeanField implementations from AbstractBeanField, this does not affect you.
 
 ---++Core concepts
 

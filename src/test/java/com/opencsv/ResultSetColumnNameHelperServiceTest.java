@@ -6,8 +6,14 @@ import java.io.IOException;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
+import java.util.Locale;
+import org.junit.After;
 
 import static org.junit.Assert.assertArrayEquals;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.fail;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -15,6 +21,23 @@ import static org.mockito.Mockito.when;
  * Created by scott on 12/31/15.
  */
 public class ResultSetColumnNameHelperServiceTest {
+
+    private static Locale systemLocale;
+
+    @BeforeClass
+    public static void storeSystemLocale() {
+        systemLocale = Locale.getDefault();
+    }
+
+    @Before
+    public void setSystemLocaleToValueNotGerman() {
+        Locale.setDefault(Locale.US);
+    }
+
+    @After
+    public void setSystemLocaleBackToDefault() {
+        Locale.setDefault(systemLocale);
+    }
 
     @Test
     public void canPrintColumnNames() throws SQLException {
@@ -73,13 +96,30 @@ public class ResultSetColumnNameHelperServiceTest {
         assertArrayEquals(columnHeaders, rsColumnNames);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void numberOfColumnsNamesMustMatchNumberOfHeaders() {
         String[] desiredColumnNames = {"name3", "name1"};
         String[] columnHeaders = {"Column Name 1", "Column Name 2", "Column Name 3"};
 
         ResultSetColumnNameHelperService service = new ResultSetColumnNameHelperService();
-        service.setColumnNames(desiredColumnNames, columnHeaders);
+        String englishErrorMessage = null;
+        try {
+            service.setColumnNames(desiredColumnNames, columnHeaders);
+            fail("UnsupportedOperationException should have been thrown.");
+        }
+        catch(UnsupportedOperationException e) {
+            englishErrorMessage = e.getLocalizedMessage();
+        }
+        
+        // Now with another locale
+        service.setErrorLocale(Locale.GERMAN);
+        try {
+            service.setColumnNames(desiredColumnNames, columnHeaders);
+            fail("UnsupportedOperationException should have been thrown.");
+        }
+        catch(UnsupportedOperationException e) {
+            assertNotEquals(englishErrorMessage, e.getLocalizedMessage());
+        }
     }
 
     @Test(expected = UnsupportedOperationException.class)

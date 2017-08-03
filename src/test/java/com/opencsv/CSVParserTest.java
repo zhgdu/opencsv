@@ -5,16 +5,31 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.util.Locale;
+import org.junit.After;
 
 import static org.junit.Assert.*;
+import org.junit.BeforeClass;
 
 public class CSVParserTest {
 
     private static final String ESCAPE_TEST_STRING = "\\\\1\\2\\\"3\\"; // \\1\2\"\
     CSVParser csvParser;
+    private static Locale systemLocale;
+
+    @BeforeClass
+    public static void storeSystemLocale() {
+        systemLocale = Locale.getDefault();
+    }
+
+    @After
+    public void setSystemLocaleBackToDefault() {
+        Locale.setDefault(systemLocale);
+    }
 
     @Before
     public void setUp() {
+        Locale.setDefault(Locale.US);
         csvParser = new CSVParser();
     }
 
@@ -540,9 +555,33 @@ public class CSVParserTest {
         new CSVParser(ICSVParser.DEFAULT_SEPARATOR, ICSVParser.DEFAULT_QUOTE_CHARACTER, ICSVParser.DEFAULT_SEPARATOR);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void separatorAndQuoteCannotBeTheSame() {
-        new CSVParser(ICSVParser.DEFAULT_SEPARATOR, ICSVParser.DEFAULT_SEPARATOR, ICSVParser.DEFAULT_ESCAPE_CHARACTER);
+        String englishErrorMessage = null;
+        try {
+            new CSVParser(
+                    ICSVParser.DEFAULT_SEPARATOR, ICSVParser.DEFAULT_SEPARATOR,
+                    ICSVParser.DEFAULT_ESCAPE_CHARACTER);
+            fail("UnsupportedOperationException should have been thrown.");
+        }
+        catch(UnsupportedOperationException e) {
+            englishErrorMessage = e.getLocalizedMessage();
+        }
+        
+        // Now try with a different locale
+        try {
+            new CSVParser(
+                    ICSVParser.DEFAULT_SEPARATOR, ICSVParser.DEFAULT_SEPARATOR,
+                    ICSVParser.DEFAULT_ESCAPE_CHARACTER,
+                    ICSVParser.DEFAULT_STRICT_QUOTES,
+                    ICSVParser.DEFAULT_IGNORE_LEADING_WHITESPACE,
+                    ICSVParser.DEFAULT_IGNORE_QUOTATIONS,
+                    ICSVParser.DEFAULT_NULL_FIELD_INDICATOR, Locale.GERMAN);
+            fail("UnsupportedOperationException should have been thrown.");
+        }
+        catch(UnsupportedOperationException e) {
+            assertNotEquals(englishErrorMessage, e.getLocalizedMessage());
+        }
     }
 
     @Test

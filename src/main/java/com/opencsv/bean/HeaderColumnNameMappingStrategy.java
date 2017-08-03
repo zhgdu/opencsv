@@ -14,6 +14,7 @@ import java.beans.PropertyDescriptor;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.*;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.text.StrBuilder;
 
 /*
@@ -78,29 +79,20 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
      */
     protected boolean annotationDriven;
     
-    /**
-     * An error message that is used when a custom converter cannot be
-     * instantiated.
-     */
-    private static final String CANNOT_INSTANTIATE = "There was a problem instantiating the custom converter ";
+    /** Locale for error messages. */
+    protected Locale errorLocale = Locale.getDefault();
     
-    /**
-     * An error message that is used when a mapping strategy is used without
-     * having first initialized the type of the bean that is to be created.
-     */
-    private static final String TYPE_NOT_SET = "The type has not been set in the MappingStrategy.";
-
     /**
      * Default constructor.
      */
     public HeaderColumnNameMappingStrategy() {
     }
-
+    
     @Override
     public void captureHeader(CSVReader reader) throws IOException, CsvRequiredFieldEmptyException {
         // Validation
         if(type == null) {
-            throw new IllegalStateException(TYPE_NOT_SET);
+            throw new IllegalStateException(ResourceBundle.getBundle("opencsv", errorLocale).getString("type.unset"));
         }
         
         // Read the header
@@ -127,14 +119,12 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
         }
 
         // Throw an exception if anything is left
-
         if (!requiredKeys.isEmpty()) {
             StrBuilder builder = new StrBuilder(128);
             String missingRequiredFields = builder.appendWithSeparators(requiredKeys, ",").toString();
             // TODO consider CsvRequiredFieldsEmpty for multiple missing required fields.
             throw new CsvRequiredFieldEmptyException(type, fieldMap.get(requiredKeys.get(0)).getField(),
-                    String.format(
-                            "Header is missing required fields [%s]",
+                    String.format(ResourceBundle.getBundle("opencsv", errorLocale).getString("header.required.field.absent"),
                             missingRequiredFields));
         }
     }
@@ -148,7 +138,7 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
                 f = findField(i);
                 if(f.isRequired()) {
                     if(sb == null) {
-                        sb = new StringBuilder("The following required fields were not present for one record of the input:");
+                        sb = new StringBuilder(ResourceBundle.getBundle("opencsv", errorLocale).getString("multiple.required.field.empty"));
                     }
                     sb.append(' ');
                     sb.append(f.getField().getName());
@@ -170,7 +160,7 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
     @Override
     public String[] generateHeader() {
         if(type == null) {
-            throw new IllegalStateException("You must call MappingStrategy.setType() before calling MappingStrategy.generateHeader().");
+            throw new IllegalStateException(ResourceBundle.getBundle("opencsv", errorLocale).getString("type.before.header"));
         }
         
         // Always take what's been given or previously determined first.
@@ -211,7 +201,7 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
     @Override
     public Integer getColumnIndex(String name) {
         if (null == header) {
-            throw new IllegalStateException("The header row hasn't been read yet.");
+            throw new IllegalStateException(ResourceBundle.getBundle("opencsv", errorLocale).getString("header.unread"));
         }
 
         createIndexLookup(header);
@@ -299,11 +289,13 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
     protected BeanField instantiateCustomConverter(Class<? extends AbstractBeanField> converter)
             throws CsvBadConverterException {
         try {
-            return converter.newInstance();
+            BeanField c = converter.newInstance();
+            c.setErrorLocale(errorLocale);
+            return c;
         } catch (IllegalAccessException | InstantiationException oldEx) {
             CsvBadConverterException newEx =
                     new CsvBadConverterException(converter,
-                            CANNOT_INSTANTIATE + converter.getCanonicalName());
+                            String.format(ResourceBundle.getBundle("opencsv", errorLocale).getString("custom.converter.invalid"), converter.getCanonicalName()));
             newEx.initCause(oldEx);
             throw newEx;
         }
@@ -350,16 +342,16 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
                     String formatString = field.getAnnotation(CsvDate.class).value();
                     if (StringUtils.isEmpty(columnName)) {
                         fieldMap.put(field.getName().toUpperCase(),
-                                new BeanFieldDate(field, required, formatString, locale));
+                                new BeanFieldDate(field, required, formatString, locale, errorLocale));
                     } else {
-                        fieldMap.put(columnName, new BeanFieldDate(field, required, formatString, locale));
+                        fieldMap.put(columnName, new BeanFieldDate(field, required, formatString, locale, errorLocale));
                     }
                 } else {
                     if (StringUtils.isEmpty(columnName)) {
                         fieldMap.put(field.getName().toUpperCase(),
-                                new BeanFieldPrimitiveTypes(field, required, locale));
+                                new BeanFieldPrimitiveTypes(field, required, locale, errorLocale));
                     } else {
-                        fieldMap.put(columnName, new BeanFieldPrimitiveTypes(field, required, locale));
+                        fieldMap.put(columnName, new BeanFieldPrimitiveTypes(field, required, locale, errorLocale));
                     }
                 }
             }
@@ -386,7 +378,7 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
     @Override
     public T createBean() throws InstantiationException, IllegalAccessException, IllegalStateException {
         if(type == null) {
-            throw new IllegalStateException(TYPE_NOT_SET);
+            throw new IllegalStateException(ResourceBundle.getBundle("opencsv", errorLocale).getString("type.unset"));
         }
         return type.newInstance();
     }
@@ -423,9 +415,23 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
             // IntrospectionException to be thrown by our code.
             // -Andrew Jones 31.07.2017
             CsvBeanIntrospectionException csve = new CsvBeanIntrospectionException(
-                    "Map of bean descriptors could not be initialized.");
+                    ResourceBundle.getBundle("opencsv", errorLocale).getString("bean.descriptors.uninitialized"));
             csve.initCause(e);
             throw csve;
+        }
+    }
+    
+    @Override
+    public void setErrorLocale(Locale errorLocale) {
+        this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
+        
+        // It's very possible that setType() was called first, which creates all
+        // of the BeanFields, so we need to go back through the list and correct
+        // them all.
+        if(fieldMap != null) {
+            for(BeanField f : fieldMap.values()) {
+                f.setErrorLocale(errorLocale);
+            }
         }
     }
 

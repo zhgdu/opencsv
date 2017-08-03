@@ -20,6 +20,7 @@ import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.lang.reflect.Field;
+import java.util.Locale;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.concurrent.BlockingQueue;
@@ -33,10 +34,10 @@ import org.apache.commons.lang3.reflect.FieldUtils;
  * @author Andrew Rucker Jones
  * @since 3.9
  */
-public final class MappingUtils {
+public final class opencsvUtils {
     
     /** This class can't be instantiated. */
-    private MappingUtils() {}
+    private opencsvUtils() {}
     
     /**
      * Determines which mapping strategy is appropriate for this bean.
@@ -50,9 +51,11 @@ public final class MappingUtils {
      * 
      * @param <T> The type of the bean for which the mapping strategy is sought
      * @param type The class of the bean for which the mapping strategy is sought
+     * @param errorLocale The locale to use for all error messages. If null, the
+     *   default locale is used.
      * @return A functional mapping strategy for the bean in question
      */
-    public static <T> MappingStrategy<T> determineMappingStrategy(Class type) {
+    public static <T> MappingStrategy<T> determineMappingStrategy(Class type, Locale errorLocale) {
         // Check for annotations
         Field[] fields = FieldUtils.getAllFields(type);
         boolean positionAnnotationsPresent = false;
@@ -69,11 +72,13 @@ public final class MappingUtils {
         MappingStrategy<T> mappingStrategy;
         if(positionAnnotationsPresent) {
             ColumnPositionMappingStrategy<T> ms = new ColumnPositionMappingStrategy<>();
+            ms.setErrorLocale(errorLocale);
             ms.setType(type);
             mappingStrategy = ms;
         }
         else {
             HeaderColumnNameMappingStrategy<T> ms = new HeaderColumnNameMappingStrategy<>();
+            ms.setErrorLocale(errorLocale);
             ms.setType(type);
             
             // Ugly hack, but I have to get the field names into the stupid
@@ -87,7 +92,9 @@ public final class MappingUtils {
                 }
                 String header = StringUtils.join(sortedFields, ',').concat("\n");
                 try {
-                    ms.captureHeader(new CSVReader(new StringReader(header)));
+                    CSVReader csvr = new CSVReader(new StringReader(header));
+                    csvr.setErrorLocale(errorLocale);
+                    ms.captureHeader(csvr);
                     ms.findDescriptor(0);
                 }
                 catch(IOException e) {

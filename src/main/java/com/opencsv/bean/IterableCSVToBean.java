@@ -25,7 +25,10 @@ import java.beans.PropertyEditor;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.NoSuchElementException;
+import java.util.ResourceBundle;
+import org.apache.commons.lang3.ObjectUtils;
 
 /**
  * Converts CSV strings to objects.
@@ -40,6 +43,7 @@ public class IterableCSVToBean<T> extends AbstractCSVToBean implements Iterable<
     private final CSVReader csvReader;
     private final CsvToBeanFilter filter;
     private boolean hasHeader;
+    private Locale errorLocale = Locale.getDefault();
 
     /**
      * IterableCSVToBean constructor
@@ -128,6 +132,17 @@ public class IterableCSVToBean<T> extends AbstractCSVToBean implements Iterable<
         }
         return getPropertyEditorValue(desc.getPropertyType());
     }
+    
+    /**
+     * Sets the locale to be used for error messages.
+     * @param errorLocale The locale to be used for all error messages. If null,
+     *   the default locale is used.
+     * @since 4.0
+     */
+    public void setErrorLocale(Locale errorLocale) {
+        this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
+    }
+    
     @Override
     public Iterator<T> iterator() {
         return iterator(this);
@@ -168,7 +183,7 @@ public class IterableCSVToBean<T> extends AbstractCSVToBean implements Iterable<
 
             @Override
             public void remove() {
-                throw new UnsupportedOperationException("This is a read only iterator.");
+                throw new UnsupportedOperationException(ResourceBundle.getBundle("opencsv", errorLocale).getString("read.only.iterator"));
             }
         };
     }

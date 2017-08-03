@@ -20,6 +20,7 @@ import com.opencsv.bean.BeanField;
 import com.opencsv.bean.MappingStrategy;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
+import java.util.Locale;
 
 public class ErrorHeaderMappingStrategy implements MappingStrategy {
     @Override
@@ -64,4 +65,7 @@ public class ErrorHeaderMappingStrategy implements MappingStrategy {
     
     @Override
     public void verifyLineLength(int numberOfFields) {}
+
+    @Override
+    public void setErrorLocale(Locale errorLocale) {}
 }

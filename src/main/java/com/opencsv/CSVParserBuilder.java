@@ -17,6 +17,8 @@ package com.opencsv;
 
 
 import com.opencsv.enums.CSVReaderNullFieldIndicator;
+import java.util.Locale;
+import org.apache.commons.lang3.ObjectUtils;
 
 /**
  * Builder for creating a CSVParser.
@@ -40,6 +42,7 @@ public class CSVParserBuilder {
     private boolean ignoreLeadingWhiteSpace = ICSVParser.DEFAULT_IGNORE_LEADING_WHITESPACE;
     private boolean ignoreQuotations = ICSVParser.DEFAULT_IGNORE_QUOTATIONS;
     private CSVReaderNullFieldIndicator nullFieldIndicator = CSVReaderNullFieldIndicator.NEITHER;
+    private Locale errorLocale = Locale.getDefault();
 
 
     /**
@@ -132,14 +135,16 @@ public class CSVParserBuilder {
      */
     public CSVParser build() {
 
-        return new CSVParser(
+        CSVParser parser = new CSVParser(
                 separator,
                 quoteChar,
                 escapeChar,
                 strictQuotes,
                 ignoreLeadingWhiteSpace,
                 ignoreQuotations,
-                nullFieldIndicator);
+                nullFieldIndicator,
+                errorLocale);
+        return parser;
     }
 
     /**
@@ -194,7 +199,20 @@ public class CSVParserBuilder {
         this.nullFieldIndicator = fieldIndicator;
         return this;
     }
-
+    
+    /**
+     * Sets the locale for all error messages.
+     * 
+     * @param errorLocale Locale for error messages
+     * @return this
+     * @see CSVParser#setErrorLocale(java.util.Locale) 
+     * @since 4.0
+     */
+    public CSVParserBuilder withErrorLocale(Locale errorLocale) {
+        this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
+        return this;
+    }
+    
     /**
      * @return The null field indicator.
      */

@@ -17,6 +17,7 @@ package com.opencsv.bean.customconverter;
 
 import com.opencsv.bean.AbstractBeanField;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
+import java.util.ResourceBundle;
 import org.apache.commons.beanutils.ConversionException;
 import org.apache.commons.beanutils.Converter;
 import org.apache.commons.beanutils.converters.BooleanConverter;
@@ -66,7 +67,9 @@ public class ConvertGermanToBoolean<T> extends AbstractBeanField<T> {
             return bc.convert(Boolean.class, value.trim());
         } catch (ConversionException e) {
             CsvDataTypeMismatchException csve = new CsvDataTypeMismatchException(
-                    value, field.getType(), "Eingabe war kein boolischer Wert.");
+                    value, field.getType(), ResourceBundle
+                            .getBundle("convertGermanToBoolean", errorLocale)
+                            .getString("input.not.boolean"));
             csve.initCause(e);
             throw csve;
         }
@@ -93,7 +96,9 @@ public class ConvertGermanToBoolean<T> extends AbstractBeanField<T> {
         }
         catch(ClassCastException e) {
             CsvDataTypeMismatchException csve =
-                    new CsvDataTypeMismatchException("The field must be of type Boolean or boolean.");
+                    new CsvDataTypeMismatchException(ResourceBundle
+                            .getBundle("convertGermanToBoolean", errorLocale)
+                            .getString("field.not.boolean"));
             csve.initCause(e);
             throw csve;
         }

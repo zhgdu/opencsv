@@ -22,6 +22,7 @@ import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
+import java.util.Locale;
 
 /**
  * The interface for the classes that handle translating between the columns in
@@ -133,4 +134,12 @@ public interface MappingStrategy<T> {
     * @since 4.0
     */
    void verifyLineLength(int numberOfFields) throws CsvRequiredFieldEmptyException;
+   
+    /**
+     * Sets the locale for all error messages.
+     * @param errorLocale Locale for error messages. If null, the default locale
+     *   is used.
+     * @since 4.0
+     */
+   void setErrorLocale(Locale errorLocale);
 }

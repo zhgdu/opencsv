@@ -19,7 +19,7 @@ import com.opencsv.bean.AbstractCSVToBean;
 import com.opencsv.bean.BeanField;
 import com.opencsv.bean.CsvToBeanFilter;
 import com.opencsv.bean.MappingStrategy;
-import com.opencsv.bean.MappingUtils;
+import com.opencsv.bean.opencsvUtils;
 import com.opencsv.exceptions.CsvBadConverterException;
 import com.opencsv.exceptions.CsvConstraintViolationException;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
@@ -80,7 +80,7 @@ public class ProcessCsvLine<T> extends AbstractCSVToBean implements Runnable {
         try {
             if (filter == null || filter.allowLine(line)) {
                 T obj = processLine();
-                MappingUtils.queueRefuseToAcceptDefeat(
+                opencsvUtils.queueRefuseToAcceptDefeat(
                         resultantBeanQueue,
                         new OrderedObject<>(lineNumber, obj));
             }
@@ -90,7 +90,7 @@ public class ProcessCsvLine<T> extends AbstractCSVToBean implements Runnable {
             if (throwExceptions) {
                 throw new RuntimeException(csve);
             }
-            MappingUtils.queueRefuseToAcceptDefeat(thrownExceptionsQueue,
+            opencsvUtils.queueRefuseToAcceptDefeat(thrownExceptionsQueue,
                     new OrderedObject<>(lineNumber, csve));
         } catch (Exception e) {
             throw new RuntimeException(e);

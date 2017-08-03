@@ -16,6 +16,8 @@
 package com.opencsv.exceptions;
 
 import java.lang.reflect.Field;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 /**
  * This exception is to be thrown when anything goes bad during introspection of
@@ -89,9 +91,18 @@ public class CsvBeanIntrospectionException extends CsvRuntimeException {
      */
     @Override
     public String getMessage() {
+        return getMessageFromLocale(Locale.US);
+    }
+    
+    @Override
+    public String getLocalizedMessage() {
+        return getMessageFromLocale(Locale.getDefault());
+    }
+    
+    private String getMessageFromLocale(Locale locale) {
         String supermessage = super.getMessage();
         if(supermessage == null && getBean() != null && getField() != null) {
-            return String.format("An introspection error was thrown while attempting to manipulate property %s of bean %s.",
+            return String.format(ResourceBundle.getBundle("opencsv", locale).getString("error.introspecting.field"),
                     getField().getName(),
                     getBean().getClass().getCanonicalName());
         }

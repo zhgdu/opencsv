@@ -15,9 +15,12 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.NoSuchElementException;
+import org.junit.After;
 
 import static org.junit.Assert.*;
+import org.junit.BeforeClass;
 
 public class IterableCSVToBeanTest {
 
@@ -28,9 +31,21 @@ public class IterableCSVToBeanTest {
     private IterableCSVToBeanBuilder<MockBean> builder;
     private HeaderColumnNameMappingStrategy<MockBean> strategy;
     private IterableCSVToBean<MockBean> bean;
+    private static Locale systemLocale;
+
+    @BeforeClass
+    public static void storeSystemLocale() {
+        systemLocale = Locale.getDefault();
+    }
+
+    @After
+    public void setSystemLocaleBackToDefault() {
+        Locale.setDefault(systemLocale);
+    }
 
     @Before
     public void setUp() {
+        Locale.setDefault(Locale.US);
         builder = new IterableCSVToBeanBuilder<>();
         strategy = new HeaderColumnNameMappingStrategy<>();
         strategy.setType(MockBean.class);
@@ -90,10 +105,13 @@ public class IterableCSVToBeanTest {
     public void readWithIterator() {
         Iterator<MockBean> iterator = bean.iterator();
 
+        String englishErrorMessage = null;
         try {
             iterator.remove();
             fail("Removing from an IterableCsvToBean should not be supported.");
         } catch (UnsupportedOperationException e) {
+            englishErrorMessage = e.getLocalizedMessage();
+            assertNotNull(englishErrorMessage);
             // Good
         }
 
@@ -117,6 +135,23 @@ public class IterableCSVToBeanTest {
             // Good
         }
         assertFalse(iterator.hasNext());
+        
+        builder = new IterableCSVToBeanBuilder<>();
+        strategy = new HeaderColumnNameMappingStrategy<>();
+        strategy.setErrorLocale(Locale.GERMAN);
+        strategy.setType(MockBean.class);
+        bean = builder.withReader(createReader())
+                .withErrorLocale(Locale.GERMAN)
+                .withMapper(strategy)
+                .build();
+        iterator = bean.iterator();
+        try {
+            iterator.remove();
+            fail("Removing from an IterableCsvToBean should not be supported.");
+        } catch (UnsupportedOperationException e) {
+            assertNotEquals(englishErrorMessage, e.getLocalizedMessage());
+            // Good
+        }
     }
 
     @Test

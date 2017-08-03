@@ -18,6 +18,9 @@ package com.opencsv.bean;
 import com.opencsv.CSVWriter;
 
 import java.io.Writer;
+import java.util.Locale;
+import java.util.ResourceBundle;
+import org.apache.commons.lang3.ObjectUtils;
 
 /**
  * This is a builder for StatefulBeanToCsv, allowing one to set all parameters
@@ -37,10 +40,13 @@ public class StatefulBeanToCsvBuilder<T> {
     private final Writer writer;
     private boolean throwExceptions = true;
     private boolean orderedResults = true;
+    private Locale errorLocale = Locale.getDefault();
     
     /** The nullary constructor may never be used. */
     private StatefulBeanToCsvBuilder() {
-        throw new IllegalStateException("This class may never be instantiated with the nullary constructor.");
+        throw new IllegalStateException(String.format(
+                ResourceBundle.getBundle("opencsv").getString("nullary.constructor.not.allowed"),
+                getClass().getName()));
     }
 
     /**
@@ -136,6 +142,19 @@ public class StatefulBeanToCsvBuilder<T> {
     }
     
     /**
+     * Sets the locale to be used for all error messages.
+     * @param errorLocale Locale for error messages. If null, the default locale
+     *   is used.
+     * @return this
+     * @see StatefulBeanToCsv#setErrorLocale(java.util.Locale) 
+     * @since 4.0
+     */
+    public StatefulBeanToCsvBuilder<T> withErrorLocale(Locale errorLocale) {
+        this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
+        return this;
+    }
+    
+    /**
      * Builds a StatefulBeanToCsv from the information provided, filling in
      * default values where none have been specified.
      * @return A new {@link StatefulBeanToCsv}
@@ -144,6 +163,7 @@ public class StatefulBeanToCsvBuilder<T> {
         StatefulBeanToCsv<T> sbtcsv = new StatefulBeanToCsv(escapechar, lineEnd, mappingStrategy,
                 quotechar, separator, throwExceptions, writer);
         sbtcsv.setOrderedResults(orderedResults);
+        sbtcsv.setErrorLocale(errorLocale);
         return sbtcsv;
     }
 }

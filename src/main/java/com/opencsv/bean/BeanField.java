@@ -5,6 +5,7 @@ import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 
 import java.lang.reflect.Field;
+import java.util.Locale;
 
 /**
  * Used to extend the {@link java.lang.reflect.Field} class to include
@@ -94,4 +95,12 @@ public interface BeanField<T> {
      */
     String write(T bean) throws CsvDataTypeMismatchException,
             CsvRequiredFieldEmptyException;
+    
+    /**
+     * Sets the locale for all error messages.
+     * @param errorLocale Locale for error messages. If null, the default locale
+     *   is used.
+     * @since 4.0
+     */
+    public void setErrorLocale(Locale errorLocale);
 }

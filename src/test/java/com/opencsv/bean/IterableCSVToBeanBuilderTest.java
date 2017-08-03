@@ -17,6 +17,7 @@ package com.opencsv.bean;
 
 
 import com.opencsv.CSVReader;
+import java.util.ResourceBundle;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -49,7 +50,7 @@ public class IterableCSVToBeanBuilderTest {
         } catch (RuntimeException rte) {
             message = rte.getMessage();
         }
-        assertEquals(IterableCSVToBeanBuilder.NO_MAPPING_STRATEGY_DEFINED, message);
+        assertEquals(ResourceBundle.getBundle("opencsv").getString("strategy.undefined"), message);
     }
 
     @Test
@@ -60,7 +61,7 @@ public class IterableCSVToBeanBuilderTest {
         } catch (RuntimeException rte) {
             message = rte.getMessage();
         }
-        assertEquals(IterableCSVToBeanBuilder.NO_READER_DEFINED, message);
+        assertEquals(ResourceBundle.getBundle("opencsv").getString("csvreader.null"), message);
     }
 
     @Test

@@ -22,6 +22,9 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
+import org.apache.commons.lang3.ObjectUtils;
 
 /**
  * A very simple CSV parser released under a commercial-friendly license.
@@ -68,6 +71,9 @@ public class CSVParser implements ICSVParser {
     private String pending;
     private int tokensOnLastCompleteLine = -1;
     private boolean inField = false;
+    
+    /** Locale for all translations. */
+    private final Locale errorLocale;
 
     /**
      * Constructs CSVParser using a comma for the separator.
@@ -165,11 +171,30 @@ public class CSVParser implements ICSVParser {
      */
     CSVParser(char separator, char quotechar, char escape, boolean strictQuotes, boolean ignoreLeadingWhiteSpace,
               boolean ignoreQuotations, CSVReaderNullFieldIndicator nullFieldIndicator) {
+        this(separator, quotechar, escape, strictQuotes, ignoreLeadingWhiteSpace, ignoreQuotations, nullFieldIndicator, Locale.getDefault());
+    }
+
+    /**
+     * Constructs CSVParser with supplied separator and quote char.
+     * Allows setting the "strict quotes" and "ignore leading whitespace" flags.
+     *
+     * @param separator               The delimiter to use for separating entries
+     * @param quotechar               The character to use for quoted elements
+     * @param escape                  The character to use for escaping a separator or quote
+     * @param strictQuotes            If true, characters outside the quotes are ignored
+     * @param ignoreLeadingWhiteSpace If true, white space in front of a quote in a field is ignored
+     * @param ignoreQuotations        If true, treat quotations like any other character.
+     * @param nullFieldIndicator      Which field content will be returned as null: EMPTY_SEPARATORS, EMPTY_QUOTES,
+     *                                BOTH, NEITHER (default)
+     */
+    CSVParser(char separator, char quotechar, char escape, boolean strictQuotes, boolean ignoreLeadingWhiteSpace,
+              boolean ignoreQuotations, CSVReaderNullFieldIndicator nullFieldIndicator, Locale errorLocale) {
+        this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
         if (anyCharactersAreTheSame(separator, quotechar, escape)) {
-            throw new UnsupportedOperationException("The separator, quote, and escape characters must be different!");
+            throw new UnsupportedOperationException(ResourceBundle.getBundle("opencsv", this.errorLocale).getString("special.characters.must.differ"));
         }
         if (separator == NULL_CHARACTER) {
-            throw new UnsupportedOperationException("The separator character must be defined!");
+            throw new UnsupportedOperationException(ResourceBundle.getBundle("opencsv", this.errorLocale).getString("define.separator"));
         }
         this.separator = separator;
         this.quotechar = quotechar;
@@ -179,7 +204,6 @@ public class CSVParser implements ICSVParser {
         this.ignoreQuotations = ignoreQuotations;
         this.nullFieldIndicator = nullFieldIndicator;
     }
-
 
     /**
      * @return The default separator for this parser.
@@ -373,7 +397,7 @@ public class CSVParser implements ICSVParser {
                     pending = sfc.peekOutput();
                     break line_done; // this partial content is not to be added to field list yet
                 } else {
-                    throw new IOException("Un-terminated quoted field at end of CSV line");
+                    throw new IOException(ResourceBundle.getBundle("opencsv", errorLocale).getString("unterminated.quote"));
                 }
             } else {
                 inField = false;

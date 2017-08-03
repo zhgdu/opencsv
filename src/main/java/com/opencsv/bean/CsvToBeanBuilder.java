@@ -19,9 +19,13 @@ import com.opencsv.CSVParser;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
+import com.opencsv.ICSVParser;
 import com.opencsv.enums.CSVReaderNullFieldIndicator;
 
 import java.io.Reader;
+import java.util.Locale;
+import java.util.ResourceBundle;
+import org.apache.commons.lang3.ObjectUtils;
 
 /**
  * This class makes it possible to bypass all the intermediate steps and classes
@@ -96,14 +100,21 @@ public class CsvToBeanBuilder<T> {
    /** @see HeaderColumnNameMappingStrategy#type */
    private Class<? extends T> type = null;
    
+   /** @see com.opencsv.CSVReader#multilineLimit */
    private Integer multilineLimit = null;
    
+   /** @see com.opencsv.bean.CsvToBean#orderedResults */
    private boolean orderedResults = true;
+   
+   /** @see com.opencsv.bean.CsvToBean#errorLocale */
+   private Locale errorLocale = Locale.getDefault();
    
    /** This constructor must never be called, because Reader must be set. */
    private CsvToBeanBuilder() {
        reader = null; // Otherwise the compiler complains that reader can't be final.
-       throw new IllegalStateException("The nullary constructor may never be used in CsvToBeanBuilder.");
+       throw new IllegalStateException(String.format(ResourceBundle
+               .getBundle("opencsv") // Must be default locale, because we don't have anything else yet
+               .getString("nullary.constructor.not.allowed"), getClass().getName()));
    }
    
    /**
@@ -113,7 +124,9 @@ public class CsvToBeanBuilder<T> {
     */
    public CsvToBeanBuilder(Reader reader) {
        if(reader == null) {
-           throw new IllegalArgumentException("The Reader must always be non-null.");
+           throw new IllegalArgumentException(ResourceBundle
+                   .getBundle("opencsv") // Must be default locale, because we don't have anything else yet
+                   .getString("reader.null"));
        }
        this.reader = reader;
    }
@@ -128,7 +141,7 @@ public class CsvToBeanBuilder<T> {
     public CsvToBean<T> build() throws IllegalStateException {
         // Check for errors in the configuration first
         if(mappingStrategy == null && type == null) {
-            throw new IllegalStateException("Either a mapping strategy or the type of the bean to be populated must be specified.");
+            throw new IllegalStateException(ResourceBundle.getBundle("opencsv", errorLocale).getString("strategy.type.missing"));
         }
         
         // Build Parser and Reader
@@ -139,11 +152,12 @@ public class CsvToBeanBuilder<T> {
         // Set variables in CsvToBean itself
         bean.setThrowExceptions(throwExceptions);
         bean.setOrderedResults(orderedResults);
+        bean.setErrorLocale(errorLocale);
         if(filter != null) { bean.setFilter(filter); }
         
         // Now find the mapping strategy.
         if(mappingStrategy == null) {
-            mappingStrategy = MappingUtils.<T>determineMappingStrategy(type);
+            mappingStrategy = opencsvUtils.<T>determineMappingStrategy(type, errorLocale);
         }
         bean.setMappingStrategy(mappingStrategy);
         
@@ -178,6 +192,7 @@ public class CsvToBeanBuilder<T> {
         if(ignoreQuotations != null) {
             csvpb.withIgnoreQuotations(ignoreQuotations);
         }
+        csvpb.withErrorLocale(errorLocale);
         
         return csvpb.build();
     }
@@ -201,6 +216,7 @@ public class CsvToBeanBuilder<T> {
         if(multilineLimit != null) {
             csvrb.withMultilineLimit(multilineLimit);
         }
+        csvrb.withErrorLocale(errorLocale);
         return csvrb.build();
     }
     
@@ -373,6 +389,19 @@ public class CsvToBeanBuilder<T> {
      */
     public CsvToBeanBuilder<T> withOrderedResults(boolean orderedResults) {
         this.orderedResults = orderedResults;
+        return this;
+    }
+    
+    /**
+     * Sets the locale for all error messages.
+     * 
+     * @param errorLocale Locale for error messages
+     * @return this
+     * @see CsvToBean#setErrorLocale(java.util.Locale)
+     * @since 4.0
+     */
+    public CsvToBeanBuilder<T> withErrorLocale(Locale errorLocale) {
+        this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
         return this;
     }
 }

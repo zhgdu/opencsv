@@ -19,6 +19,9 @@ package com.opencsv;
 import com.opencsv.enums.CSVReaderNullFieldIndicator;
 
 import java.io.Reader;
+import java.util.Locale;
+import java.util.ResourceBundle;
+import org.apache.commons.lang3.ObjectUtils;
 
 /**
  * Builder for creating a CSVReader.
@@ -46,11 +49,12 @@ public class CSVReaderBuilder {
     private final CSVParserBuilder parserBuilder = new CSVParserBuilder();
     private final Reader reader;
     private int skipLines = CSVReader.DEFAULT_SKIP_LINES;
-    /*@Nullable*/private ICSVParser icsvParser = null;
+    private ICSVParser icsvParser = null;
     private boolean keepCR;
     private boolean verifyReader = CSVReader.DEFAULT_VERIFY_READER;
     private CSVReaderNullFieldIndicator nullFieldIndicator = CSVReaderNullFieldIndicator.NEITHER;
     private int multilineLimit = CSVReader.DEFAULT_MULTILINE_LIMIT;
+    private Locale errorLocale = Locale.getDefault();
 
    /**
     * Sets the reader to an underlying CSV source.
@@ -60,7 +64,7 @@ public class CSVReaderBuilder {
    public CSVReaderBuilder(
          final Reader reader) {
       if (reader == null) {
-         throw new IllegalArgumentException("Reader may not be null");
+         throw new IllegalArgumentException(ResourceBundle.getBundle("opencsv").getString("reader.null"));
       }
       this.reader = reader;
    }
@@ -121,7 +125,7 @@ public class CSVReaderBuilder {
      * @return The CSVReaderBuilder with the CSVParser set.
     */
     public CSVReaderBuilder withCSVParser(
-            final /*@Nullable*/ ICSVParser icsvParser) {
+            final ICSVParser icsvParser) {
         this.icsvParser = icsvParser;
        return this;
    }
@@ -132,10 +136,14 @@ public class CSVReaderBuilder {
      * @return The CSVReader based on the set criteria.
      */
     public CSVReader build() {
-        final ICSVParser parser =
-                icsvParser != null ? icsvParser : parserBuilder.withFieldAsNull(nullFieldIndicator).build();
+        final ICSVParser parser = ObjectUtils.defaultIfNull(icsvParser,
+                parserBuilder
+                        .withFieldAsNull(nullFieldIndicator)
+                        .withErrorLocale(errorLocale)
+                        .build());
         CSVReader tempReader = new CSVReader(reader, skipLines, parser, keepCR, verifyReader);
         tempReader.setMultilineLimit(multilineLimit);
+        tempReader.setErrorLocale(errorLocale);
         return tempReader;
    }
 
@@ -198,6 +206,19 @@ public class CSVReaderBuilder {
      */
     public CSVReaderBuilder withMultilineLimit(int multilineLimit) {
         this.multilineLimit = multilineLimit;
+        return this;
+    }
+    
+    /**
+     * Sets the locale for all error messages.
+     * 
+     * @param errorLocale Locale for error messages
+     * @return this
+     * @see CSVParser#setErrorLocale(java.util.Locale) 
+     * @since 4.0
+     */
+    public CSVReaderBuilder withErrorLocale(Locale errorLocale) {
+        this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
         return this;
     }
 }

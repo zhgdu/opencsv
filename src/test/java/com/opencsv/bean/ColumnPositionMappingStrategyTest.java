@@ -24,14 +24,30 @@ import org.junit.Test;
 
 import java.io.StringReader;
 import java.util.List;
+import java.util.Locale;
+import org.junit.After;
 
 import static org.junit.Assert.*;
+import org.junit.BeforeClass;
 
 public class ColumnPositionMappingStrategyTest {
    private ColumnPositionMappingStrategy<MockBean> strat;
 
+   private static Locale systemLocale;
+
+    @BeforeClass
+    public static void storeSystemLocale() {
+        systemLocale = Locale.getDefault();
+    }
+
+    @After
+    public void setSystemLocaleBackToDefault() {
+        Locale.setDefault(systemLocale);
+    }
+
    @Before
    public void setUp() throws Exception {
+      Locale.setDefault(Locale.US);
       strat = new ColumnPositionMappingStrategy<>();
       strat.setType(MockBean.class);
    }
@@ -171,11 +187,29 @@ public class ColumnPositionMappingStrategyTest {
       StringReader reader = new StringReader("doesnt,matter\nat,all");
       CSVReader csvReader = new CSVReader(reader);
       CsvToBean csvtb = new CsvToBean();
+      String englishErrorMessage = null;
       try {
           csvtb.parse(s, csvReader);
+          fail("RuntimeException with inner IllegalStateException should have been thrown.");
       }
       catch(RuntimeException e) {
           assertEquals(IllegalStateException.class, e.getCause().getClass());
+          englishErrorMessage = e.getCause().getLocalizedMessage();
+      }
+      
+      // Now with a different locale
+      s = new ColumnPositionMappingStrategy<>();
+      s.setErrorLocale(Locale.GERMAN);
+      reader = new StringReader("doesnt,matter\nat,all");
+      csvReader = new CSVReader(reader);
+      csvtb = new CsvToBean();
+      try {
+          csvtb.parse(s, csvReader);
+          fail("RuntimeException with inner IllegalStateException should have been thrown.");
+      }
+      catch(RuntimeException e) {
+          assertEquals(IllegalStateException.class, e.getCause().getClass());
+          assertNotEquals(englishErrorMessage, e.getCause().getLocalizedMessage());
       }
    }
 }

@@ -27,7 +27,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.NoSuchElementException;
+import java.util.ResourceBundle;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentNavigableMap;
@@ -35,6 +37,7 @@ import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
+import org.apache.commons.lang3.ObjectUtils;
 
 /**
  * Converts CSV data to objects.
@@ -47,9 +50,6 @@ import java.util.concurrent.TimeUnit;
  */
 public class CsvToBean<T> implements Iterable {
     
-    /** Format string for runtime exceptions thrown during import. */
-    private static final String RUNTIME_EXCEPTION_FORMAT_STRING = "Error parsing CSV line: %d, values: %s";
-
    /** A list of all exceptions during parsing and mapping of the input. */
     private List<CsvException> capturedExceptions = null;
 
@@ -97,6 +97,9 @@ public class CsvToBean<T> implements Iterable {
     
     /** A sorted, concurrent map for any exceptions captured. */
     private ConcurrentNavigableMap<Long, CsvException> thrownExceptionsMap = null;
+    
+    /** The errorLocale for error messages. */
+    private Locale errorLocale = Locale.getDefault();
 
     /**
      * Default constructor.
@@ -112,7 +115,9 @@ public class CsvToBean<T> implements Iterable {
      */
     public List<T> parse(MappingStrategy<T> mapper, Reader reader) {
         setMappingStrategy(mapper);
-        setCsvReader(new CSVReader(reader));
+        CSVReader csvr = new CSVReader(reader);
+        csvr.setErrorLocale(errorLocale);
+        setCsvReader(csvr);
         return parse();
     }
 
@@ -127,7 +132,9 @@ public class CsvToBean<T> implements Iterable {
      */
     public List<T> parse(MappingStrategy<T> mapper, Reader reader, boolean throwExceptions) {
         setMappingStrategy(mapper);
-        setCsvReader(new CSVReader(reader));
+        CSVReader csvr = new CSVReader(reader);
+        csvr.setErrorLocale(errorLocale);
+        setCsvReader(csvr);
         this.setThrowExceptions(throwExceptions);
         return parse();
     }
@@ -142,7 +149,9 @@ public class CsvToBean<T> implements Iterable {
      */
     public List<T> parse(MappingStrategy<T> mapper, Reader reader, CsvToBeanFilter filter) {
         setMappingStrategy(mapper);
-        setCsvReader(new CSVReader(reader));
+        CSVReader csvr = new CSVReader(reader);
+        csvr.setErrorLocale(errorLocale);
+        setCsvReader(csvr);
         this.setFilter(filter);
         return parse();
     }
@@ -160,7 +169,9 @@ public class CsvToBean<T> implements Iterable {
     public List<T> parse(MappingStrategy<T> mapper, Reader reader,
             CsvToBeanFilter filter, boolean throwExceptions) {
         setMappingStrategy(mapper);
-        setCsvReader(new CSVReader(reader));
+        CSVReader csvr = new CSVReader(reader);
+        csvr.setErrorLocale(errorLocale);
+        setCsvReader(csvr);
         this.setFilter(filter);
         this.setThrowExceptions(throwExceptions);
         return parse();
@@ -343,18 +354,16 @@ public class CsvToBean<T> implements Iterable {
             if(accumulateThread != null) {
                 accumulateThread.setMustStop(true);
             }
-            throw new RuntimeException(String.format(
-                    RUNTIME_EXCEPTION_FORMAT_STRING, lineProcessed,
-                    Arrays.toString(line)), executor.getTerminalException());
+            throw new RuntimeException(String.format(ResourceBundle.getBundle("opencsv", errorLocale).getString("parsing.error"),
+                    lineProcessed, Arrays.toString(line)), executor.getTerminalException());
         } catch (Exception e) {
             // Exception during parsing. Always unrecoverable.
             executor.shutdownNow();
             if(accumulateThread != null) {
                 accumulateThread.setMustStop(true);
             }
-            throw new RuntimeException(String.format(
-                    RUNTIME_EXCEPTION_FORMAT_STRING, lineProcessed,
-                    Arrays.toString(line)), e);
+            throw new RuntimeException(String.format(ResourceBundle.getBundle("opencsv", errorLocale).getString("parsing.error"),
+                    lineProcessed, Arrays.toString(line)), e);
         }
         
         return prepareResults();
@@ -426,18 +435,28 @@ public class CsvToBean<T> implements Iterable {
         this.orderedResults = orderedResults;
     }
     
+    /**
+     * Sets the locale for error messages.
+     * @param errorLocale Locale for error messages. If null, the default locale
+     *   is used.
+     * @since 4.0
+     */
+    public void setErrorLocale(Locale errorLocale) {
+        this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
+    }
+    
     private void prepareToReadInput() throws IllegalStateException {
         // First verify that the user hasn't failed to give us the information
         // we need to do his or her work for him or her.
         if(mappingStrategy == null || csvReader == null) {
-            throw new IllegalStateException("Both mapping strategy and CSVReader/Reader must be specified!");
+            throw new IllegalStateException(ResourceBundle.getBundle("opencsv", errorLocale).getString("specify.strategy.reader"));
         }
 
         // Get the header information
         try {
             mappingStrategy.captureHeader(csvReader);
         } catch (Exception e) {
-            throw new RuntimeException("Error capturing CSV header!", e);
+            throw new RuntimeException(ResourceBundle.getBundle("opencsv", errorLocale).getString("header.error"), e);
         }
         
         // Reset to beginning values
@@ -516,9 +535,8 @@ public class CsvToBean<T> implements Iterable {
             }
             catch(IOException e) {
                 line = null;
-                throw new RuntimeException(String.format(
-                        RUNTIME_EXCEPTION_FORMAT_STRING, lineProcessed,
-                        Arrays.toString(line)), e);
+                throw new RuntimeException(String.format(ResourceBundle.getBundle("opencsv", errorLocale).getString("parsing.error"),
+                        lineProcessed, Arrays.toString(line)), e);
             }
         }
 

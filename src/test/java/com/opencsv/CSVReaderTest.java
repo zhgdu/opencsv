@@ -24,15 +24,31 @@ import java.io.*;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
+import java.util.Locale;
+import org.junit.After;
 
 import static org.junit.Assert.*;
+import org.junit.BeforeClass;
 
 public class CSVReaderTest {
 
     CSVReader csvr;
 
+    private static Locale systemLocale;
+
+    @BeforeClass
+    public static void storeSystemLocale() {
+        systemLocale = Locale.getDefault();
+    }
+
+    @After
+    public void setSystemLocaleBackToDefault() {
+        Locale.setDefault(systemLocale);
+    }
+
     @Before
     public void setUp() throws Exception {
+        Locale.setDefault(Locale.US);
         StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
         sb.append("a,b,c").append("\n");   // standard case
         sb.append("a,\"b,b,b\",c").append("\n");  // quoted elements
@@ -548,6 +564,7 @@ public class CSVReaderTest {
     public void testIteratorWithBadReader() {
         CSVReader r = new CSVReader(new StringReader("This,is,a,\"test\na\",test"));
         r.setMultilineLimit(1);
+        String englishErrorMessage = null;
         try {
             for (String[] line : r) {}
             fail("The Reader should always throw an exception.");
@@ -555,6 +572,21 @@ public class CSVReaderTest {
         catch(RuntimeException re) {
             assertNotNull(re.getCause());
             assertTrue(re.getCause() instanceof IOException);
+            englishErrorMessage = re.getCause().getLocalizedMessage();
+        }
+        
+        // Now with a different locale
+        r = new CSVReader(new StringReader("This,is,a,\"test\na\",test"));
+        r.setMultilineLimit(1);
+        r.setErrorLocale(Locale.GERMAN);
+        try {
+            for (String[] line : r) {}
+            fail("The Reader should always throw an exception.");
+        }
+        catch(RuntimeException re) {
+            assertNotNull(re.getCause());
+            assertTrue(re.getCause() instanceof IOException);
+            assertNotEquals(englishErrorMessage, re.getCause().getLocalizedMessage());
         }
     }
 

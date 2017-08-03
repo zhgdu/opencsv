@@ -2,7 +2,10 @@ package com.opencsv;
 
 import java.io.IOException;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.NoSuchElementException;
+import java.util.ResourceBundle;
+import org.apache.commons.lang3.ObjectUtils;
 
 /**
  * Provides an Iterator over the data found in opencsv.
@@ -13,6 +16,9 @@ import java.util.NoSuchElementException;
 public class CSVIterator implements Iterator<String[]> {
    private final CSVReader reader;
    private String[] nextLine;
+   
+   /** Locale for all translations. */
+   private Locale errorLocale = Locale.getDefault();
 
    /**
     * @param reader Reader for the CSV data.
@@ -22,7 +28,17 @@ public class CSVIterator implements Iterator<String[]> {
       this.reader = reader;
       nextLine = reader.readNext();
    }
-
+   
+    /**
+     * Sets the locale for error messages.
+     * @param errorLocale Locale for error messages. If null, the default locale
+     *   is used.
+     * @since 4.0
+     */
+    public void setErrorLocale(Locale errorLocale) {
+        this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
+    }
+    
    /**
     * Returns true if the iteration has more elements.
     * In other words, returns true if {@link #next()} would return an element
@@ -58,6 +74,6 @@ public class CSVIterator implements Iterator<String[]> {
     */
    @Override
    public void remove() {
-      throw new UnsupportedOperationException("This is a read only iterator.");
+      throw new UnsupportedOperationException(ResourceBundle.getBundle("opencsv", errorLocale).getString("read.only.iterator"));
    }
 }

@@ -607,6 +607,7 @@ public class StatefulBeanToCsvTest {
         
     /**
      * Tests binding a custom converter to the wrong data type.
+     * Also incidentally tests that the error locale works.
      * @throws IOException Never
      * @throws CsvException Never
      * @throws NoSuchFieldException Never
@@ -630,6 +631,26 @@ public class StatefulBeanToCsvTest {
         assertEquals(1L, dtm.getLineNumber());
         assertTrue(dtm.getSourceObject() instanceof BindCustomToWrongDataType);
         assertEquals(String.class, dtm.getDestinationClass());
+        String englishErrorMessage = dtm.getLocalizedMessage();
+        
+        // Now with another locale
+        writer = new StringWriter();
+        sbtcsv = new StatefulBeanToCsvBuilder(writer)
+                .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
+                .withThrowExceptions(false)
+                .withErrorLocale(Locale.GERMAN)
+                .build();
+        sbtcsv.write(wrongTypeBean);
+        csves = sbtcsv.getCapturedExceptions();
+        assertNotNull(csves);
+        assertEquals(1, csves.size());
+        csve = csves.get(0);
+        assertTrue(csve instanceof CsvDataTypeMismatchException);
+        dtm = (CsvDataTypeMismatchException) csve;
+        assertEquals(1L, dtm.getLineNumber());
+        assertTrue(dtm.getSourceObject() instanceof BindCustomToWrongDataType);
+        assertEquals(String.class, dtm.getDestinationClass());
+        assertNotEquals(englishErrorMessage, dtm.getLocalizedMessage());
     }
         
     /**
@@ -772,6 +793,7 @@ public class StatefulBeanToCsvTest {
     
     /**
      * Test of ConvertSplitOnWhitespace with the wrong data type.
+     * Also tests internationalization of ConvertSplitOnWhitespace.
      * @throws IOException Never
      * @throws CsvException Never
      */
@@ -782,12 +804,28 @@ public class StatefulBeanToCsvTest {
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv btcsv = new StatefulBeanToCsvBuilder(writer)
                 .build();
+        String englishErrorMessage = null;
         try {
             btcsv.write(bean);
         }
         catch(CsvDataTypeMismatchException csve) {
             assertNotNull(csve.getCause());
             assertTrue(csve.getCause() instanceof ClassCastException);
+            englishErrorMessage = csve.getLocalizedMessage();
+        }
+        
+        // Now compare to another language
+        writer = new StringWriter();
+        btcsv = new StatefulBeanToCsvBuilder(writer)
+                .withErrorLocale(Locale.GERMAN)
+                .build();
+        try {
+            btcsv.write(bean);
+        }
+        catch(CsvDataTypeMismatchException csve) {
+            assertNotNull(csve.getCause());
+            assertTrue(csve.getCause() instanceof ClassCastException);
+            assertNotEquals(csve.getLocalizedMessage(), englishErrorMessage);
         }
     }
 }

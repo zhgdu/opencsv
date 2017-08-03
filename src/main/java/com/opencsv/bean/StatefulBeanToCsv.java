@@ -27,6 +27,8 @@ import com.opencsv.exceptions.CsvRuntimeException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentNavigableMap;
@@ -35,6 +37,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
 
 /**
  * This class writes beans out in CSV format to a {@link java.io.Writer},
@@ -43,7 +46,7 @@ import org.apache.commons.collections.CollectionUtils;
  * 
  * @param <T> Type of the bean to be written
  * @author Andrew Rucker Jones
- * @see MappingUtils#determineMappingStrategy(java.lang.Class) 
+ * @see opencsvUtils#determineMappingStrategy(java.lang.Class, java.util.Locale) 
  * @since 3.9
  */
 public class StatefulBeanToCsv<T> {
@@ -67,11 +70,13 @@ public class StatefulBeanToCsv<T> {
     private AccumulateCsvResults accumulateThread = null;
     private ConcurrentNavigableMap<Long, String[]> resultantBeansMap = null;
     private ConcurrentNavigableMap<Long, CsvException> thrownExceptionsMap = null;
-    private static final String UNRECOVERABLE_ERROR = "There was an unrecoverable error while writing beans.";
+    private Locale errorLocale = Locale.getDefault();
     
     /** The nullary constructor should never be used. */
     private StatefulBeanToCsv() {
-        throw new IllegalStateException("This class may never be instantiated with the nullary constructor.");
+        throw new IllegalStateException(String.format(
+                ResourceBundle.getBundle("opencsv").getString("nullary.constructor.not.allowed"),
+                getClass().getName()));
     }
     
     /**
@@ -110,7 +115,7 @@ public class StatefulBeanToCsv<T> {
         
         // Determine mapping strategy
         if(mappingStrategy == null) {
-            mappingStrategy = MappingUtils.<T>determineMappingStrategy(bean.getClass());
+            mappingStrategy = opencsvUtils.<T>determineMappingStrategy(bean.getClass(), errorLocale);
         }
         
         // Build CSVWriter
@@ -149,7 +154,7 @@ public class StatefulBeanToCsv<T> {
             thrownExceptionsQueue = new ArrayBlockingQueue<>(1);
             ProcessCsvBean proc = new ProcessCsvBean(++lineNumber,
                     mappingStrategy, bean, resultantLineQueue,
-                    thrownExceptionsQueue, throwExceptions);
+                    thrownExceptionsQueue, throwExceptions, errorLocale);
             try {
                 proc.run();
             }
@@ -234,7 +239,7 @@ public class StatefulBeanToCsv<T> {
                 executor.execute(new ProcessCsvBean(
                         ++lineNumber, mappingStrategy, bean,
                         resultantLineQueue, thrownExceptionsQueue,
-                        throwExceptions));
+                        throwExceptions, errorLocale));
             }
         }
 
@@ -326,7 +331,7 @@ public class StatefulBeanToCsv<T> {
                     throw csve;
                 }
                 throw new RuntimeException(
-                        UNRECOVERABLE_ERROR, executor.getTerminalException());
+                        ResourceBundle.getBundle("opencsv", errorLocale).getString("error.writing.beans"), executor.getTerminalException());
             } catch (Exception e) {
                 // Exception during parsing. Always unrecoverable.
                 // I can't find a way to create this condition in the current
@@ -339,7 +344,7 @@ public class StatefulBeanToCsv<T> {
                     RuntimeException re = (RuntimeException) executor.getTerminalException();
                     throw re;
                 }
-                throw new RuntimeException(UNRECOVERABLE_ERROR, e);
+                throw new RuntimeException(ResourceBundle.getBundle("opencsv", errorLocale).getString("error.writing.beans"), e);
             }
 
             writeResultsOfParallelProcessingToFile();
@@ -386,5 +391,15 @@ public class StatefulBeanToCsv<T> {
         List<CsvException> intermediate = capturedExceptions;
         capturedExceptions = new ArrayList<>();
         return intermediate;
+    }
+    
+    /**
+     * Sets the locale for all error messages.
+     * @param errorLocale Locale for error messages. If null, the default locale
+     *   is used.
+     * @since 4.0
+     */
+    public void setErrorLocale(Locale errorLocale) {
+        this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
     }
 }

@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import org.apache.commons.lang3.ObjectUtils;
 
 /**
  * Helper class for processing JDBC ResultSet objects allowing the user to
@@ -32,13 +33,24 @@ public class ResultSetColumnNameHelperService extends ResultSetHelperService imp
     private String[] columnNames;
     private String[] columnHeaders;
     private final Map<String, Integer> columnNamePositionMap = new HashMap<>();
+    private Locale errorLocale = Locale.getDefault();
 
     /**
-     * Silence code style checker by adding a useless constructor.
+     * Nullary constructor.
      */
     public ResultSetColumnNameHelperService() {
     }
-
+    
+    /**
+     * Sets the locale for error messages.
+     * @param errorLocale Locale for error messages. If null, the default locale
+     *   is used.
+     * @since 4.0
+     */
+    public void setErrorLocale(Locale errorLocale) {
+        this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
+    }
+    
     /**
      * Set the JDBC column names to use, and the header text for the CSV file
      * @param columnNames The JDBC column names to export, in the desired order
@@ -49,13 +61,13 @@ public class ResultSetColumnNameHelperService extends ResultSetHelperService imp
      */
     public void setColumnNames(String[] columnNames, String[] columnHeaders) {
         if (columnHeaders.length != columnNames.length) {
-            throw new UnsupportedOperationException("The number of column names must be the same as the number of header names.");
+            throw new UnsupportedOperationException(ResourceBundle.getBundle("opencsv", errorLocale).getString("column.count.mismatch"));
         }
         if (hasInvalidValue(columnNames)) {
-            throw new UnsupportedOperationException("Column names cannot be null, empty, or blank");
+            throw new UnsupportedOperationException(ResourceBundle.getBundle("opencsv", errorLocale).getString("column.name.bogus"));
         }
         if (hasInvalidValue(columnHeaders)) {
-            throw new UnsupportedOperationException("Column header names cannot be null, empty, or blank");
+            throw new UnsupportedOperationException(ResourceBundle.getBundle("opencsv", errorLocale).getString("header.name.bogus"));
         }
         this.columnNames = Arrays.copyOf(columnNames, columnNames.length);
         this.columnHeaders = Arrays.copyOf(columnHeaders, columnHeaders.length);
@@ -95,7 +107,7 @@ public class ResultSetColumnNameHelperService extends ResultSetHelperService imp
         for (String name : columnNames) {
             int position = ArrayUtils.indexOf(realColumnNames, name);
             if (position == ArrayUtils.INDEX_NOT_FOUND) {
-                throw new UnsupportedOperationException("The column named " + name + " does not exist in the result set!");
+                throw new UnsupportedOperationException(String.format(ResourceBundle.getBundle("opencsv", errorLocale).getString("column.nonexistant"), name));
             }
             columnNamePositionMap.put(name, position);
         }

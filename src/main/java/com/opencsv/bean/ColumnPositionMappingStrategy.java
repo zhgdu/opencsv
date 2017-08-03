@@ -30,7 +30,7 @@ public class ColumnPositionMappingStrategy<T> extends HeaderColumnNameMappingStr
      */
     public ColumnPositionMappingStrategy() {
     }
-
+    
     /**
      * Captures the header from the reader - required by the MappingStrategy
      * interface and is a do nothing method for the
@@ -152,7 +152,7 @@ public class ColumnPositionMappingStrategy<T> extends HeaderColumnNameMappingStr
 
         for (Field field : loadFields(getType())) {
             String columnName;
-            String locale;
+            String fieldLocale;
 
             // Custom converters always have precedence.
             if (field.isAnnotationPresent(CsvCustomBindByPosition.class)) {
@@ -172,12 +172,12 @@ public class ColumnPositionMappingStrategy<T> extends HeaderColumnNameMappingStr
                 CsvBindByPosition annotation = field.getAnnotation(CsvBindByPosition.class);
                 required = annotation.required();
                 columnName = field.getName().toUpperCase().trim();
-                locale = annotation.locale();
+                fieldLocale = annotation.locale();
                 if (field.isAnnotationPresent(CsvDate.class)) {
                     String formatString = field.getAnnotation(CsvDate.class).value();
-                    fieldMap.put(columnName, new BeanFieldDate(field, required, formatString, locale));
+                    fieldMap.put(columnName, new BeanFieldDate(field, required, formatString, fieldLocale, errorLocale));
                 } else {
-                    fieldMap.put(columnName, new BeanFieldPrimitiveTypes(field, required, locale));
+                    fieldMap.put(columnName, new BeanFieldPrimitiveTypes(field, required, fieldLocale, errorLocale));
                 }
             }
         }
@@ -192,7 +192,7 @@ public class ColumnPositionMappingStrategy<T> extends HeaderColumnNameMappingStr
                 f = findField(i);
                 if(f != null && f.isRequired()) {
                     if(sb == null) {
-                        sb = new StringBuilder("The following required fields were not present for one record of the input:");
+                        sb = new StringBuilder(ResourceBundle.getBundle("opencsv", errorLocale).getString("multiple.required.field.empty"));
                     }
                     sb.append(' ');
                     sb.append(f.getField().getName());

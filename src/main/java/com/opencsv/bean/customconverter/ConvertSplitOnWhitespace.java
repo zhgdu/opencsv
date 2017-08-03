@@ -20,6 +20,7 @@ import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.ResourceBundle;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -80,7 +81,9 @@ public class ConvertSplitOnWhitespace<T> extends AbstractBeanField<T> {
         }
         catch(ClassCastException e) {
             CsvDataTypeMismatchException csve =
-                    new CsvDataTypeMismatchException("The field must be of type List<String>.");
+                    new CsvDataTypeMismatchException(ResourceBundle
+                            .getBundle("convertSplitOnWhitespace", errorLocale)
+                            .getString("wrong.type"));
             csve.initCause(e);
             throw csve;
         }
