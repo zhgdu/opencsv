@@ -75,9 +75,11 @@ public class MockResultSetBuilder {
             when(rs.getInt(index)).thenReturn(value != null ? new Integer(value) : 0);
             wnrl.add(value == null);
             break;
-         case Types.NVARCHAR: // todo : use rs.getNString
-         case Types.NCHAR: // todo : use rs.getNString
-         case Types.LONGNVARCHAR: // todo : use rs.getNString
+         case Types.NVARCHAR:
+         case Types.NCHAR:
+         case Types.LONGNVARCHAR:
+            when(rs.getNString(index)).thenReturn(value);
+            break;
          case Types.LONGVARCHAR:
          case Types.VARCHAR:
          case Types.CHAR:
@@ -95,7 +97,10 @@ public class MockResultSetBuilder {
             Timestamp ts = createTimeStampFromMilliSeconds(value);
             when(rs.getTimestamp(index)).thenReturn(ts);
             break;
-         case Types.NCLOB: // todo : use rs.getNClob
+         case Types.NCLOB:
+            NClob nc = createNClobFromString(value);
+            when(rs.getNClob(index)).thenReturn(nc);
+            break;
          case Types.CLOB:
             Clob c = createClobFromString(value);
             when(rs.getClob(index)).thenReturn(c);
@@ -107,6 +112,10 @@ public class MockResultSetBuilder {
 
    private static Clob createClobFromString(String value) throws SQLException {
       return value != null ? new SerialClob(value.toCharArray()) : null;
+   }
+
+   private static NClob createNClobFromString(String value) throws SQLException {
+      return value != null ? new NClobWrapper(new SerialClob(value.toCharArray())) : null;
    }
 
    private static Date createDateFromMilliSeconds(String value) {

@@ -112,7 +112,14 @@ public class ResultSetHelperService implements ResultSetHelper {
          case Types.BOOLEAN:
             value = Objects.toString(rs.getBoolean(colIndex));
             break;
-         case Types.NCLOB: // todo : use rs.getNClob
+         case Types.NCLOB:
+            NClob nc = rs.getNClob(colIndex);
+            if (nc != null) {
+               StrBuilder sb = new StrBuilder();
+               sb.readFrom(nc.getCharacterStream());
+               value = sb.toString();
+            }
+            break;
          case Types.CLOB:
             Clob c = rs.getClob(colIndex);
             if (c != null) {
@@ -153,9 +160,16 @@ public class ResultSetHelperService implements ResultSetHelper {
          case Types.TIMESTAMP:
             value = handleTimestamp(rs.getTimestamp(colIndex), timestampFormatString);
             break;
-         case Types.NVARCHAR: // todo : use rs.getNString
-         case Types.NCHAR: // todo : use rs.getNString
-         case Types.LONGNVARCHAR: // todo : use rs.getNString
+         case Types.NVARCHAR:
+         case Types.NCHAR:
+         case Types.LONGNVARCHAR:
+            String nColumnValue = rs.getNString(colIndex);
+            if (trim && nColumnValue != null) {
+               value = nColumnValue.trim();
+            } else {
+               value = nColumnValue;
+            }
+            break;
          case Types.LONGVARCHAR:
          case Types.VARCHAR:
          case Types.CHAR:

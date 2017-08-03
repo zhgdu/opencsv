@@ -214,7 +214,6 @@ public class CSVReaderBuilder {
      * 
      * @param errorLocale Locale for error messages
      * @return this
-     * @see CSVParser#setErrorLocale(java.util.Locale) 
      * @since 4.0
      */
     public CSVReaderBuilder withErrorLocale(Locale errorLocale) {

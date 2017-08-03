@@ -231,6 +231,40 @@ public class ResultSetHelperServiceTest {
    }
 
    @Test
+   public void getNCharFromResultSet() throws SQLException, IOException {
+
+      String[] expectedNames = {"longvarchar", "varchar", "char", "Null"};
+      String[] realValues = {"a", "b", "c", null};
+      String[] expectedValues = {"a", "b", "c", ""};
+      int[] expectedTypes = {Types.LONGNVARCHAR, Types.NVARCHAR, Types.NCHAR, Types.NCHAR};
+
+      ResultSetMetaData metaData = MockResultSetMetaDataBuilder.buildMetaData(expectedNames, expectedTypes);
+      ResultSet resultSet = MockResultSetBuilder.buildResultSet(metaData, realValues, expectedTypes);
+
+      ResultSetHelperService service = new ResultSetHelperService();
+
+      String[] columnValues = service.getColumnValues(resultSet);
+      assertArrayEquals(expectedValues, columnValues);
+   }
+
+   @Test
+   public void getNCharHandlesNulls() throws SQLException, IOException {
+
+      String[] expectedNames = {"longvarchar", "varchar", "char", "Null"};
+      String[] realValues = {"a", "b", "c", null};
+      String[] expectedValues = {"a", "b", "c", ""};
+      int[] expectedTypes = {Types.LONGNVARCHAR, Types.NVARCHAR, Types.NCHAR, Types.NCHAR};
+
+      ResultSetMetaData metaData = MockResultSetMetaDataBuilder.buildMetaData(expectedNames, expectedTypes);
+      ResultSet resultSet = MockResultSetBuilder.buildResultSet(metaData, realValues, expectedTypes);
+
+      ResultSetHelperService service = new ResultSetHelperService();
+
+      String[] columnValues = service.getColumnValues(resultSet, true);
+      assertArrayEquals(expectedValues, columnValues);
+   }
+
+   @Test
    public void getUnsupportedFromResultSet() throws SQLException, IOException {
 
       String[] expectedNames = {"Array", "Null"};
@@ -441,6 +475,60 @@ public class ResultSetHelperServiceTest {
       String[] realValues = {clobString, null};
       String[] expectedValues = {clobString, ""};
       int[] expectedTypes = {Types.CLOB, Types.CLOB};
+
+      ResultSetMetaData metaData = MockResultSetMetaDataBuilder.buildMetaData(expectedNames, expectedTypes);
+      ResultSet resultSet = MockResultSetBuilder.buildResultSet(metaData, realValues, expectedTypes);
+
+      ResultSetHelperService service = new ResultSetHelperService();
+
+      String[] columnValues = service.getColumnValues(resultSet);
+      assertArrayEquals(expectedValues, columnValues);
+   }
+
+   @Test
+   public void getNClobFromResultSet() throws SQLException, IOException {
+      String clobString = buildClobString(20);
+
+      String[] expectedNames = {"Clob", "Null"};
+      String[] realValues = {clobString, null};
+      String[] expectedValues = {clobString, ""};
+      int[] expectedTypes = {Types.NCLOB, Types.NCLOB};
+
+      ResultSetMetaData metaData = MockResultSetMetaDataBuilder.buildMetaData(expectedNames, expectedTypes);
+      ResultSet resultSet = MockResultSetBuilder.buildResultSet(metaData, realValues, expectedTypes);
+
+      ResultSetHelperService service = new ResultSetHelperService();
+
+      String[] columnValues = service.getColumnValues(resultSet);
+      assertArrayEquals(expectedValues, columnValues);
+   }
+
+   @Test
+   public void getEmptyNClobFromResultSet() throws SQLException, IOException {
+      String clobString = buildClobString(0);
+
+      String[] expectedNames = {"Clob", "Null"};
+      String[] realValues = {clobString, null};
+      String[] expectedValues = {clobString, ""};
+      int[] expectedTypes = {Types.NCLOB, Types.NCLOB};
+
+      ResultSetMetaData metaData = MockResultSetMetaDataBuilder.buildMetaData(expectedNames, expectedTypes);
+      ResultSet resultSet = MockResultSetBuilder.buildResultSet(metaData, realValues, expectedTypes);
+
+      ResultSetHelperService service = new ResultSetHelperService();
+
+      String[] columnValues = service.getColumnValues(resultSet);
+      assertArrayEquals(expectedValues, columnValues);
+   }
+
+   @Test
+   public void getLargeNClobFromResultSet() throws SQLException, IOException {
+      String clobString = buildClobString(ResultSetHelperService.CLOBBUFFERSIZE + 1);
+
+      String[] expectedNames = {"Clob", "Null"};
+      String[] realValues = {clobString, null};
+      String[] expectedValues = {clobString, ""};
+      int[] expectedTypes = {Types.NCLOB, Types.NCLOB};
 
       ResultSetMetaData metaData = MockResultSetMetaDataBuilder.buildMetaData(expectedNames, expectedTypes);
       ResultSet resultSet = MockResultSetBuilder.buildResultSet(metaData, realValues, expectedTypes);
