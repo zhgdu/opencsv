@@ -395,13 +395,9 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
     /**
      * Sets the class type that is being mapped.
      * Also initializes the mapping between column names and bean fields.
-     *
-     * @param type Class type.
-     * @throws CsvBadConverterException If a field in the bean is annotated
-     *                                  with a custom converter that cannot be initialized. If you are not
-     *                                  using custom converters that you have written yourself, it should be
-     *                                  safe to catch this exception and ignore it.
      */
+    // The rest of the Javadoc is inherited.
+    @Override
     public void setType(Class<? extends T> type) throws CsvBadConverterException {
         this.type = type;
         loadFieldMap();

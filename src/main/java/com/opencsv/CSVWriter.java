@@ -81,7 +81,9 @@ public class CSVWriter implements Closeable, Flushable {
     *
     * @param writer    The writer to an underlying CSV source.
     * @param separator The delimiter to use for separating entries.
+    * @deprecated Please use {@link CSVWriter#CSVWriter(java.io.Writer, char, char, char, java.lang.String)} instead.
     */
+   @Deprecated
    public CSVWriter(Writer writer, char separator) {
       this(writer, separator, DEFAULT_QUOTE_CHARACTER);
    }
@@ -92,7 +94,9 @@ public class CSVWriter implements Closeable, Flushable {
     * @param writer    The writer to an underlying CSV source.
     * @param separator The delimiter to use for separating entries
     * @param quotechar The character to use for quoted elements
+    * @deprecated Please use {@link CSVWriter#CSVWriter(java.io.Writer, char, char, char, java.lang.String)} instead.
     */
+   @Deprecated
    public CSVWriter(Writer writer, char separator, char quotechar) {
       this(writer, separator, quotechar, DEFAULT_ESCAPE_CHARACTER);
    }
@@ -104,7 +108,9 @@ public class CSVWriter implements Closeable, Flushable {
     * @param separator  The delimiter to use for separating entries
     * @param quotechar  The character to use for quoted elements
     * @param escapechar The character to use for escaping quotechars or escapechars
+    * @deprecated Please use {@link CSVWriter#CSVWriter(java.io.Writer, char, char, char, java.lang.String)} instead.
     */
+   @Deprecated
    public CSVWriter(Writer writer, char separator, char quotechar, char escapechar) {
       this(writer, separator, quotechar, escapechar, DEFAULT_LINE_END);
    }
@@ -117,7 +123,9 @@ public class CSVWriter implements Closeable, Flushable {
     * @param separator The delimiter to use for separating entries
     * @param quotechar The character to use for quoted elements
     * @param lineEnd   The line feed terminator to use
+    * @deprecated Please use {@link CSVWriter#CSVWriter(java.io.Writer, char, char, char, java.lang.String)} instead.
     */
+   @Deprecated
    public CSVWriter(Writer writer, char separator, char quotechar, String lineEnd) {
       this(writer, separator, quotechar, DEFAULT_ESCAPE_CHARACTER, lineEnd);
    }

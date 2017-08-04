@@ -141,10 +141,7 @@ public class CSVReaderBuilder {
                         .withFieldAsNull(nullFieldIndicator)
                         .withErrorLocale(errorLocale)
                         .build());
-        CSVReader tempReader = new CSVReader(reader, skipLines, parser, keepCR, verifyReader);
-        tempReader.setMultilineLimit(multilineLimit);
-        tempReader.setErrorLocale(errorLocale);
-        return tempReader;
+        return new CSVReader(reader, skipLines, parser, keepCR, verifyReader, multilineLimit, errorLocale);
    }
 
     /**

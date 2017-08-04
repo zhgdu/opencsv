@@ -100,10 +100,8 @@ public class ColumnPositionMappingStrategy<T> extends HeaderColumnNameMappingStr
     /**
      * Sets the class type that is being mapped.
      * Also initializes the mapping between column positions and bean fields.
-     *
-     * @param type {@inheritDoc}
-     * @throws CsvBadConverterException {@inheritDoc}
      */
+    // The rest of the Javadoc is inherited.
     @Override
     public void setType(Class<? extends T> type) throws CsvBadConverterException {
         super.setType(type);

@@ -17,6 +17,7 @@ package com.opencsv.bean;
  */
 import com.opencsv.bean.concurrent.IntolerantThreadPoolExecutor;
 import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
 import com.opencsv.bean.concurrent.AccumulateCsvResults;
 import com.opencsv.bean.concurrent.OrderedObject;
 import com.opencsv.bean.concurrent.ProcessCsvLine;
@@ -112,12 +113,12 @@ public class CsvToBean<T> implements Iterable {
      * @param mapper Mapping strategy for the bean.
      * @param reader Reader used to construct a CSVReader
      * @return List of Objects.
+     * @deprecated Please use {@link CsvToBeanBuilder} instead.
      */
+    @Deprecated
     public List<T> parse(MappingStrategy<T> mapper, Reader reader) {
         setMappingStrategy(mapper);
-        CSVReader csvr = new CSVReader(reader);
-        csvr.setErrorLocale(errorLocale);
-        setCsvReader(csvr);
+        setCsvReader(new CSVReaderBuilder(reader).withErrorLocale(errorLocale).build());
         return parse();
     }
 
@@ -129,12 +130,12 @@ public class CsvToBean<T> implements Iterable {
      *   be thrown, but can be accessed after processing is finished through
      *   {@link #getCapturedExceptions()}.
      * @return List of Objects.
+     * @deprecated Please use {@link CsvToBeanBuilder} instead.
      */
+    @Deprecated
     public List<T> parse(MappingStrategy<T> mapper, Reader reader, boolean throwExceptions) {
         setMappingStrategy(mapper);
-        CSVReader csvr = new CSVReader(reader);
-        csvr.setErrorLocale(errorLocale);
-        setCsvReader(csvr);
+        setCsvReader(new CSVReaderBuilder(reader).withErrorLocale(errorLocale).build());
         this.setThrowExceptions(throwExceptions);
         return parse();
     }
@@ -146,12 +147,12 @@ public class CsvToBean<T> implements Iterable {
      * @param reader Reader used to construct a CSVReader
      * @param filter CsvToBeanFilter to apply - null if no filter.
      * @return List of Objects.
+     * @deprecated Please use {@link CsvToBeanBuilder} instead.
      */
+    @Deprecated
     public List<T> parse(MappingStrategy<T> mapper, Reader reader, CsvToBeanFilter filter) {
         setMappingStrategy(mapper);
-        CSVReader csvr = new CSVReader(reader);
-        csvr.setErrorLocale(errorLocale);
-        setCsvReader(csvr);
+        setCsvReader(new CSVReaderBuilder(reader).withErrorLocale(errorLocale).build());
         this.setFilter(filter);
         return parse();
     }
@@ -165,13 +166,13 @@ public class CsvToBean<T> implements Iterable {
      *   be thrown, but can be accessed after processing is finished through
      *   {@link #getCapturedExceptions()}.
      * @return List of Objects.
+     * @deprecated Please use {@link CsvToBeanBuilder} instead.
      */
+    @Deprecated
     public List<T> parse(MappingStrategy<T> mapper, Reader reader,
             CsvToBeanFilter filter, boolean throwExceptions) {
         setMappingStrategy(mapper);
-        CSVReader csvr = new CSVReader(reader);
-        csvr.setErrorLocale(errorLocale);
-        setCsvReader(csvr);
+        setCsvReader(new CSVReaderBuilder(reader).withErrorLocale(errorLocale).build());
         this.setFilter(filter);
         this.setThrowExceptions(throwExceptions);
         return parse();
@@ -182,7 +183,9 @@ public class CsvToBean<T> implements Iterable {
      * @param mapper Mapping strategy for the bean.
      * @param csv CSVReader
      * @return List of Objects.
+     * @deprecated Please use {@link CsvToBeanBuilder} instead.
      */
+    @Deprecated
     public List<T> parse(MappingStrategy<T> mapper, CSVReader csv) {
         setMappingStrategy(mapper);
         setCsvReader(csv);
@@ -197,7 +200,9 @@ public class CsvToBean<T> implements Iterable {
      *   be thrown, but can be accessed after processing is finished through
      *   {@link #getCapturedExceptions()}.
      * @return List of Objects.
+     * @deprecated Please use {@link CsvToBeanBuilder} instead.
      */
+    @Deprecated
     public List<T> parse(MappingStrategy<T> mapper, CSVReader csv, boolean throwExceptions) {
         setMappingStrategy(mapper);
         setCsvReader(csv);
@@ -215,7 +220,9 @@ public class CsvToBean<T> implements Iterable {
      * @param csv CSVReader
      * @param filter CsvToBeanFilter to apply - null if no filter.
      * @return List of Objects.
+     * @deprecated Please use {@link CsvToBeanBuilder} instead.
      */
+    @Deprecated
     public List<T> parse(MappingStrategy<T> mapper, CSVReader csv,
             CsvToBeanFilter filter) {
         setMappingStrategy(mapper);
@@ -237,7 +244,9 @@ public class CsvToBean<T> implements Iterable {
      *   be thrown, but can be accessed after processing is finished through
      *   {@link #getCapturedExceptions()}.
      * @return List of Objects.
+     * @deprecated Please use {@link CsvToBeanBuilder} instead.
      */
+    @Deprecated
     public List<T> parse(MappingStrategy<T> mapper, CSVReader csv,
             CsvToBeanFilter filter, boolean throwExceptions) {
         setMappingStrategy(mapper);

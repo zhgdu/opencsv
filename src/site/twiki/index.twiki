@@ -91,13 +91,20 @@ do about them.
       * In the rare case that you used opencsv 3.10, registerBeginningOfRecordForReading() and registerEndOfRecordForReading() were removed from MappingStrategy. They were the result of thought processes worthy of nothing more accomplished than a drunken monkey. I may write that because I wrote the bad code. If you derived your mapping strategy from one of ours, you're okay. Otherwise, you'll have to remove these methods.
       * findDescriptor no longer includes "throws IntrospectionException" in its method signature. If you had it, you'll have to get rid of it. If you had it an needed it, you'll have to rewrite your code.
       * There are now requirements for thread-safety imposed on certain methods in every mapping strategy. See the Javadoc for MappingStrategy for details.
-      * The method setErrorLocale() is now required. If you derive your implementation from one of ours, you're fine. If not, implement it, of make it a no-op.
-   * IterableCSVToBean and IterableCSVToBeanBuilder have both been deprecated. CsvToBean itself is now iterable; use it instead.
+      * The method setErrorLocale() is now required. If you derive your implementation from one of ours, you're fine. If not, implement it, or make it a no-op.
+      * The method setType() is now required. If you derive your implementation from one of ours, you're fine. If not, implement it, or make it a no-op.
    * MappingUtils was really meant to be for internal use, but of course we can't control that, so let it be said that:
       * the class is now named opencsvUtils, because it encompasses more than mapping, and
-      * the determineMappingStrategy() method now requires a locale for error messages.
+      * the determineMappingStrategy() method now requires a locale for error messages. Null can be used for the default locale.
    * The constructors for BeanFieldDate and BeanFieldPrimitiveType now require a locale for error messages. This is to avoid a proliferation of constructors or setters. These classes probably ought not to be used in your code directly, and probably ought to be final, but we still thought it best to inform you.
    * The interface BeanField requires the method setErrorLocale(). Assuming you derive all of your BeanField implementations from AbstractBeanField, this does not affect you.
+
+And we have a new list of things that we have deprecated and plan to remove in
+5.0, as well as what you can do about it.
+
+   * IterableCSVToBean and IterableCSVToBeanBuilder have both been deprecated. CsvToBean itself is now iterable; use it instead.
+   * All constructors except the ones with the smallest (often nullary, using defaults for all values) and largest argument lists (which often have only package access) have been deprecated. The constructors in between have grown over the years as opencsv has added features, and they've become unwieldy. We encourage all of our users to use the builders we provide instead of the constructors.
+   * All variants of CsvToBean.parse() except the no-argument variant. Please use the builder we provide.
 
 ---++Core concepts
 

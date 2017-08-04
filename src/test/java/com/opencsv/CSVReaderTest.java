@@ -576,9 +576,8 @@ public class CSVReaderTest {
         }
         
         // Now with a different locale
-        r = new CSVReader(new StringReader("This,is,a,\"test\na\",test"));
-        r.setMultilineLimit(1);
-        r.setErrorLocale(Locale.GERMAN);
+        r = new CSVReaderBuilder(new StringReader("This,is,a,\"test\na\",test"))
+                .withMultilineLimit(1).withErrorLocale(Locale.GERMAN).build();
         try {
             for (String[] line : r) {}
             fail("The Reader should always throw an exception.");

@@ -18,6 +18,7 @@ package com.opencsv.bean.mocks;
 import com.opencsv.CSVReader;
 import com.opencsv.bean.BeanField;
 import com.opencsv.bean.MappingStrategy;
+import com.opencsv.exceptions.CsvBadConverterException;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
 import java.util.Locale;
@@ -68,4 +69,7 @@ public class ErrorHeaderMappingStrategy implements MappingStrategy {
 
     @Override
     public void setErrorLocale(Locale errorLocale) {}
+
+    @Override
+    public void setType(Class type) throws CsvBadConverterException {}
 }

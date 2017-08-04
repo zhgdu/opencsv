@@ -271,7 +271,7 @@ public class CsvToBeanBuilder<T> {
     }
     
     /**
-     * @see CSVReader#CSVReader(Reader, int, ICSVParser, boolean, boolean)
+     * @see CSVReaderBuilder#withVerifyReader(boolean) 
      * @param verifyReader Silence Javadoc warnings
      * @return Silence Javadoc warnings
      */
@@ -281,7 +281,7 @@ public class CsvToBeanBuilder<T> {
     }
     
     /**
-     * @see CSVReader#CSVReader(Reader, int, ICSVParser, boolean, boolean)
+     * @see CSVReaderBuilder#withSkipLines(int) 
      * @param skipLines Silence Javadoc warnings
      * @return Silence Javadoc warnings
      */

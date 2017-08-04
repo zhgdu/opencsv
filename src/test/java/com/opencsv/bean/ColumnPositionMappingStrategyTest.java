@@ -59,7 +59,7 @@ public class ColumnPositionMappingStrategyTest {
 
    @Test
    public void getColumnIndexEmptyMappingReturnsNull() {
-      strat.setColumnMapping(null);
+      strat.setColumnMapping((String)null);
       assertNull(strat.getColumnIndex("name"));
    }
 

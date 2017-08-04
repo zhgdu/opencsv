@@ -5,8 +5,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.Reader;
+import java.io.StringReader;
+import java.util.Locale;
+import org.junit.After;
 
 import static org.junit.Assert.*;
+import org.junit.BeforeClass;
 import static org.mockito.Mockito.mock;
 
 public class CSVReaderBuilderTest {
@@ -14,8 +18,21 @@ public class CSVReaderBuilderTest {
    private CSVReaderBuilder builder;
    private Reader reader;
 
+    private static Locale systemLocale;
+
+    @BeforeClass
+    public static void storeSystemLocale() {
+        systemLocale = Locale.getDefault();
+    }
+
+    @After
+    public void setSystemLocaleBackToDefault() {
+        Locale.setDefault(systemLocale);
+    }
+
    @Before
    public void setUp() throws Exception {
+      Locale.setDefault(Locale.US);
       reader = mock(Reader.class);
       builder = new CSVReaderBuilder(reader);
    }
@@ -36,6 +53,7 @@ public class CSVReaderBuilderTest {
        assertEquals(CSVReader.DEFAULT_KEEP_CR, csvReader.keepCarriageReturns());
        assertEquals(CSVReader.DEFAULT_VERIFY_READER, csvReader.verifyReader());
        assertEquals(CSVReader.DEFAULT_MULTILINE_LIMIT, csvReader.getMultilineLimit());
+       assertEquals(Locale.getDefault(), csvReader.errorLocale);
    }
 
    @Test(expected = IllegalArgumentException.class)
@@ -119,5 +137,11 @@ public class CSVReaderBuilderTest {
         final CSVReader r = builder.withMultilineLimit(Integer.MAX_VALUE).build();
 
         assertEquals(Integer.MAX_VALUE, r.getMultilineLimit());
+    }
+    
+    @Test
+    public void builderWithErrorLocale() {
+        final CSVReader r = builder.withErrorLocale(Locale.KOREAN).build();
+        assertEquals(Locale.KOREAN, r.errorLocale);
     }
 }

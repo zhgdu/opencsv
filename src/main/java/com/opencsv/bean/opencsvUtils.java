@@ -16,6 +16,7 @@
 package com.opencsv.bean;
 
 import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import java.io.IOException;
 import java.io.StringReader;
@@ -92,8 +93,8 @@ public final class opencsvUtils {
                 }
                 String header = StringUtils.join(sortedFields, ',').concat("\n");
                 try {
-                    CSVReader csvr = new CSVReader(new StringReader(header));
-                    csvr.setErrorLocale(errorLocale);
+                    CSVReader csvr = new CSVReaderBuilder(new StringReader(header))
+                            .withErrorLocale(errorLocale).build();
                     ms.captureHeader(csvr);
                     ms.findDescriptor(0);
                 }

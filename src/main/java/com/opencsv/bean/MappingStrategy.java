@@ -142,4 +142,16 @@ public interface MappingStrategy<T> {
      * @since 4.0
      */
    void setErrorLocale(Locale errorLocale);
+   
+    /**
+     * Sets the class type that is being mapped.
+     * May perform additional initialization tasks.
+     *
+     * @param type Class type.
+     * @throws CsvBadConverterException If a field in the bean is annotated
+     *   with a custom converter that cannot be initialized. If you are not
+     *   using custom converters that you have written yourself, it should be
+     *   safe to catch this exception and ignore it.
+     */
+   public void setType(Class<? extends T> type) throws CsvBadConverterException;
 }
