@@ -563,5 +563,12 @@ public class CsvToBean<T> implements Iterable {
             readSingleLine();
             return intermediateBean;
         }
+        
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException(ResourceBundle
+                    .getBundle("opencsv", errorLocale)
+                    .getString("read.only.iterator"));
+        }
     }
 }
