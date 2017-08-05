@@ -16,36 +16,25 @@
 package com.opencsv.bean;
 
 import com.opencsv.CSVWriter;
-import com.opencsv.bean.mocks.AnnotatedMockBeanCustom;
-import com.opencsv.bean.mocks.AnnotatedMockBeanFull;
-import com.opencsv.bean.mocks.AnnotatedMockBeanFullDerived;
-import com.opencsv.bean.mocks.BindUnknownType;
-import com.opencsv.bean.mocks.BindCustomToWrongDataType;
-import com.opencsv.bean.mocks.ComplexClassForCustomAnnotation;
-import com.opencsv.bean.mocks.GetterMissing;
-import com.opencsv.bean.mocks.GetterPrivate;
-import com.opencsv.bean.mocks.SplitOnWhitespaceWrongDataType;
+import com.opencsv.bean.mocks.*;
 import com.opencsv.exceptions.CsvBeanIntrospectionException;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.io.Writer;
+import org.apache.commons.lang3.time.StopWatch;
+import org.apache.commons.lang3.tuple.ImmutablePair;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
-import org.apache.commons.lang3.time.StopWatch;
-import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.junit.After;
+
 import static org.junit.Assert.*;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
 
 /**
  * Tests {@link StatefulBeanToCsv}.
@@ -747,7 +736,7 @@ public class StatefulBeanToCsvTest {
         Writer writer = new StringWriter();
         HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat = new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanFull.class);
-        StatefulBeanToCsv<AnnotatedMockBeanFull> btcsv = new StatefulBeanToCsvBuilder<>(writer)
+        StatefulBeanToCsv<AnnotatedMockBeanFull> btcsv = new StatefulBeanToCsvBuilder<AnnotatedMockBeanFull>(writer)
                 .withMappingStrategy((MappingStrategy)strat).build();
         StopWatch watch = StopWatch.createStarted();
         btcsv.write(beanList);
@@ -758,7 +747,7 @@ public class StatefulBeanToCsvTest {
         writer = new StringWriter();
         strat = new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanFull.class);
-        btcsv = new StatefulBeanToCsvBuilder<>(writer)
+        btcsv = new StatefulBeanToCsvBuilder<AnnotatedMockBeanFull>(writer)
                 .withMappingStrategy((MappingStrategy)strat)
                 .withOrderedResults(false)
                 .build();
@@ -769,7 +758,7 @@ public class StatefulBeanToCsvTest {
         
         // Reading, ordered
         Reader reader = new StringReader(writer.toString());
-        CsvToBean<AnnotatedMockBeanFull> csvtb = new CsvToBeanBuilder<>(reader)
+        CsvToBean<AnnotatedMockBeanFull> csvtb = new CsvToBeanBuilder<AnnotatedMockBeanFull>(reader)
                 .withType(AnnotatedMockBeanFull.class)
                 .withMappingStrategy((MappingStrategy)strat).build();
         watch = StopWatch.createStarted();
@@ -780,7 +769,7 @@ public class StatefulBeanToCsvTest {
         
         // Reading, ordered
         reader = new StringReader(writer.toString());
-        csvtb = new CsvToBeanBuilder<>(reader)
+        csvtb = new CsvToBeanBuilder<AnnotatedMockBeanFull>(reader)
                 .withType(AnnotatedMockBeanFull.class)
                 .withOrderedResults(false)
                 .withMappingStrategy((MappingStrategy)strat).build();
