@@ -46,7 +46,9 @@ public interface MappingStrategy<T> {
      * @param col The column to find the description for
      * @return The property descriptor for the column position or null if one
      * could not be found.
+     * @deprecated Introspection will be replaced with reflection in version 5.0
      */
+    @Deprecated
    PropertyDescriptor findDescriptor(int col);
 
     /**

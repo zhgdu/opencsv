@@ -210,6 +210,7 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
     }
 
     @Override
+    @Deprecated
     public PropertyDescriptor findDescriptor(int col) {
         String columnName = getColumnName(col);
         BeanField beanField = null;
@@ -256,7 +257,9 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
      *
      * @param name Column name to look up.
      * @return The property descriptor for the column.
+     * @deprecated Introspection will be replaced with reflection in version 5.0
      */
+    @Deprecated
     protected PropertyDescriptor findDescriptor(String name) {
         return descriptorMap.get(name.toUpperCase().trim());
     }
@@ -267,7 +270,9 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
      * @return Map of property descriptors
      * @throws IntrospectionException Thrown on error getting information
      *                                about the bean.
+     * @deprecated Introspection will be replaced with reflection in version 5.0
      */
+    @Deprecated
     protected Map<String, PropertyDescriptor> loadDescriptorMap() throws IntrospectionException {
         Map<String, PropertyDescriptor> map = new HashMap<>();
 
