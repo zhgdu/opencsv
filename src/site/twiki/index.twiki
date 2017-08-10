@@ -105,6 +105,7 @@ And we have a new list of things that we have deprecated and plan to remove in
    * IterableCSVToBean and IterableCSVToBeanBuilder have both been deprecated. CsvToBean itself is now iterable; use it instead.
    * All constructors except the ones with the smallest (often nullary, using defaults for all values) and largest argument lists (which often have only package access) have been deprecated. The constructors in between have grown over the years as opencsv has added features, and they've become unwieldy. We encourage all of our users to use the builders we provide instead of the constructors.
    * All variants of CsvToBean.parse() except the no-argument variant. Please use the builder we provide.
+   * MappingStrategy.findDescriptor() will no longer be necessary in 5.0 because the plan is to move to reflection completely and no longer use introspection.
 
 ---++Core concepts
 
