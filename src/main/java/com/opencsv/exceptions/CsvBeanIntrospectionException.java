@@ -35,10 +35,10 @@ import java.util.ResourceBundle;
 public class CsvBeanIntrospectionException extends CsvRuntimeException {
     
     /** The bean that was acted upon. */
-    private final Object bean;
+    private transient final Object bean;
     
     /** The field that was supposed to be manipulated in the bean. */
-    private final Field field;
+    private transient final Field field;
     
     /**
      * Nullary constructor.
@@ -110,6 +110,12 @@ public class CsvBeanIntrospectionException extends CsvRuntimeException {
     }
 
     /**
+     * Gets the bean that was to be introspected.
+     * {@code bean} is marked {@code transient}, because
+     * {@link java.lang.Object} is not {@link java.io.Serializable}. If
+     * for any reason this exception is serialized and deserialized, this method
+     * will subsequently return {@code null}.
+     * 
      * @return The bean that caused this exception
      */
     public Object getBean() {
@@ -117,6 +123,12 @@ public class CsvBeanIntrospectionException extends CsvRuntimeException {
     }
 
     /**
+     * Gets the field from the Reflection API that was involved in the error.
+     * {@code field} is marked {@code transient}, because
+     * {@link java.lang.reflect.Field} is not {@link java.io.Serializable}. If
+     * for any reason this exception is serialized and deserialized, this method
+     * will subsequently return {@code null}.
+     * 
      * @return The field in the bean that caused this exception
      */
     public Field getField() {

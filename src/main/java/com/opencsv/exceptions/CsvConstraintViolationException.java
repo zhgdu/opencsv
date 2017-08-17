@@ -31,7 +31,7 @@ package com.opencsv.exceptions;
  * @since 3.8
  */
 public class CsvConstraintViolationException extends CsvException {
-    private final Object sourceObject;
+    private transient final Object sourceObject;
 
     /**
      * Default constructor, in case no further information is necessary or
@@ -73,6 +73,12 @@ public class CsvConstraintViolationException extends CsvException {
     }
 
     /**
+     * Gets the object that would have caused a constraint violation.
+     * {@code sourceObject} is marked {@code transient}, because
+     * {@link java.lang.Object} is not {@link java.io.Serializable}. If
+     * for any reason this exception is serialized and deserialized, this method
+     * will subsequently return {@code null}.
+     * 
      * @return The source object that triggered the constraint violation
      */
     public Object getSourceObject() {

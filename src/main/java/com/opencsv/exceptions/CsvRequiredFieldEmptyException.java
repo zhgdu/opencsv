@@ -26,7 +26,7 @@ import java.lang.reflect.Field;
  */
 public class CsvRequiredFieldEmptyException extends CsvException {
     private final Class beanClass;
-    private final Field destinationField;
+    private transient final Field destinationField;
 
     /**
      * Default constructor, in case no further information is necessary.
@@ -100,6 +100,10 @@ public class CsvRequiredFieldEmptyException extends CsvException {
 
     /**
      * Gets the field from the Reflection API that was to be assigned.
+     * {@code destinationField} is marked {@code transient}, because
+     * {@link java.lang.reflect.Field} is not {@link java.io.Serializable}. If
+     * for any reason this exception is serialized and deserialized, this method
+     * will subsequently return {@code null}.
      *
      * @return The destination field that was to receive the empty value
      */

@@ -2,13 +2,18 @@ package com.opencsv.exceptions;
 
 
 import com.opencsv.bean.mocks.MockBean;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import org.junit.Test;
 
 import java.lang.reflect.Field;
 
 import static org.junit.Assert.*;
 
-public class CSVBeanIntrospectionExceptionTest {
+public class CsvBeanIntrospectionExceptionTest {
     private static final String TEST_MESSAGE = "some test message";
 
     @Test
@@ -57,5 +62,25 @@ public class CSVBeanIntrospectionExceptionTest {
         assertEquals(bean, exception.getBean());
         assertEquals(field, exception.getField());
         assertEquals(TEST_MESSAGE, exception.getMessage());
+    }
+    
+    @Test
+    public void serializationDeserialization() throws IOException, ClassNotFoundException {
+        MockBean bean = new MockBean();
+        Field field = bean.getClass().getDeclaredFields()[0];
+        CsvBeanIntrospectionException orig = new CsvBeanIntrospectionException(bean, field, TEST_MESSAGE);
+        assertNotNull(orig.getBean());
+        assertNotNull(orig.getField());
+        assertNotNull(orig.getLocalizedMessage());
+        
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try (ObjectOutputStream oos = new ObjectOutputStream(baos)) {
+            oos.writeObject(orig);
+        }
+        ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(baos.toByteArray()));
+        CsvBeanIntrospectionException deserialized = (CsvBeanIntrospectionException) ois.readObject();
+        assertNull(deserialized.getBean());
+        assertNull(deserialized.getField());
+        assertEquals(orig.getLocalizedMessage(), deserialized.getLocalizedMessage());
     }
 }

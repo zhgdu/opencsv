@@ -23,7 +23,7 @@ package com.opencsv.exceptions;
  * @since 3.8
  */
 public class CsvDataTypeMismatchException extends CsvException {
-    private final Object sourceObject;
+    private transient final Object sourceObject;
     private final Class destinationClass;
 
     /**
@@ -78,6 +78,10 @@ public class CsvDataTypeMismatchException extends CsvException {
 
     /**
      * Gets the object that was to be assigned to a field of the wrong type.
+     * {@code sourceObject} is marked {@code transient}, because
+     * {@link java.lang.Object} is not {@link java.io.Serializable}. If
+     * for any reason this exception is serialized and deserialized, this method
+     * will subsequently return {@code null}.
      *
      * @return The data that could not be assigned
      */

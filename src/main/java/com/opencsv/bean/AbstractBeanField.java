@@ -206,7 +206,10 @@ abstract public class AbstractBeanField<T> implements BeanField<T> {
      * destination field.
      * This method must be specified in all non-abstract derived classes.
      *
-     * @param value The string from the selected field of the CSV file
+     * @param value The string from the selected field of the CSV file. If the
+     *   field is marked as required in the annotation, this value is guaranteed
+     *   not to be null, empty or blank according to
+     *   {@link org.apache.commons.lang3.StringUtils#isBlank(java.lang.CharSequence)}
      * @return An {@link java.lang.Object} representing the input data converted
      *   into the proper type
      * @throws CsvDataTypeMismatchException    If the input string cannot be converted into
