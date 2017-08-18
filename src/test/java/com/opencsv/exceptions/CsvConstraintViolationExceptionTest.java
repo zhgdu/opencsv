@@ -32,7 +32,7 @@ public class CsvConstraintViolationExceptionTest {
     private static final String TEST_MESSAGE = "some test message";
     
     @Test
-    public void codeCoverageExceptions() throws NoSuchFieldException {
+    public void codeCoverageConstructors() throws NoSuchFieldException {
         Class c = TestCase80.class;
         Field f = c.getField("test");
         

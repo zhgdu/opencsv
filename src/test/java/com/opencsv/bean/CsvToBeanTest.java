@@ -7,6 +7,7 @@ import com.opencsv.CSVReaderBuilder;
 import com.opencsv.bean.mocks.*;
 import com.opencsv.enums.CSVReaderNullFieldIndicator;
 import com.opencsv.exceptions.CsvException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import org.junit.Test;
 
 import java.io.FileNotFoundException;
@@ -14,6 +15,7 @@ import java.io.FileReader;
 import java.io.StringReader;
 import java.util.List;
 import java.util.Locale;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.After;
 
 import static org.junit.Assert.*;
@@ -261,5 +263,24 @@ public class CsvToBeanTest {
                        .build()
                        .parse();
        assertEquals(2, result.size());
+   }
+   
+   @Test
+   public void testEmptyInputWithHeaderNameMappingAndRequiredField() {
+       MappingStrategy<AnnotatedMockBeanFull> map = new HeaderColumnNameMappingStrategy<>();
+       map.setType(AnnotatedMockBeanFull.class);
+       try {
+           new CsvToBeanBuilder<AnnotatedMockBeanFull>(new StringReader(StringUtils.EMPTY))
+                   .withType(AnnotatedMockBeanFull.class)
+                   .withMappingStrategy(map)
+                   .build()
+                   .parse();
+           fail("An exception should have been thrown.");
+       }
+       catch(RuntimeException re) {
+           Throwable t = re.getCause();
+           assertNotNull(t);
+           assertTrue(t instanceof CsvRequiredFieldEmptyException);
+       }
    }
 }

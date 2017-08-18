@@ -96,7 +96,7 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
         }
         
         // Read the header
-        header = reader.readNext();
+        header = ObjectUtils.defaultIfNull(reader.readNext(), ArrayUtils.EMPTY_STRING_ARRAY);
 
         // Create a list for the Required fields keys.
         List<String> requiredKeys = new ArrayList<>();
@@ -112,8 +112,7 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
             return;
         }
 
-        // remove out fields that are in the header
-
+        // Remove fields that are in the header
         for (int i = 0; i < header.length && !requiredKeys.isEmpty(); i++) {
             requiredKeys.remove(header[i].toUpperCase());
         }

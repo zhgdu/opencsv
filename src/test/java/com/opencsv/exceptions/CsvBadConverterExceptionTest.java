@@ -31,7 +31,7 @@ public class CsvBadConverterExceptionTest {
     private static final String TEST_MESSAGE = "some test message";
     
     @Test
-    public void codeCoverageExceptions() throws NoSuchFieldException {
+    public void codeCoverageConstructors() throws NoSuchFieldException {
         Class c = TestCase80.class;
 
         CsvBadConverterException e3 = new CsvBadConverterException();
