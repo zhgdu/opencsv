@@ -722,11 +722,24 @@ public class CSVReaderTest {
         assertNull(item[4]);
     }
 
-
     @Test(expected = IOException.class)
     public void testMultilineLimit() throws IOException {
         CSVReader r = new CSVReader(new StringReader("This,is,a,\"test\na\",test"));
         r.setMultilineLimit(1);
         r.readNext();
+    }
+
+    @Test
+    public void testReadMultilineClosingQuoteMissing() {
+        final String part1 = "This,is,a,\"";
+        final String part2 = "test\na,test";
+        CSVReader r = new CSVReader(new StringReader(part1+part2));
+        try {
+            r.readNext();
+            fail("Exception should have been thrown.");
+        }
+        catch(IOException e) {
+            assertTrue(e.getMessage().contains(part2));
+        }
     }
 }

@@ -247,4 +247,9 @@ public class RFC4180Parser implements ICSVParser {
     public CSVReaderNullFieldIndicator nullFieldIndicator() {
         return nullFieldIndicator;
     }
+    
+    @Override
+    public String getPendingText() {
+        return StringUtils.defaultString(pending);
+    }
 }

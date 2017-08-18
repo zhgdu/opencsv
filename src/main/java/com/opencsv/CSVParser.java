@@ -412,7 +412,9 @@ public class CSVParser implements ICSVParser {
                     pending = sfc.peekOutput();
                     break line_done; // this partial content is not to be added to field list yet
                 } else {
-                    throw new IOException(ResourceBundle.getBundle("opencsv", errorLocale).getString("unterminated.quote"));
+                    throw new IOException(String.format(
+                            ResourceBundle.getBundle("opencsv", errorLocale).getString("unterminated.quote"),
+                            sfc.peekOutput()));
                 }
             } else {
                 inField = false;
@@ -523,12 +525,14 @@ public class CSVParser implements ICSVParser {
                 && isCharacterEscapable(nextLine.charAt(i + 1));
     }
 
-    /**
-     * @return The null field indicator.
-     */
     @Override
     public CSVReaderNullFieldIndicator nullFieldIndicator() {
         return nullFieldIndicator;
+    }
+    
+    @Override
+    public String getPendingText() {
+        return StringUtils.defaultString(pending);
     }
     
     /**

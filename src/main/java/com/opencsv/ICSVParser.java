@@ -108,4 +108,14 @@ public interface ICSVParser {
      * @return The null field indicator.
      */
     CSVReaderNullFieldIndicator nullFieldIndicator();
+    
+    /**
+     * If a parser is in the middle of parsing a multiline field, this will
+     * return the text collected so far.
+     * 
+     * @return The incomplete text for a multiline field. If there is no
+     *   pending text, this returns an empty string.
+     * @since 4.1
+     */
+    String getPendingText();
 }

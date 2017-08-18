@@ -424,9 +424,17 @@ public class CSVParserTest {
 
     }
 
-    @Test(expected = IOException.class)
-    public void anIOExceptionThrownifStringEndsInsideAQuotedString() throws IOException {
-        csvParser.parseLine("This,is a \"bad line to parse.");
+    @Test
+    public void anIOExceptionThrownifStringEndsInsideAQuotedString() {
+        final String part1 = "This,is a \"";
+        final String part2 = "bad line to parse.";
+        try {
+            csvParser.parseLine(part1+part2);
+            fail("Exception should have been thrown.");
+        }
+        catch(IOException e) {
+            assertTrue(e.getMessage().contains(part2));
+        }
     }
 
     @Test

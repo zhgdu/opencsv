@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * A very simple CSV reader released under a commercial-friendly license.
@@ -330,6 +331,11 @@ public class CSVReader implements Closeable, Iterable<String[]> {
             String nextLine = getNextLine();
             linesInThisRecord++;
             if (!hasNext) {
+                if(parser.isPending()) {
+                    throw new IOException(String.format(
+                            ResourceBundle.getBundle("opencsv", errorLocale).getString("unterminated.quote"),
+                            StringUtils.abbreviate(parser.getPendingText(), 100)));
+                }
                 return validateResult(result);
             }
             if(multilineLimit > 0 && linesInThisRecord > multilineLimit) {
