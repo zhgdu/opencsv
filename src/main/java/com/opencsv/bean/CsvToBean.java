@@ -15,30 +15,20 @@ package com.opencsv.bean;
  See the License for the specific language governing permissions and
  limitations under the License.
  */
-import com.opencsv.bean.concurrent.IntolerantThreadPoolExecutor;
+
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.bean.concurrent.AccumulateCsvResults;
+import com.opencsv.bean.concurrent.IntolerantThreadPoolExecutor;
 import com.opencsv.bean.concurrent.OrderedObject;
 import com.opencsv.bean.concurrent.ProcessCsvLine;
-import com.opencsv.exceptions.*;
+import com.opencsv.exceptions.CsvException;
+import org.apache.commons.lang3.ObjectUtils;
+
 import java.io.IOException;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.NoSuchElementException;
-import java.util.ResourceBundle;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentNavigableMap;
-import java.util.concurrent.ConcurrentSkipListMap;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.TimeUnit;
-import org.apache.commons.lang3.ObjectUtils;
+import java.util.*;
+import java.util.concurrent.*;
 
 /**
  * Converts CSV data to objects.
@@ -49,7 +39,7 @@ import org.apache.commons.lang3.ObjectUtils;
  *
  * @param <T> Class to convert the objects to.
  */
-public class CsvToBean<T> implements Iterable {
+public class CsvToBean<T> implements Iterable<T> {
     
    /** A list of all exceptions during parsing and mapping of the input. */
     private List<CsvException> capturedExceptions = null;
