@@ -108,6 +108,39 @@ public class RFC4180Parser implements ICSVParser {
         return parseLine(nextLine, false);
     }
 
+    @Override
+    public String parseToLine(String[] values) {
+        StringBuilder builder = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
+
+        for (int i = 0; i < values.length; i++) {
+            builder.append(convertToCsvValue(values[i]));
+            if (i < values.length - 1) {
+                builder.append(getSeparator());
+            }
+        }
+        return builder.toString();
+    }
+
+    private String convertToCsvValue(String value) {
+        StringBuilder builder = new StringBuilder(value.length() * 2);
+        boolean containsQuoteChar = value.contains(Character.toString(getQuotechar()));
+        boolean surroundWithQuotes = containsQuoteChar || value.contains(Character.toString(getSeparator())) || value.contains("\n");
+
+        String convertedString = !containsQuoteChar ? value : value.replaceAll(Character.toString(getQuotechar()), Character.toString(getQuotechar()) + Character.toString(getQuotechar()));
+
+        if (surroundWithQuotes) {
+            builder.append(getQuotechar());
+        }
+
+        builder.append(convertedString);
+
+        if (surroundWithQuotes) {
+            builder.append(getQuotechar());
+        }
+
+        return builder.toString();
+    }
+
     /**
      * Parses an incoming String and returns an array of elements.
      *

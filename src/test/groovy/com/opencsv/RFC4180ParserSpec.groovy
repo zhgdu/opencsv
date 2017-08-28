@@ -222,4 +222,52 @@ class RFC4180ParserSpec extends Specification {
         values[4] == "\","
         values.length == 5
     }
+
+    @Unroll
+    def 'parsing #testLine from String to array back to String returns the same result'(String testLine) {
+        given:
+        RFC4180ParserBuilder builder = new RFC4180ParserBuilder()
+        RFC4180Parser parser = builder.build()
+        String[] parsedValues = parser.parseLine(testLine)
+        String finalString = parser.parseToLine(parsedValues)
+
+        expect:
+        finalString == testLine
+
+        where:
+        testLine                                               | _
+        "This,is,a,test"                                       | _
+        "7,seven,7.89,12/11/16"                                | _
+        "1,\"\\\"\"\",\"this is a quote \"\" character\",test" | _
+        "2,\\ ,\"this is a comma , character\",two"            | _
+        "3,\\\\ ,this is a backslash \\ character,three"       | _
+        "5,\"21,34\",test comma,five"                          | _
+        "8,\\',\"a big line with \n" +
+                "multiple carriage returns\n" +
+                "in it.\",eight"                               | _
+    }
+
+    @Unroll
+    def 'parsing #expected1 #expected2 #expected3 and #expected4 from array to String back to array yields the same result'(String expected1, String expected2, String expected3, String expected4) {
+        given:
+        RFC4180ParserBuilder builder = new RFC4180ParserBuilder()
+        RFC4180Parser parser = builder.build()
+        String[] expectedArray = [expected1, expected2, expected3, expected4]
+        String parsedString = parser.parseToLine(expectedArray)
+        String[] finalArray = parser.parseLine(parsedString)
+        expect:
+        finalArray == expectedArray
+
+        where:
+        expected1 | expected2 | expected3                          | expected4
+        "This"    | "is"      | "a"                                | "test"
+        "7"       | "seven"   | "7.89"                             | "12/11/16"
+        "1"       | "\\\""    | "this is a quote \" character"     | "test"
+        "2"       | "\\ "     | "this is a comma , character"      | "two"
+        "3"       | "\\\\ "   | "this is a backslash \\ character" | "three"
+        "5"       | "21,34"   | "test comma"                       | "five"
+        "8"       | "\\'"     | "a big line with \n" +
+                "multiple carriage returns\n" +
+                "in it."                                           | "eight"
+    }
 }

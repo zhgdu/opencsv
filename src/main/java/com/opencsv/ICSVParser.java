@@ -105,6 +105,15 @@ public interface ICSVParser {
     String[] parseLine(String nextLine) throws IOException;
 
     /**
+     * Essentially a "Reverse parse" where an array of values are concatenating to a
+     * csv delimited string.
+     *
+     * @param values
+     * @return
+     */
+    String parseToLine(String[] values);
+
+    /**
      * @return The null field indicator.
      */
     CSVReaderNullFieldIndicator nullFieldIndicator();

@@ -17,6 +17,7 @@ package com.opencsv;
  */
 
 import com.opencsv.enums.CSVReaderNullFieldIndicator;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
@@ -24,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
-import org.apache.commons.lang3.ObjectUtils;
 
 /**
  * A very simple CSV parser released under a commercial-friendly license.
@@ -320,6 +320,11 @@ public class CSVParser implements ICSVParser {
     @Override
     public String[] parseLine(String nextLine) throws IOException {
         return parseLine(nextLine, false);
+    }
+
+    @Override
+    public String parseToLine(String[] values) {
+        return null;
     }
 
     /**
