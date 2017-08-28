@@ -1,6 +1,7 @@
 package com.opencsv.bean;
 
 import com.opencsv.CSVReader;
+import com.opencsv.ICSVParser;
 import com.opencsv.exceptions.CsvBadConverterException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 
@@ -190,7 +191,7 @@ public class ColumnPositionMappingStrategy<T> extends HeaderColumnNameMappingStr
                 f = findField(i);
                 if(f != null && f.isRequired()) {
                     if(sb == null) {
-                        sb = new StringBuilder(ResourceBundle.getBundle("opencsv", errorLocale).getString("multiple.required.field.empty"));
+                        sb = new StringBuilder(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("multiple.required.field.empty"));
                     }
                     sb.append(' ');
                     sb.append(f.getField().getName());

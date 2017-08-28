@@ -17,9 +17,11 @@ package com.opencsv.bean;
 
 
 import com.opencsv.CSVReader;
-import java.util.ResourceBundle;
+import com.opencsv.ICSVParser;
 import org.junit.Before;
 import org.junit.Test;
+
+import java.util.ResourceBundle;
 
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
@@ -50,7 +52,7 @@ public class IterableCSVToBeanBuilderTest {
         } catch (RuntimeException rte) {
             message = rte.getMessage();
         }
-        assertEquals(ResourceBundle.getBundle("opencsv").getString("strategy.undefined"), message);
+        assertEquals(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME).getString("strategy.undefined"), message);
     }
 
     @Test
@@ -61,7 +63,7 @@ public class IterableCSVToBeanBuilderTest {
         } catch (RuntimeException rte) {
             message = rte.getMessage();
         }
-        assertEquals(ResourceBundle.getBundle("opencsv").getString("csvreader.null"), message);
+        assertEquals(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME).getString("csvreader.null"), message);
     }
 
     @Test

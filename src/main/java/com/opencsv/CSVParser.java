@@ -201,15 +201,16 @@ public class CSVParser implements ICSVParser {
      * @param ignoreQuotations        If true, treat quotations like any other character.
      * @param nullFieldIndicator      Which field content will be returned as null: EMPTY_SEPARATORS, EMPTY_QUOTES,
      *                                BOTH, NEITHER (default)
+     * @param errorLocale             Locale for error messages.
      */
     CSVParser(char separator, char quotechar, char escape, boolean strictQuotes, boolean ignoreLeadingWhiteSpace,
               boolean ignoreQuotations, CSVReaderNullFieldIndicator nullFieldIndicator, Locale errorLocale) {
         this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
         if (anyCharactersAreTheSame(separator, quotechar, escape)) {
-            throw new UnsupportedOperationException(ResourceBundle.getBundle("opencsv", this.errorLocale).getString("special.characters.must.differ"));
+            throw new UnsupportedOperationException(ResourceBundle.getBundle(DEFAULT_BUNDLE_NAME, this.errorLocale).getString("special.characters.must.differ"));
         }
         if (separator == NULL_CHARACTER) {
-            throw new UnsupportedOperationException(ResourceBundle.getBundle("opencsv", this.errorLocale).getString("define.separator"));
+            throw new UnsupportedOperationException(ResourceBundle.getBundle(DEFAULT_BUNDLE_NAME, this.errorLocale).getString("define.separator"));
         }
         this.separator = separator;
         this.quotechar = quotechar;
@@ -418,7 +419,7 @@ public class CSVParser implements ICSVParser {
                     break line_done; // this partial content is not to be added to field list yet
                 } else {
                     throw new IOException(String.format(
-                            ResourceBundle.getBundle("opencsv", errorLocale).getString("unterminated.quote"),
+                            ResourceBundle.getBundle(DEFAULT_BUNDLE_NAME, errorLocale).getString("unterminated.quote"),
                             sfc.peekOutput()));
                 }
             } else {

@@ -15,6 +15,8 @@
  */
 package com.opencsv.exceptions;
 
+import com.opencsv.ICSVParser;
+
 import java.lang.reflect.Field;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -102,7 +104,7 @@ public class CsvBeanIntrospectionException extends CsvRuntimeException {
     private String getMessageFromLocale(Locale locale) {
         String supermessage = super.getMessage();
         if(supermessage == null && getBean() != null && getField() != null) {
-            return String.format(ResourceBundle.getBundle("opencsv", locale).getString("error.introspecting.field"),
+            return String.format(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, locale).getString("error.introspecting.field"),
                     getField().getName(),
                     getBean().getClass().getCanonicalName());
         }

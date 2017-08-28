@@ -17,7 +17,9 @@ package com.opencsv.bean;
  */
 
 import com.opencsv.CSVReader;
+import com.opencsv.ICSVParser;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+import org.apache.commons.lang3.ObjectUtils;
 
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
@@ -28,7 +30,6 @@ import java.util.Iterator;
 import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.ResourceBundle;
-import org.apache.commons.lang3.ObjectUtils;
 
 /**
  * Converts CSV strings to objects.
@@ -183,7 +184,7 @@ public class IterableCSVToBean<T> extends AbstractCSVToBean implements Iterable<
 
             @Override
             public void remove() {
-                throw new UnsupportedOperationException(ResourceBundle.getBundle("opencsv", errorLocale).getString("read.only.iterator"));
+                throw new UnsupportedOperationException(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("read.only.iterator"));
             }
         };
     }

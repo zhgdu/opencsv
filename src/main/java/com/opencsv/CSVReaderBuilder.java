@@ -17,11 +17,11 @@ package com.opencsv;
 
 
 import com.opencsv.enums.CSVReaderNullFieldIndicator;
+import org.apache.commons.lang3.ObjectUtils;
 
 import java.io.Reader;
 import java.util.Locale;
 import java.util.ResourceBundle;
-import org.apache.commons.lang3.ObjectUtils;
 
 /**
  * Builder for creating a CSVReader.
@@ -64,7 +64,7 @@ public class CSVReaderBuilder {
    public CSVReaderBuilder(
          final Reader reader) {
       if (reader == null) {
-         throw new IllegalArgumentException(ResourceBundle.getBundle("opencsv").getString("reader.null"));
+          throw new IllegalArgumentException(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME).getString("reader.null"));
       }
       this.reader = reader;
    }

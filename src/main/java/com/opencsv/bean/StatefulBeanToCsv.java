@@ -16,6 +16,7 @@
 package com.opencsv.bean;
 
 import com.opencsv.CSVWriter;
+import com.opencsv.ICSVParser;
 import com.opencsv.bean.concurrent.AccumulateCsvResults;
 import com.opencsv.bean.concurrent.IntolerantThreadPoolExecutor;
 import com.opencsv.bean.concurrent.OrderedObject;
@@ -24,20 +25,15 @@ import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import com.opencsv.exceptions.CsvRuntimeException;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.ObjectUtils;
+
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.ConcurrentNavigableMap;
-import java.util.concurrent.ConcurrentSkipListMap;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.RejectedExecutionException;
-import java.util.concurrent.TimeUnit;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.ObjectUtils;
+import java.util.concurrent.*;
 
 /**
  * This class writes beans out in CSV format to a {@link java.io.Writer},
@@ -75,7 +71,7 @@ public class StatefulBeanToCsv<T> {
     /** The nullary constructor should never be used. */
     private StatefulBeanToCsv() {
         throw new IllegalStateException(String.format(
-                ResourceBundle.getBundle("opencsv").getString("nullary.constructor.not.allowed"),
+                ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME).getString("nullary.constructor.not.allowed"),
                 getClass().getName()));
     }
     
@@ -331,7 +327,7 @@ public class StatefulBeanToCsv<T> {
                     throw csve;
                 }
                 throw new RuntimeException(
-                        ResourceBundle.getBundle("opencsv", errorLocale).getString("error.writing.beans"), executor.getTerminalException());
+                        ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("error.writing.beans"), executor.getTerminalException());
             } catch (Exception e) {
                 // Exception during parsing. Always unrecoverable.
                 // I can't find a way to create this condition in the current
@@ -344,7 +340,7 @@ public class StatefulBeanToCsv<T> {
                     RuntimeException re = (RuntimeException) executor.getTerminalException();
                     throw re;
                 }
-                throw new RuntimeException(ResourceBundle.getBundle("opencsv", errorLocale).getString("error.writing.beans"), e);
+                throw new RuntimeException(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("error.writing.beans"), e);
             }
 
             writeResultsOfParallelProcessingToFile();

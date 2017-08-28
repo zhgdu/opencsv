@@ -1,11 +1,12 @@
 package com.opencsv;
 
+import org.apache.commons.lang3.ObjectUtils;
+
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.ResourceBundle;
-import org.apache.commons.lang3.ObjectUtils;
 
 /**
  * Provides an Iterator over the data found in opencsv.
@@ -74,6 +75,6 @@ public class CSVIterator implements Iterator<String[]> {
     */
    @Override
    public void remove() {
-      throw new UnsupportedOperationException(ResourceBundle.getBundle("opencsv", errorLocale).getString("read.only.iterator"));
+      throw new UnsupportedOperationException(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("read.only.iterator"));
    }
 }

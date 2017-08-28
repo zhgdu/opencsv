@@ -15,7 +15,10 @@
  */
 package com.opencsv.bean;
 
+import com.opencsv.ICSVParser;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
+import org.apache.commons.lang3.StringUtils;
+
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -24,7 +27,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * This class converts an input to a date type.
@@ -119,7 +121,7 @@ public class BeanFieldDate<T> extends AbstractBeanField<T> {
         }
         else {
             throw new CsvDataTypeMismatchException(value, fieldType,
-                    ResourceBundle.getBundle("opencsv", errorLocale).getString("csvdate.not.date"));
+                    ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("csvdate.not.date"));
         }
         
         return o;
@@ -175,7 +177,7 @@ public class BeanFieldDate<T> extends AbstractBeanField<T> {
                     // especially since I can't conceive of the circumstances
                     // under which it is thrown.
                     CsvDataTypeMismatchException ex = new CsvDataTypeMismatchException(
-                            ResourceBundle.getBundle("opencsv", errorLocale).getString("xmlgregoriancalendar.impossible"));
+                            ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("xmlgregoriancalendar.impossible"));
                     ex.initCause(e);
                     throw ex;
                 }
@@ -194,7 +196,7 @@ public class BeanFieldDate<T> extends AbstractBeanField<T> {
             }
             else {
                 throw new CsvDataTypeMismatchException(value, fieldType,
-                        ResourceBundle.getBundle("opencsv", errorLocale).getString("csvdate.not.date"));
+                        ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("csvdate.not.date"));
             }
             o = fieldType.cast(getFormat().format(c.getTime()));
         }
@@ -226,7 +228,7 @@ public class BeanFieldDate<T> extends AbstractBeanField<T> {
             o = convertCalendar(value, fieldType);
         } else {
             throw new CsvDataTypeMismatchException(value, fieldType,
-                    ResourceBundle.getBundle("opencsv", errorLocale).getString("csvdate.not.date"));
+                    ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("csvdate.not.date"));
         }
         
         return o;

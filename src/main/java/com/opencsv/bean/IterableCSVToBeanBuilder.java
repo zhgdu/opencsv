@@ -17,9 +17,11 @@ package com.opencsv.bean;
  */
 
 import com.opencsv.CSVReader;
+import com.opencsv.ICSVParser;
+import org.apache.commons.lang3.ObjectUtils;
+
 import java.util.Locale;
 import java.util.ResourceBundle;
-import org.apache.commons.lang3.ObjectUtils;
 
 /**
  * Builder for creating an IterableCSVToBean.
@@ -66,10 +68,10 @@ public class IterableCSVToBeanBuilder<T> {
      */
     public IterableCSVToBean<T> build() {
         if (mapper == null) {
-            throw new RuntimeException(ResourceBundle.getBundle("opencsv", errorLocale).getString("strategy.undefined"));
+            throw new RuntimeException(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("strategy.undefined"));
         }
         if (csvReader == null) {
-            throw new RuntimeException(ResourceBundle.getBundle("opencsv", errorLocale).getString("csvreader.null"));
+            throw new RuntimeException(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("csvreader.null"));
         }
         IterableCSVToBean<T> result = new IterableCSVToBean<>(csvReader, mapper, filter);
         result.setErrorLocale(errorLocale);

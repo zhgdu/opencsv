@@ -15,15 +15,16 @@
  */
 package com.opencsv.bean;
 
+import com.opencsv.ICSVParser;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import org.apache.commons.beanutils.ConversionException;
+import org.apache.commons.beanutils.ConvertUtilsBean;
+import org.apache.commons.beanutils.locale.LocaleConvertUtilsBean;
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Field;
 import java.util.Locale;
 import java.util.ResourceBundle;
-import org.apache.commons.beanutils.ConvertUtilsBean;
-import org.apache.commons.beanutils.locale.LocaleConvertUtilsBean;
 
 /**
  * This class wraps fields from the reflection API in order to handle
@@ -71,7 +72,7 @@ public class BeanFieldPrimitiveTypes<T> extends AbstractBeanField<T> {
                 CsvDataTypeMismatchException csve = new CsvDataTypeMismatchException(
                         value, field.getType(),
                         String.format(
-                                ResourceBundle.getBundle("opencsv", errorLocale).getString("conversion.impossible"),
+                                ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("conversion.impossible"),
                                 value, field.getType().getCanonicalName()));
                 csve.initCause(e);
                 throw csve;
@@ -109,7 +110,7 @@ public class BeanFieldPrimitiveTypes<T> extends AbstractBeanField<T> {
             }
             catch(ConversionException e) {
                 CsvDataTypeMismatchException csve = new CsvDataTypeMismatchException(
-                        ResourceBundle.getBundle("opencsv", errorLocale).getString("field.not.primitive"));
+                        ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("field.not.primitive"));
                 csve.initCause(e);
                 throw csve;
             }

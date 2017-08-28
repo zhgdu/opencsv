@@ -16,11 +16,12 @@
 package com.opencsv.bean;
 
 import com.opencsv.CSVWriter;
+import com.opencsv.ICSVParser;
+import org.apache.commons.lang3.ObjectUtils;
 
 import java.io.Writer;
 import java.util.Locale;
 import java.util.ResourceBundle;
-import org.apache.commons.lang3.ObjectUtils;
 
 /**
  * This is a builder for StatefulBeanToCsv, allowing one to set all parameters
@@ -45,7 +46,7 @@ public class StatefulBeanToCsvBuilder<T> {
     /** The nullary constructor may never be used. */
     private StatefulBeanToCsvBuilder() {
         throw new IllegalStateException(String.format(
-                ResourceBundle.getBundle("opencsv").getString("nullary.constructor.not.allowed"),
+                ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME).getString("nullary.constructor.not.allowed"),
                 getClass().getName()));
     }
 

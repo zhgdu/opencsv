@@ -15,17 +15,13 @@
  */
 package com.opencsv.bean;
 
-import com.opencsv.CSVParser;
-import com.opencsv.CSVParserBuilder;
-import com.opencsv.CSVReader;
-import com.opencsv.CSVReaderBuilder;
-import com.opencsv.ICSVParser;
+import com.opencsv.*;
 import com.opencsv.enums.CSVReaderNullFieldIndicator;
+import org.apache.commons.lang3.ObjectUtils;
 
 import java.io.Reader;
 import java.util.Locale;
 import java.util.ResourceBundle;
-import org.apache.commons.lang3.ObjectUtils;
 
 /**
  * This class makes it possible to bypass all the intermediate steps and classes
@@ -113,7 +109,7 @@ public class CsvToBeanBuilder<T> {
    private CsvToBeanBuilder() {
        reader = null; // Otherwise the compiler complains that reader can't be final.
        throw new IllegalStateException(String.format(ResourceBundle
-               .getBundle("opencsv") // Must be default locale, because we don't have anything else yet
+               .getBundle(ICSVParser.DEFAULT_BUNDLE_NAME) // Must be default locale, because we don't have anything else yet
                .getString("nullary.constructor.not.allowed"), getClass().getName()));
    }
    
@@ -125,7 +121,7 @@ public class CsvToBeanBuilder<T> {
    public CsvToBeanBuilder(Reader reader) {
        if(reader == null) {
            throw new IllegalArgumentException(ResourceBundle
-                   .getBundle("opencsv") // Must be default locale, because we don't have anything else yet
+                   .getBundle(ICSVParser.DEFAULT_BUNDLE_NAME) // Must be default locale, because we don't have anything else yet
                    .getString("reader.null"));
        }
        this.reader = reader;
@@ -141,7 +137,7 @@ public class CsvToBeanBuilder<T> {
     public CsvToBean<T> build() throws IllegalStateException {
         // Check for errors in the configuration first
         if(mappingStrategy == null && type == null) {
-            throw new IllegalStateException(ResourceBundle.getBundle("opencsv", errorLocale).getString("strategy.type.missing"));
+            throw new IllegalStateException(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("strategy.type.missing"));
         }
         
         // Build Parser and Reader

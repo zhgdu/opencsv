@@ -68,6 +68,7 @@ public interface ICSVParser {
      * Denotes what field contents will cause the parser to return null:  EMPTY_SEPARATORS, EMPTY_QUOTES, BOTH, NEITHER (default)
      */
     CSVReaderNullFieldIndicator DEFAULT_NULL_FIELD_INDICATOR = NEITHER;
+    String DEFAULT_BUNDLE_NAME = "opencsv";
 
     /**
      * @return The default separator for this parser.
@@ -108,8 +109,9 @@ public interface ICSVParser {
      * Essentially a "Reverse parse" where an array of values are concatenating to a
      * csv delimited string.
      *
-     * @param values
-     * @return
+     * @param values List of elements to parse
+     * @return CSV formatted string representing the values in the array.
+     * @since 4.1
      */
     String parseToLine(String[] values);
 

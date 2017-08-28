@@ -17,18 +17,14 @@ package com.opencsv;
  */
 
 import com.opencsv.stream.reader.LineReader;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.BufferedReader;
 import java.io.Closeable;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
-import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
+import java.util.*;
 
 /**
  * A very simple CSV reader released under a commercial-friendly license.
@@ -333,13 +329,13 @@ public class CSVReader implements Closeable, Iterable<String[]> {
             if (!hasNext) {
                 if(parser.isPending()) {
                     throw new IOException(String.format(
-                            ResourceBundle.getBundle("opencsv", errorLocale).getString("unterminated.quote"),
+                            ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("unterminated.quote"),
                             StringUtils.abbreviate(parser.getPendingText(), 100)));
                 }
                 return validateResult(result);
             }
             if(multilineLimit > 0 && linesInThisRecord > multilineLimit) {
-                throw new IOException(String.format(errorLocale, ResourceBundle.getBundle("opencsv", errorLocale).getString("multiline.limit.broken"), multilineLimit));
+                throw new IOException(String.format(errorLocale, ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("multiline.limit.broken"), multilineLimit));
             }
             String[] r = parser.parseLineMulti(nextLine);
             if (r.length > 0) {

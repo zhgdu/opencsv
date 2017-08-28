@@ -15,19 +15,21 @@
  */
 package com.opencsv.bean;
 
+import com.opencsv.ICSVParser;
 import com.opencsv.exceptions.CsvBeanIntrospectionException;
 import com.opencsv.exceptions.CsvConstraintViolationException;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+import org.apache.commons.beanutils.PropertyUtilsBean;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.reflect.FieldUtils;
+
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Locale;
 import java.util.ResourceBundle;
-import org.apache.commons.beanutils.PropertyUtilsBean;
-import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.reflect.FieldUtils;
 
 /**
  * This base bean takes over the responsibility of converting the supplied
@@ -125,7 +127,7 @@ abstract public class AbstractBeanField<T> implements BeanField<T> {
         if (required && StringUtils.isBlank(value)) {
             throw new CsvRequiredFieldEmptyException(
                     bean.getClass(), field,
-                    String.format(ResourceBundle.getBundle("opencsv", errorLocale).getString("required.field.empty"),
+                    String.format(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("required.field.empty"),
                             field.getName()));
         }
         
@@ -251,7 +253,7 @@ abstract public class AbstractBeanField<T> implements BeanField<T> {
             if(value == null && required) {
                 throw new CsvRequiredFieldEmptyException(
                         bean.getClass(), field,
-                        String.format(ResourceBundle.getBundle("opencsv", errorLocale).getString("required.field.empty"),
+                        String.format(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("required.field.empty"),
                                 field.getName()));
             }
             

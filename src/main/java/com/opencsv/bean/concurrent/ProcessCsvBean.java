@@ -15,24 +15,18 @@
  */
 package com.opencsv.bean.concurrent;
 
+import com.opencsv.ICSVParser;
 import com.opencsv.bean.BeanField;
 import com.opencsv.bean.MappingStrategy;
 import com.opencsv.bean.opencsvUtils;
-import com.opencsv.exceptions.CsvBeanIntrospectionException;
-import com.opencsv.exceptions.CsvDataTypeMismatchException;
-import com.opencsv.exceptions.CsvException;
-import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
-import com.opencsv.exceptions.CsvRuntimeException;
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.ResourceBundle;
-import java.util.concurrent.BlockingQueue;
+import com.opencsv.exceptions.*;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+
+import java.beans.PropertyDescriptor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.*;
+import java.util.concurrent.BlockingQueue;
 
 /**
  * A class for converting one bean into its string representation for writing to
@@ -98,7 +92,7 @@ public class ProcessCsvBean<T> implements Runnable {
             }
             catch(IllegalAccessException | InvocationTargetException e) {
                 CsvBeanIntrospectionException csve = new CsvBeanIntrospectionException(
-                        bean, null, ResourceBundle.getBundle("opencsv", errorLocale).getString("error.introspecting.beans"));
+                        bean, null, ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("error.introspecting.beans"));
                 csve.initCause(e);
                 throw csve;
             }

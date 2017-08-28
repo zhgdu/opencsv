@@ -18,6 +18,7 @@ package com.opencsv.bean;
 
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
+import com.opencsv.ICSVParser;
 import com.opencsv.bean.concurrent.AccumulateCsvResults;
 import com.opencsv.bean.concurrent.IntolerantThreadPoolExecutor;
 import com.opencsv.bean.concurrent.OrderedObject;
@@ -353,7 +354,7 @@ public class CsvToBean<T> implements Iterable<T> {
             if(accumulateThread != null) {
                 accumulateThread.setMustStop(true);
             }
-            throw new RuntimeException(String.format(ResourceBundle.getBundle("opencsv", errorLocale).getString("parsing.error"),
+            throw new RuntimeException(String.format(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("parsing.error"),
                     lineProcessed, Arrays.toString(line)), executor.getTerminalException());
         } catch (Exception e) {
             // Exception during parsing. Always unrecoverable.
@@ -361,7 +362,7 @@ public class CsvToBean<T> implements Iterable<T> {
             if(accumulateThread != null) {
                 accumulateThread.setMustStop(true);
             }
-            throw new RuntimeException(String.format(ResourceBundle.getBundle("opencsv", errorLocale).getString("parsing.error"),
+            throw new RuntimeException(String.format(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("parsing.error"),
                     lineProcessed, Arrays.toString(line)), e);
         }
         
@@ -448,14 +449,14 @@ public class CsvToBean<T> implements Iterable<T> {
         // First verify that the user hasn't failed to give us the information
         // we need to do his or her work for him or her.
         if(mappingStrategy == null || csvReader == null) {
-            throw new IllegalStateException(ResourceBundle.getBundle("opencsv", errorLocale).getString("specify.strategy.reader"));
+            throw new IllegalStateException(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("specify.strategy.reader"));
         }
 
         // Get the header information
         try {
             mappingStrategy.captureHeader(csvReader);
         } catch (Exception e) {
-            throw new RuntimeException(ResourceBundle.getBundle("opencsv", errorLocale).getString("header.error"), e);
+            throw new RuntimeException(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("header.error"), e);
         }
         
         // Reset to beginning values
@@ -534,7 +535,7 @@ public class CsvToBean<T> implements Iterable<T> {
             }
             catch(IOException e) {
                 line = null;
-                throw new RuntimeException(String.format(ResourceBundle.getBundle("opencsv", errorLocale).getString("parsing.error"),
+                throw new RuntimeException(String.format(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("parsing.error"),
                         lineProcessed, Arrays.toString(line)), e);
             }
         }
@@ -557,7 +558,7 @@ public class CsvToBean<T> implements Iterable<T> {
         @Override
         public void remove() {
             throw new UnsupportedOperationException(ResourceBundle
-                    .getBundle("opencsv", errorLocale)
+                    .getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
                     .getString("read.only.iterator"));
         }
     }

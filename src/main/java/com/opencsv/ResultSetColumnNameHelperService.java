@@ -17,13 +17,13 @@ package com.opencsv;
  */
 
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
-import org.apache.commons.lang3.ObjectUtils;
 
 /**
  * Helper class for processing JDBC ResultSet objects allowing the user to
@@ -61,13 +61,13 @@ public class ResultSetColumnNameHelperService extends ResultSetHelperService imp
      */
     public void setColumnNames(String[] columnNames, String[] columnHeaders) {
         if (columnHeaders.length != columnNames.length) {
-            throw new UnsupportedOperationException(ResourceBundle.getBundle("opencsv", errorLocale).getString("column.count.mismatch"));
+            throw new UnsupportedOperationException(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("column.count.mismatch"));
         }
         if (hasInvalidValue(columnNames)) {
-            throw new UnsupportedOperationException(ResourceBundle.getBundle("opencsv", errorLocale).getString("column.name.bogus"));
+            throw new UnsupportedOperationException(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("column.name.bogus"));
         }
         if (hasInvalidValue(columnHeaders)) {
-            throw new UnsupportedOperationException(ResourceBundle.getBundle("opencsv", errorLocale).getString("header.name.bogus"));
+            throw new UnsupportedOperationException(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("header.name.bogus"));
         }
         this.columnNames = Arrays.copyOf(columnNames, columnNames.length);
         this.columnHeaders = Arrays.copyOf(columnHeaders, columnHeaders.length);
@@ -107,7 +107,7 @@ public class ResultSetColumnNameHelperService extends ResultSetHelperService imp
         for (String name : columnNames) {
             int position = ArrayUtils.indexOf(realColumnNames, name);
             if (position == ArrayUtils.INDEX_NOT_FOUND) {
-                throw new UnsupportedOperationException(String.format(ResourceBundle.getBundle("opencsv", errorLocale).getString("column.nonexistant"), name));
+                throw new UnsupportedOperationException(String.format(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("column.nonexistant"), name));
             }
             columnNamePositionMap.put(name, position);
         }

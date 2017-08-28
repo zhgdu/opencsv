@@ -1,12 +1,16 @@
 package com.opencsv.bean;
 
 import com.opencsv.CSVReader;
+import com.opencsv.ICSVParser;
 import com.opencsv.exceptions.CsvBadConverterException;
 import com.opencsv.exceptions.CsvBeanIntrospectionException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
+import org.apache.commons.text.StrBuilder;
+
 import java.beans.BeanInfo;
 import java.beans.IntrospectionException;
 import java.beans.Introspector;
@@ -14,8 +18,6 @@ import java.beans.PropertyDescriptor;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.*;
-import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.text.StrBuilder;
 
 /*
  * Copyright 2007 Kyle Miller.
@@ -92,7 +94,7 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
     public void captureHeader(CSVReader reader) throws IOException, CsvRequiredFieldEmptyException {
         // Validation
         if(type == null) {
-            throw new IllegalStateException(ResourceBundle.getBundle("opencsv", errorLocale).getString("type.unset"));
+            throw new IllegalStateException(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("type.unset"));
         }
         
         // Read the header
@@ -123,7 +125,7 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
             String missingRequiredFields = builder.appendWithSeparators(requiredKeys, ",").toString();
             // TODO consider CsvRequiredFieldsEmpty for multiple missing required fields.
             throw new CsvRequiredFieldEmptyException(type, fieldMap.get(requiredKeys.get(0)).getField(),
-                    String.format(ResourceBundle.getBundle("opencsv", errorLocale).getString("header.required.field.absent"),
+                    String.format(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("header.required.field.absent"),
                             missingRequiredFields));
         }
     }
@@ -137,7 +139,7 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
                 f = findField(i);
                 if(f.isRequired()) {
                     if(sb == null) {
-                        sb = new StringBuilder(ResourceBundle.getBundle("opencsv", errorLocale).getString("multiple.required.field.empty"));
+                        sb = new StringBuilder(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("multiple.required.field.empty"));
                     }
                     sb.append(' ');
                     sb.append(f.getField().getName());
@@ -159,7 +161,7 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
     @Override
     public String[] generateHeader() {
         if(type == null) {
-            throw new IllegalStateException(ResourceBundle.getBundle("opencsv", errorLocale).getString("type.before.header"));
+            throw new IllegalStateException(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("type.before.header"));
         }
         
         // Always take what's been given or previously determined first.
@@ -200,7 +202,7 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
     @Override
     public Integer getColumnIndex(String name) {
         if (null == header) {
-            throw new IllegalStateException(ResourceBundle.getBundle("opencsv", errorLocale).getString("header.unread"));
+            throw new IllegalStateException(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("header.unread"));
         }
 
         createIndexLookup(header);
@@ -299,7 +301,7 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
         } catch (IllegalAccessException | InstantiationException oldEx) {
             CsvBadConverterException newEx =
                     new CsvBadConverterException(converter,
-                            String.format(ResourceBundle.getBundle("opencsv", errorLocale).getString("custom.converter.invalid"), converter.getCanonicalName()));
+                            String.format(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("custom.converter.invalid"), converter.getCanonicalName()));
             newEx.initCause(oldEx);
             throw newEx;
         }
@@ -382,7 +384,7 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
     @Override
     public T createBean() throws InstantiationException, IllegalAccessException, IllegalStateException {
         if(type == null) {
-            throw new IllegalStateException(ResourceBundle.getBundle("opencsv", errorLocale).getString("type.unset"));
+            throw new IllegalStateException(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("type.unset"));
         }
         return type.newInstance();
     }
@@ -415,7 +417,7 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
             // IntrospectionException to be thrown by our code.
             // -Andrew Jones 31.07.2017
             CsvBeanIntrospectionException csve = new CsvBeanIntrospectionException(
-                    ResourceBundle.getBundle("opencsv", errorLocale).getString("bean.descriptors.uninitialized"));
+                    ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("bean.descriptors.uninitialized"));
             csve.initCause(e);
             throw csve;
         }
