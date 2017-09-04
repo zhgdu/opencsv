@@ -122,11 +122,12 @@ public class RFC4180Parser implements ICSVParser {
     }
 
     private String convertToCsvValue(String value) {
-        StringBuilder builder = new StringBuilder(value.length() * 2);
-        boolean containsQuoteChar = value.contains(Character.toString(getQuotechar()));
-        boolean surroundWithQuotes = containsQuoteChar || value.contains(Character.toString(getSeparator())) || value.contains("\n");
+        String testValue = (value == null && !nullFieldIndicator.equals(CSVReaderNullFieldIndicator.NEITHER)) ? "" : value;
+        StringBuilder builder = new StringBuilder(testValue == null ? 16 : (testValue.length() * 2));
+        boolean containsQuoteChar = testValue != null && testValue.contains(Character.toString(getQuotechar()));
+        boolean surroundWithQuotes = isSurroundWithQuotes(value, containsQuoteChar);
 
-        String convertedString = !containsQuoteChar ? value : value.replaceAll(Character.toString(getQuotechar()), Character.toString(getQuotechar()) + Character.toString(getQuotechar()));
+        String convertedString = !containsQuoteChar ? testValue : testValue.replaceAll(Character.toString(getQuotechar()), Character.toString(getQuotechar()) + Character.toString(getQuotechar()));
 
         if (surroundWithQuotes) {
             builder.append(getQuotechar());
@@ -139,6 +140,14 @@ public class RFC4180Parser implements ICSVParser {
         }
 
         return builder.toString();
+    }
+
+    private boolean isSurroundWithQuotes(String value, boolean containsQuoteChar) {
+        if (value == null) {
+            return nullFieldIndicator.equals(CSVReaderNullFieldIndicator.EMPTY_QUOTES);
+        }
+
+        return containsQuoteChar || value.contains(Character.toString(getSeparator())) || value.contains("\n");
     }
 
     /**

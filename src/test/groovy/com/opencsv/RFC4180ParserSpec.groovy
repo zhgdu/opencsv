@@ -7,6 +7,7 @@ import spock.lang.Unroll
 class RFC4180ParserSpec extends Specification {
     private static final char SINGLE_QUOTE = '\''
     private static final char PERIOD = '.'
+    private static final String NULL_STRING = null;
 
     def 'create a parser from the default constructor'() {
         when:
@@ -175,6 +176,25 @@ class RFC4180ParserSpec extends Specification {
         CSVReaderNullFieldIndicator.EMPTY_SEPARATORS | null    | " "     | null    | ""      | null
         CSVReaderNullFieldIndicator.EMPTY_QUOTES     | ""      | " "     | ""      | null    | ""
         CSVReaderNullFieldIndicator.BOTH             | null    | " "     | null    | null    | null
+    }
+
+    @Unroll
+    def 'parseToLine with NullFieldindicator of #nullField with data #string1 #string2 #string3 #string4 and #string5 should return #expectedResult'(CSVReaderNullFieldIndicator nullField, String string1, String string2, String string3, String string4, String string5, String expectedResult) {
+        given:
+        String[] valuesToParse = [string1, string2, string3, string4, string5]
+        RFC4180ParserBuilder builder = new RFC4180ParserBuilder()
+        RFC4180Parser parser = builder.withFieldAsNull(nullField).build()
+
+        expect:
+
+        parser.parseToLine(valuesToParse) == expectedResult
+
+        where:
+        nullField                                    | string1 | string2 | string3 | string4 | string5 | expectedResult
+        CSVReaderNullFieldIndicator.NEITHER          | null    | " "     | ""      | null    | ""      | NULL_STRING + ", ,," + NULL_STRING + ","
+        CSVReaderNullFieldIndicator.EMPTY_SEPARATORS | null    | " "     | ""      | null    | ""      | ", ,,,"
+        CSVReaderNullFieldIndicator.EMPTY_QUOTES     | null    | " "     | ""      | null    | ""      | "\"\", ,,\"\","
+        CSVReaderNullFieldIndicator.BOTH             | null    | " "     | ""      | null    | ""      | ", ,,,"
     }
 
     def 'able to parse a field that has a single quote at the end'() {
