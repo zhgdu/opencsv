@@ -26,7 +26,8 @@
         </license>
     </licenses>
     <scm>
-        <connection>scm:git:ssh://git.code.sf.net/p/opencsv/source</connection>
+        <connection>scm:git:https://git.code.sf.net/p/opencsv/source</connection>
+        <developerConnection>scm:git:ssh://sourceforgeId@git.code.sf.net/p/opencsv/source</developerConnection>
         <url>https://sourceforge.net/p/opencsv/source/ci/master/tree/</url>
     </scm>
     <developers>

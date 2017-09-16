@@ -506,6 +506,7 @@ public class CsvToBean<T> implements Iterable<T> {
             // Read a line
             bean = null;
             while(bean == null && null != (line = csvReader.readNext())) {
+                lineProcessed++;
                 // Create a bean
                 ProcessCsvLine<T> proc = new ProcessCsvLine<>(
                         lineProcessed, mappingStrategy, filter, line,
