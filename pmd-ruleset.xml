@@ -21,7 +21,22 @@
     </rule>
     <rule ref="rulesets/java/codesize.xml/CyclomaticComplexity">
         <properties>
-            <property name="reportLevel" value="10"/>
+            <property name="reportLevel" value="25"/>
+        </properties>
+    </rule>
+    <rule ref="rulesets/java/codesize.xml/StdCyclomaticComplexity">
+        <properties>
+            <property name="reportLevel" value="15"/>
+        </properties>
+    </rule>
+    <rule ref="rulesets/java/codesize.xml/ModifiedCyclomaticComplexity">
+        <properties>
+            <property name="reportLevel" value="15"/>
+        </properties>
+    </rule>
+    <rule ref="rulesets/java/codesize.xml/TooManyMethods">
+        <properties>
+            <property name="maxmethods" value="20"/>
         </properties>
     </rule>
 </ruleset>

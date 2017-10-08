@@ -338,9 +338,7 @@ public class CSVWriter implements Closeable, Flushable {
 
          Boolean stringContainsSpecialCharacters = stringContainsSpecialCharacters(nextElement);
 
-         if ((applyQuotesToAll || stringContainsSpecialCharacters) && quotechar != NO_QUOTE_CHARACTER) {
-            appendable.append(quotechar);
-         }
+         appendQuoteCharacterIfNeeded(applyQuotesToAll, appendable, stringContainsSpecialCharacters);
 
          if (stringContainsSpecialCharacters) {
             processLine(nextElement, appendable);
@@ -348,13 +346,17 @@ public class CSVWriter implements Closeable, Flushable {
             appendable.append(nextElement);
          }
 
-         if ((applyQuotesToAll || stringContainsSpecialCharacters) && quotechar != NO_QUOTE_CHARACTER) {
-            appendable.append(quotechar);
-         }
+         appendQuoteCharacterIfNeeded(applyQuotesToAll, appendable, stringContainsSpecialCharacters);
       }
 
       appendable.append(lineEnd);
       writer.write(appendable.toString());
+   }
+
+   private void appendQuoteCharacterIfNeeded(boolean applyQuotesToAll, Appendable appendable, Boolean stringContainsSpecialCharacters) throws IOException {
+      if ((applyQuotesToAll || stringContainsSpecialCharacters) && quotechar != NO_QUOTE_CHARACTER) {
+         appendable.append(quotechar);
+      }
    }
 
    /**

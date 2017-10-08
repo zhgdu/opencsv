@@ -43,6 +43,7 @@ import java.util.ResourceBundle;
  */
 public class CSVParser implements ICSVParser {
 
+    private static final int BEGINING_OF_LINE = 3;
     /**
      * This is the character that the CSVParser will treat as the separator.
      */
@@ -381,7 +382,7 @@ public class CSVParser implements ICSVParser {
                     // the tricky case of an embedded quote in the middle: a,bc"d"ef,g
                     if (!strictQuotes) {
                         final int i = sfc.i;
-                        if (i > 3 //not on the beginning of the line
+                        if (i > BEGINING_OF_LINE //not on the beginning of the line
                                 && nextLine.charAt(i - 2) != this.separator //not at the beginning of an escape sequence
                                 && nextLine.length() > (i) &&
                                 nextLine.charAt(i) != this.separator //not at the	end of an escape sequence

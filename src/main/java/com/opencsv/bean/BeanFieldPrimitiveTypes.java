@@ -56,7 +56,7 @@ public class BeanFieldPrimitiveTypes<T> extends AbstractBeanField<T> {
             throws CsvDataTypeMismatchException {
         Object o = null;
 
-        if (StringUtils.isNotBlank(value)) {
+        if (StringUtils.isNotBlank(value) || (value != null && field.getType().equals(String.class))) {
             try {
                 if(StringUtils.isEmpty(locale)) {
                     ConvertUtilsBean converter = new ConvertUtilsBean();

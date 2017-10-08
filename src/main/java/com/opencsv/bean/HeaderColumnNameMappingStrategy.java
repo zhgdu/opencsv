@@ -42,6 +42,7 @@ import java.util.*;
  * @param <T> Type of the bean to be returned
  */
 public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
+    private static final int INITIAL_CAPACITY = 256;
 
     // TODO: header and indexLookup should be replaced with a BidiMap from Apache
     // Commons Collections once Apache Commons BeanUtils supports Collections
@@ -121,7 +122,7 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
 
         // Throw an exception if anything is left
         if (!requiredKeys.isEmpty()) {
-            StrBuilder builder = new StrBuilder(128);
+            StrBuilder builder = new StrBuilder(INITIAL_CAPACITY);
             String missingRequiredFields = builder.appendWithSeparators(requiredKeys, ",").toString();
             // TODO consider CsvRequiredFieldsEmpty for multiple missing required fields.
             throw new CsvRequiredFieldEmptyException(type, fieldMap.get(requiredKeys.get(0)).getField(),

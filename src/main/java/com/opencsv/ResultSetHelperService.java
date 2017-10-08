@@ -15,11 +15,12 @@ package com.opencsv;
  limitations under the License.
  */
 
+import org.apache.commons.text.StrBuilder;
+
 import java.io.IOException;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.Objects;
-import org.apache.commons.text.StrBuilder;
 
 /**
  * Helper class for processing JDBC ResultSet objects.
@@ -29,6 +30,7 @@ public class ResultSetHelperService implements ResultSetHelper {
 
    static final String DEFAULT_DATE_FORMAT = "dd-MMM-yyyy";
    static final String DEFAULT_TIMESTAMP_FORMAT = "dd-MMM-yyyy HH:mm:ss";
+   private static final String DEFAULT_VALUE = "";
 
    private String dateFormat = DEFAULT_DATE_FORMAT;
    private String dateTimeFormat = DEFAULT_TIMESTAMP_FORMAT;
@@ -102,31 +104,21 @@ public class ResultSetHelperService implements ResultSetHelper {
    private String getColumnValue(ResultSet rs, int colType, int colIndex, boolean trim, String dateFormatString, String timestampFormatString)
          throws SQLException, IOException {
 
-      String value = "";
+      String value = DEFAULT_VALUE;
 
       switch (colType) {
          case Types.BIT:
          case Types.JAVA_OBJECT:
-            value = Objects.toString(rs.getObject(colIndex), "");
+            value = Objects.toString(rs.getObject(colIndex), DEFAULT_VALUE);
             break;
          case Types.BOOLEAN:
             value = Objects.toString(rs.getBoolean(colIndex));
             break;
          case Types.NCLOB:
-            NClob nc = rs.getNClob(colIndex);
-            if (nc != null) {
-               StrBuilder sb = new StrBuilder();
-               sb.readFrom(nc.getCharacterStream());
-               value = sb.toString();
-            }
+            value = handleNClob(rs, colIndex);
             break;
          case Types.CLOB:
-            Clob c = rs.getClob(colIndex);
-            if (c != null) {
-               StrBuilder sb = new StrBuilder();
-               sb.readFrom(c.getCharacterStream());
-               value = sb.toString();
-            }
+            value = handleClob(rs, colIndex);
             break;
          case Types.BIGINT:
             value = Objects.toString(rs.getLong(colIndex));
@@ -134,7 +126,7 @@ public class ResultSetHelperService implements ResultSetHelper {
          case Types.DECIMAL:
          case Types.REAL:
          case Types.NUMERIC:
-            value = Objects.toString(rs.getBigDecimal(colIndex), "");
+            value = Objects.toString(rs.getBigDecimal(colIndex), DEFAULT_VALUE);
             break;
          case Types.DOUBLE:
             value = Objects.toString(rs.getDouble(colIndex));
@@ -148,14 +140,10 @@ public class ResultSetHelperService implements ResultSetHelper {
             value = Objects.toString(rs.getInt(colIndex));
             break;
          case Types.DATE:
-            java.sql.Date date = rs.getDate(colIndex);
-            if (date != null) {
-               SimpleDateFormat df = new SimpleDateFormat(dateFormatString);
-               value = df.format(date);
-            }
+            value = handleDate(rs, colIndex, dateFormatString);
             break;
          case Types.TIME:
-            value = Objects.toString(rs.getTime(colIndex), "");
+            value = Objects.toString(rs.getTime(colIndex), DEFAULT_VALUE);
             break;
          case Types.TIMESTAMP:
             value = handleTimestamp(rs.getTimestamp(colIndex), timestampFormatString);
@@ -163,32 +151,76 @@ public class ResultSetHelperService implements ResultSetHelper {
          case Types.NVARCHAR:
          case Types.NCHAR:
          case Types.LONGNVARCHAR:
-            String nColumnValue = rs.getNString(colIndex);
-            if (trim && nColumnValue != null) {
-               value = nColumnValue.trim();
-            } else {
-               value = nColumnValue;
-            }
+            value = handleNVarChar(rs, colIndex, trim);
             break;
          case Types.LONGVARCHAR:
          case Types.VARCHAR:
          case Types.CHAR:
-            String columnValue = rs.getString(colIndex);
-            if (trim && columnValue != null) {
-               value = columnValue.trim();
-            } else {
-               value = columnValue;
-            }
+            value = handleVarChar(rs, colIndex, trim);
             break;
          default:
-            value = "";
+            value = DEFAULT_VALUE;
       }
 
 
       if (rs.wasNull() || value == null) {
-         value = "";
+         value = DEFAULT_VALUE;
       }
 
+      return value;
+   }
+
+   private String handleVarChar(ResultSet rs, int colIndex, boolean trim) throws SQLException {
+      String value;
+      String columnValue = rs.getString(colIndex);
+      if (trim && columnValue != null) {
+         value = columnValue.trim();
+      } else {
+         value = columnValue;
+      }
+      return value;
+   }
+
+   private String handleNVarChar(ResultSet rs, int colIndex, boolean trim) throws SQLException {
+      String value;
+      String nColumnValue = rs.getNString(colIndex);
+      if (trim && nColumnValue != null) {
+         value = nColumnValue.trim();
+      } else {
+         value = nColumnValue;
+      }
+      return value;
+   }
+
+   private String handleDate(ResultSet rs, int colIndex, String dateFormatString) throws SQLException {
+      String value = DEFAULT_VALUE;
+      Date date = rs.getDate(colIndex);
+      if (date != null) {
+         SimpleDateFormat df = new SimpleDateFormat(dateFormatString);
+         value = df.format(date);
+      }
+      return value;
+   }
+
+   private String handleClob(ResultSet rs, int colIndex) throws SQLException, IOException {
+      String value = DEFAULT_VALUE;
+      Clob c = rs.getClob(colIndex);
+      if (c != null) {
+         StrBuilder sb = new StrBuilder();
+         sb.readFrom(c.getCharacterStream());
+         value = sb.toString();
+      }
+      return value;
+   }
+
+   private String handleNClob(ResultSet rs, int colIndex) throws SQLException, IOException {
+      String value = DEFAULT_VALUE;
+      NClob nc = rs.getNClob(colIndex);
+      if (nc != null) {
+         StrBuilder sb = new StrBuilder();
+         sb.readFrom(nc.getCharacterStream());
+         value = sb.toString();
+      }
       return value;
    }
 }

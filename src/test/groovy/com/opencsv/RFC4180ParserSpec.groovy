@@ -290,4 +290,39 @@ class RFC4180ParserSpec extends Specification {
                 "multiple carriage returns\n" +
                 "in it."                                           | "eight"
     }
+
+    @Unroll
+    def 'sof request - parsing #value yields #expected'(String value, String expected) {
+        given:
+        RFC4180ParserBuilder builder = new RFC4180ParserBuilder()
+        RFC4180Parser parser = builder.build()
+        String[] parsedValues = parser.parseLine(value)
+
+        expect:
+        parsedValues.length == 1
+        parsedValues[0] == expected
+
+        where:
+        value         | expected
+        "\"ABC\\\""   | "ABC\\"
+        "\"ABC\\\"\"" | "ABC\\\""
+
+    }
+
+    def 'bug 157 - quotes should not be in data that is unquoted'() {
+        given:
+        RFC4180ParserBuilder builder = new RFC4180ParserBuilder()
+        RFC4180Parser parser = builder.build()
+        String data = "21,2\"2,23,24"
+
+        when:
+        String[] values = parser.parseLine(data)
+
+        then:
+        values.length == 4
+        values[0] == "21"
+        values[1] == "2\"2"
+        values[2] == "23"
+        values[3] == "24"
+    }
 }

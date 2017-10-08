@@ -123,6 +123,7 @@ public class ProcessCsvBean<T> implements Runnable {
                     new OrderedObject<>(lineNumber, csve));
         }
         catch(CsvRuntimeException csvre) {
+            // Rethrowing exception here because I do not want the CsvRuntimeException caught and rewrapped in the catch below.
             throw csvre;
         }
         catch(Exception t) {

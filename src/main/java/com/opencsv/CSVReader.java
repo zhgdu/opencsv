@@ -46,6 +46,7 @@ public class CSVReader implements Closeable, Iterable<String[]> {
     public static final int DEFAULT_MULTILINE_LIMIT = 0;
     
     public static final int READ_AHEAD_LIMIT = Character.SIZE / Byte.SIZE;
+    private static final int MAX_WIDTH = 100;
     protected ICSVParser parser;
     protected int skipLines;
     protected BufferedReader br;
@@ -250,6 +251,8 @@ public class CSVReader implements Closeable, Iterable<String[]> {
      * @param icsvParser The parser to use to parse input
      * @param keepCR    True to keep carriage returns in data read, false otherwise
      * @param verifyReader   True to verify reader before each read, false otherwise
+     * @param multilineLimit Allow the user to define the limit to the number of lines in a multiline record - less than one means no limit.
+     * @param errorLocale  set up a locale for custom error messages.
      */
     CSVReader(Reader reader, int line, ICSVParser icsvParser, boolean keepCR, boolean verifyReader, int multilineLimit, Locale errorLocale) {
         this.br =
@@ -330,7 +333,7 @@ public class CSVReader implements Closeable, Iterable<String[]> {
                 if(parser.isPending()) {
                     throw new IOException(String.format(
                             ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("unterminated.quote"),
-                            StringUtils.abbreviate(parser.getPendingText(), 100)));
+                            StringUtils.abbreviate(parser.getPendingText(), MAX_WIDTH)));
                 }
                 return validateResult(result);
             }
