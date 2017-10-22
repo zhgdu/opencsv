@@ -36,8 +36,6 @@ public class RFC4180Parser implements ICSVParser {
      * This is needed by the split command in case the separator character is a regex special character.
      */
     private static final Pattern SPECIAL_REGEX_CHARS = Pattern.compile("[{}()\\[\\].+*?^$\\\\|]");
-    private static final int MAX_SIZE_FOR_EMPTY_FIELD = 16;
-    private static final String NEWLINE = "\n";
 
     /**
      * This is the character that the RFC4180Parser will treat as the separator.

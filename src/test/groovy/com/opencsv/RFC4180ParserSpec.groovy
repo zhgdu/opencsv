@@ -265,6 +265,7 @@ class RFC4180ParserSpec extends Specification {
         "8,\\',\"a big line with \n" +
                 "multiple carriage returns\n" +
                 "in it.\",eight"                               | _
+        "a,\"b,b,b\",c"                                        | _
     }
 
     @Unroll

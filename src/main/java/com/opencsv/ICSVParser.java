@@ -71,6 +71,16 @@ public interface ICSVParser {
     String DEFAULT_BUNDLE_NAME = "opencsv";
 
     /**
+     * When creating builders this should be the smallest size to account for quotes and any possible escape characters.
+     */
+    static final int MAX_SIZE_FOR_EMPTY_FIELD = 16;
+
+    /**
+     * Default newline character for the parser.
+     */
+    static final String NEWLINE = "\n";
+
+    /**
      * @return The default separator for this parser.
      */
     char getSeparator();
@@ -108,6 +118,11 @@ public interface ICSVParser {
     /**
      * Essentially a "Reverse parse" where an array of values are concatenating to a
      * csv delimited string.
+     *
+     * NOTE: as of the 4.1 release this functionality is not considered production ready and
+     * has not been fully tested (and the ability to add a parser to the CSVWriter has not
+     * been implemented yet.   I am adding this now because because I need to do the 4.1
+     * release because of the number of defect fixes and I do not want to strip this out.
      *
      * @param values List of elements to parse
      * @return CSV formatted string representing the values in the array.
