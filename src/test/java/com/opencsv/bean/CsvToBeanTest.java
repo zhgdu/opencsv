@@ -1,9 +1,6 @@
 package com.opencsv.bean;
 
-import com.opencsv.CSVParser;
-import com.opencsv.CSVParserBuilder;
-import com.opencsv.CSVReader;
-import com.opencsv.CSVReaderBuilder;
+import com.opencsv.*;
 import com.opencsv.bean.mocks.*;
 import com.opencsv.enums.CSVReaderNullFieldIndicator;
 import com.opencsv.exceptions.CsvException;
@@ -17,6 +14,7 @@ import org.junit.Test;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.StringReader;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -267,6 +265,32 @@ public class CsvToBeanTest {
         map.setType(AnnotatedMockBeanFull.class);
         try {
             new CsvToBeanBuilder<AnnotatedMockBeanFull>(new StringReader(StringUtils.EMPTY))
+                    .withType(AnnotatedMockBeanFull.class)
+                    .withMappingStrategy(map)
+                    .build()
+                    .parse();
+            fail("An exception should have been thrown.");
+        } catch (RuntimeException re) {
+            Throwable t = re.getCause();
+            assertNotNull(t);
+            assertTrue(t instanceof CsvRequiredFieldEmptyException);
+        }
+    }
+
+    @Test
+    public void testMismatchNumberOfData() {
+        MappingStrategy<AnnotatedMockBeanFull> map = new HeaderColumnNameMappingStrategy<>();
+        map.setType(AnnotatedMockBeanFull.class);
+        StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
+        Date now = new Date();
+        String dateString = "19780115T063209";
+        sb.append("BYTE1,BYTE2,BYTE3,DATE1\n");
+        sb.append("1,2,3," + dateString + "\n");
+        sb.append("4,5,6," + dateString + "\n");
+        sb.append("7\n");
+        sb.append("8,9,10," + dateString + "\n");
+        try {
+            new CsvToBeanBuilder<AnnotatedMockBeanFull>(new StringReader(sb.toString()))
                     .withType(AnnotatedMockBeanFull.class)
                     .withMappingStrategy(map)
                     .build()

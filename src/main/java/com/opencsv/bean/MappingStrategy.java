@@ -130,6 +130,8 @@ public interface MappingStrategy<T> {
     * the field is required and throw an exception if it is not, but if the data
     * end prematurely, we never have this chance without indication that no more
     * data are on the way.
+    * Another validation is that the number of fields must match the number of
+    * headers to prevent a data mismatch situation.
     * 
     * @param numberOfFields The number of fields present in the line of input
     * @throws CsvRequiredFieldEmptyException If a required column is missing

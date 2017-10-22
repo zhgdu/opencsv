@@ -136,7 +136,7 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
         if(header != null) {
             BeanField f;
             StringBuilder sb = null;
-            for(int i = numberOfFields; i < header.length; i++) {
+            for (int i = numberOfFields; i < header.length && numberOfFields == header.length; i++) {
                 f = findField(i);
                 if(f.isRequired()) {
                     if(sb == null) {
@@ -145,6 +145,9 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
                     sb.append(' ');
                     sb.append(f.getField().getName());
                 }
+            }
+            if (numberOfFields != header.length) {
+                sb = new StringBuilder(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("header.data.mismatch"));
             }
             if(sb != null) {
                 throw new CsvRequiredFieldEmptyException(type, sb.toString());
