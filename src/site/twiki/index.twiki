@@ -303,9 +303,10 @@ By simply defining a bean and annotating the fields, opencsv can do all of the
 rest. When we write "bean", that's a loose approximation of the requirements.
 Actually, if you use annotations, opencsv uses reflection (not introspection),
 so all you need is a POJO (plain old Java object) that does not have to conform
-to the Java Bean Specification. If getters and setters are present and
-accessible, they are used. Otherwise, opencsv bypasses access control
-restrictions to get to member variables. This is true for reading and writing.
+to the Java Bean Specification, but is required to be public and have a public
+nullary constructor. If getters and setters are present and accessible, they are
+used. Otherwise, opencsv bypasses access control restrictions to get to member
+variables. This is true for reading and writing.
 
 Besides the basic mapping strategy, there are various mechanisms for processing
 certain kinds of data.
@@ -446,11 +447,12 @@ separator is a dot.
 ---+++++Custom converters
 Now, we know that input data can get very messy, so we have provided our users
 with the ability to deal with the messiest of data by allowing you to define your
-own custom converters. Every converter must be derived from AbstractBeanField.
-For reading, the convert() method must be overriden. opencsv provides two custom
-converters in the package com.opencsv.bean.customconverter. These can be useful
-converters themselves, but they also exist for instructive purposes: If you want
-to write your own custom converter, look at these for examples of how it's done.
+own custom converters. Every converter must be derived from AbstractBeanField,
+must be public, and must have a public nullary constructor. For reading, the
+convert() method must be overriden. opencsv provides two custom converters in
+the package com.opencsv.bean.customconverter. These can be useful converters
+themselves, but they also exist for instructive purposes: If you want to write
+your own custom converter, look at these for examples of how it's done.
 
 Let's use two as illustrations. Let's say we have the following input file:
    <verbatim>
