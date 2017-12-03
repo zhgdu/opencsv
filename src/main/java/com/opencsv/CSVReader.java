@@ -35,16 +35,16 @@ public class CSVReader implements Closeable, Iterable<String[]> {
 
     public static final boolean DEFAULT_KEEP_CR = false;
     public static final boolean DEFAULT_VERIFY_READER = true;
-    
+
     /** The default line to start reading. */
     public static final int DEFAULT_SKIP_LINES = 0;
-    
+
     /**
      * The default limit for the number of lines in a multiline record.
      * Less than one means no limit.
      */
     public static final int DEFAULT_MULTILINE_LIMIT = 0;
-    
+
     public static final int READ_AHEAD_LIMIT = Character.SIZE / Byte.SIZE;
     private static final int MAX_WIDTH = 100;
     protected ICSVParser parser;
@@ -169,7 +169,7 @@ public class CSVReader implements Closeable, Iterable<String[]> {
      * @param separator    The delimiter to use for separating entries
      * @param quotechar    The character to use for quoted elements
      * @param escape       The character to use for escaping a separator or quote
-     * @param line      The number of lines to skip before reading
+     * @param line         The number of lines to skip before reading
      * @param strictQuotes Sets if characters outside the quotes are ignored
      * @deprecated Please use {@link CSVReaderBuilder} instead.
      */
@@ -230,8 +230,8 @@ public class CSVReader implements Closeable, Iterable<String[]> {
     /**
      * Constructs CSVReader with supplied CSVParser.
      *
-     * @param reader    The reader to an underlying CSV source.
-     * @param line      The number of lines to skip before reading
+     * @param reader     The reader to an underlying CSV source.
+     * @param line       The number of lines to skip before reading
      * @param icsvParser The parser to use to parse input
      * @deprecated Please use {@link CSVReaderBuilder} instead.
      */
@@ -246,13 +246,13 @@ public class CSVReader implements Closeable, Iterable<String[]> {
      * <p>This constructor sets all necessary parameters for CSVReader, and
      * intentionally has package access so only the builder can use it.</p>
      *
-     * @param reader    The reader to an underlying CSV source.
-     * @param line      The number of lines to skip before reading
-     * @param icsvParser The parser to use to parse input
-     * @param keepCR    True to keep carriage returns in data read, false otherwise
+     * @param reader         The reader to an underlying CSV source.
+     * @param line           The number of lines to skip before reading
+     * @param icsvParser     The parser to use to parse input
+     * @param keepCR         True to keep carriage returns in data read, false otherwise
      * @param verifyReader   True to verify reader before each read, false otherwise
      * @param multilineLimit Allow the user to define the limit to the number of lines in a multiline record - less than one means no limit.
-     * @param errorLocale  set up a locale for custom error messages.
+     * @param errorLocale    set up a locale for custom error messages.
      */
     CSVReader(Reader reader, int line, ICSVParser icsvParser, boolean keepCR, boolean verifyReader, int multilineLimit, Locale errorLocale) {
         this.br =
@@ -267,7 +267,7 @@ public class CSVReader implements Closeable, Iterable<String[]> {
         this.multilineLimit = multilineLimit;
         this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
     }
-    
+
     /**
      * @return The CSVParser used by the reader.
      */
@@ -330,14 +330,14 @@ public class CSVReader implements Closeable, Iterable<String[]> {
             String nextLine = getNextLine();
             linesInThisRecord++;
             if (!hasNext) {
-                if(parser.isPending()) {
+                if (parser.isPending()) {
                     throw new IOException(String.format(
                             ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("unterminated.quote"),
                             StringUtils.abbreviate(parser.getPendingText(), MAX_WIDTH)));
                 }
                 return validateResult(result);
             }
-            if(multilineLimit > 0 && linesInThisRecord > multilineLimit) {
+            if (multilineLimit > 0 && linesInThisRecord > multilineLimit) {
                 throw new IOException(String.format(errorLocale, ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("multiline.limit.broken"), multilineLimit));
             }
             String[] r = parser.parseLineMulti(nextLine);
@@ -407,7 +407,7 @@ public class CSVReader implements Closeable, Iterable<String[]> {
 
         return hasNext ? nextLine : null;
     }
-    
+
     /**
      * Only useful for tests.
      * @return The maximum number of lines allowed in a multiline record.
@@ -415,11 +415,11 @@ public class CSVReader implements Closeable, Iterable<String[]> {
     public int getMultilineLimit() {
         return multilineLimit;
     }
-    
+
     /**
      * Sets the maximum number of lines allowed in a multiline record.
      * More than this number in one record results in an IOException.
-     * 
+     *
      * @param multilineLimit No more than this number of lines is allowed in a
      *   single input record. The default is {@link #DEFAULT_MULTILINE_LIMIT}.
      * @deprecated Please use {@link CSVReaderBuilder#withMultilineLimit(int)} instead.
@@ -567,5 +567,20 @@ public class CSVReader implements Closeable, Iterable<String[]> {
      */
     public long getRecordsRead() {
         return recordsRead;
+    }
+
+    /**
+     * Skip a given number of lines
+     * @param numberOfLinesToSkip
+     * @since 4.2
+     */
+    public void skip(int numberOfLinesToSkip) {
+        for (int j = 0; j < numberOfLinesToSkip; j++) {
+            try {
+                readNext();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 }
