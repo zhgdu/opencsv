@@ -7,7 +7,9 @@ import java.util.Map;
 
 /**
  * Handy reader when there's no motivation enough to use the bean binding but the header mapping is still desired
+ *
  * @Author Andre Rosot
+ * @since 4.2
  */
 public class CSVReaderHeaderAware extends CSVReader {
 
@@ -30,30 +32,39 @@ public class CSVReaderHeaderAware extends CSVReader {
     /**
      * Retrieves a specific data element from a line based on the value of the header.
      *
-     * @param headerName
+     * @param headerNames A variable-size list of header names to be retrieved. This operation can be understood as a projection.
      * @return The data element whose position matches that of the header whose value is passed in. Will return null when there is no more data elements.
      * @throws IOException - An error occured during the read or there is a mismatch in the number of data items in a row
      * and the number of header items.
      * @throws IllegalArgumentException - If headerName does not exist.
      */
-    public String readNext(String headerName) throws IOException {
-        Integer index = headerIndex.get(headerName);
-        if (index == null) {
-            throw new IllegalArgumentException("No column found for header: " + headerName);
+    public String[] readNext(String... headerNames) throws IOException {
+        if (headerNames == null) {
+            return super.readNext();
         }
 
         String[] strings = readNext();
-
         if (strings == null) {
             return null;
         }
 
-        if (strings.length != headerIndex.size()) {
-            throw new IOException("Error on record number " + getRecordsRead() + " number of data elements is not the same as number of header elements");
+        String[] response = new String[headerNames.length];
+
+        for (int i = 0; i < headerNames.length; i++) {
+            String headerName = headerNames[i];
+
+            Integer index = headerIndex.get(headerName);
+            if (index == null) {
+                throw new IllegalArgumentException("No column found for header: " + headerName);
+            }
+
+            if (strings.length != headerIndex.size()) {
+                throw new IOException("Error on record number " + getRecordsRead() + " number of data elements is not the same as number of header elements");
+            }
+
+            response[i] = strings[index];
         }
-
-        return strings[index];
-
+        return response;
     }
 
     /**

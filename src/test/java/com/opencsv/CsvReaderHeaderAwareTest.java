@@ -72,15 +72,29 @@ public class CsvReaderHeaderAwareTest {
 
     @Test
     public void shouldRetrieveColumnsByHeaderName() throws IOException {
-        assertEquals("a", csvr.readNext("first"));
-        assertEquals("a", csvr.readNext("first"));
-        assertEquals("", csvr.readNext("first"));
-        assertEquals("PO Box 123,\nKippax,ACT. 2615.\nAustralia", csvr.readNext("second"));
+        assertEquals("a", csvr.readNext("first")[0]);
+        assertEquals("a", csvr.readNext("first")[0]);
+        assertEquals("", csvr.readNext("first")[0]);
+        assertEquals("PO Box 123,\nKippax,ACT. 2615.\nAustralia", csvr.readNext("second")[0]);
+    }
+
+    @Test
+    public void shouldRetrieveMultipleColumnsByHeaderName() throws IOException {
+        String[] nextLine = csvr.readNext("first", "third");
+        assertEquals("a", nextLine[0]);
+        assertEquals("c", nextLine[1]);
+
+        assertEquals("b,b,b", csvr.readNext("second")[0]);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void shouldFailForInvalidColumn() throws IOException {
         csvr.readNext("fourth");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldFailForInvalidColumnEvenAmongstValidOnes() throws IOException {
+        csvr.readNext("first", "third", "fourth");
     }
 
     @Test(expected = IOException.class)
