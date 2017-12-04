@@ -1,14 +1,10 @@
 package com.opencsv;
 
-import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.Collections;
-import java.util.Locale;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
@@ -87,9 +83,15 @@ public class CsvReaderHeaderAwareTest {
         csvr.readNext("fourth");
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldFailWhenColumnIsAbsent() throws IOException {
+    @Test(expected = IOException.class)
+    public void shouldFailWhenNumberOfDataItemsIsLessThanHeader() throws IOException {
         csvr.skip(7);
+        csvr.readNext("second");
+    }
+
+    @Test(expected = IOException.class)
+    public void shouldFailWhenNumberOfDataItemsIsGreaterThanHeader() throws IOException {
+        csvr.skip(6);
         csvr.readNext("second");
     }
 
@@ -100,13 +102,47 @@ public class CsvReaderHeaderAwareTest {
         assertEquals("b", mappedLine.get("second"));
         assertEquals("c", mappedLine.get("third"));
 
+        csvr.skip(2);
+
+        mappedLine = csvr.readMap();
+        assertEquals("a", mappedLine.get("first"));
+        assertEquals("PO Box 123,\nKippax,ACT. 2615.\nAustralia", mappedLine.get("second"));
+        assertEquals("d.", mappedLine.get("third"));
+    }
+
+    @Test(expected = IOException.class)
+    public void readMapThrowsExceptionIfNumberOfDataItemsIsGreaterThanHeader() throws IOException {
+        Map<String, String> mappedLine = csvr.readMap();
+        assertEquals("a", mappedLine.get("first"));
+        assertEquals("b", mappedLine.get("second"));
+        assertEquals("c", mappedLine.get("third"));
+
+        csvr.skip(5);
+
+        mappedLine = csvr.readMap();
+    }
+
+    @Test(expected = IOException.class)
+    public void readMapThrowsExceptionIfNumberOfDataItemsIsLessThanHeader() throws IOException {
+        Map<String, String> mappedLine = csvr.readMap();
+        assertEquals("a", mappedLine.get("first"));
+        assertEquals("b", mappedLine.get("second"));
+        assertEquals("c", mappedLine.get("third"));
+
         csvr.skip(6);
-        assertEquals(Collections.singleton("first"), csvr.readMap().keySet());
+
+        mappedLine = csvr.readMap();
     }
 
     @Test
     public void shouldReturnNullWhenFileIsOver() throws IOException {
         csvr.skip(8);
         assertNull(csvr.readMap());
+    }
+
+    @Test
+    public void readNextWhenPastEOF() throws IOException {
+        csvr.skip(8);
+        assertNull(csvr.readNext("first"));
     }
 }

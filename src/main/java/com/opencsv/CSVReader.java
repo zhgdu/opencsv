@@ -573,14 +573,11 @@ public class CSVReader implements Closeable, Iterable<String[]> {
      * Skip a given number of lines
      * @param numberOfLinesToSkip
      * @since 4.2
+     * @throws IOException - if anything bad happens when reading the file.
      */
-    public void skip(int numberOfLinesToSkip) {
+    public void skip(int numberOfLinesToSkip) throws IOException {
         for (int j = 0; j < numberOfLinesToSkip; j++) {
-            try {
                 readNext();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
         }
     }
 }
