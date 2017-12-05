@@ -7,7 +7,7 @@ import java.util.Map;
 
 /**
  * Handy reader when there's no motivation enough to use the bean binding but the header mapping is still desired
- * @Author Andre Rosot
+ * @author Andre Rosot
  */
 public class CSVReaderHeaderAware extends CSVReader {
 
@@ -16,7 +16,7 @@ public class CSVReaderHeaderAware extends CSVReader {
     /**
      * Constructor with supplied reader.
      *
-     * @param reader
+     * @param reader The reader to an underlying CSV source.
      * @throws IOException - if there is an error when reading the header.
      */
     public CSVReaderHeaderAware(Reader reader) throws IOException {
@@ -30,7 +30,7 @@ public class CSVReaderHeaderAware extends CSVReader {
     /**
      * Retrieves a specific data element from a line based on the value of the header.
      *
-     * @param headerName
+     * @param headerName - Name of the header element whose data we are trying to find.
      * @return The data element whose position matches that of the header whose value is passed in. Will return null when there is no more data elements.
      * @throws IOException - An error occured during the read or there is a mismatch in the number of data items in a row
      * and the number of header items.
@@ -65,7 +65,9 @@ public class CSVReaderHeaderAware extends CSVReader {
      */
     public Map<String, String> readMap() throws IOException {
         String[] strings = readNext();
-        if (strings == null) return null;
+        if (strings == null) {
+            return null;
+        }
         if (strings.length != headerIndex.size()) {
             throw new IOException("Error on record number " + getRecordsRead() + " number of data elements is not the same as number of header elements");
         }
