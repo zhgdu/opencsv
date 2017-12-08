@@ -124,10 +124,11 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
         if (!requiredKeys.isEmpty()) {
             StrBuilder builder = new StrBuilder(INITIAL_CAPACITY);
             String missingRequiredFields = builder.appendWithSeparators(requiredKeys, ",").toString();
+            String allHeaders = builder.clear().appendWithSeparators(header, ",").toString();
             // TODO consider CsvRequiredFieldsEmpty for multiple missing required fields.
             throw new CsvRequiredFieldEmptyException(type, fieldMap.get(requiredKeys.get(0)).getField(),
                     String.format(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("header.required.field.absent"),
-                            missingRequiredFields));
+                            missingRequiredFields, allHeaders));
         }
     }
     
