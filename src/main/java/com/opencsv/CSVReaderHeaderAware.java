@@ -8,7 +8,7 @@ import java.util.Map;
 /**
  * Handy reader when there's no motivation enough to use the bean binding but the header mapping is still desired
  *
- * @Author Andre Rosot
+ * @author Andre Rosot
  * @since 4.2
  */
 public class CSVReaderHeaderAware extends CSVReader {
@@ -18,7 +18,7 @@ public class CSVReaderHeaderAware extends CSVReader {
     /**
      * Constructor with supplied reader.
      *
-     * @param reader
+     * @param reader The reader to an underlying CSV source.
      * @throws IOException - if there is an error when reading the header.
      */
     public CSVReaderHeaderAware(Reader reader) throws IOException {

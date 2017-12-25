@@ -571,7 +571,7 @@ public class CSVReader implements Closeable, Iterable<String[]> {
 
     /**
      * Skip a given number of lines
-     * @param numberOfLinesToSkip
+     * @param numberOfLinesToSkip number of lines to skip
      * @since 4.2
      * @throws IOException - if anything bad happens when reading the file.
      */
