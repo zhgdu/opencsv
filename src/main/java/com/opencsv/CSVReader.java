@@ -246,13 +246,13 @@ public class CSVReader implements Closeable, Iterable<String[]> {
      * <p>This constructor sets all necessary parameters for CSVReader, and
      * intentionally has package access so only the builder can use it.</p>
      *
-     * @param reader         The reader to an underlying CSV source.
+     * @param reader         The reader to an underlying CSV source
      * @param line           The number of lines to skip before reading
      * @param icsvParser     The parser to use to parse input
      * @param keepCR         True to keep carriage returns in data read, false otherwise
      * @param verifyReader   True to verify reader before each read, false otherwise
-     * @param multilineLimit Allow the user to define the limit to the number of lines in a multiline record - less than one means no limit.
-     * @param errorLocale    set up a locale for custom error messages.
+     * @param multilineLimit Allow the user to define the limit to the number of lines in a multiline record. Less than one means no limit.
+     * @param errorLocale    Set the locale for error messages. If null, the default locale is used.
      */
     CSVReader(Reader reader, int line, ICSVParser icsvParser, boolean keepCR, boolean verifyReader, int multilineLimit, Locale errorLocale) {
         this.br =
@@ -570,10 +570,10 @@ public class CSVReader implements Closeable, Iterable<String[]> {
     }
 
     /**
-     * Skip a given number of lines
-     * @param numberOfLinesToSkip number of lines to skip
+     * Skip a given number of lines.
+     * @param numberOfLinesToSkip The number of lines to skip
      * @since 4.2
-     * @throws IOException - if anything bad happens when reading the file.
+     * @throws IOException If anything bad happens when reading the file
      */
     public void skip(int numberOfLinesToSkip) throws IOException {
         for (int j = 0; j < numberOfLinesToSkip; j++) {
