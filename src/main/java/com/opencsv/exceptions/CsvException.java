@@ -22,6 +22,7 @@ package com.opencsv.exceptions;
  * @since 3.8
  */
 public class CsvException extends Exception {
+    private static final long serialVersionUID = 1L;
 
     private long lineNumber;
 

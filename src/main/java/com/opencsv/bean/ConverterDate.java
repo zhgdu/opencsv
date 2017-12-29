@@ -22,7 +22,6 @@ import org.apache.commons.lang3.StringUtils;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -33,31 +32,25 @@ import java.util.*;
  * I would dearly love to use Apache Commons BeanUtils to make this class smaller
  * and easier, but BeanUtils is abysmal with dates of all types.
  * 
- * @param <T> Type of the bean to be manipulated
- * 
  * @author Andrew Rucker Jones
- * @since 3.8
+ * @since 4.2 (previously BeanFieldDate since 3.8)
  * @see com.opencsv.bean.CsvDate
  */
-public class BeanFieldDate<T> extends AbstractBeanField<T> {
+public class ConverterDate extends AbstractCsvConverter {
 
     private final String formatString;
-    private final String locale;
 
     /**
-     * @param field        A {@link java.lang.reflect.Field} object.
-     * @param required     True if the field is required to contain a value, false
-     *                     if it is allowed to be null or a blank string.
+     * @param type         The type of the field being populated
      * @param formatString The string to use for formatting the date. See
      *                     {@link com.opencsv.bean.CsvDate#value()}
      * @param locale       If not null or empty, specifies the locale used for
      *                     converting locale-specific data types
      * @param errorLocale The locale to use for error messages.
      */
-    public BeanFieldDate(Field field, boolean required, String formatString, String locale, Locale errorLocale) {
-        super(field, required, errorLocale);
+    public ConverterDate(Class<?> type, String locale, Locale errorLocale, String formatString) {
+        super(type, locale, errorLocale);
         this.formatString = formatString;
-        this.locale = locale;
     }
     
     /**
@@ -235,8 +228,8 @@ public class BeanFieldDate<T> extends AbstractBeanField<T> {
     }
 
     @Override
-    protected Object convert(String value) throws CsvDataTypeMismatchException {
-        return StringUtils.isBlank(value) ? null : convertCommon(value, field.getType());
+    public Object convertToRead(String value) throws CsvDataTypeMismatchException {
+        return StringUtils.isBlank(value) ? null : convertCommon(value, type);
     }
 
     /**
@@ -253,7 +246,7 @@ public class BeanFieldDate<T> extends AbstractBeanField<T> {
      *   improperly annotated
      */
     @Override
-    protected String convertToWrite(Object value)
+    public String convertToWrite(Object value)
             throws CsvDataTypeMismatchException {
         return value == null ? null : convertCommon(value, String.class);
     }

@@ -22,7 +22,6 @@ import org.apache.commons.beanutils.ConvertUtilsBean;
 import org.apache.commons.beanutils.locale.LocaleConvertUtilsBean;
 import org.apache.commons.lang3.StringUtils;
 
-import java.lang.reflect.Field;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -30,50 +29,43 @@ import java.util.ResourceBundle;
  * This class wraps fields from the reflection API in order to handle
  * translation of primitive types and to add a "required" flag.
  *
- * @param <T> The type of the bean
  * @author Andrew Rucker Jones
- * @since 3.8
+ * @since 4.2 (previously BeanFieldPrimitiveTypes since 3.8)
  */
-public class BeanFieldPrimitiveTypes<T> extends AbstractBeanField<T> {
+public class ConverterPrimitiveTypes extends AbstractCsvConverter {
 
-    private final String locale;
-    
     /**
-     * @param field    A {@link java.lang.reflect.Field} object
-     * @param required True if the field is required to contain a value, false
-     *                 if it is allowed to be null or a blank string
+     * @param type    The class of the type of the data being processed
      * @param locale   If not null or empty, specifies the locale used for
      *                 converting locale-specific data types
      * @param errorLocale The locale to use for error messages.
      */
-    public BeanFieldPrimitiveTypes(Field field, boolean required, String locale, Locale errorLocale) {
-        super(field, required, errorLocale);
-        this.locale = locale;
+    public ConverterPrimitiveTypes(Class<?> type, String locale, Locale errorLocale) {
+        super(type, locale, errorLocale);
     }
 
     @Override
-    protected Object convert(String value)
+    public Object convertToRead(String value)
             throws CsvDataTypeMismatchException {
         Object o = null;
 
-        if (StringUtils.isNotBlank(value) || (value != null && field.getType().equals(String.class))) {
+        if (StringUtils.isNotBlank(value) || (value != null && type.equals(String.class))) {
             try {
                 if(StringUtils.isEmpty(locale)) {
                     ConvertUtilsBean converter = new ConvertUtilsBean();
                     converter.register(true, false, 0);
-                    o = converter.convert(value, field.getType());
+                    o = converter.convert(value, type);
                 }
                 else {
                     LocaleConvertUtilsBean lcub = new LocaleConvertUtilsBean();
                     lcub.setDefaultLocale(new Locale(locale));
-                    o = lcub.convert(value, field.getType());
+                    o = lcub.convert(value, type);
                 }
             } catch (ConversionException e) {
                 CsvDataTypeMismatchException csve = new CsvDataTypeMismatchException(
-                        value, field.getType(),
-                        String.format(
+                        value, type, String.format(
                                 ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("conversion.impossible"),
-                                value, field.getType().getCanonicalName()));
+                                value, type.getCanonicalName()));
                 csve.initCause(e);
                 throw csve;
             }
@@ -93,7 +85,7 @@ public class BeanFieldPrimitiveTypes<T> extends AbstractBeanField<T> {
      */
     // The rest of the Javadoc is automatically inherited from the base class.
     @Override
-    protected String convertToWrite(Object value)
+    public String convertToWrite(Object value)
             throws CsvDataTypeMismatchException {
         String result = null;
         if(value != null) {

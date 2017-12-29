@@ -16,6 +16,7 @@
 package com.opencsv.bean.customconverter;
 
 import com.opencsv.bean.AbstractBeanField;
+import com.opencsv.bean.CsvBindAndSplitByPosition;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,7 +31,10 @@ import org.apache.commons.lang3.StringUtils;
  * 
  * @author Andrew Rucker Jones
  * @since 3.8
+ * @deprecated Use {@link com.opencsv.bean.CsvBindAndSplitByName} or
+ *   {@link com.opencsv.bean.CsvBindAndSplitByPosition} instead
  */
+@Deprecated
 public class ConvertSplitOnWhitespace<T> extends AbstractBeanField<T> {
 
     /**
@@ -75,7 +79,7 @@ public class ConvertSplitOnWhitespace<T> extends AbstractBeanField<T> {
         String result = "";
         try {
             if(value != null) {
-                List<String> values = (List<String>) value;
+                @SuppressWarnings("unchecked") List<String> values = (List<String>) value;
                 result = StringUtils.join(values, ' ');
             }
         }

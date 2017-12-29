@@ -118,6 +118,13 @@ public class ColumnPositionMappingStrategy<T> extends HeaderColumnNameMappingStr
                             .position(), beanField);
                 } else if (beanField
                         .getField()
+                        .getAnnotation(CsvBindAndSplitByPosition.class) != null) {
+                    cols.put(beanField
+                            .getField()
+                            .getAnnotation(CsvBindAndSplitByPosition.class)
+                            .position(), beanField);
+                } else if (beanField
+                        .getField()
                         .getAnnotation(CsvBindByPosition.class) != null) {
                     cols.put(beanField
                             .getField()
@@ -150,12 +157,11 @@ public class ColumnPositionMappingStrategy<T> extends HeaderColumnNameMappingStr
         fieldMap = new HashMap<>();
 
         for (Field field : loadFields(getType())) {
-            String columnName;
+            String columnName = field.getName().toUpperCase().trim();
             String fieldLocale;
 
             // Custom converters always have precedence.
             if (field.isAnnotationPresent(CsvCustomBindByPosition.class)) {
-                columnName = field.getName().toUpperCase().trim();
                 CsvCustomBindByPosition annotation = field
                         .getAnnotation(CsvCustomBindByPosition.class);
                 Class<? extends AbstractBeanField> converter = annotation.converter();
@@ -165,19 +171,42 @@ public class ColumnPositionMappingStrategy<T> extends HeaderColumnNameMappingStr
                 bean.setRequired(required);
                 fieldMap.put(columnName, bean);
             }
+            
+            // Then check for a collection
+            else if(field.isAnnotationPresent(CsvBindAndSplitByPosition.class)) {
+                CsvBindAndSplitByPosition annotation = field.getAnnotation(CsvBindAndSplitByPosition.class);
+                required = annotation.required();
+                fieldLocale = annotation.locale();
+                String splitOn = annotation.splitOn();
+                String writeDelimiter = annotation.writeDelimiter();
+                Class<? extends Collection> collectionType = annotation.collectionType();
+                Class<?> elementType = annotation.elementType();
+                
+                CsvConverter converter;
+                if (field.isAnnotationPresent(CsvDate.class)) {
+                    String formatString = field.getAnnotation(CsvDate.class).value();
+                    converter = new ConverterDate(elementType, fieldLocale, errorLocale, formatString);
+                } else {
+                    converter = new ConverterPrimitiveTypes(elementType, fieldLocale, errorLocale);
+                }
+                fieldMap.put(columnName, new BeanFieldCollectionSplit(
+                        field, required, errorLocale, converter, splitOn,
+                        writeDelimiter, collectionType));
+            }
 
             // Then it must be a bind by position.
             else {
                 CsvBindByPosition annotation = field.getAnnotation(CsvBindByPosition.class);
                 required = annotation.required();
-                columnName = field.getName().toUpperCase().trim();
                 fieldLocale = annotation.locale();
+                CsvConverter converter;
                 if (field.isAnnotationPresent(CsvDate.class)) {
                     String formatString = field.getAnnotation(CsvDate.class).value();
-                    fieldMap.put(columnName, new BeanFieldDate(field, required, formatString, fieldLocale, errorLocale));
+                    converter = new ConverterDate(field.getType(), fieldLocale, errorLocale, formatString);
                 } else {
-                    fieldMap.put(columnName, new BeanFieldPrimitiveTypes(field, required, fieldLocale, errorLocale));
+                    converter = new ConverterPrimitiveTypes(field.getType(), fieldLocale, errorLocale);
                 }
+                fieldMap.put(columnName, new BeanFieldSingleValue(field, required, errorLocale, converter));
             }
         }
     }
@@ -207,7 +236,8 @@ public class ColumnPositionMappingStrategy<T> extends HeaderColumnNameMappingStr
         List<Field> fields = new ArrayList<>();
         for (Field field : cls.getDeclaredFields()) {
             if (field.isAnnotationPresent(CsvBindByPosition.class)
-                    || field.isAnnotationPresent(CsvCustomBindByPosition.class)) {
+                    || field.isAnnotationPresent(CsvCustomBindByPosition.class)
+                    || field.isAnnotationPresent(CsvBindAndSplitByPosition.class)) {
                 fields.add(field);
             }
         }

@@ -24,7 +24,9 @@ package com.opencsv.exceptions;
  * @since 3.8
  */
 public class CsvBadConverterException extends CsvRuntimeException {
-    private final Class converterClass;
+    private static final long serialVersionUID = 1L;
+    
+    private final Class<?> converterClass;
 
     /**
      * Default constructor, in case no further information is necessary or
@@ -39,7 +41,7 @@ public class CsvBadConverterException extends CsvRuntimeException {
      *
      * @param converterClass The class of the converter that misbehaved
      */
-    public CsvBadConverterException(Class converterClass) {
+    public CsvBadConverterException(Class<?> converterClass) {
         this.converterClass = converterClass;
     }
 
@@ -59,7 +61,7 @@ public class CsvBadConverterException extends CsvRuntimeException {
      * @param converterClass Class of the converter that misbehaved
      * @param message        Human-readable error text
      */
-    public CsvBadConverterException(Class converterClass, String message) {
+    public CsvBadConverterException(Class<?> converterClass, String message) {
         super(message);
         this.converterClass = converterClass;
     }
@@ -67,7 +69,7 @@ public class CsvBadConverterException extends CsvRuntimeException {
     /**
      * @return The class of the provided custom converter
      */
-    public Class getConverterClass() {
+    public Class<?> getConverterClass() {
         return converterClass;
     }
 }

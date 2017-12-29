@@ -35,6 +35,7 @@ import java.util.ResourceBundle;
  * @since 3.9
  */
 public class CsvBeanIntrospectionException extends CsvRuntimeException {
+    private static final long serialVersionUID = 1L;
     
     /** The bean that was acted upon. */
     private transient final Object bean;

@@ -60,7 +60,7 @@ public interface MappingStrategy<T> {
      * @throws CsvBadConverterException If a custom converter for a field cannot
      *                                  be initialized
      */
-    BeanField findField(int col) throws CsvBadConverterException;
+    BeanField<T> findField(int col) throws CsvBadConverterException;
     
     /**
      * Finds and returns the highest index in this mapping.
@@ -97,7 +97,7 @@ public interface MappingStrategy<T> {
    /**
     * Implementations of this method must return an array of column headers
     * based on the contents of the mapping strategy.
-    * If no header can or should be generated, an array of zero length should
+    * If no header can or should be generated, an array of zero length must
     * be returned, and not null.
     * @return An array of column names for a header
     * @since 3.9

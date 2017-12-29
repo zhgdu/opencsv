@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Andrew Rucker Jones.
+ * Copyright 2017 Andrew Rucker Jones.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.opencsv.exceptions;
+package com.opencsv.bean.mocks;
+
+import com.opencsv.bean.CsvBindAndSplitByPosition;
+import java.util.concurrent.TransferQueue;
 
 /**
- * The base class for all unchecked exceptions in opencsv.
+ *
  * @author Andrew Rucker Jones
  */
-public class CsvRuntimeException extends RuntimeException {
-    private static final long serialVersionUID = 1L;
+public class UnknownCollectionType {
     
-    /** Nullary constructor. Does nothing. */
-    public CsvRuntimeException() {}
-    
-    /**
-     * Constructor with a message.
-     * @param message A human-readable error message
-     */
-    public CsvRuntimeException(String message) {super(message);}
+    @CsvBindAndSplitByPosition(elementType = Integer.class, position = 0)
+    private TransferQueue<Integer> transferQueue;
+
+    public TransferQueue<Integer> getTransferQueue() {
+        return transferQueue;
+    }
+
+    public void setTransferQueue(TransferQueue<Integer> transferQueue) {
+        this.transferQueue = transferQueue;
+    }
 }

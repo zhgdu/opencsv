@@ -104,7 +104,7 @@ public class IterableCSVToBeanBuilder<T> {
      * Used by unit tests.
      * @return The MappingStrategy to be used by the builder.
      */
-    protected MappingStrategy getStrategy() {
+    protected MappingStrategy<T> getStrategy() {
         return mapper;
     }
 

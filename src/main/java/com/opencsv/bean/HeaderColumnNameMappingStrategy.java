@@ -342,6 +342,36 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
                 bean.setRequired(required);
                 fieldMap.put(columnName, bean);
             }
+            
+            // Then check for a collection
+            else if(field.isAnnotationPresent(CsvBindAndSplitByName.class)) {
+                CsvBindAndSplitByName annotation = field.getAnnotation(CsvBindAndSplitByName.class);
+                required = annotation.required();
+                columnName = annotation.column().toUpperCase().trim();
+                locale = annotation.locale();
+                String splitOn = annotation.splitOn();
+                String writeDelimiter = annotation.writeDelimiter();
+                Class<? extends Collection> collectionType = annotation.collectionType();
+                Class<?> elementType = annotation.elementType();
+                
+                CsvConverter converter;
+                if (field.isAnnotationPresent(CsvDate.class)) {
+                    String formatString = field.getAnnotation(CsvDate.class).value();
+                    converter = new ConverterDate(elementType, locale, errorLocale, formatString);
+                } else {
+                    converter = new ConverterPrimitiveTypes(elementType, locale, errorLocale);
+                }
+                if (StringUtils.isEmpty(columnName)) {
+                    fieldMap.put(field.getName().toUpperCase(),
+                            new BeanFieldCollectionSplit(
+                                    field, required, errorLocale, converter,
+                                    splitOn, writeDelimiter, collectionType));
+                } else {
+                    fieldMap.put(columnName, new BeanFieldCollectionSplit(
+                            field, required, errorLocale, converter, splitOn,
+                            writeDelimiter, collectionType));
+                }
+            }
 
             // Otherwise it must be CsvBindByName.
             else {
@@ -349,21 +379,18 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
                 required = annotation.required();
                 columnName = annotation.column().toUpperCase().trim();
                 locale = annotation.locale();
+                CsvConverter converter;
                 if (field.isAnnotationPresent(CsvDate.class)) {
                     String formatString = field.getAnnotation(CsvDate.class).value();
-                    if (StringUtils.isEmpty(columnName)) {
-                        fieldMap.put(field.getName().toUpperCase(),
-                                new BeanFieldDate(field, required, formatString, locale, errorLocale));
-                    } else {
-                        fieldMap.put(columnName, new BeanFieldDate(field, required, formatString, locale, errorLocale));
-                    }
+                    converter = new ConverterDate(field.getType(), locale, errorLocale, formatString);
                 } else {
-                    if (StringUtils.isEmpty(columnName)) {
-                        fieldMap.put(field.getName().toUpperCase(),
-                                new BeanFieldPrimitiveTypes(field, required, locale, errorLocale));
-                    } else {
-                        fieldMap.put(columnName, new BeanFieldPrimitiveTypes(field, required, locale, errorLocale));
-                    }
+                    converter = new ConverterPrimitiveTypes(field.getType(), locale, errorLocale);
+                }
+                if (StringUtils.isEmpty(columnName)) {
+                    fieldMap.put(field.getName().toUpperCase(),
+                            new BeanFieldSingleValue(field, required, errorLocale, converter));
+                } else {
+                    fieldMap.put(columnName, new BeanFieldSingleValue(field, required, errorLocale, converter));
                 }
             }
         }
@@ -378,7 +405,8 @@ public class HeaderColumnNameMappingStrategy<T> implements MappingStrategy<T> {
         List<Field> fields = new ArrayList<>();
         for (Field field : FieldUtils.getAllFields(cls)) {
             if (field.isAnnotationPresent(CsvBindByName.class)
-                    || field.isAnnotationPresent(CsvCustomBindByName.class)) {
+                    || field.isAnnotationPresent(CsvCustomBindByName.class)
+                    || field.isAnnotationPresent(CsvBindAndSplitByName.class)) {
                 fields.add(field);
             }
         }

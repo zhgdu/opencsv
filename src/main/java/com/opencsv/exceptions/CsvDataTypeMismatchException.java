@@ -23,8 +23,10 @@ package com.opencsv.exceptions;
  * @since 3.8
  */
 public class CsvDataTypeMismatchException extends CsvException {
+    private static final long serialVersionUID = 1L;
+    
     private transient final Object sourceObject;
-    private final Class destinationClass;
+    private final Class<?> destinationClass;
 
     /**
      * Default constructor, in case no further information is necessary or
@@ -44,7 +46,7 @@ public class CsvDataTypeMismatchException extends CsvException {
      * @param destinationClass Class of the destination field. This may not be
      *   available in all contexts.
      */
-    public CsvDataTypeMismatchException(Object sourceObject, Class destinationClass) {
+    public CsvDataTypeMismatchException(Object sourceObject, Class<?> destinationClass) {
         this.sourceObject = sourceObject;
         this.destinationClass = destinationClass;
     }
@@ -70,7 +72,7 @@ public class CsvDataTypeMismatchException extends CsvException {
      *   available in all contexts.
      * @param message          Human-readable error text
      */
-    public CsvDataTypeMismatchException(Object sourceObject, Class destinationClass, String message) {
+    public CsvDataTypeMismatchException(Object sourceObject, Class<?> destinationClass, String message) {
         super(message);
         this.sourceObject = sourceObject;
         this.destinationClass = destinationClass;
@@ -94,7 +96,7 @@ public class CsvDataTypeMismatchException extends CsvException {
      *
      * @return The class of the destination field
      */
-    public Class getDestinationClass() {
+    public Class<?> getDestinationClass() {
         return destinationClass;
     }
 }

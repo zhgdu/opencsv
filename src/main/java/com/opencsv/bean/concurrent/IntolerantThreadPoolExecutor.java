@@ -40,7 +40,7 @@ public class IntolerantThreadPoolExecutor extends ThreadPoolExecutor {
     public IntolerantThreadPoolExecutor() {
         super(Runtime.getRuntime().availableProcessors(),
                 Runtime.getRuntime().availableProcessors(), Long.MAX_VALUE,
-                TimeUnit.NANOSECONDS, new LinkedBlockingQueue());
+                TimeUnit.NANOSECONDS, new LinkedBlockingQueue<Runnable>());
     }
     
     /**

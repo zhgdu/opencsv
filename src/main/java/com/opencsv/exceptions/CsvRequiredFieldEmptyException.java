@@ -25,7 +25,9 @@ import java.lang.reflect.Field;
  * @since 3.8
  */
 public class CsvRequiredFieldEmptyException extends CsvException {
-    private final Class beanClass;
+    private static final long serialVersionUID = 1L;
+
+    private final Class<?> beanClass;
     private transient final Field destinationField;
 
     /**
@@ -54,7 +56,7 @@ public class CsvRequiredFieldEmptyException extends CsvException {
      * @param beanClass        Class of the destination bean
      * @param destinationField Field of the destination field in the destination bean
      */
-    public CsvRequiredFieldEmptyException(Class beanClass, Field destinationField) {
+    public CsvRequiredFieldEmptyException(Class<?> beanClass, Field destinationField) {
         this.beanClass = beanClass;
         this.destinationField = destinationField;
     }
@@ -68,7 +70,7 @@ public class CsvRequiredFieldEmptyException extends CsvException {
      * @param message Human-readable error text
      * @since 3.10
      */
-    public CsvRequiredFieldEmptyException(Class beanClass, String message) {
+    public CsvRequiredFieldEmptyException(Class<?> beanClass, String message) {
         super(message);
         this.beanClass = beanClass;
         this.destinationField = null;
@@ -83,7 +85,7 @@ public class CsvRequiredFieldEmptyException extends CsvException {
      * @param destinationField Field of the destination field in the destination bean
      * @param message          Human-readable error text
      */
-    public CsvRequiredFieldEmptyException(Class beanClass, Field destinationField, String message) {
+    public CsvRequiredFieldEmptyException(Class<?> beanClass, Field destinationField, String message) {
         super(message);
         this.beanClass = beanClass;
         this.destinationField = destinationField;
@@ -94,7 +96,7 @@ public class CsvRequiredFieldEmptyException extends CsvException {
      *
      * @return The class of the bean to which the destination field belongs
      */
-    public Class getBeanClass() {
+    public Class<?> getBeanClass() {
         return beanClass;
     }
 

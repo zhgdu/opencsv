@@ -14,11 +14,12 @@
     </prerequisites>
 
     <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.surefire.version>2.20</maven.surefire.version>
         <maven.site.version>3.6</maven.site.version>
         <jacoco.version>0.7.9</jacoco.version>
         <maven.javadoc.version>2.10.4</maven.javadoc.version>
-        <maven-assembly-plugin.version>3.0.0</maven-assembly-plugin.version>
+        <maven-assembly-plugin.version>3.1.0</maven-assembly-plugin.version>
     </properties>
 
     <licenses>
@@ -153,7 +154,7 @@
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.6.1</version>
+                <version>3.7.0</version>
                 <configuration>
                     <source>1.7</source>
                     <target>1.7</target>
@@ -161,6 +162,7 @@
                     <fork>true</fork>
                     <meminitial>256m</meminitial>
                     <maxmem>768m</maxmem>
+                    <showWarnings>true</showWarnings>
                 </configuration>
             </plugin>
             <plugin>
@@ -299,7 +301,7 @@
             <extension>
                 <groupId>org.apache.maven.wagon</groupId>
                 <artifactId>wagon-ssh</artifactId>
-                <version>2.12</version>
+                <version>3.0.0</version>
             </extension>
         </extensions>
     </build>
@@ -327,12 +329,17 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
-            <version>1.1</version>
+            <version>1.2</version>
         </dependency>
         <dependency>
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
             <version>1.9.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-collections4</artifactId>
+            <version>4.1</version>
         </dependency>
         <dependency>
             <groupId>org.mockito</groupId>
@@ -413,7 +420,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>findbugs-maven-plugin</artifactId>
-                <version>3.0.4</version>
+                <version>3.0.5</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

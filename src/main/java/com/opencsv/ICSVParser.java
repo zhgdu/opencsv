@@ -65,9 +65,13 @@ public interface ICSVParser {
     char NULL_CHARACTER = '\0';
 
     /**
-     * Denotes what field contents will cause the parser to return null:  EMPTY_SEPARATORS, EMPTY_QUOTES, BOTH, NEITHER (default)
+     * Denotes what field contents will cause the parser to return null:  EMPTY_SEPARATORS, EMPTY_QUOTES, BOTH, NEITHER (default).
      */
     CSVReaderNullFieldIndicator DEFAULT_NULL_FIELD_INDICATOR = NEITHER;
+    
+    /**
+     * The name of the resource bundle for translations of error messages in opencsv.
+     */
     String DEFAULT_BUNDLE_NAME = "opencsv";
 
     /**

@@ -29,12 +29,16 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.ResourceBundle;
 
 /**
  * This base bean takes over the responsibility of converting the supplied
  * string to the proper type for the destination field and setting the
- * destination field. All custom converters must be descended from this class.
+ * destination field.
+ * <p>All custom converters must be descended from this class.</p>
+ * <p>Internally, opencsv uses another set of classes for the actual conversion,
+ * leaving this class mostly to deal with assigment to bean fields.</p>
  *
  * @param <T> Type of the bean being populated
  * @author Andrew Rucker Jones
@@ -58,6 +62,14 @@ abstract public class AbstractBeanField<T> implements BeanField<T> {
     protected Locale errorLocale;
     
     /**
+     * A class that converts from a string to the destination type on reading
+     * and vice versa on writing.
+     * This is only used for opencsv-internal conversions, not by custom
+     * converters.
+     */
+    protected CsvConverter converter;
+    
+    /**
      * Default nullary constructor, so derived classes aren't forced to create
      * a constructor identical to the one below.
      */
@@ -71,7 +83,7 @@ abstract public class AbstractBeanField<T> implements BeanField<T> {
      * @param field A {@link java.lang.reflect.Field} object.
      */
     public AbstractBeanField(Field field) {
-        this(field, false, Locale.getDefault());
+        this(field, false, Locale.getDefault(), null);
     }
 
     /**
@@ -80,7 +92,7 @@ abstract public class AbstractBeanField<T> implements BeanField<T> {
      * @since 3.10
      */
     public AbstractBeanField(Field field, boolean required) {
-        this(field, required, Locale.getDefault());
+        this(field, required, Locale.getDefault(), null);
     }
 
     /**
@@ -90,9 +102,22 @@ abstract public class AbstractBeanField<T> implements BeanField<T> {
      * @since 4.0
      */
     public AbstractBeanField(Field field, boolean required, Locale errorLocale) {
+        this(field, required, errorLocale, null);
+    }
+
+    /**
+     * @param field A {@link java.lang.reflect.Field} object.
+     * @param required Whether or not this field is required in input
+     * @param errorLocale The errorLocale to use for error messages.
+     * @param converter The converter to be used to perform the actual data
+     *   conversion
+     * @since 4.2
+     */
+    public AbstractBeanField(Field field, boolean required, Locale errorLocale, CsvConverter converter) {
         this.field = field;
         this.required = required;
         this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
+        this.converter = converter;
     }
 
     @Override
@@ -119,7 +144,7 @@ abstract public class AbstractBeanField<T> implements BeanField<T> {
     public void setErrorLocale(Locale errorLocale) {
         this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
     }
-
+    
     @Override
     public final <T> void setFieldValue(T bean, String value)
             throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException,
@@ -266,6 +291,12 @@ abstract public class AbstractBeanField<T> implements BeanField<T> {
                 csve.initCause(e.getCause());
                 throw csve;
             }
+            catch(CsvRequiredFieldEmptyException e) {
+                CsvRequiredFieldEmptyException csve = new CsvRequiredFieldEmptyException(
+                        bean.getClass(), field, e.getMessage());
+                csve.initCause(e.getCause());
+                throw csve;
+            }
         }
         return result;
     }
@@ -281,18 +312,23 @@ abstract public class AbstractBeanField<T> implements BeanField<T> {
      * work fine.</p>
      * 
      * @param value The contents of the field currently being processed from the
-     *   bean to be written. Can be null.
+     *   bean to be written. Can be null if the field is not marked as required.
      * @return A string representation of the value of the field in question in
      *   the bean passed in, or an empty string if {@code value} is null
      * @throws CsvDataTypeMismatchException This implementation does not throw
      *   this exception
+     * @throws CsvRequiredFieldEmptyException If the input is empty but the
+     *   field is required. The case of the field being null is checked before
+     *   this method is called, but other implementations may have other cases
+     *   that are semantically equivalent to being empty, such as an empty
+     *   collection.
      * @since 3.9
      * @see #write(java.lang.Object) 
      */
     protected String convertToWrite(Object value)
-            throws CsvDataTypeMismatchException {
+            throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
         // Since we have no concept of which field is required at this level,
-        // we can't check for null and throw an exeception.
-        return value==null?"":value.toString();
+        // we can't check for null and throw an exception.
+        return Objects.toString(value, StringUtils.EMPTY);
     }
 }

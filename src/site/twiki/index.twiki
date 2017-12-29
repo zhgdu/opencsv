@@ -180,9 +180,11 @@ annotating the fields of these beans so opencsv can do the rest. In brief, these
 annotations are:
    * CsvBindByName: Maps a bean field to a field in the CSV file based on the name of the header for that field in the CSV input.
    * CsvBindByPosition: Maps a bean field to a field in the CSV file based on the numerical position of the field in the CSV input.
+   * CsvBindAndSplitByName: Maps a Collection-based bean field to a field in the CSV file based on the name of the header for that field in the CSV input.
+   * CsvBindAndSplitByPosition: Maps a Collection-based bean field to a field in the CSV file based on the numerical position of the field in the CSV input.
+   * CsvDate: Must be applied to bean fields of date/time types for automatic conversion to work, and must be used in conjunction with one of the preceding four annotations.
    * CsvCustomBindByName: The same as CsvBindByName, but must provide its own data conversion class.
    * CsvCustomBindByPosition: The same as CsvBindByPosition, but must provide its own data conversion class.
-   * CsvDate: Must be applied to bean fields of date/time types for automatic conversion to work, and must be used in conjunction with one of the preceding four annotations.
 
 As you can infer, there are two strategies for annotating beans, depending on your input:
    * Annotating by header name
@@ -444,6 +446,114 @@ classes. See the Javadocs for more details. The thousands separator in the salar
 is dealt with by using the German locale, one of many countries where the thousands
 separator is a dot.
 
+---+++++Collection-based bean fields
+CSV files are lists, right? Well, some people like lists within lists. For them,
+we have the ability to annotate bean fields that are declared to be some type
+implementing java.util.Collection. When using CsvBindAndSplitByName or
+CsvBindAndSplitByPosition, one field in the CSV file is taken to be a list of
+data that are separated by a delimiter of some kind. The input is split along
+this delimiter and the results are put in a Collection and assigned to the bean
+field. What kind of Collection? Any kind you want. If opencsv knows it, it
+instantiates an implementing class for you. If opencsv doesn't know it, you can
+educate opencsv. Every reasonable Collection-based interface from the JDK is
+known, and well as Bag and SortedBag from Apache Commons Collections. Some
+examples would doubtlessly illuminate my meaning.
+
+   <verbatim>
+     public class Student {
+
+     @CsvBindAndSplitByName(elementType = Float.class)
+     Collection<Float> testScores;
+
+     @CsvBindAndSplitByName(elementType = Double.class, collectionType = LinkedList.class)
+     List<? extends Number> quizScores;
+
+     @CsvBindAndSplitByName(elementType = Date.class, splitOn = ";+", writeDelimiter = ";")
+     @CsvDate("yyyy-MM-dd")
+     SortedSet<Date> tardies;
+
+     @CsvBindByName
+     int studentID;
+
+     // Getters and setters go here
+   </verbatim>
+
+This shows us much of the power of these annotations in a few lines. Let's take
+the first field. It is defined to be a Collection of Floats. Note, please, the
+annotation @CsvBindAndSplitByName (or the equivalent for position) always
+requires the type of an element of the collection being created. Nothing else
+is mandatory. In particular, Collection itself has no directly implementing
+classes, but please note, we didn't indicate to opencsv which kind of collection
+we want. opencsv chooses one for us.
+
+The next field is a List of something derived from Number. This is where it
+becomes apparent why the element type is mandatory -- it cannot always be
+determined. Besides that, in this line we are not satisfied with the List
+implementation opencsv chooses, so we specify LinkedList with the collectionType
+parameter to the annotation.
+
+The third field is a SortedSet of dates (when a student was tardy to
+class). Sorted for convenience, and a set to avoid clerical errors of double
+entry. For this field we have specified that the string separating elements of
+this list in the input is one or more semicolons. This string is always
+interpreted as a regular expression. Interestingly, in case we write these data
+out to a CSV file later, the elements of the list should be separated with a
+single semicolon. Perhaps someone is trying to convert the data from a older
+format or remove redundancies.
+
+The final field is simply for student identification.
+
+The input to be mapped to this bean could look like this:
+
+   <verbatim>
+     studentID,testScores,quizScores,tardies
+     1,100.0 97.2 18.9,77 90.3 88.8,
+     2,56.6 97.2 90.0,82.0 79.6 66.9,2017-01-02;2017-03-04;;;2017-03-04;;2017-05-31
+   </verbatim>
+
+The first student has never been tardy, so that list will be empty (but never
+null). The school secretary accidentally entered a tardy for the second student
+twice, but this will be eliminated by the SortedSet.
+
+Let's say you want to tell opencsv which Collection implementation to use,
+perhaps because you want to make certain it's one that will perform better for
+your usage pattern, or perhaps because you want to use one opencsv knows nothing
+about, like your own implementation. There are two ways of doing this. We
+already saw one: specify the implementation you want to use in the annotation
+with the parameter "collectionType". The only stipulations on the implementing
+class are that it be public and have a nullary constructor. The other way is to
+declare the type of the bean field using the implementing class rather than the
+interface implemented, thus:
+
+   <verbatim>
+     public class MySuperDuperIntegerList extends ArrayList<Integer> {
+
+     // Do something super duper.
+
+     }
+
+     public class DataClass {
+
+     @CsvBindAndSplitByName(elementType = Integer.class)
+     MySuperDuperIntegerList myList;
+
+     // Getter and setter go here
+     }
+   </verbatim>
+
+Here, instead of declaring List<Integer> myList, we used the implementing class.
+opencsv will respect this and instantiate the class specified. That class can
+be parameterized, naturally (e.g. MySuperDuperList<Integer>).
+
+All of the other features you know, love, and depend on, such as a field being
+required, or support for locales, is equally well supported for Collection-based
+members.
+
+For details on which subinterfaces of Collection opencsv knows and exactly what
+implementation opencsv uses for those interfaces if you don't specify one, see
+the Javadoc for the annotations CsvBindAndSplitByName or
+CsvBindAndSplitByPosition.
+
 ---+++++Custom converters
 Now, we know that input data can get very messy, so we have provided our users
 with the ability to deal with the messiest of data by allowing you to define your
@@ -681,7 +791,7 @@ Add a dependency element to your pom:
   <dependency>
      <groupId>com.opencsv</groupId>
      <artifactId>opencsv</artifactId>
-     <version>4.0</version>
+     <version>4.2</version>
   </dependency>
 </verbatim>
 

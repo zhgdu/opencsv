@@ -76,7 +76,7 @@ public class CsvToBean<T> implements Iterable<T> {
     private IntolerantThreadPoolExecutor executor;
     
     /** A separate thread that accumulates and orders results. */
-    private AccumulateCsvResults accumulateThread = null;
+    private AccumulateCsvResults<T> accumulateThread = null;
     
     /** A queue of the beans created. */
     private BlockingQueue<OrderedObject<T>> resultantBeansQueue;
@@ -482,7 +482,7 @@ public class CsvToBean<T> implements Iterable<T> {
     /**
      * A private inner class for implementing an iterator for the input data.
      */
-    private class CsvToBeanIterator implements Iterator {
+    private class CsvToBeanIterator implements Iterator<T> {
         private T bean;
         
         public CsvToBeanIterator() {
