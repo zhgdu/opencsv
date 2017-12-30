@@ -201,7 +201,7 @@ public class BeanFieldCollectionSplit extends AbstractBeanField {
                         ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("required.field.empty"),
                         field.getName()));
             }
-            retval = String.join(writeDelimiter, convertedValue);
+            retval = StringUtils.join(convertedValue, writeDelimiter);
         }
         return retval;
     }
