@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.Objects;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Helper class for processing JDBC ResultSet objects.
@@ -30,7 +31,7 @@ public class ResultSetHelperService implements ResultSetHelper {
 
    static final String DEFAULT_DATE_FORMAT = "dd-MMM-yyyy";
    static final String DEFAULT_TIMESTAMP_FORMAT = "dd-MMM-yyyy HH:mm:ss";
-   private static final String DEFAULT_VALUE = "";
+   private static final String DEFAULT_VALUE = StringUtils.EMPTY;
 
    private String dateFormat = DEFAULT_DATE_FORMAT;
    private String dateTimeFormat = DEFAULT_TIMESTAMP_FORMAT;
@@ -104,13 +105,9 @@ public class ResultSetHelperService implements ResultSetHelper {
    private String getColumnValue(ResultSet rs, int colType, int colIndex, boolean trim, String dateFormatString, String timestampFormatString)
          throws SQLException, IOException {
 
-      String value = DEFAULT_VALUE;
+      String value;
 
       switch (colType) {
-         case Types.BIT:
-         case Types.JAVA_OBJECT:
-            value = Objects.toString(rs.getObject(colIndex), DEFAULT_VALUE);
-            break;
          case Types.BOOLEAN:
             value = Objects.toString(rs.getBoolean(colIndex));
             break;
@@ -159,7 +156,9 @@ public class ResultSetHelperService implements ResultSetHelper {
             value = handleVarChar(rs, colIndex, trim);
             break;
          default:
-            value = DEFAULT_VALUE;
+            // This takes care of Types.BIT, Types.JAVA_OBJECT, and anything
+            // unknown.
+            value = Objects.toString(rs.getObject(colIndex), DEFAULT_VALUE);
       }
 
 
