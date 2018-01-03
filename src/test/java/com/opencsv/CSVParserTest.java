@@ -1,15 +1,16 @@
 package com.opencsv;
 
 import com.opencsv.enums.CSVReaderNullFieldIndicator;
+import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.io.IOException;
 import java.util.Locale;
-import org.junit.After;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.*;
-import org.junit.BeforeClass;
 
 public class CSVParserTest {
 
@@ -589,6 +590,24 @@ public class CSVParserTest {
         }
         catch(UnsupportedOperationException e) {
             assertNotEquals(englishErrorMessage, e.getLocalizedMessage());
+        }
+    }
+
+    @Test
+    public void shouldSupportPortugueseLocale() {
+
+        try {
+            new CSVParser(
+                    ICSVParser.DEFAULT_SEPARATOR, ICSVParser.DEFAULT_SEPARATOR,
+                    ICSVParser.DEFAULT_ESCAPE_CHARACTER,
+                    ICSVParser.DEFAULT_STRICT_QUOTES,
+                    ICSVParser.DEFAULT_IGNORE_LEADING_WHITESPACE,
+                    ICSVParser.DEFAULT_IGNORE_QUOTATIONS,
+                    ICSVParser.DEFAULT_NULL_FIELD_INDICATOR, new Locale("pt", "BR"));
+            fail("UnsupportedOperationException should have been thrown.");
+        }
+        catch(UnsupportedOperationException e) {
+            assertThat(e.getLocalizedMessage(), is("O separador, delimitador de texto e caractere de escape precisam ser diferentes!"));
         }
     }
 
