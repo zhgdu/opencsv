@@ -3,13 +3,14 @@ package com.opencsv;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
 
 /**
  * Handy reader when there's insufficient motivation to use the bean binding but
  * the header mapping is still desired.
- * 
+ *
  * @author Andre Rosot
  * @since 4.2
  */
@@ -25,10 +26,15 @@ public class CSVReaderHeaderAware extends CSVReader {
      */
     public CSVReaderHeaderAware(Reader reader) throws IOException {
         super(reader);
-        String[] headers = super.readNext();
-        for (int i = 0; i < headers.length; i++) {
-            headerIndex.put(headers[i], i);
-        }
+        initializeHeader();
+    }
+
+    /**
+     * Supports non-deprecated constructor from the parent class.
+     */
+    public CSVReaderHeaderAware(Reader reader, int skipLines, ICSVParser parser, boolean keepCR, boolean verifyReader, int multilineLimit, Locale errorLocale) throws IOException {
+        super(reader, skipLines, parser, keepCR, verifyReader, multilineLimit, errorLocale);
+        initializeHeader();
     }
 
     /**
@@ -36,8 +42,8 @@ public class CSVReaderHeaderAware extends CSVReader {
      *
      * @param headerNames Name of the header element whose data we are trying to find
      * @return The data element whose position matches that of the header whose value is passed in. Will return null when there are no more data elements.
-     * @throws IOException An error occured during the read or there is a mismatch in the number of data items in a row
-     * and the number of header items
+     * @throws IOException              An error occured during the read or there is a mismatch in the number of data items in a row
+     *                                  and the number of header items
      * @throws IllegalArgumentException If headerName does not exist
      */
     public String[] readNext(String... headerNames) throws IOException {
@@ -80,7 +86,7 @@ public class CSVReaderHeaderAware extends CSVReader {
      *
      * @return A map whose key is the header row of the data file and the values is the data values. Or null if the line is blank.
      * @throws IOException An error occured during the read or there is a mismatch in the number of data items in a row
-     * and the number of header items.
+     *                     and the number of header items.
      */
     public Map<String, String> readMap() throws IOException {
         String[] strings = readNext();
@@ -101,4 +107,12 @@ public class CSVReaderHeaderAware extends CSVReader {
         }
         return mappedLine;
     }
+
+    private void initializeHeader() throws IOException {
+        String[] headers = super.readNext();
+        for (int i = 0; i < headers.length; i++) {
+            headerIndex.put(headers[i], i);
+        }
+    }
+
 }
