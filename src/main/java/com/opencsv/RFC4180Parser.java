@@ -51,6 +51,7 @@ public class RFC4180Parser implements ICSVParser {
      * This is the character that the RFC4180Parser will treat as the quotation character.
      */
     private final char quotechar;
+    private final String quoteCharString;
 
     /**
      * This is the fields that the parser will automatically return null.
@@ -78,6 +79,7 @@ public class RFC4180Parser implements ICSVParser {
      */
     RFC4180Parser(char quoteChar, char separator, CSVReaderNullFieldIndicator nullFieldIndicator) {
         this.quotechar = quoteChar;
+        this.quoteCharString = Character.toString(quoteChar);
         this.separator = separator;
         this.separatorAsString = SPECIAL_REGEX_CHARS.matcher(Character.toString(separator)).replaceAll("\\\\$0");
         this.nullFieldIndicator = nullFieldIndicator;
@@ -243,6 +245,14 @@ public class RFC4180Parser implements ICSVParser {
 
     private boolean lastElementStartedWithQuoteButDidNotEndInOne(List<String> elements) {
         String lastElement = elements.get(elements.size() - 1);
+        return startsButDoesNotEndWithQuote(lastElement) || hasOnlyOneQuote(lastElement);
+    }
+
+    private boolean hasOnlyOneQuote(String lastElement) {
+        return StringUtils.countMatches(lastElement, quotechar) == 1;
+    }
+
+    private boolean startsButDoesNotEndWithQuote(String lastElement) {
         return lastElement.startsWith(Character.toString(quotechar)) && !lastElement.endsWith(Character.toString(quotechar));
     }
 
@@ -270,8 +280,8 @@ public class RFC4180Parser implements ICSVParser {
 
     private String handleQuotes(String element) {
         String ret = element;
-        String quoteCharString = Character.toString(getQuotechar());
-        if (StringUtils.startsWith(ret, quoteCharString)) {
+
+        if (!hasOnlyOneQuote(ret) && StringUtils.startsWith(ret, quoteCharString)) {
             ret = StringUtils.removeStart(ret, quoteCharString);
 
             if (StringUtils.endsWith(ret, quoteCharString)) {
