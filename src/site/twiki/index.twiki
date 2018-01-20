@@ -141,7 +141,7 @@ this:
 or for reading with annotations:
 
    <verbatim>
-     CsvToBean csvToBean = CsvToBeanBuilder(new FileReader("yourfile.csv"))
+     CsvToBean csvToBean = new CsvToBeanBuilder(new FileReader("yourfile.csv"))
        .withSeparator('\t').build();
    </verbatim>
 
@@ -155,7 +155,7 @@ you can use the three-argument constructor:
 or for reading with annotations:
 
    <verbatim>
-     CsvToBean csvToBean = CsvToBeanBuilder(new FileReader("yourfile.csv"))
+     CsvToBean csvToBean = new CsvToBeanBuilder(new FileReader("yourfile.csv"))
        .withSeparator('\t').withQuoteChar('\'').build();
    </verbatim>
 
@@ -641,7 +641,7 @@ So, for example, you can skip the first two lines by doing:
 
 or for reading with annotations:
    <verbatim>
-     CsvToBean csvToBean = CsvToBeanBuilder(new FileReader("yourfile.csv"))
+     CsvToBean csvToBean = new CsvToBeanBuilder(new FileReader("yourfile.csv"))
        .withSeparator('\t').withQuoteChar('\'').withSkipLines(2).build();
    </verbatim>
 
