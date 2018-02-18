@@ -362,6 +362,7 @@ class RFC4180ParserSpec extends Specification {
 
         lines.add(["value 1.1", "\n"])
         lines.add(["value 2.1", "value 2.2"])
+        lines.add(["\"value 3.1\"", "\"I talked with Stefan and he asked \"\"\nWhat about odd number of quotes?\"\" and now I have doubts about my solution\""])
 
         when:
         StringWriter stringWriter = new StringWriter(128);
