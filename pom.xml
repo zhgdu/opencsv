@@ -15,10 +15,10 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.surefire.version>2.20</maven.surefire.version>
-        <maven.site.version>3.6</maven.site.version>
-        <jacoco.version>0.7.9</jacoco.version>
-        <maven.javadoc.version>2.10.4</maven.javadoc.version>
+        <maven.surefire.version>2.20.1</maven.surefire.version>
+        <maven.site.version>3.7</maven.site.version>
+        <jacoco.version>0.8.0</jacoco.version>
+        <maven.javadoc.version>3.0.0</maven.javadoc.version>
         <maven-assembly-plugin.version>3.1.0</maven-assembly-plugin.version>
     </properties>
 
@@ -135,23 +135,22 @@
                     <artifactId>maven-assembly-plugin</artifactId>
                     <version>${maven-assembly-plugin.version}</version>
                 </plugin>
-                <plugin>
-                    <!-- The gmavenplus plugin is used to compile Groovy code. To learn more about this plugin,
-                    visit https://github.com/groovy/GMavenPlus/wiki -->
-                    <groupId>org.codehaus.gmavenplus</groupId>
-                    <artifactId>gmavenplus-plugin</artifactId>
-                    <version>1.6</version>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>testCompile</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
+            <plugin>
+                <groupId>org.codehaus.gmavenplus</groupId>
+                <artifactId>gmavenplus-plugin</artifactId>
+                <version>1.6</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>addTestSources</goal>
+                            <goal>compileTests</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.7.0</version>
@@ -345,6 +344,12 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
             <version>2.12.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+            <version>2.4.13</version>
             <scope>test</scope>
         </dependency>
         <dependency>
