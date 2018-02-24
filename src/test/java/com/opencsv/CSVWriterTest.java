@@ -22,11 +22,7 @@ import org.mockito.stubbing.Answer;
 import java.io.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.anyInt;
@@ -47,14 +43,14 @@ public class CSVWriterTest {
     */
    private String invokeWriter(String ... args) {
       StringWriter sw = new StringWriter();
-      CSVWriter csvw = new CSVWriter(sw, ',', '\'');
+      ICSVWriter csvw = new CSVWriter(sw, ',', '\'');
       csvw.writeNext(args);
       return sw.toString();
    }
 
    private String invokeNoEscapeWriter(String ... args) {
       StringWriter sw = new StringWriter();
-      CSVWriter csvw = new CSVWriter(sw, CSVWriter.DEFAULT_SEPARATOR, '\'', CSVWriter.NO_ESCAPE_CHARACTER);
+      ICSVWriter csvw = new CSVWriter(sw, ICSVWriter.DEFAULT_SEPARATOR, '\'', ICSVWriter.NO_ESCAPE_CHARACTER);
       csvw.writeNext(args);
       return sw.toString();
    }
@@ -62,7 +58,7 @@ public class CSVWriterTest {
    @Test
    public void correctlyParseNullString() {
       StringWriter sw = new StringWriter();
-      CSVWriter csvw = new CSVWriter(sw, ',', '\'');
+      ICSVWriter csvw = new CSVWriter(sw, ',', '\'');
       csvw.writeNext(null);
       assertEquals(0, sw.toString().length());
    }
@@ -70,7 +66,7 @@ public class CSVWriterTest {
    @Test
    public void correctlyParserNullObject() {
       StringWriter sw = new StringWriter();
-      CSVWriter csvw = new CSVWriter(sw, ',', '\'');
+      ICSVWriter csvw = new CSVWriter(sw, ',', '\'');
       csvw.writeNext(null, false);
       assertEquals(0, sw.toString().length());
    }
@@ -178,7 +174,7 @@ public class CSVWriterTest {
       allElements.add(line3);
 
       StringWriter sw = new StringWriter();
-      CSVWriter csvw = new CSVWriter(sw);
+      ICSVWriter csvw = new CSVWriter(sw);
       csvw.writeAll(allElements);
 
       csvw.close();
@@ -219,7 +215,7 @@ public class CSVWriterTest {
       when(iterable.iterator()).then(iteratorAnswer);
 
       StringWriter sw = new StringWriter();
-      CSVWriter csvw = new CSVWriter(sw);
+      ICSVWriter csvw = new CSVWriter(sw);
       csvw.writeAll(iterable);
 
       csvw.close();
@@ -251,7 +247,7 @@ public class CSVWriterTest {
       allElements.add(line3);
 
       StringWriter sw = new StringWriter();
-      CSVWriter csvw = new CSVWriter(sw);
+      ICSVWriter csvw = new CSVWriter(sw);
       csvw.writeAll(allElements, false);
 
       String result = sw.toString();
@@ -273,7 +269,7 @@ public class CSVWriterTest {
 
       String[] line = {"Foo", "Bar", "Baz"};
       StringWriter sw = new StringWriter();
-      CSVWriter csvw = new CSVWriter(sw, CSVWriter.DEFAULT_SEPARATOR, CSVWriter.NO_QUOTE_CHARACTER);
+      ICSVWriter csvw = new CSVWriter(sw, ICSVWriter.DEFAULT_SEPARATOR, ICSVWriter.NO_QUOTE_CHARACTER);
       csvw.writeNext(line);
       String result = sw.toString();
 
@@ -290,7 +286,7 @@ public class CSVWriterTest {
 
       String[] line = {"Foo", "Bar", "Baz"};
       StringWriter sw = new StringWriter();
-      CSVWriter csvw = new CSVWriter(sw, CSVWriter.DEFAULT_SEPARATOR, CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.NO_ESCAPE_CHARACTER);
+      ICSVWriter csvw = new CSVWriter(sw, ICSVWriter.DEFAULT_SEPARATOR, ICSVWriter.NO_QUOTE_CHARACTER, ICSVWriter.NO_ESCAPE_CHARACTER);
       csvw.writeNext(line);
       String result = sw.toString();
 
@@ -304,7 +300,7 @@ public class CSVWriterTest {
    public void testIntelligentQuotes() {
       String[] line = {"1", "Foo", "With,Separator", "Line\nBreak", "Hello \"Foo Bar\" World", "Bar"};
       StringWriter sw = new StringWriter();
-      CSVWriter csvw = new CSVWriter(sw, CSVWriter.DEFAULT_SEPARATOR, CSVWriter.DEFAULT_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER);
+      ICSVWriter csvw = new CSVWriter(sw, ICSVWriter.DEFAULT_SEPARATOR, ICSVWriter.DEFAULT_QUOTE_CHARACTER, ICSVWriter.DEFAULT_ESCAPE_CHARACTER);
       csvw.writeNext(line, false);
       String result = sw.toString();
 
@@ -322,7 +318,7 @@ public class CSVWriterTest {
 
       String[] line = {"Foo", null, "Bar", "baz"};
       StringWriter sw = new StringWriter();
-      CSVWriter csvw = new CSVWriter(sw);
+      ICSVWriter csvw = new CSVWriter(sw);
       csvw.writeNext(line);
       String result = sw.toString();
 
@@ -341,7 +337,7 @@ public class CSVWriterTest {
 
       FileWriter fileWriter = new FileWriter(WRITE_FILE);
 
-      CSVWriter writer = new CSVWriter(fileWriter);
+      ICSVWriter writer = new CSVWriter(fileWriter);
 
       writer.writeNext(nextLine);
 
@@ -358,7 +354,7 @@ public class CSVWriterTest {
    public void flushWillThrowIOException() throws IOException {
       String[] line = {"Foo", "bar's"};
       StringWriter sw = new StringWriter();
-      CSVWriter csvw = new CSVWriterExceptionThrower(sw);
+      ICSVWriter csvw = new CSVWriterExceptionThrower(sw);
       csvw.writeNext(line);
       csvw.flush();
    }
@@ -367,7 +363,7 @@ public class CSVWriterTest {
    public void flushQuietlyWillNotThrowException() {
       String[] line = {"Foo", "bar's"};
       StringWriter sw = new StringWriter();
-      CSVWriter csvw = new CSVWriterExceptionThrower(sw);
+      ICSVWriter csvw = new CSVWriterExceptionThrower(sw);
       csvw.writeNext(line);
       csvw.flushQuietly();
    }
@@ -376,7 +372,7 @@ public class CSVWriterTest {
    public void testAlternateEscapeChar() {
       String[] line = {"Foo", "bar's"};
       StringWriter sw = new StringWriter();
-      CSVWriter csvw = new CSVWriter(sw, CSVWriter.DEFAULT_SEPARATOR, CSVWriter.DEFAULT_QUOTE_CHARACTER, '\'');
+      ICSVWriter csvw = new CSVWriter(sw, ICSVWriter.DEFAULT_SEPARATOR, ICSVWriter.DEFAULT_QUOTE_CHARACTER, '\'');
       csvw.writeNext(line);
       assertEquals("\"Foo\",\"bar''s\"\n", sw.toString());
    }
@@ -385,7 +381,7 @@ public class CSVWriterTest {
    public void embeddedQuoteInString() {
       String[] line = {"Foo", "I choose a \\\"hero\\\" for this adventure"};
       StringWriter sw = new StringWriter();
-      CSVWriter csvw = new CSVWriter(sw, CSVWriter.DEFAULT_SEPARATOR, CSVWriter.DEFAULT_QUOTE_CHARACTER, CSVWriter.NO_ESCAPE_CHARACTER);
+      ICSVWriter csvw = new CSVWriter(sw, ICSVWriter.DEFAULT_SEPARATOR, ICSVWriter.DEFAULT_QUOTE_CHARACTER, ICSVWriter.NO_ESCAPE_CHARACTER);
       csvw.writeNext(line);
       assertEquals("\"Foo\",\"I choose a \\\"hero\\\" for this adventure\"\n", sw.toString());
    }
@@ -394,7 +390,7 @@ public class CSVWriterTest {
    public void testNoQuotingNoEscaping() {
       String[] line = {"\"Foo\",\"Bar\""};
       StringWriter sw = new StringWriter();
-      CSVWriter csvw = new CSVWriter(sw, CSVWriter.DEFAULT_SEPARATOR, CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.NO_ESCAPE_CHARACTER);
+      ICSVWriter csvw = new CSVWriter(sw, ICSVWriter.DEFAULT_SEPARATOR, ICSVWriter.NO_QUOTE_CHARACTER, ICSVWriter.NO_ESCAPE_CHARACTER);
       csvw.writeNext(line);
       assertEquals("\"Foo\",\"Bar\"\n", sw.toString());
    }
@@ -404,7 +400,7 @@ public class CSVWriterTest {
       String[] data = new String[]{"\"\"", "test"};
       String oracle = "\"\"\"\"\"\",\"test\"\n";
 
-      CSVWriter writer = null;
+      ICSVWriter writer = null;
       File tempFile = null;
       FileWriter fwriter = null;
 
@@ -442,7 +438,7 @@ public class CSVWriterTest {
          fail();
       }
 
-      StringBuilder fileContents = new StringBuilder(CSVWriter.INITIAL_STRING_SIZE);
+      StringBuilder fileContents = new StringBuilder(ICSVWriter.INITIAL_STRING_SIZE);
       try {
          int ch;
          while ((ch = in.read()) != -1) {
@@ -460,7 +456,7 @@ public class CSVWriterTest {
    public void testAlternateLineFeeds() {
       String[] line = {"Foo", "Bar", "baz"};
       StringWriter sw = new StringWriter();
-      CSVWriter csvw = new CSVWriter(sw, CSVWriter.DEFAULT_SEPARATOR, CSVWriter.DEFAULT_QUOTE_CHARACTER, "\r");
+      ICSVWriter csvw = new CSVWriter(sw, ICSVWriter.DEFAULT_SEPARATOR, ICSVWriter.DEFAULT_QUOTE_CHARACTER, "\r");
       csvw.writeNext(line);
       String result = sw.toString();
 
@@ -473,7 +469,7 @@ public class CSVWriterTest {
       String[] value = {"v1", "v2", "v3"};
 
       StringWriter sw = new StringWriter();
-      CSVWriter csvw = new CSVWriter(sw);
+      ICSVWriter csvw = new CSVWriter(sw);
 
       ResultSet rs = MockResultSetBuilder.buildResultSet(header, value, 1);
 
@@ -492,7 +488,7 @@ public class CSVWriterTest {
       String[] value = {"v1", "v2", "v3"};
 
       StringWriter sw = new StringWriter();
-      CSVWriter csvw = new CSVWriter(sw);
+      ICSVWriter csvw = new CSVWriter(sw);
 
       ResultSet rs = MockResultSetBuilder.buildResultSet(header, value, 1);
 
@@ -511,7 +507,7 @@ public class CSVWriterTest {
       String[] value = {"v1", "v2", "v3"};
 
       StringWriter sw = new StringWriter();
-      CSVWriter csvw = new CSVWriter(sw);
+      ICSVWriter csvw = new CSVWriter(sw);
       csvw.setResultService(new ResultSetHelperService());
 
       ResultSet rs = MockResultSetBuilder.buildResultSet(header, value, 3);
@@ -531,7 +527,7 @@ public class CSVWriterTest {
       String[] value = {"v1", "v2", "v3"};
 
       StringWriter sw = new StringWriter();
-      CSVWriter csvw = new CSVWriter(sw);
+      ICSVWriter csvw = new CSVWriter(sw);
       csvw.setResultService(new ResultSetHelperService());
 
       ResultSet rs = MockResultSetBuilder.buildResultSet(header, value, 1);
@@ -551,7 +547,7 @@ public class CSVWriterTest {
       String[] value = {"v1", "v2", "v3"};
 
       StringWriter sw = new StringWriter();
-      CSVWriter csvw = new CSVWriter(sw);
+      ICSVWriter csvw = new CSVWriter(sw);
       csvw.setResultService(new ResultSetHelperService());
 
       ResultSet rs = MockResultSetBuilder.buildResultSet(header, value, 1);
@@ -571,7 +567,7 @@ public class CSVWriterTest {
       String[] value = {"v1", "v2", "v3"};
 
       StringWriter sw = new StringWriter();
-      CSVWriter csvw = new CSVWriter(sw);
+      ICSVWriter csvw = new CSVWriter(sw);
       csvw.setResultService(new ResultSetHelperService());
 
       ResultSet rs = MockResultSetBuilder.buildResultSet(header, value, 3);
@@ -592,7 +588,7 @@ public class CSVWriterTest {
       String[] value = {"v1         ", "v2 ", "v3"};
 
       StringWriter sw = new StringWriter();
-      CSVWriter csvw = new CSVWriter(sw);
+      ICSVWriter csvw = new CSVWriter(sw);
       csvw.setResultService(new ResultSetHelperService());
 
       ResultSet rs = MockResultSetBuilder.buildResultSet(header, value, 1);
@@ -612,7 +608,7 @@ public class CSVWriterTest {
       String[] value = {"v1", "v2'v2a", "v3"};
 
       StringWriter sw = new StringWriter();
-      CSVWriter csvw = new CSVWriter(sw, CSVWriter.DEFAULT_SEPARATOR, '\'', '\'');
+      ICSVWriter csvw = new CSVWriter(sw, ICSVWriter.DEFAULT_SEPARATOR, '\'', '\'');
       csvw.setResultService(new ResultSetHelperService());
 
       ResultSet rs = MockResultSetBuilder.buildResultSet(header, value, 1);
@@ -629,35 +625,35 @@ public class CSVWriterTest {
    @Test
    public void issue123SeparatorEscapedWhenQuoteIsNoQuoteChar() {
       String[] header = {"Foo", "Bar", "baz"};
-      String[] value = {"v1", "v2" + CSVWriter.DEFAULT_ESCAPE_CHARACTER + "v2a", "v3"};
+      String[] value = {"v1", "v2" + ICSVWriter.DEFAULT_ESCAPE_CHARACTER + "v2a", "v3"};
 
       List<String[]> lines = new ArrayList<>();
       lines.add(header);
       lines.add(value);
       StringWriter sw = new StringWriter();
-      CSVWriter writer = new CSVWriter(sw, CSVWriter.DEFAULT_SEPARATOR, CSVWriter.NO_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER);
+      ICSVWriter writer = new CSVWriter(sw, ICSVWriter.DEFAULT_SEPARATOR, ICSVWriter.NO_QUOTE_CHARACTER, ICSVWriter.DEFAULT_ESCAPE_CHARACTER);
       writer.writeAll(lines);
 
       String result = sw.toString();
       assertNotNull(result);
-      assertEquals("Foo,Bar,baz\nv1,v2" + CSVWriter.DEFAULT_ESCAPE_CHARACTER + CSVWriter.DEFAULT_ESCAPE_CHARACTER + "v2a,v3\n", result);
+      assertEquals("Foo,Bar,baz\nv1,v2" + ICSVWriter.DEFAULT_ESCAPE_CHARACTER + ICSVWriter.DEFAULT_ESCAPE_CHARACTER + "v2a,v3\n", result);
    }
 
    @Test
    public void issue123SeparatorEscapedWhenQuoteIsNoQuoteCharSpecifingNoneDefaultEscapeChar() {
       String[] header = {"Foo", "Bar", "baz"};
       char escapeCharacter = '\\';
-      String[] value = {"v1", "v2" + escapeCharacter + "v2a" + CSVWriter.DEFAULT_SEPARATOR + "v2b", "v3"};
+      String[] value = {"v1", "v2" + escapeCharacter + "v2a" + ICSVWriter.DEFAULT_SEPARATOR + "v2b", "v3"};
       List<String[]> lines = new ArrayList<>();
       lines.add(header);
       lines.add(value);
       StringWriter sw = new StringWriter();
-      CSVWriter writer = new CSVWriter(sw, CSVWriter.DEFAULT_SEPARATOR, CSVWriter.NO_QUOTE_CHARACTER, escapeCharacter);
+      ICSVWriter writer = new CSVWriter(sw, ICSVWriter.DEFAULT_SEPARATOR, ICSVWriter.NO_QUOTE_CHARACTER, escapeCharacter);
       writer.writeAll(lines);
 
       String result = sw.toString();
       assertNotNull(result);
-      assertEquals("Foo,Bar,baz\nv1,v2" + escapeCharacter + escapeCharacter + "v2a" + escapeCharacter + CSVWriter.DEFAULT_SEPARATOR + "v2b,v3\n", result);
+      assertEquals("Foo,Bar,baz\nv1,v2" + escapeCharacter + escapeCharacter + "v2a" + escapeCharacter + ICSVWriter.DEFAULT_SEPARATOR + "v2b,v3\n", result);
    }
 
    @Test
@@ -669,7 +665,7 @@ public class CSVWriterTest {
       lines.add(header);
       lines.add(value);
       StringWriter sw = new StringWriter();
-      CSVWriter writer = new CSVWriter(sw, CSVWriter.DEFAULT_SEPARATOR, CSVWriter.NO_QUOTE_CHARACTER, escapeCharacter);
+      ICSVWriter writer = new CSVWriter(sw, ICSVWriter.DEFAULT_SEPARATOR, ICSVWriter.NO_QUOTE_CHARACTER, escapeCharacter);
       writer.writeAll(lines);
 
       String result = sw.toString();
@@ -682,7 +678,7 @@ public class CSVWriterTest {
       doThrow(IOException.class).when(writer).write(anyString());
       
       // Using writeNext()
-      CSVWriter csvWriter = new CSVWriter(writer);
+      ICSVWriter csvWriter = new CSVWriter(writer);
       csvWriter.writeNext(SIMPLE_STRING_ARRAY);
       csvWriter.close();
       assertTrue(csvWriter.checkError());
@@ -707,7 +703,7 @@ public class CSVWriterTest {
 
       PrintWriter printWriter = new PrintWriter(writer);
 
-      CSVWriter csvWriter = new CSVWriter(printWriter);
+      ICSVWriter csvWriter = new CSVWriter(printWriter);
 
       csvWriter.writeNext(SIMPLE_STRING_ARRAY);
 

@@ -60,7 +60,7 @@ public class UniCodeTest {
    @Test
    public void runUniCodeThroughCSVWriter() {
       StringWriter sw = new StringWriter();
-      CSVWriter writer = new CSVWriter(sw);
+      ICSVWriter writer = new CSVWriter(sw);
       writer.writeNext(UNICODE_ARRAY);
       assertEquals(COMPOUND_STRING_WITH_QUOTES.trim(), sw.toString().trim());
    }
@@ -68,7 +68,7 @@ public class UniCodeTest {
    @Test
    public void runASCIIThroughCSVWriter() {
       StringWriter sw = new StringWriter();
-      CSVWriter writer = new CSVWriter(sw);
+      ICSVWriter writer = new CSVWriter(sw);
       writer.writeNext(ASCII_ARRAY);
       assertEquals(ASCII_STRING_WITH_QUOTES.trim(), sw.toString().trim());
    }
@@ -76,7 +76,7 @@ public class UniCodeTest {
    @Test
    public void writeThenReadAscii() throws IOException {
       StringWriter sw = new StringWriter();
-      CSVWriter writer = new CSVWriter(sw);
+      ICSVWriter writer = new CSVWriter(sw);
       writer.writeNext(ASCII_ARRAY);
 
       CSVReader reader = new CSVReader(new StringReader(sw.toString()));
@@ -88,7 +88,7 @@ public class UniCodeTest {
    @Test
    public void writeThenReadTwiceAscii() throws IOException {
       StringWriter sw = new StringWriter();
-      CSVWriter writer = new CSVWriter(sw);
+      ICSVWriter writer = new CSVWriter(sw);
       writer.writeNext(ASCII_ARRAY);
       writer.writeNext(ASCII_ARRAY);
 
@@ -109,7 +109,7 @@ public class UniCodeTest {
    @Test
    public void writeThenReadTwiceUnicode() throws IOException {
       StringWriter sw = new StringWriter();
-      CSVWriter writer = new CSVWriter(sw);
+      ICSVWriter writer = new CSVWriter(sw);
       writer.writeNext(UNICODE_ARRAY);
       writer.writeNext(UNICODE_ARRAY);
 
@@ -130,7 +130,7 @@ public class UniCodeTest {
    @Test
    public void writeThenReadTwiceMixedUnicode() throws IOException {
       StringWriter sw = new StringWriter();
-      CSVWriter writer = new CSVWriter(sw);
+      ICSVWriter writer = new CSVWriter(sw);
       writer.writeNext(MIXED_ARRAY);
       writer.writeNext(MIXED_ARRAY);
 
