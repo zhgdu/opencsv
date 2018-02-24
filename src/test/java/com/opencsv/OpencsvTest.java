@@ -43,7 +43,7 @@ public class OpencsvTest {
    public void testWriteRead() throws IOException {
       final String[][] data = new String[][]{{"hello, a test", "one nested \" test"}, {"\"\"", "test", null, "8"}};
 
-      CSVWriter writer = new CSVWriter(new FileWriter(tempFile));
+      ICSVWriter writer = new CSVWriter(new FileWriter(tempFile));
       for (String[] aData : data) {
          writer.writeNext(aData);
       }

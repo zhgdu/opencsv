@@ -17,6 +17,7 @@ package com.opencsv.bean;
 
 import com.opencsv.CSVWriter;
 import com.opencsv.ICSVParser;
+import com.opencsv.ICSVWriter;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.io.Writer;
@@ -32,10 +33,10 @@ import java.util.ResourceBundle;
  * @since 3.9
  */
 public class StatefulBeanToCsvBuilder<T> {
-    
-    private char separator = CSVWriter.DEFAULT_SEPARATOR;
-    private char quotechar = CSVWriter.DEFAULT_QUOTE_CHARACTER;
-    private char escapechar = CSVWriter.DEFAULT_ESCAPE_CHARACTER;
+
+    private char separator = ICSVWriter.DEFAULT_SEPARATOR;
+    private char quotechar = ICSVWriter.DEFAULT_QUOTE_CHARACTER;
+    private char escapechar = ICSVWriter.DEFAULT_ESCAPE_CHARACTER;
     private String lineEnd = CSVWriter.DEFAULT_LINE_END;
     private MappingStrategy<T> mappingStrategy = null;
     private final Writer writer;

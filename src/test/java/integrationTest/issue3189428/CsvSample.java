@@ -4,6 +4,7 @@ package integrationTest.issue3189428;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 import com.opencsv.ICSVParser;
+import com.opencsv.ICSVWriter;
 import com.opencsv.bean.ColumnPositionMappingStrategy;
 import com.opencsv.bean.CsvToBean;
 
@@ -35,7 +36,7 @@ public class CsvSample {
       // working string
       // fields[4] = "Joe said, \"This is a test of a \nlong broken string,\" and Sally said, \"I bet it won't work.\"";
 
-      CSVWriter writer = new CSVWriter(new FileWriter(filePath));
+      ICSVWriter writer = new CSVWriter(new FileWriter(filePath));
       writer.writeNext(fields); // let's make 3 rows so we can see it cleanly in Excel.
       writer.writeNext(fields);
       writer.writeNext(fields);

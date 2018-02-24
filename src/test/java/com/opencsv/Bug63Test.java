@@ -20,7 +20,7 @@ public class Bug63Test {
 
     private static String[] fields = new String[5];
     private StringWriter sw;
-    private CSVWriter csvWriter;
+    private ICSVWriter csvWriter;
     private StringReader sr;
 
 
@@ -47,7 +47,7 @@ public class Bug63Test {
         StringWriter writer = new StringWriter();
 
         StatefulBeanToCsv<Contents> bToC = new StatefulBeanToCsvBuilder(writer)
-                .withQuotechar(CSVWriter.DEFAULT_QUOTE_CHARACTER)
+                .withQuotechar(ICSVWriter.DEFAULT_QUOTE_CHARACTER)
                 .withSeparator(';')
                 .build();
 

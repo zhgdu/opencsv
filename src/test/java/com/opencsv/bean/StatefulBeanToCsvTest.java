@@ -15,7 +15,7 @@
  */
 package com.opencsv.bean;
 
-import com.opencsv.CSVWriter;
+import com.opencsv.ICSVWriter;
 import com.opencsv.bean.mocks.*;
 import com.opencsv.exceptions.CsvBeanIntrospectionException;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
@@ -124,7 +124,7 @@ public class StatefulBeanToCsvTest {
         ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv btcsv = new StatefulBeanToCsvBuilder(writer)
-                .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
                 .withSeparator(';')
                 .build();
         btcsv.write(beans.left);
@@ -143,7 +143,7 @@ public class StatefulBeanToCsvTest {
         beanList.add(beans.left); beanList.add(beans.right);
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv btcsv = new StatefulBeanToCsvBuilder(writer)
-                .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
                 .withSeparator(';')
                 .build();
         btcsv.write(beanList);
@@ -162,7 +162,7 @@ public class StatefulBeanToCsvTest {
         beanList.add(beans.left); beanList.add(beans.right);
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv btcsv = new StatefulBeanToCsvBuilder(writer)
-                .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
                 .withSeparator(';')
                 .withOrderedResults(false)
                 .build();
@@ -183,7 +183,7 @@ public class StatefulBeanToCsvTest {
         beanList.add(beans.left); beanList.add(beans.right);
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv btcsv = new StatefulBeanToCsvBuilder(writer)
-                .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
                 .withSeparator(';')
                 .withLineEnd("arj\n")
                 .build();
@@ -207,7 +207,7 @@ public class StatefulBeanToCsvTest {
         beans.left.setCalDefaultLocale(null);
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv btcsv = new StatefulBeanToCsvBuilder(writer)
-                .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
                 .withSeparator(';')
                 .withEscapechar('|') // Just for code coverage. Doesn't do anything else.
                 .build();
@@ -227,7 +227,7 @@ public class StatefulBeanToCsvTest {
         beans.left.setColumnDoesntExist(EXTRA_STRING_FOR_WRITING);
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv btcsv = new StatefulBeanToCsvBuilder(writer)
-                .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
                 .withSeparator(';')
                 .build();
         btcsv.write(beans.left);
@@ -246,7 +246,7 @@ public class StatefulBeanToCsvTest {
         HeaderColumnNameMappingStrategy strat = new HeaderColumnNameMappingStrategy();
         strat.setType(AnnotatedMockBeanFull.class);
         StatefulBeanToCsv btcsv = new StatefulBeanToCsvBuilder(writer)
-                .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
                 .withSeparator(';')
                 .withMappingStrategy(strat)
                 .build();
@@ -265,7 +265,7 @@ public class StatefulBeanToCsvTest {
         BindUnknownType byNameUnsupported = new BindUnknownType();
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv btcsv = new StatefulBeanToCsvBuilder(writer)
-                .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
                 .build();
         btcsv.write(byNameUnsupported);
         assertEquals(BindUnknownType.TOSTRING + "\n", writer.toString());
@@ -284,7 +284,7 @@ public class StatefulBeanToCsvTest {
         HeaderColumnNameMappingStrategy strat = new HeaderColumnNameMappingStrategy();
         strat.setType(BindUnknownType.class);
         StatefulBeanToCsv btcsv = new StatefulBeanToCsvBuilder(writer)
-                .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
                 .withMappingStrategy(strat)
                 .build();
         btcsv.write(byNameUnsupported);
@@ -302,7 +302,7 @@ public class StatefulBeanToCsvTest {
         ComplexClassForCustomAnnotation cc = new ComplexClassForCustomAnnotation();
         cc.c = 'A'; cc.i = 1; cc.s = "String";
         StatefulBeanToCsv btcsv = new StatefulBeanToCsvBuilder(writer)
-                .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
                 .withSeparator(';')
                 .build();
         btcsv.write(cc);
@@ -321,7 +321,7 @@ public class StatefulBeanToCsvTest {
         HeaderColumnNameMappingStrategy strat = new HeaderColumnNameMappingStrategy();
         strat.setType(AnnotatedMockBeanFullDerived.class);
         StatefulBeanToCsv btcsv = new StatefulBeanToCsvBuilder(writer)
-                .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
                 .withSeparator(';')
                 .withMappingStrategy(strat)
                 .build();
@@ -342,7 +342,7 @@ public class StatefulBeanToCsvTest {
         HeaderColumnNameMappingStrategy strat = new HeaderColumnNameMappingStrategy();
         strat.setType(AnnotatedMockBeanFull.class);
         StatefulBeanToCsv btcsv = new StatefulBeanToCsvBuilder(writer)
-                .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
                 .withSeparator(';')
                 .withMappingStrategy(strat)
                 .build();
@@ -363,7 +363,7 @@ public class StatefulBeanToCsvTest {
         GetterMissing getterMissing = new GetterMissing();
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv sbtcsv = new StatefulBeanToCsvBuilder(writer)
-                .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
                 .build();
         try {
             sbtcsv.write(getterMissing);
@@ -386,7 +386,7 @@ public class StatefulBeanToCsvTest {
         GetterPrivate getterPrivate = new GetterPrivate();
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv sbtcsv = new StatefulBeanToCsvBuilder(writer)
-                .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
                 .build();
         try {
             sbtcsv.write(getterPrivate);
@@ -411,7 +411,7 @@ public class StatefulBeanToCsvTest {
         ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv sbtcsv = new StatefulBeanToCsvBuilder(writer)
-                .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
                 .withThrowExceptions(false)
                 .build();
         beans.left.setByteWrappedSetLocale(null); // required
@@ -439,7 +439,7 @@ public class StatefulBeanToCsvTest {
         ImmutablePair<AnnotatedMockBeanCustom, AnnotatedMockBeanCustom> beans = createTwoGoodCustomBeans();
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv sbtcsv = new StatefulBeanToCsvBuilder(writer)
-                .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
                 .withThrowExceptions(false)
                 .build();
         beans.left.setRequiredWithCustom(null); // required
@@ -468,7 +468,7 @@ public class StatefulBeanToCsvTest {
         ImmutablePair<AnnotatedMockBeanCustom, AnnotatedMockBeanCustom> beans = createTwoGoodCustomBeans();
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv sbtcsv = new StatefulBeanToCsvBuilder(writer)
-                .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
                 .withThrowExceptions(true)
                 .build();
         assertTrue(sbtcsv.isThrowExceptions());
@@ -499,7 +499,7 @@ public class StatefulBeanToCsvTest {
         ImmutablePair<AnnotatedMockBeanCustom, AnnotatedMockBeanCustom> beans = createTwoGoodCustomBeans();
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv sbtcsv = new StatefulBeanToCsvBuilder(writer)
-                .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
                 .withThrowExceptions(false)
                 .withOrderedResults(false)
                 .build();
@@ -532,7 +532,7 @@ public class StatefulBeanToCsvTest {
         beans.right.setDateDefaultLocale(null); // required
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv sbtcsv = new StatefulBeanToCsvBuilder(writer)
-                .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
                 .withThrowExceptions(false)
                 .build();
         sbtcsv.write(beans.left);
@@ -562,7 +562,7 @@ public class StatefulBeanToCsvTest {
         beans.right.setDateDefaultLocale(null); // required
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv sbtcsv = new StatefulBeanToCsvBuilder(writer)
-                .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
                 .withThrowExceptions(false)
                 .build();
         sbtcsv.write(beans.left);
@@ -585,7 +585,7 @@ public class StatefulBeanToCsvTest {
         beans.right.setDateDefaultLocale(null); // required
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv sbtcsv = new StatefulBeanToCsvBuilder(writer)
-                .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
                 .withThrowExceptions(false)
                 .build();
         sbtcsv.write(beans.left);
@@ -607,7 +607,7 @@ public class StatefulBeanToCsvTest {
         wrongTypeBean.setWrongType(GOOD_DATA_1);
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv sbtcsv = new StatefulBeanToCsvBuilder(writer)
-                .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
                 .withThrowExceptions(false)
                 .build();
         sbtcsv.write(wrongTypeBean);
@@ -625,7 +625,7 @@ public class StatefulBeanToCsvTest {
         // Now with another locale
         writer = new StringWriter();
         sbtcsv = new StatefulBeanToCsvBuilder(writer)
-                .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
                 .withThrowExceptions(false)
                 .withErrorLocale(Locale.GERMAN)
                 .build();
@@ -658,7 +658,7 @@ public class StatefulBeanToCsvTest {
         ImmutablePair<AnnotatedMockBeanCustom, AnnotatedMockBeanCustom> beans = createTwoGoodCustomBeans();
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv btcsv = new StatefulBeanToCsvBuilder(writer)
-                .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
                 .withSeparator(';')
                 .build();
         btcsv.write(beans.left);
@@ -680,7 +680,7 @@ public class StatefulBeanToCsvTest {
         HeaderColumnNameMappingStrategy strat = new HeaderColumnNameMappingStrategy();
         strat.setType(AnnotatedMockBeanCustom.class);
         StatefulBeanToCsv btcsv = new StatefulBeanToCsvBuilder(writer)
-                .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
                 .withSeparator(';')
                 .withMappingStrategy(strat)
                 .build();
@@ -704,7 +704,7 @@ public class StatefulBeanToCsvTest {
         ImmutablePair<AnnotatedMockBeanCustom, AnnotatedMockBeanCustom> beans = createTwoGoodCustomBeans();
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv btcsv = new StatefulBeanToCsvBuilder(writer)
-                .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
                 .withSeparator(';')
                 .build();
         beans.left.setBoolWrapped(null);

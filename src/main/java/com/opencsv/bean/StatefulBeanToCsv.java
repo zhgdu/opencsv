@@ -17,6 +17,7 @@ package com.opencsv.bean;
 
 import com.opencsv.CSVWriter;
 import com.opencsv.ICSVParser;
+import com.opencsv.ICSVWriter;
 import com.opencsv.bean.concurrent.AccumulateCsvResults;
 import com.opencsv.bean.concurrent.IntolerantThreadPoolExecutor;
 import com.opencsv.bean.concurrent.OrderedObject;
@@ -56,7 +57,7 @@ public class StatefulBeanToCsv<T> {
     private boolean headerWritten = false;
     private MappingStrategy<T> mappingStrategy;
     private final Writer writer;
-    private CSVWriter csvwriter;
+    private ICSVWriter csvwriter;
     private boolean throwExceptions;
     private List<CsvException> capturedExceptions = new ArrayList<>();
     private boolean orderedResults = true;
