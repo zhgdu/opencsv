@@ -162,7 +162,7 @@ public class CSVReaderBuilder {
 
     /**
      * Creates a new icsvParser if the class does't already hold one.
-     * @return
+     * @return - the injected ICSVParser or a default parser.
      */
     protected ICSVParser getOrCreateCsvParser() {
         return ObjectUtils.defaultIfNull(icsvParser,

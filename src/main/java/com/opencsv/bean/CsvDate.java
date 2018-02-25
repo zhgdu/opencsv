@@ -42,7 +42,7 @@ public @interface CsvDate {
     /**
      * A time format string.
      * This must be a string understood by
-     * {@link java.time.format.DateTimeFormatter#ofPattern(java.lang.String)}.
+     * {@link java.text.SimpleDateFormat#SimpleDateFormat(java.lang.String)}.
      * The default value conforms with
      * <a href="https://en.wikipedia.org/wiki/ISO_8601">ISO 8601</a> and is
      * {@code "yyyyMMdd'T'HHmmss"}. Locale information, if specified, is gleaned

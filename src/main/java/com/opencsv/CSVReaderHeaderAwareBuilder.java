@@ -3,12 +3,17 @@ package com.opencsv;
 import java.io.IOException;
 import java.io.Reader;
 
+/**
+ * Builder for CSVReaderHeaderAware. No transformations on the original parameters accepted by CSVReaderBuilder.
+ *
+ * @author Andre Rosot
+ * @since 4.2
+ */
 public class CSVReaderHeaderAwareBuilder extends CSVReaderBuilder {
     /**
-     * Builder for CSVReaderHeaderAware. No transformations on the original parameters accepted by CSVReaderBuilder.
+     * Constructor for CSVReaderHeaderAware.
      *
      * @param reader The reader to an underlying CSV source.
-     * @author Andre Rosot
      * @since 4.2
      */
     public CSVReaderHeaderAwareBuilder(Reader reader) {

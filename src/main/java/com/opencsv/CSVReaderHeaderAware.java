@@ -31,8 +31,18 @@ public class CSVReaderHeaderAware extends CSVReader {
 
     /**
      * Supports non-deprecated constructor from the parent class.
+     *
+     * @param reader         The reader to an underlying CSV source
+     * @param skipLines           The number of lines to skip before reading
+     * @param parser     The parser to use to parse input
+     * @param keepCR         True to keep carriage returns in data read, false otherwise
+     * @param verifyReader   True to verify reader before each read, false otherwise
+     * @param multilineLimit Allow the user to define the limit to the number of lines in a multiline record. Less than one means no limit.
+     * @param errorLocale    Set the locale for error messages. If null, the default locale is used.
+     * @throws IOException  If there is an error reading the header.
      */
-    public CSVReaderHeaderAware(Reader reader, int skipLines, ICSVParser parser, boolean keepCR, boolean verifyReader, int multilineLimit, Locale errorLocale) throws IOException {
+    public CSVReaderHeaderAware(Reader reader, int skipLines, ICSVParser parser, boolean keepCR, boolean verifyReader,
+                                int multilineLimit, Locale errorLocale) throws IOException {
         super(reader, skipLines, parser, keepCR, verifyReader, multilineLimit, errorLocale);
         initializeHeader();
     }

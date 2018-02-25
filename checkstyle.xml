@@ -25,13 +25,17 @@
         <module name="EqualsHashCode"/>
         <module name="HiddenField"/>
         <module name="IllegalImport"/>
-        <module name="MagicNumber"/>
+        <module name="MagicNumber">
+            <property name="ignoreHashCodeMethod" value="true"/>
+        </module>
         <module name="MissingCtor"/>
         <module name="MissingOverride"/>
         <module name="MissingSwitchDefault"/>
         <module name="NPathComplexity"/>
         <module name="NeedBraces"/>
-        <module name="MultipleStringLiterals"/>
+        <module name="MultipleStringLiterals">
+            <property name="allowedDuplicates" value="2"/>
+        </module>
         <module name="MultipleVariableDeclarations"/>
     </module>
 </module>
