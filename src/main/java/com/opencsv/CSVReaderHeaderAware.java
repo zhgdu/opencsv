@@ -66,6 +66,13 @@ public class CSVReaderHeaderAware extends CSVReader {
             return null;
         }
 
+        if (strings.length < headerIndex.size()) {
+            throw new IOException(String.format(
+                    ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
+                            .getString("header.data.mismatch.with.line.number"),
+                    getRecordsRead()));
+        }
+
         String[] response = new String[headerNames.length];
 
         for (int i = 0; i < headerNames.length; i++) {
@@ -77,13 +84,6 @@ public class CSVReaderHeaderAware extends CSVReader {
                         ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
                                 .getString("header.nonexistant"),
                         headerName));
-            }
-
-            if (strings.length != headerIndex.size()) {
-                throw new IOException(String.format(
-                        ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
-                                .getString("header.data.mismatch.with.line.number"),
-                        getRecordsRead()));
             }
 
             response[i] = strings[index];
