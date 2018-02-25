@@ -30,15 +30,6 @@ import java.util.List;
  */
 public class CSVWriter implements ICSVWriter {
 
-   /**
-    * Default line terminator.
-    */
-   public static final String DEFAULT_LINE_END = "\n";
-   /**
-    * RFC 4180 compliant line terminator.
-    */
-   public static final String RFC4180_LINE_END = "\r\n";
-
    protected final Writer writer;
    protected final char separator;
    protected final char quotechar;
