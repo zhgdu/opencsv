@@ -66,7 +66,7 @@ public class CSVReaderHeaderAware extends CSVReader {
             return null;
         }
 
-        if (strings.length < headerIndex.size()) {
+        if (strings.length != headerIndex.size()) {
             throw new IOException(String.format(
                     ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
                             .getString("header.data.mismatch.with.line.number"),

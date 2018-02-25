@@ -98,12 +98,10 @@ public class CsvReaderHeaderAwareTest {
         csvr.readNext("second");
     }
 
-    @Test
-    public void canPassInAHeaderThatIsSmallerThanData() throws IOException {
+    @Test(expected = IOException.class)
+    public void shouldFailWhenNumberOfDataItemsIsGreaterThanHeader() throws IOException {
         csvr.skip(6);
-        String[] nextLine = csvr.readNext("second", "first");
-        assertEquals("b", nextLine[0]);
-        assertEquals("a\nb", nextLine[1]);
+        csvr.readNext("second");
     }
 
     @Test
