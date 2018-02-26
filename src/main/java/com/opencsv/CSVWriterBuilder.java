@@ -124,4 +124,33 @@ public class CSVWriterBuilder {
         this.lineEnd = lineEnd;
         return this;
     }
+
+    /**
+     * Creates the CSVWriter.
+     *
+     * @return a CSVWriter based on the set criteria.
+     */
+    public ICSVWriter build() {
+        if (parser != null) {
+            return createCSVParserWriter();
+        }
+        return createCSVWriter();
+    }
+
+    private ICSVWriter createCSVParserWriter() {
+        return new CSVParserWriter(writer, parser, lineEnd);
+    }
+
+    private ICSVWriter createCSVWriter() {
+        if (separator == null) {
+            separator = ICSVParser.DEFAULT_SEPARATOR;
+        }
+        if (quotechar == null) {
+            quotechar = ICSVParser.DEFAULT_QUOTE_CHARACTER;
+        }
+        if (escapechar == null) {
+            escapechar = ICSVParser.DEFAULT_ESCAPE_CHARACTER;
+        }
+        return new CSVWriter(writer, separator, quotechar, escapechar, lineEnd);
+    }
 }

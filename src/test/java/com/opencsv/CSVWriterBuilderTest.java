@@ -8,8 +8,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.Field;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 
 public class CSVWriterBuilderTest {
@@ -97,5 +96,44 @@ public class CSVWriterBuilderTest {
         assertSame(builder, newBuilder);
         Field lineEndField = FieldUtils.getDeclaredField(builder.getClass(), "lineEnd", true);
         assertEquals(ICSVParser.NEWLINE, lineEndField.get(builder));
+    }
+
+    @Test
+    public void buildWillProduceCSVWriterByDefault() throws IllegalAccessException {
+        ICSVWriter csvWriter = builder.build();
+        assertTrue(csvWriter instanceof CSVWriter);
+        assertSame(writer, FieldUtils.readDeclaredField(csvWriter, "writer", true));
+        assertEquals(ICSVParser.DEFAULT_SEPARATOR, FieldUtils.readDeclaredField(csvWriter, "separator", true));
+        assertEquals(ICSVParser.DEFAULT_QUOTE_CHARACTER, FieldUtils.readDeclaredField(csvWriter, "quotechar", true));
+        assertEquals(ICSVParser.DEFAULT_ESCAPE_CHARACTER, FieldUtils.readDeclaredField(csvWriter, "escapechar", true));
+        assertEquals(ICSVWriter.DEFAULT_LINE_END, FieldUtils.readDeclaredField(csvWriter, "lineEnd", true));
+    }
+
+    @Test
+    public void buildCSVParserWithValues() throws IllegalAccessException {
+        ICSVWriter csvWriter = builder
+                .withEscapeChar('a')
+                .withQuoteChar('b')
+                .withSeparator('c')
+                .withLineEnd("Stop")
+                .build();
+        assertTrue(csvWriter instanceof CSVWriter);
+        assertSame(writer, FieldUtils.readDeclaredField(csvWriter, "writer", true));
+        assertEquals('c', FieldUtils.readDeclaredField(csvWriter, "separator", true));
+        assertEquals('b', FieldUtils.readDeclaredField(csvWriter, "quotechar", true));
+        assertEquals('a', FieldUtils.readDeclaredField(csvWriter, "escapechar", true));
+        assertEquals("Stop", FieldUtils.readDeclaredField(csvWriter, "lineEnd", true));
+    }
+
+    @Test
+    public void buildWillProduceCSVParserWriterIfParserIsSupplied() throws IllegalAccessException {
+        ICSVWriter csvWriter = builder
+                .withParser(mockParser)
+                .withLineEnd("Stop")
+                .build();
+        assertTrue(csvWriter instanceof CSVParserWriter);
+        assertSame(writer, FieldUtils.readDeclaredField(csvWriter, "writer", true));
+        assertSame(mockParser, FieldUtils.readDeclaredField(csvWriter, "parser", true));
+        assertEquals("Stop", FieldUtils.readDeclaredField(csvWriter, "lineEnd", true));
     }
 }
