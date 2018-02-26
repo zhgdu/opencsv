@@ -21,14 +21,15 @@ import com.opencsv.exceptions.CsvBeanIntrospectionException;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
-import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.*;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -748,68 +749,7 @@ public class StatefulBeanToCsvTest {
             assertEquals("boolWrapped", e.getDestinationField().getName());
         }
     }
-    
-    @Test
-    public void testPerformance()
-            throws IOException, CsvDataTypeMismatchException,
-            CsvRequiredFieldEmptyException {
-        System.out.println("The following are performance data. Please keep an eye on them as you develop.");
-        int numBeans = 10000;
-        List<AnnotatedMockBeanFull> beanList = new ArrayList<>(numBeans);
-        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> pair = createTwoGoodBeans();
-        for(int i = 0; i < numBeans/2; i++) {
-            beanList.add(pair.left);
-            beanList.add(pair.right);
-        }
-        
-        // Writing, ordered
-        Writer writer = new StringWriter();
-        HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat = new HeaderColumnNameMappingStrategy<>();
-        strat.setType(AnnotatedMockBeanFull.class);
-        StatefulBeanToCsv<AnnotatedMockBeanFull> btcsv = new StatefulBeanToCsvBuilder<AnnotatedMockBeanFull>(writer)
-                .withMappingStrategy((MappingStrategy)strat).build();
-        StopWatch watch = StopWatch.createStarted();
-        btcsv.write(beanList);
-        watch.stop();
-        System.out.println("Time taken to write " + numBeans + " beans, ordered: " + watch.toString());
-        
-        // Writing, unordered
-        writer = new StringWriter();
-        strat = new HeaderColumnNameMappingStrategy<>();
-        strat.setType(AnnotatedMockBeanFull.class);
-        btcsv = new StatefulBeanToCsvBuilder<AnnotatedMockBeanFull>(writer)
-                .withMappingStrategy((MappingStrategy)strat)
-                .withOrderedResults(false)
-                .build();
-        watch = StopWatch.createStarted();
-        btcsv.write(beanList);
-        watch.stop();
-        System.out.println("Time taken to write " + numBeans + " beans, unordered: " + watch.toString());
-        
-        // Reading, ordered
-        Reader reader = new StringReader(writer.toString());
-        CsvToBean<AnnotatedMockBeanFull> csvtb = new CsvToBeanBuilder<AnnotatedMockBeanFull>(reader)
-                .withType(AnnotatedMockBeanFull.class)
-                .withMappingStrategy((MappingStrategy)strat).build();
-        watch = StopWatch.createStarted();
-        List<AnnotatedMockBeanFull> beans = csvtb.parse();
-        watch.stop();
-        assertEquals(numBeans, beans.size());
-        System.out.println("Time taken to read " + numBeans + " beans, ordered: " + watch.toString());
-        
-        // Reading, ordered
-        reader = new StringReader(writer.toString());
-        csvtb = new CsvToBeanBuilder<AnnotatedMockBeanFull>(reader)
-                .withType(AnnotatedMockBeanFull.class)
-                .withOrderedResults(false)
-                .withMappingStrategy((MappingStrategy)strat).build();
-        watch = StopWatch.createStarted();
-        beans = csvtb.parse();
-        watch.stop();
-        assertEquals(numBeans, beans.size());
-        System.out.println("Time taken to read " + numBeans + " beans, unordered: " + watch.toString());
-        }
-    
+
     /**
      * Test of ConvertSplitOnWhitespace with the wrong data type.
      * Also tests internationalization of ConvertSplitOnWhitespace.
