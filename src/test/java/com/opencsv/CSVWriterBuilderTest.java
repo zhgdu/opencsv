@@ -102,11 +102,11 @@ public class CSVWriterBuilderTest {
     public void buildWillProduceCSVWriterByDefault() throws IllegalAccessException {
         ICSVWriter csvWriter = builder.build();
         assertTrue(csvWriter instanceof CSVWriter);
-        assertSame(writer, FieldUtils.readDeclaredField(csvWriter, "writer", true));
-        assertEquals(ICSVParser.DEFAULT_SEPARATOR, FieldUtils.readDeclaredField(csvWriter, "separator", true));
-        assertEquals(ICSVParser.DEFAULT_QUOTE_CHARACTER, FieldUtils.readDeclaredField(csvWriter, "quotechar", true));
-        assertEquals(ICSVParser.DEFAULT_ESCAPE_CHARACTER, FieldUtils.readDeclaredField(csvWriter, "escapechar", true));
-        assertEquals(ICSVWriter.DEFAULT_LINE_END, FieldUtils.readDeclaredField(csvWriter, "lineEnd", true));
+        assertSame(writer, FieldUtils.readField(csvWriter, "writer", true));
+        assertEquals(ICSVParser.DEFAULT_SEPARATOR, FieldUtils.readField(csvWriter, "separator", true));
+        assertEquals(ICSVParser.DEFAULT_QUOTE_CHARACTER, FieldUtils.readField(csvWriter, "quotechar", true));
+        assertEquals(ICSVParser.DEFAULT_ESCAPE_CHARACTER, FieldUtils.readField(csvWriter, "escapechar", true));
+        assertEquals(ICSVWriter.DEFAULT_LINE_END, FieldUtils.readField(csvWriter, "lineEnd", true));
     }
 
     @Test
@@ -118,11 +118,11 @@ public class CSVWriterBuilderTest {
                 .withLineEnd("Stop")
                 .build();
         assertTrue(csvWriter instanceof CSVWriter);
-        assertSame(writer, FieldUtils.readDeclaredField(csvWriter, "writer", true));
-        assertEquals('c', FieldUtils.readDeclaredField(csvWriter, "separator", true));
-        assertEquals('b', FieldUtils.readDeclaredField(csvWriter, "quotechar", true));
-        assertEquals('a', FieldUtils.readDeclaredField(csvWriter, "escapechar", true));
-        assertEquals("Stop", FieldUtils.readDeclaredField(csvWriter, "lineEnd", true));
+        assertSame(writer, FieldUtils.readField(csvWriter, "writer", true));
+        assertEquals('c', FieldUtils.readField(csvWriter, "separator", true));
+        assertEquals('b', FieldUtils.readField(csvWriter, "quotechar", true));
+        assertEquals('a', FieldUtils.readField(csvWriter, "escapechar", true));
+        assertEquals("Stop", FieldUtils.readField(csvWriter, "lineEnd", true));
     }
 
     @Test
@@ -132,8 +132,8 @@ public class CSVWriterBuilderTest {
                 .withLineEnd("Stop")
                 .build();
         assertTrue(csvWriter instanceof CSVParserWriter);
-        assertSame(writer, FieldUtils.readDeclaredField(csvWriter, "writer", true));
-        assertSame(mockParser, FieldUtils.readDeclaredField(csvWriter, "parser", true));
-        assertEquals("Stop", FieldUtils.readDeclaredField(csvWriter, "lineEnd", true));
+        assertSame(writer, FieldUtils.readField(csvWriter, "writer", true));
+        assertSame(mockParser, FieldUtils.readField(csvWriter, "parser", true));
+        assertEquals("Stop", FieldUtils.readField(csvWriter, "lineEnd", true));
     }
 }

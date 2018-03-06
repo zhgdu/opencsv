@@ -1,89 +1,51 @@
 package com.opencsv;
 
+/*
+ Copyright 2018 Bytecode Pty Ltd.
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
+
 import java.io.IOException;
 import java.io.Writer;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
 
-public class CSVParserWriter implements ICSVWriter {
-    protected final Writer writer;
+/**
+ * The CSVParserWriter is a replacement for the CSVWriter that allows you to pass in a ICSVParser
+ * to handle the task of converting a string array to a line of CSV data.  This way you have the same class
+ * creating the data as reading it.
+ *
+ * @author Scott Conway
+ * @since 4.2
+ */
+public class CSVParserWriter extends AbstractCSVWriter {
     protected final ICSVParser parser;
-    protected final String lineEnd;
 
+    /**
+     * Constructor for the CSVParserWriter.
+     *
+     * @param writer  - The writer to an underlying CSV source.
+     * @param parser  - ICSVParser to convert the String array to csv formatted string.
+     * @param lineEnd - Desired line end String (either "\n" or "\r\n").
+     */
     public CSVParserWriter(Writer writer, ICSVParser parser, String lineEnd) {
-        this.writer = writer;
+        super(writer, lineEnd);
         this.parser = parser;
-        this.lineEnd = lineEnd;
     }
 
     @Override
-    public void writeAll(Iterable<String[]> allLines, boolean applyQuotesToAll) {
-
-    }
-
-    @Override
-    public void writeAll(List<String[]> allLines, boolean applyQuotesToAll) {
-
-    }
-
-    @Override
-    public void writeAll(Iterable<String[]> allLines) {
-
-    }
-
-    @Override
-    public void writeAll(List<String[]> allLines) {
-
-    }
-
-    @Override
-    public int writeAll(ResultSet rs, boolean includeColumnNames) throws SQLException, IOException {
-        return 0;
-    }
-
-    @Override
-    public int writeAll(ResultSet rs, boolean includeColumnNames, boolean trim) throws SQLException, IOException {
-        return 0;
-    }
-
-    @Override
-    public int writeAll(ResultSet rs, boolean includeColumnNames, boolean trim, boolean applyQuotesToAll) throws SQLException, IOException {
-        return 0;
-    }
-
-    @Override
-    public void writeNext(String[] nextLine, boolean applyQuotesToAll) {
-
-    }
-
-    @Override
-    public void writeNext(String[] nextLine) {
-
-    }
-
-    @Override
-    public boolean checkError() {
-        return false;
-    }
-
-    @Override
-    public void setResultService(ResultSetHelper resultService) {
-
-    }
-
-    @Override
-    public void flushQuietly() {
-
-    }
-
-    @Override
-    public void close() throws IOException {
-
-    }
-
-    @Override
-    public void flush() throws IOException {
-
+    protected void writeNext(String[] nextLine, boolean applyQuotesToAll, Appendable appendable) throws IOException {
+        appendable.append(parser.parseToLine(nextLine));
+        appendable.append(lineEnd);
+        writer.write(appendable.toString());
     }
 }
