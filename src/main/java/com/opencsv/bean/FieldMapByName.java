@@ -17,15 +17,11 @@ package com.opencsv.bean;
 
 import com.opencsv.ICSVParser;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Locale;
-import java.util.Map;
-import java.util.ResourceBundle;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.lang3.StringUtils;
+
+import java.lang.reflect.Field;
+import java.util.*;
 
 /**
  * This class maintains a mapping from header names out of a CSV file to bean
@@ -163,7 +159,7 @@ public class FieldMapByName extends AbstractFieldMap<String, String, RegexToBean
         // To make testing simpler and because not all receivers are guaranteed
         // to be as flexible with column order as opencsv, make the column
         // ordering deterministic by sorting the column headers alphabetically.
-        headerList.sort(null);
+        Collections.sort(headerList);
         return headerList.toArray(new String[headerList.size()]);
     }
 }

@@ -112,8 +112,8 @@ public class PositionToBeanField extends AbstractFieldMapEntry<String, Integer> 
                         else {
                             if(next.isOverlappedBy(range)) {
                                 range = Range.<Integer>between(
-                                        Integer.min(next.getMinimum(), range.getMinimum()),
-                                        Integer.max(next.getMaximum(), range.getMaximum()));
+                                        Math.min(next.getMinimum(), range.getMinimum()),
+                                        Math.max(next.getMaximum(), range.getMaximum()));
                                 it.remove();
                             }
                             else if(next.getMaximum()+1 == range.getMinimum()) {
@@ -252,6 +252,11 @@ public class PositionToBeanField extends AbstractFieldMapEntry<String, Integer> 
                 position++;
             }
             return entry;
+        }
+
+        @Override
+        public void remove() {
+            throw new UnsupportedOperationException();
         }
     }
 }
