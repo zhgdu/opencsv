@@ -69,8 +69,10 @@ the bean fields with the opencsv annotations, then do this:
 
 --+++Even quickier start
 
-Starting from version 4.2, there's another handy way of reading CSV's that doens't even require creating special classes.
-If your CSV file has headers, you can just initialize a CSVReaderHeaderAware and start reading the values out as a map:
+Starting with version 4.2, there's another handy way of reading CSV files that
+doesn't even require creating special classes. If your CSV file has headers,
+you can just initialize a CSVReaderHeaderAware and start reading the values
+out as a map:
 
    <verbatim>
       Map<String, String> values = new CSVReaderHeaderAware(new FileReader("yourfile.csv")).readMap();
