@@ -396,8 +396,16 @@ public class CollectionSplitTest {
         set.add(cal.getTime());
         bean.setSetType(set);
         b2csv.write(bean);
-        assertEquals("\"COLLECTIONTYPE\",\"DEQUETYPE\",\"LISTTYPE\",\"NAVIGABLESETTYPE\",\"QUEUETYPE\",\"SETTYPE\",\"SORTEDSETTYPE\"\n" +
-"\"\",\"\",\"\",\"\",\"\",\"1978-01-15 2018-01-01\",\"1 2 3\"\n", writer.toString());
+        String s = writer.toString();
+        
+        // Unfortunately, the set the dates are read into is not sorted, so
+        // depending on I don't know what (probably the JDK version), the order
+        // can change.
+        String option1 = "\"COLLECTIONTYPE\",\"DEQUETYPE\",\"LISTTYPE\",\"NAVIGABLESETTYPE\",\"QUEUETYPE\",\"SETTYPE\",\"SORTEDSETTYPE\"\n" +
+                "\"\",\"\",\"\",\"\",\"\",\"1978-01-15 2018-01-01\",\"1 2 3\"\n";
+        String option2 = "\"COLLECTIONTYPE\",\"DEQUETYPE\",\"LISTTYPE\",\"NAVIGABLESETTYPE\",\"QUEUETYPE\",\"SETTYPE\",\"SORTEDSETTYPE\"\n" +
+                "\"\",\"\",\"\",\"\",\"\",\"2018-01-01 1978-01-15\",\"1 2 3\"\n";
+        assertTrue(option1.equals(s) || option2.equals(s));
     }
     
     /**
