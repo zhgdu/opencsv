@@ -5,10 +5,14 @@ import org.junit.Test;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.util.Locale;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.hamcrest.CoreMatchers.is;
+import static org.junit.Assert.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * @author Andre Rosot
@@ -19,17 +23,8 @@ public class CsvReaderHeaderAwareTest {
 
     @Before
     public void setUpWithHeader() throws Exception {
-        StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
-        sb.append("first,second,third\n");
-        sb.append("a,b,c").append("\n");   // standard case
-        sb.append("a,\"b,b,b\",c").append("\n");  // quoted elements
-        sb.append(",,").append("\n"); // empty elements
-        sb.append("a,\"PO Box 123,\nKippax,ACT. 2615.\nAustralia\",d.\n");
-        sb.append("\"Glen \"\"The Man\"\" Smith\",Athlete,Developer\n"); // Test quoted quote chars
-        sb.append("\"\"\"\"\"\",\"test\"\n"); // """""","test"  representing:  "", test
-        sb.append("\"a\nb\",b,\"\nd\",e\n");
-        sb.append("a");
-        csvr = new CSVReaderHeaderAware(new StringReader(sb.toString()));
+        StringReader reader = createReader();
+        csvr = new CSVReaderHeaderAware(reader);
     }
 
     @Test
@@ -158,5 +153,27 @@ public class CsvReaderHeaderAwareTest {
     public void readNextWhenPastEOF() throws IOException {
         csvr.skip(8);
         assertNull(csvr.readNext("first"));
+    }
+
+    @Test
+    public void shouldInitialiseHeaderWithCompleteConstrucotr() throws IOException {
+        ICSVParser parser = mock(ICSVParser.class);
+        when(parser.parseLineMulti(anyString())).thenReturn(new String[]{"myHeader"});
+        CSVReaderHeaderAware reader = new CSVReaderHeaderAware(createReader(), 0, parser, false, false, 1, Locale.getDefault());
+        assertThat(reader.readMap().keySet().iterator().next(), is("myHeader"));
+    }
+
+    private StringReader createReader() {
+        StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
+        sb.append("first,second,third\n");
+        sb.append("a,b,c").append("\n");   // standard case
+        sb.append("a,\"b,b,b\",c").append("\n");  // quoted elements
+        sb.append(",,").append("\n"); // empty elements
+        sb.append("a,\"PO Box 123,\nKippax,ACT. 2615.\nAustralia\",d.\n");
+        sb.append("\"Glen \"\"The Man\"\" Smith\",Athlete,Developer\n"); // Test quoted quote chars
+        sb.append("\"\"\"\"\"\",\"test\"\n"); // """""","test"  representing:  "", test
+        sb.append("\"a\nb\",b,\"\nd\",e\n");
+        sb.append("a");
+        return new StringReader(sb.toString());
     }
 }

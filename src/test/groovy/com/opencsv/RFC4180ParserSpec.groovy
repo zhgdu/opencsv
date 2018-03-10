@@ -326,4 +326,62 @@ class RFC4180ParserSpec extends Specification {
         values[2] == "23"
         values[3] == "24"
     }
+
+    def 'bug 165 - No character line showing up as an extra record with RFC4180Parser'() {
+        given:
+        List<String[]> lines = new ArrayList<String[]>();
+
+        lines.add(["value 1.1", "\n"])
+        lines.add(["value 2.1", "value 2.2"])
+
+        when:
+        StringWriter stringWriter = new StringWriter(128);
+
+        CSVWriter csvWriter = new CSVWriter(stringWriter);
+        for (String[] strings : lines) {
+            csvWriter.writeNext(strings);
+        }
+        csvWriter.close();
+
+        StringReader stringReader = new StringReader(stringWriter.toString());
+
+        RFC4180ParserBuilder parserBuilder = new RFC4180ParserBuilder()
+        CSVReader csvReader = new CSVReaderBuilder(stringReader).withCSVParser(parserBuilder.build()).build();
+
+        List<String[]> readLines = csvReader.readAll();
+
+        csvReader.close()
+
+        then:
+        lines == readLines
+    }
+
+    def 'bug 165 - No character line showing up as an extra record with CSVParser'() {
+        given:
+        List<String[]> lines = new ArrayList<String[]>();
+
+        lines.add(["value 1.1", "\n"])
+        lines.add(["value 2.1", "value 2.2"])
+        lines.add(["\"value 3.1\"", "\"I talked with Stefan and he asked \"\"\nWhat about odd number of quotes?\"\" and now I have doubts about my solution\""])
+
+        when:
+        StringWriter stringWriter = new StringWriter(128);
+
+        CSVWriter csvWriter = new CSVWriter(stringWriter);
+        for (String[] strings : lines) {
+            csvWriter.writeNext(strings);
+        }
+        csvWriter.close();
+
+        StringReader stringReader = new StringReader(stringWriter.toString());
+
+        CSVReader csvReader = new CSVReaderBuilder(stringReader).withCSVParser(new CSVParser()).build();
+
+        List<String[]> readLines = csvReader.readAll();
+
+        csvReader.close()
+
+        then:
+        lines == readLines
+    }
 }
