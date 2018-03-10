@@ -48,7 +48,6 @@ public class AnnotationTest {
 
     private static Locale systemLocale;
 
-
     @BeforeClass
     public static void storeSystemLocale() {
         systemLocale = Locale.getDefault();
@@ -346,8 +345,8 @@ public class AnnotationTest {
         
         // Now with another locale
         strat = new HeaderColumnNameMappingStrategy<>();
-        strat.setErrorLocale(Locale.GERMAN);
         strat.setType(AnnotatedMockBeanFull.class);
+        strat.setErrorLocale(Locale.GERMAN); // In this test, setType(), then setErrorLocale()
         fin = new FileReader("src/test/resources/testinputcase11.csv");
         assertNotEquals(englishErrorMessage, testCases11And55(strat, fin));
     }
@@ -362,7 +361,7 @@ public class AnnotationTest {
         
         // Now with a different locale
         strat = new ColumnPositionMappingStrategy<>();
-        strat.setErrorLocale(Locale.GERMAN);
+        strat.setErrorLocale(Locale.GERMAN); // In this test, setErrorLocale(), then setType()
         strat.setType(AnnotatedMockBeanFull.class);
         fin = new FileReader("src/test/resources/testinputcase55.csv");
         assertNotEquals(englishErrorMessage, testCases11And55(strat, fin));
@@ -779,6 +778,21 @@ public class AnnotationTest {
             assertEquals(AnnotatedMockBeanCustom.class, csve.getBeanClass());
             assertEquals(1, csve.getLineNumber());
             assertEquals("requiredWithCustom", csve.getDestinationField().getName());
+        }
+    }
+    
+    @Test
+    public void testSetterThrowsException() {
+        try {
+            new CsvToBeanBuilder(new StringReader("map\nstring"))
+                    .withType(SetterThrowsException.class).build().parse();
+            fail("Exception should have been thrown");
+        }
+        catch(RuntimeException e) {
+            assertNotNull(e.getCause());
+            assertTrue(e.getCause() instanceof CsvBeanIntrospectionException);
+            CsvBeanIntrospectionException csve = (CsvBeanIntrospectionException)e.getCause();
+            assertEquals("map", csve.getField().getName());
         }
     }
 }

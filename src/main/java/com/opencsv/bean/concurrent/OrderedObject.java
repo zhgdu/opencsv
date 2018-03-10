@@ -23,7 +23,7 @@ package com.opencsv.bean.concurrent;
  * @author Andrew Rucker Jones
  * @since 4.0
  */
-public class OrderedObject<E> implements Comparable<E> {
+public class OrderedObject<E> {
     private final long ordinal;
     private final E element;
     
@@ -49,26 +49,5 @@ public class OrderedObject<E> implements Comparable<E> {
      */
     public E getElement() {
         return element;
-    }
-
-    @Override
-    public int compareTo(Object o) {
-        return Long.compare(this.ordinal, ((OrderedObject<E>)o).getOrdinal());
-    }
-    
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == null) { return false; }
-        if (obj == this) { return true; }
-        if (obj.getClass() != getClass()) { return false; }
-        OrderedObject rhs = (OrderedObject) obj;
-        return rhs.ordinal == this.ordinal;
-    }
-
-    @Override
-    public int hashCode() {
-        int hash = 7;
-        hash = 19 * hash + (int) (this.ordinal ^ (this.ordinal >>> 32));
-        return hash;
     }
 }

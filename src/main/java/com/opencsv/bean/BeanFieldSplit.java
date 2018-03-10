@@ -34,10 +34,11 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * This class concerns itself with handling collection-valued bean fields.
  * 
+ * @param <T> The type of the bean being populated
  * @author Andrew Rucker Jones
  * @since 4.2
  */
-public class BeanFieldCollectionSplit extends AbstractBeanField {
+public class BeanFieldSplit<T> extends AbstractBeanField<T> {
     
     private Pattern splitOn;
     private final String writeDelimiter;
@@ -55,7 +56,7 @@ public class BeanFieldCollectionSplit extends AbstractBeanField {
      * @param writeDelimiter See {@link CsvBindAndSplitByName#writeDelimiter()}
      * @param collectionType  See {@link CsvBindAndSplitByName#collectionType()}
      */
-    public BeanFieldCollectionSplit(
+    public BeanFieldSplit(
             Field field, boolean required, Locale errorLocale,
             CsvConverter converter, String splitOn, String writeDelimiter,
             Class<? extends Collection> collectionType) {
@@ -67,7 +68,7 @@ public class BeanFieldCollectionSplit extends AbstractBeanField {
         // Check that we really have a collection
         if(!Collection.class.isAssignableFrom(field.getType())) {
             throw new CsvBadConverterException(
-                    BeanFieldCollectionSplit.class,
+                    BeanFieldSplit.class,
                     String.format(
                             ResourceBundle.getBundle(
                                     ICSVParser.DEFAULT_BUNDLE_NAME,
@@ -85,7 +86,7 @@ public class BeanFieldCollectionSplit extends AbstractBeanField {
             this.splitOn = Pattern.compile(StringUtils.EMPTY);
             
             CsvBadConverterException csve = new CsvBadConverterException(
-                    BeanFieldCollectionSplit.class,
+                    BeanFieldSplit.class,
                     String.format(ResourceBundle.getBundle(
                             ICSVParser.DEFAULT_BUNDLE_NAME,
                             errorLocale).getString("invalid.regex"), splitOn));
@@ -124,7 +125,7 @@ public class BeanFieldCollectionSplit extends AbstractBeanField {
             else {
                 this.collectionType = null;
                 throw new CsvBadConverterException(
-                        BeanFieldCollectionSplit.class,
+                        BeanFieldSplit.class,
                         String.format(
                                 ResourceBundle.getBundle(
                                         ICSVParser.DEFAULT_BUNDLE_NAME,
@@ -137,7 +138,7 @@ public class BeanFieldCollectionSplit extends AbstractBeanField {
         // that assignment is truly possible
         if(!field.getType().isAssignableFrom(this.collectionType)) {
             throw new CsvBadConverterException(
-                    BeanFieldCollectionSplit.class,
+                    BeanFieldSplit.class,
                     String.format(
                             ResourceBundle.getBundle(
                                     ICSVParser.DEFAULT_BUNDLE_NAME,
@@ -183,6 +184,8 @@ public class BeanFieldCollectionSplit extends AbstractBeanField {
     /**
      * Manages converting a collection of values into a single string.
      * The conversion of each individual value is performed by the converter.
+     * @throws CsvRequiredFieldEmptyException This implementation does not throw
+     *   this exception
      */
     // The rest of the Javadoc is inherited
     @Override
@@ -196,13 +199,18 @@ public class BeanFieldCollectionSplit extends AbstractBeanField {
             for(Object o : collection) {
                 convertedValue[i++] = converter.convertToWrite(o);
             }
-            if(i == 0 && required) {
-                throw new CsvRequiredFieldEmptyException(String.format(
-                        ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("required.field.empty"),
-                        field.getName()));
-            }
             retval = StringUtils.join(convertedValue, writeDelimiter);
         }
         return retval;
+    }
+    
+    /**
+     * Checks that {@code value} is not null and not an empty
+     * {@link java.util.Collection}.
+     */
+    // The rest of the Javadoc is inherited
+    @Override
+    protected boolean isFieldEmptyForWrite(Object value) {
+        return super.isFieldEmptyForWrite(value) || ((Collection<Object>)value).isEmpty();
     }
 }

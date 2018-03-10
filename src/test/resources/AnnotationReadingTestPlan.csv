@@ -80,3 +80,4 @@ Test case,Test,Expected behavior,Status
 87,Reading with a custom converter with required = true and value present in input,Members are filled correctly,pass
 88,Reading with a custom converter with required = true and value absent in input,RuntimeException with inner exception CsvRequiredFieldEmptyException,pass
 89,Writing with a custom converter with required = true and value absent in input,RuntimeException with inner exception CsvRequiredFieldEmptyException,pass
+90,Reading into a bean with a setter that throws an exception,RuntimeException with inner exception CsvBeanIntrospectionException,pass

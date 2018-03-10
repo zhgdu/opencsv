@@ -15,22 +15,8 @@
  */
 package com.opencsv.bean;
 
-import com.opencsv.bean.mocks.AnnotatedMockBeanCollectionSplit;
-import com.opencsv.bean.mocks.AnnotatedMockBeanCollectionSplitByColumn;
-import com.opencsv.bean.mocks.AnnotationPrecedenceWithCollections;
-import com.opencsv.bean.mocks.DerivedMockBeanCollectionSplit;
-import com.opencsv.bean.mocks.IntegerSetSortedToString;
-import com.opencsv.bean.mocks.InterfaceAsCollectionType;
-import com.opencsv.bean.mocks.InvalidRegexAsSplitOn;
-import com.opencsv.bean.mocks.NonCollectionBeanMember;
-import com.opencsv.bean.mocks.UnknownCollectionType;
-import com.opencsv.bean.mocks.UnknownElementType;
-import com.opencsv.bean.mocks.WrongCollectionType;
-import com.opencsv.bean.mocks.WrongElementType;
-import com.opencsv.exceptions.CsvBadConverterException;
-import com.opencsv.exceptions.CsvDataTypeMismatchException;
-import com.opencsv.exceptions.CsvException;
-import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+import com.opencsv.bean.mocks.*;
+import com.opencsv.exceptions.*;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
@@ -312,7 +298,7 @@ public class CollectionSplitTest {
             fail("Should have thrown exception.");
         }
         catch(CsvBadConverterException csve) {
-            assertEquals(BeanFieldCollectionSplit.class, csve.getConverterClass());
+            assertEquals(BeanFieldSplit.class, csve.getConverterClass());
         }
     }
     
@@ -325,7 +311,7 @@ public class CollectionSplitTest {
             fail("Exception should have been thrown.");
         }
         catch(CsvBadConverterException csve) {
-            assertEquals(BeanFieldCollectionSplit.class, csve.getConverterClass());
+            assertEquals(BeanFieldSplit.class, csve.getConverterClass());
         }
     }
     
@@ -365,7 +351,7 @@ public class CollectionSplitTest {
             fail("Should have thrown exception.");
         }
         catch(CsvBadConverterException csve) {
-            assertEquals(BeanFieldCollectionSplit.class, csve.getConverterClass());
+            assertEquals(BeanFieldSplit.class, csve.getConverterClass());
         }
     }
     
@@ -378,7 +364,7 @@ public class CollectionSplitTest {
             fail("Should have thrown exception.");
         }
         catch(CsvBadConverterException csve) {
-            assertEquals(BeanFieldCollectionSplit.class, csve.getConverterClass());
+            assertEquals(BeanFieldSplit.class, csve.getConverterClass());
         }
     }
     
@@ -390,7 +376,7 @@ public class CollectionSplitTest {
             fail("Exception should have been thrown.");
         }
         catch(CsvBadConverterException csve) {
-            assertEquals(BeanFieldCollectionSplit.class, csve.getConverterClass());
+            assertEquals(BeanFieldSplit.class, csve.getConverterClass());
         }
     }
     

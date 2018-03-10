@@ -44,8 +44,9 @@ public final class opencsvUtils {
      * Determines which mapping strategy is appropriate for this bean.
      * The algorithm is:<ol>
      * <li>If annotations {@link CsvBindByPosition},
-     * {@link CsvCustomBindByPosition} or {@link CsvBindAndSplitByPosition} are
-     * present, {@link ColumnPositionMappingStrategy} is chosen.</li>
+     * {@link CsvCustomBindByPosition}, {@link CsvBindAndSplitByPosition} or
+     * {@link CsvBindAndJoinByPosition} are present,
+     * {@link ColumnPositionMappingStrategy} is chosen.</li>
      * <li>Otherwise, {@link HeaderColumnNameMappingStrategy} is chosen. If
      * annotations are present, they will be used, otherwise the field names
      * will be used as the column names.</li></ol>
@@ -63,11 +64,11 @@ public final class opencsvUtils {
         for(Field field : fields) {
             if(field.isAnnotationPresent(CsvBindByPosition.class)
                     || field.isAnnotationPresent(CsvBindAndSplitByPosition.class)
+                    || field.isAnnotationPresent(CsvBindAndJoinByPosition.class)
                     || field.isAnnotationPresent(CsvCustomBindByPosition.class)) {
                 positionAnnotationsPresent = true;
                 break;
             }
-            if(positionAnnotationsPresent) { break; }
         }
 
         // Set the mapping strategy according to what we've found.

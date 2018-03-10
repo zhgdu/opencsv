@@ -443,6 +443,12 @@ public class CsvToBean<T> implements Iterable<T> {
      */
     public void setErrorLocale(Locale errorLocale) {
         this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
+        if(csvReader != null) {
+            csvReader.setErrorLocale(this.errorLocale);
+        }
+        if(mappingStrategy != null) {
+            mappingStrategy.setErrorLocale(this.errorLocale);
+        }
     }
     
     private void prepareToReadInput() throws IllegalStateException {

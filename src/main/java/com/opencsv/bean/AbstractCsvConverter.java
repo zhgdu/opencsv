@@ -18,6 +18,7 @@ package com.opencsv.bean;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import java.util.Locale;
 import java.util.Objects;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -40,7 +41,7 @@ public abstract class AbstractCsvConverter implements CsvConverter {
     protected final String locale;
     
     /** The locale to be used for error messages. */
-    protected final Locale errorLocale;
+    protected Locale errorLocale;
     
     /**
      * Currently the only constructor for this class.
@@ -76,5 +77,10 @@ public abstract class AbstractCsvConverter implements CsvConverter {
         // Since we have no concept of which field is required at this level,
         // we can't check for null and throw an exception.
         return Objects.toString(value, StringUtils.EMPTY);
+    }
+    
+    @Override
+    public void setErrorLocale(Locale errorLocale) {
+        this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
     }
 }

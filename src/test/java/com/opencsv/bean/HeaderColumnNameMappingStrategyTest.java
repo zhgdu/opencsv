@@ -163,8 +163,8 @@ public class HeaderColumnNameMappingStrategyTest {
    }
    
    @Test(expected = IllegalStateException.class)
-   public void throwsIllegalStateExceptionIfTypeNotSetBeforeGenerateHeaders() {
+   public void throwsIllegalStateExceptionIfTypeNotSetBeforeGenerateHeaders() throws CsvRequiredFieldEmptyException {
       strat = new HeaderColumnNameMappingStrategy<>();
-      strat.generateHeader();
+      strat.generateHeader(new MockBean());
    }
 }

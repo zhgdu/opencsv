@@ -5,6 +5,7 @@ import com.opencsv.enums.CSVReaderNullFieldIndicator;
 import java.io.IOException;
 
 import static com.opencsv.enums.CSVReaderNullFieldIndicator.NEITHER;
+import java.util.Locale;
 
 /**
  * This interface defines all of the behavior {@link com.opencsv.CSVReader}
@@ -148,4 +149,12 @@ public interface ICSVParser {
      * @since 4.1
      */
     String getPendingText();
+    
+    /**
+     * Sets the locale for all error messages.
+     * @param errorLocale Locale for error messages. If null, the default locale
+     *   is used.
+     * @since 4.2
+     */
+    void setErrorLocale(Locale errorLocale);
 }

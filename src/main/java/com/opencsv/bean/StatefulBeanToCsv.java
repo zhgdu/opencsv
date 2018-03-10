@@ -39,6 +39,9 @@ import java.util.concurrent.*;
  * This class writes beans out in CSV format to a {@link java.io.Writer},
  * keeping state information and making an intelligent guess at the mapping
  * strategy to be applied.
+ * <p>This class implements multi-threading on writing more than one bean, so
+ * there should be no need to use it across threads in an application. As such,
+ * it is not thread-safe.</p>
  * 
  * @param <T> Type of the bean to be written
  * @author Andrew Rucker Jones
@@ -106,8 +109,12 @@ public class StatefulBeanToCsv<T> {
      * @param bean Any bean to be written. Used to determine the mapping
      *   strategy automatically. The bean itself is not written to the output by
      *   this method.
+     * @throws CsvRequiredFieldEmptyException If a required header is missing
+     *   while attempting to write. Since every other header is hard-wired
+     *   through the bean fields and their associated annotations, this can only
+     *   happen with multi-valued fields.
      */
-    private void beforeFirstWrite(T bean) {
+    private void beforeFirstWrite(T bean) throws CsvRequiredFieldEmptyException {
         
         // Determine mapping strategy
         if(mappingStrategy == null) {
@@ -118,7 +125,7 @@ public class StatefulBeanToCsv<T> {
         csvwriter = new CSVWriter(writer, separator, quotechar, escapechar, lineEnd);
         
         // Write the header
-        String[] header = mappingStrategy.generateHeader();
+        String[] header = mappingStrategy.generateHeader(bean);
         if(header.length > 0) {
             csvwriter.writeNext(header);
         }
@@ -150,7 +157,7 @@ public class StatefulBeanToCsv<T> {
             thrownExceptionsQueue = new ArrayBlockingQueue<>(1);
             ProcessCsvBean proc = new ProcessCsvBean(++lineNumber,
                     mappingStrategy, bean, resultantLineQueue,
-                    thrownExceptionsQueue, throwExceptions, errorLocale);
+                    thrownExceptionsQueue, throwExceptions);
             try {
                 proc.run();
             }
@@ -235,7 +242,7 @@ public class StatefulBeanToCsv<T> {
                 executor.execute(new ProcessCsvBean(
                         ++lineNumber, mappingStrategy, bean,
                         resultantLineQueue, thrownExceptionsQueue,
-                        throwExceptions, errorLocale));
+                        throwExceptions));
             }
         }
 

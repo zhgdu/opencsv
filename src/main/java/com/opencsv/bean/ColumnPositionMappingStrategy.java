@@ -8,6 +8,8 @@ import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.*;
+import org.apache.commons.collections4.MultiValuedMap;
+import org.apache.commons.lang3.ArrayUtils;
 
 /**
  * Allows for the mapping of columns with their positions. Using this strategy
@@ -21,28 +23,66 @@ import java.util.*;
  *
  * @param <T> Type of object that is being processed.
  */
-public class ColumnPositionMappingStrategy<T> extends HeaderColumnNameMappingStrategy<T> {
+public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<T> {
 
-    private String[] columnMapping = new String[]{};
+    /**
+     * Whether the user has programmatically set the map from column positions
+     * to field names.
+     */
     private boolean columnsExplicitlySet = false;
+    
+    /** The map from column position to {@link BeanField}. */
+    private FieldMapByPosition fieldMap;
 
     /**
      * Default constructor.
      */
-    public ColumnPositionMappingStrategy() {
+    public ColumnPositionMappingStrategy() {}
+    
+    /**
+     * There is no header per se for this mapping strategy, but this method
+     * checks the first line to determine how many fields are present and
+     * adjusts its field map accordingly.
+     */
+    // The rest of the Javadoc is inherited
+    @Override
+    public void captureHeader(CSVReader reader) throws IOException {
+        // Validation
+        if(type == null) {
+            throw new IllegalStateException(ResourceBundle
+                    .getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
+                    .getString("type.unset"));
+        }
+        
+        String[] firstLine = reader.peek();
+        fieldMap.setMaxIndex(firstLine.length - 1);
+        if (!columnsExplicitlySet) {
+            headerIndex.clear();
+            for (FieldMapByPositionEntry entry : fieldMap) {
+                Field f = entry.getField().getField();
+                if (f.getAnnotation(CsvCustomBindByPosition.class) != null
+                        || f.getAnnotation(CsvBindAndSplitByPosition.class) != null
+                        || f.getAnnotation(CsvBindAndJoinByPosition.class) != null
+                        || f.getAnnotation(CsvBindByPosition.class) != null) {
+                    headerIndex.put(entry.getPosition(), f.getName().toUpperCase().trim());
+                }
+            }
+        }
     }
     
     /**
-     * Captures the header from the reader - required by the MappingStrategy
-     * interface and is a do nothing method for the
-     * ColumnPositionMappingStrategy.
-     *
-     * @param reader {@inheritDoc}
-     * @throws IOException Would be thrown by the CSVReader if it was used :)
+     * @return {@inheritDoc} For this mapping strategy, it's simply
+     *   {@code index} wrapped as an {@link java.lang.Integer}.
      */
+    // The rest of the Javadoc is inherited
     @Override
-    public void captureHeader(CSVReader reader) throws IOException {
-        //do nothing, first line is not header
+    protected Object chooseMultivaluedFieldIndexFromHeaderIndex(int index) {
+        return Integer.valueOf(index);
+    }
+    
+    @Override
+    public BeanField findField(int col) {
+        return fieldMap.get(col);
     }
 
     /**
@@ -51,19 +91,11 @@ public class ColumnPositionMappingStrategy<T> extends HeaderColumnNameMappingStr
      * thus it also does not write one, accordingly.
      * @return An empty array
      */
+    // The rest of the Javadoc is inherited
     @Override
-    public String[] generateHeader() {
-        return new String[0];
-    }
-
-    @Override
-    public Integer getColumnIndex(String name) {
-        return indexLookup.get(name);
-    }
-
-    @Override
-    public int findMaxFieldIndex() {
-        return columnMapping == null ? -1 : columnMapping.length-1;
+    public String[] generateHeader(T bean) throws CsvRequiredFieldEmptyException {
+        super.generateHeader(bean);
+        return ArrayUtils.EMPTY_STRING_ARRAY;
     }
 
     /**
@@ -74,7 +106,7 @@ public class ColumnPositionMappingStrategy<T> extends HeaderColumnNameMappingStr
      */
     @Override
     public String getColumnName(int col) {
-      return col < columnMapping.length ? columnMapping[col] : null;
+        return headerIndex.getByPosition(col);
     }
 
     /**
@@ -83,7 +115,7 @@ public class ColumnPositionMappingStrategy<T> extends HeaderColumnNameMappingStr
      * @return String array with the column mappings.
      */
     public String[] getColumnMapping() {
-        return columnMapping.clone();
+        return headerIndex.getHeaderIndex();
     }
 
     /**
@@ -92,72 +124,21 @@ public class ColumnPositionMappingStrategy<T> extends HeaderColumnNameMappingStr
      * @param columnMapping Column names to be mapped.
      */
     public void setColumnMapping(String... columnMapping) {
-        this.columnMapping = columnMapping != null ? columnMapping.clone() : new String[]{};
-        resetIndexMap();
-        createIndexLookup(this.columnMapping);
-        columnsExplicitlySet = true;
-    }
-
-    /**
-     * Sets the class type that is being mapped.
-     * Also initializes the mapping between column positions and bean fields.
-     */
-    // The rest of the Javadoc is inherited.
-    @Override
-    public void setType(Class<? extends T> type) throws CsvBadConverterException {
-        super.setType(type);
-        if (!columnsExplicitlySet) {
-            SortedMap<Integer, BeanField> cols = new TreeMap<>();
-            for (BeanField beanField : fieldMap.values()) {
-                if (beanField
-                        .getField()
-                        .getAnnotation(CsvCustomBindByPosition.class) != null) {
-                    cols.put(beanField
-                            .getField()
-                            .getAnnotation(CsvCustomBindByPosition.class)
-                            .position(), beanField);
-                } else if (beanField
-                        .getField()
-                        .getAnnotation(CsvBindAndSplitByPosition.class) != null) {
-                    cols.put(beanField
-                            .getField()
-                            .getAnnotation(CsvBindAndSplitByPosition.class)
-                            .position(), beanField);
-                } else if (beanField
-                        .getField()
-                        .getAnnotation(CsvBindByPosition.class) != null) {
-                    cols.put(beanField
-                            .getField()
-                            .getAnnotation(CsvBindByPosition.class)
-                            .position(), beanField);
-                }
-            }
-
-            if (!cols.isEmpty()) {
-                columnMapping = new String[cols.lastKey() + 1];
-                for (Map.Entry<Integer, BeanField> entry : cols.entrySet()) {
-                    columnMapping[entry.getKey()] = entry
-                            .getValue()
-                            .getField()
-                            .getName()
-                            .toUpperCase()
-                            .trim();
-                }
-                resetIndexMap();
-                createIndexLookup(columnMapping);
-            } else {
-                columnMapping = new String[0];
-            }
+        if(columnMapping != null) {
+            headerIndex.initializeHeaderIndex(columnMapping);
         }
+        else {
+            headerIndex.clear();
+        }
+        columnsExplicitlySet = true;
     }
 
     @Override
     protected void loadFieldMap() throws CsvBadConverterException {
         boolean required;
-        fieldMap = new HashMap<>();
+        fieldMap = new FieldMapByPosition(errorLocale);
 
         for (Field field : loadFields(getType())) {
-            String columnName = field.getName().toUpperCase().trim();
             String fieldLocale;
 
             // Custom converters always have precedence.
@@ -169,7 +150,7 @@ public class ColumnPositionMappingStrategy<T> extends HeaderColumnNameMappingStr
                 bean.setField(field);
                 required = annotation.required();
                 bean.setRequired(required);
-                fieldMap.put(columnName, bean);
+                fieldMap.put(annotation.position(), bean);
             }
             
             // Then check for a collection
@@ -189,9 +170,28 @@ public class ColumnPositionMappingStrategy<T> extends HeaderColumnNameMappingStr
                 } else {
                     converter = new ConverterPrimitiveTypes(elementType, fieldLocale, errorLocale);
                 }
-                fieldMap.put(columnName, new BeanFieldCollectionSplit(
+                fieldMap.put(annotation.position(), new BeanFieldSplit(
                         field, required, errorLocale, converter, splitOn,
                         writeDelimiter, collectionType));
+            }
+            
+            // Then check for a multi-column annotation
+            else if(field.isAnnotationPresent(CsvBindAndJoinByPosition.class)) {
+                CsvBindAndJoinByPosition annotation = field.getAnnotation(CsvBindAndJoinByPosition.class);
+                required = annotation.required();
+                fieldLocale = annotation.locale();
+                Class<?> elementType = annotation.elementType();
+                Class<? extends MultiValuedMap> mapType = annotation.mapType();
+                
+                CsvConverter converter;
+                if (field.isAnnotationPresent(CsvDate.class)) {
+                    String formatString = field.getAnnotation(CsvDate.class).value();
+                    converter = new ConverterDate(elementType, fieldLocale, errorLocale, formatString);
+                } else {
+                    converter = new ConverterPrimitiveTypes(elementType, fieldLocale, errorLocale);
+                }
+                fieldMap.putComplex(annotation.position(), new BeanFieldJoinIntegerIndex(
+                        field, required, errorLocale, converter, mapType));
             }
 
             // Then it must be a bind by position.
@@ -206,17 +206,17 @@ public class ColumnPositionMappingStrategy<T> extends HeaderColumnNameMappingStr
                 } else {
                     converter = new ConverterPrimitiveTypes(field.getType(), fieldLocale, errorLocale);
                 }
-                fieldMap.put(columnName, new BeanFieldSingleValue(field, required, errorLocale, converter));
+                fieldMap.put(annotation.position(), new BeanFieldSingleValue(field, required, errorLocale, converter));
             }
         }
     }
 
     @Override
     public void verifyLineLength(int numberOfFields) throws CsvRequiredFieldEmptyException {
-        if(columnMapping != null) {
+        if(!headerIndex.isEmpty()) {
             BeanField f;
             StringBuilder sb = null;
-            for(int i = numberOfFields; i < columnMapping.length; i++) {
+            for(int i = numberOfFields; i <= headerIndex.findMaxIndex(); i++) {
                 f = findField(i);
                 if(f != null && f.isRequired()) {
                     if(sb == null) {
@@ -237,6 +237,7 @@ public class ColumnPositionMappingStrategy<T> extends HeaderColumnNameMappingStr
         for (Field field : cls.getDeclaredFields()) {
             if (field.isAnnotationPresent(CsvBindByPosition.class)
                     || field.isAnnotationPresent(CsvCustomBindByPosition.class)
+                    || field.isAnnotationPresent(CsvBindAndJoinByPosition.class)
                     || field.isAnnotationPresent(CsvBindAndSplitByPosition.class)) {
                 fields.add(field);
             }
@@ -244,4 +245,18 @@ public class ColumnPositionMappingStrategy<T> extends HeaderColumnNameMappingStr
         annotationDriven = !fields.isEmpty();
         return fields;
     }
+    
+    /**
+     * Returns the column position for the given column number.
+     * Yes, they're the same thing. For this mapping strategy, it's a simple
+     * conversion from an integer to a string.
+     */
+    // The rest of the Javadoc is inherited
+    @Override
+    public String findHeader(int col) {
+        return Integer.toString(col);
+    }
+    
+    @Override
+    protected FieldMap getFieldMap() {return fieldMap;}
 }

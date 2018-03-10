@@ -16,9 +16,12 @@
 package com.opencsv.exceptions;
 
 /**
- * This exception indicates that the custom converter provided did not behave as
- * expected in some way.
- * Typically this means it could not be instantiated.
+ * This exception indicates that the converter did not behave as expected in
+ * some way.
+ * Typically this is for custom converters and means it could not be
+ * instantiated, but this exception is also used for meaningless values to
+ * annotations associated with opencsv, for example, since this renders the
+ * converter opencsv provides inoperative.
  *
  * @author Andrew Rucker Jones
  * @since 3.8

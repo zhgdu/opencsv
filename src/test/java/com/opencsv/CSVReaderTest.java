@@ -742,4 +742,13 @@ public class CSVReaderTest {
             assertTrue(e.getMessage().contains(part2));
         }
     }
+    
+    @Test
+    public void testPeek() throws IOException {
+        String[] peeked = csvr.peek();
+        assertArrayEquals(peeked, csvr.peek());
+        assertArrayEquals(peeked, csvr.peek());
+        assertArrayEquals(peeked, csvr.readNext());
+        assertNotEquals(peeked[1], csvr.readNext()[1]);
+    }
 }

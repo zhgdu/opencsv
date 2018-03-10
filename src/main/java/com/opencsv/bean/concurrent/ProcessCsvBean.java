@@ -15,17 +15,9 @@
  */
 package com.opencsv.bean.concurrent;
 
-import com.opencsv.ICSVParser;
-import com.opencsv.bean.BeanField;
 import com.opencsv.bean.MappingStrategy;
 import com.opencsv.bean.opencsvUtils;
 import com.opencsv.exceptions.*;
-import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
-
-import java.beans.PropertyDescriptor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.*;
 import java.util.concurrent.BlockingQueue;
 
 /**
@@ -43,8 +35,6 @@ public class ProcessCsvBean<T> implements Runnable {
     private final BlockingQueue<OrderedObject<String[]>> resultantLineQueue;
     private final BlockingQueue<OrderedObject<CsvException>> thrownExceptionsQueue;
     private final boolean throwExceptions;
-    private final List<String> contents = new ArrayList<>();
-    private final Locale errorLocale;
     
     /**
      * The only constructor for creating a line of CSV output out of a bean.
@@ -56,62 +46,24 @@ public class ProcessCsvBean<T> implements Runnable {
      *   exception, if one is thrown
      * @param throwExceptions Whether exceptions should be thrown or captured
      *   for later processing
-     * @param errorLocale Locale for error messages. If null, the default locale
-     *   is used.
      */
     public ProcessCsvBean(long lineNumber, MappingStrategy<T> mappingStrategy,
             T bean, BlockingQueue<OrderedObject<String[]>> resultantLineQueue,
             BlockingQueue<OrderedObject<CsvException>> thrownExceptionsQueue,
-            boolean throwExceptions, Locale errorLocale) {
+            boolean throwExceptions) {
         this.lineNumber = lineNumber;
         this.mappingStrategy = mappingStrategy;
         this.bean = bean;
         this.resultantLineQueue = resultantLineQueue;
         this.thrownExceptionsQueue = thrownExceptionsQueue;
         this.throwExceptions = throwExceptions;
-        this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
     }
     
-    private void writeWithReflection(int numColumns)
-            throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
-        BeanField beanField;
-        for(int i = 0; i <= numColumns; i++) {
-            beanField = mappingStrategy.findField(i);
-            String s = beanField != null ? beanField.write(bean) : "";
-            contents.add(StringUtils.defaultString(s));
-        }
-    }
-    
-    private void writeWithIntrospection(int numColumns) {
-        PropertyDescriptor desc;
-        for(int i = 0; i <= numColumns; i++) {
-            try {
-                desc = mappingStrategy.findDescriptor(i);
-                Object o = desc != null ? desc.getReadMethod().invoke(bean, (Object[]) null) : null;
-                contents.add(Objects.toString(o, ""));
-            }
-            catch(IllegalAccessException | InvocationTargetException e) {
-                CsvBeanIntrospectionException csve = new CsvBeanIntrospectionException(
-                        bean, null, ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("error.introspecting.beans"));
-                csve.initCause(e);
-                throw csve;
-            }
-        }
-    }
-
     @Override
     public void run() {
         try {
-            int numColumns = mappingStrategy.findMaxFieldIndex();
-            if(mappingStrategy.isAnnotationDriven()) {
-                writeWithReflection(numColumns);
-            }
-            else {
-                writeWithIntrospection(numColumns);
-            }
             opencsvUtils.queueRefuseToAcceptDefeat(resultantLineQueue,
-                    new OrderedObject(lineNumber,
-                            contents.toArray(new String[contents.size()])));
+                    new OrderedObject(lineNumber, mappingStrategy.transmuteBean(bean)));
         }
         catch (CsvException e) {
             CsvException csve = (CsvException) e;

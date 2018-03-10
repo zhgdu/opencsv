@@ -778,7 +778,7 @@ public class StatefulBeanToCsvTest {
         watch.stop();
         assertEquals(numBeans, beans.size());
         System.out.println("Time taken to read " + numBeans + " beans, unordered: " + watch.toString());
-    }
+        }
     
     /**
      * Test of ConvertSplitOnWhitespace with the wrong data type.

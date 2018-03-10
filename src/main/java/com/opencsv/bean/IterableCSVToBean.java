@@ -22,8 +22,6 @@ import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.beans.IntrospectionException;
-import java.beans.PropertyDescriptor;
-import java.beans.PropertyEditor;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
@@ -39,7 +37,7 @@ import java.util.ResourceBundle;
  * @deprecated Use {@link CsvToBean#iterator()} instead.
  */
 @Deprecated
-public class IterableCSVToBean<T> extends AbstractCSVToBean implements Iterable<T> {
+public class IterableCSVToBean<T> implements Iterable<T> {
     private final MappingStrategy<T> strategy;
     private final CSVReader csvReader;
     private final CsvToBeanFilter filter;
@@ -110,30 +108,11 @@ public class IterableCSVToBean<T> extends AbstractCSVToBean implements Iterable<
             line = csvReader.readNext();
         } while (line != null && (filter != null && !filter.allowLine(line)));
         if (line != null) {
-            strategy.verifyLineLength(line.length);
-            bean = strategy.createBean();
-            for (int col = 0; col < line.length; col++) {
-                PropertyDescriptor prop = strategy.findDescriptor(col);
-                if (null != prop) {
-                    String value = checkForTrim(line[col], prop);
-                    Object obj = convertValue(value, prop);
-                    prop.getWriteMethod().invoke(bean, obj);
-                }
-            }
+            bean = strategy.populateNewBeanWithIntrospection(line);
         }
         return bean;
     }
 
-    @Override
-    protected PropertyEditor getPropertyEditor(PropertyDescriptor desc)
-            throws InstantiationException, IllegalAccessException {
-        Class<?> cls = desc.getPropertyEditorClass();
-        if (null != cls) {
-            return (PropertyEditor) cls.newInstance();
-        }
-        return getPropertyEditorValue(desc.getPropertyType());
-    }
-    
     /**
      * Sets the locale to be used for error messages.
      * @param errorLocale The locale to be used for all error messages. If null,

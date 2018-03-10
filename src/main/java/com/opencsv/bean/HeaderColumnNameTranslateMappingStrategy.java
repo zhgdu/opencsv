@@ -29,36 +29,40 @@ import java.util.Map;
  * @param <T> Class to be mapped.
  */
 public class HeaderColumnNameTranslateMappingStrategy<T> extends HeaderColumnNameMappingStrategy<T> {
-   private final Map<String, String> columnMapping;
+    private final Map<String, String> columnMapping;
 
-   /**
-    * Default constructor.
-    */
-   public HeaderColumnNameTranslateMappingStrategy() {
-      columnMapping = new HashMap<>();
-   }
+    /**
+     * Default constructor.
+     */
+    public HeaderColumnNameTranslateMappingStrategy() {
+        columnMapping = new HashMap<>();
+    }
 
-   @Override
-   public String getColumnName(int col) {
-      return col < header.length ? columnMapping.get(header[col].toUpperCase()) : null;
-   }
+    @Override
+    public String getColumnName(int col) {
+        String name = headerIndex.getByPosition(col);
+        if(name != null) {
+            name = columnMapping.get(name.toUpperCase());
+        }
+        return name;
+    }
 
-   /**
-    * Retrieves the column mappings of the strategy.
-    * @return The column mappings of the strategy.
-    */
-   public Map<String, String> getColumnMapping() {
-      return columnMapping;
-   }
+    /**
+     * Retrieves the column mappings of the strategy.
+     * @return The column mappings of the strategy.
+     */
+    public Map<String, String> getColumnMapping() {
+        return columnMapping;
+    }
 
-   /**
-    * Sets the column mapping to those passed in.
-    * @param columnMapping Source column mapping.
-    */
-   public void setColumnMapping(Map<String, String> columnMapping) {
-      this.columnMapping.clear();
-      for (Map.Entry<String, String> entry : columnMapping.entrySet()) {
-         this.columnMapping.put(entry.getKey().toUpperCase(), entry.getValue());
-      }
-   }
+    /**
+     * Sets the column mapping to those passed in.
+     * @param columnMapping Source column mapping.
+     */
+    public void setColumnMapping(Map<String, String> columnMapping) {
+        this.columnMapping.clear();
+        for (Map.Entry<String, String> entry : columnMapping.entrySet()) {
+            this.columnMapping.put(entry.getKey().toUpperCase(), entry.getValue());
+        }
+    }
 }

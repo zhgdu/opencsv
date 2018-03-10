@@ -16,7 +16,6 @@
 package com.opencsv.bean.customconverter;
 
 import com.opencsv.bean.AbstractBeanField;
-import com.opencsv.bean.CsvBindAndSplitByPosition;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import java.util.ArrayList;
 import java.util.Arrays;
