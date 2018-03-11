@@ -68,8 +68,8 @@ public class FieldMapByName extends AbstractFieldMap<String, String, RegexToBean
                 requiredStringList.add(entry.getKey());
             }
         }
-        final List<ComplexFieldMapEntry> requiredRegexList = new ArrayList<>();
-        for(ComplexFieldMapEntry r : complexMapList) {
+        final List<ComplexFieldMapEntry<String, String>> requiredRegexList = new ArrayList<>();
+        for(ComplexFieldMapEntry<String, String> r : complexMapList) {
             if(r.getBeanField().isRequired()) {
                 requiredRegexList.add(r);
             }
@@ -78,10 +78,10 @@ public class FieldMapByName extends AbstractFieldMap<String, String, RegexToBean
         // Now remove the ones we found
         for(String h : headersPresent) {
             if(!requiredStringList.remove(h.toUpperCase())) {
-                final ListIterator<ComplexFieldMapEntry> requiredRegexListIterator = requiredRegexList.listIterator();
+                final ListIterator<ComplexFieldMapEntry<String, String>> requiredRegexListIterator = requiredRegexList.listIterator();
                 boolean found = false;
                 while(!found && requiredRegexListIterator.hasNext()) {
-                    final ComplexFieldMapEntry r = requiredRegexListIterator.next();
+                    final ComplexFieldMapEntry<String, String> r = requiredRegexListIterator.next();
                     if(r.contains(h)) {
                         found = true;
                         requiredRegexListIterator.remove();
@@ -124,7 +124,7 @@ public class FieldMapByName extends AbstractFieldMap<String, String, RegexToBean
     public String[] generateHeader(final Object bean) throws CsvRequiredFieldEmptyException {
         final List<Field> missingRequiredHeaders = new ArrayList<>();
         final List<String> headerList = new ArrayList<>(simpleMap.keySet());
-        for(ComplexFieldMapEntry r : complexMapList) {
+        for(ComplexFieldMapEntry<String, String> r : complexMapList) {
             final MultiValuedMap<String,Object> m = (MultiValuedMap) r.getBeanField().getFieldValue(bean);
             if(m != null && !m.isEmpty()) {
                 for(Map.Entry<String,Object> entry : m.entries()) {

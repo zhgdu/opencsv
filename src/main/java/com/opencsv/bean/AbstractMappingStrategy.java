@@ -305,7 +305,8 @@ abstract public class AbstractMappingStrategy<T> implements MappingStrategy<T> {
      * header array or there are no headers defined.
      */
     public String getColumnName(int col) {
-        return (null != headerIndex) ? headerIndex.getByPosition(col) : null;
+        // headerIndex is never null because it's final
+        return headerIndex.getByPosition(col);
     }
 
     /**
@@ -350,7 +351,7 @@ abstract public class AbstractMappingStrategy<T> implements MappingStrategy<T> {
     }
     
     private void processProperty(T bean, String[] line, int col)
-            throws IntrospectionException, InstantiationException,
+            throws InstantiationException,
             IllegalAccessException, InvocationTargetException, CsvBadConverterException {
         PropertyDescriptor prop = findDescriptor(col);
         if (null != prop) {

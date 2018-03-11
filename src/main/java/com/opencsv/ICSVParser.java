@@ -78,12 +78,12 @@ public interface ICSVParser {
     /**
      * When creating builders this should be the smallest size to account for quotes and any possible escape characters.
      */
-    static final int MAX_SIZE_FOR_EMPTY_FIELD = 16;
+    int MAX_SIZE_FOR_EMPTY_FIELD = 16;
 
     /**
      * Default newline character for the parser.
      */
-    static final String NEWLINE = "\n";
+    String NEWLINE = "\n";
 
     /**
      * @return The default separator for this parser.

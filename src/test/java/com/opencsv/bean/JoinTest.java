@@ -20,27 +20,24 @@ import com.opencsv.exceptions.CsvBadConverterException;
 import com.opencsv.exceptions.CsvBeanIntrospectionException;
 import com.opencsv.exceptions.CsvException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.StringReader;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.Locale;
-import java.util.regex.PatternSyntaxException;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.After;
-import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.StringReader;
+import java.io.StringWriter;
+import java.util.*;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
+import static org.junit.Assert.*;
 
 /**
  *
@@ -926,14 +923,14 @@ public class JoinTest {
         StringWriter w = new StringWriter();
         StatefulBeanToCsv<GoodJoinByNameAnnotations> btc = new StatefulBeanToCsvBuilder<GoodJoinByNameAnnotations>(w).build();
         btc.write(beanList);
-        assertEquals(
+        assertTrue(Pattern.matches(
                 "\"conversion\",\"conversion\",\"date1\",\"date2\",\"index\",\"index\",\"index\"\n"
-                + "\"10.000\",\"20.000\",\"15. Jan 1978\",\"07. Feb 2018\",\"1\",\"2\",\"3\"\n"
-                + "\"10.001\",\"20.002\",\"16. Jan 1978\",\"08. Feb 2018\",\"4\",\"5\",\"\"\n"
-                + "\"10.003\",\"20.004\",\"17. Jan 1978\",\"09. Feb 2018\",\"6\",\"7\",\"8\"\n"
-                + "\"\",\"\",\"18. Jan 1978\",\"10. Feb 2018\",\"10\",\"11\",\"12\"\n"
-                + "\"\",\"\",\"19. Jan 1978\",\"11. Feb 2018\",\"13\",\"14\",\"15\"\n",
-                w.toString());
+                + "\"10.000\",\"20.000\",\"15. Jan\\.? 1978\",\"07. Feb\\.? 2018\",\"1\",\"2\",\"3\"\n"
+                + "\"10.001\",\"20.002\",\"16. Jan\\.? 1978\",\"08. Feb\\.? 2018\",\"4\",\"5\",\"\"\n"
+                + "\"10.003\",\"20.004\",\"17. Jan\\.? 1978\",\"09. Feb\\.? 2018\",\"6\",\"7\",\"8\"\n"
+                + "\"\",\"\",\"18. Jan\\.? 1978\",\"10. Feb\\.? 2018\",\"10\",\"11\",\"12\"\n"
+                + "\"\",\"\",\"19. Jan\\.? 1978\",\"11. Feb\\.? 2018\",\"13\",\"14\",\"15\"\n",
+                w.toString()));
     }
     
     /**
@@ -1008,10 +1005,10 @@ public class JoinTest {
         StringWriter w = new StringWriter();
         StatefulBeanToCsv<GoodJoinByPositionAnnotationsForWriting> btc = new StatefulBeanToCsvBuilder<GoodJoinByPositionAnnotationsForWriting>(w).build();
         btc.write(beanList);
-        assertEquals(
-                "\"10\",\"15. Jan 1978\",\"\",\"\",\"string4\",\"string5\",\"string6\",\"string7\",\"string8\",\"string9\",\"string10\",\"1.111\",\"string12\",\"string13\",\"\",\"string15\",\"06. Mär 2018\"\n"
-                + "\"12\",\"16. Jan 1978\",\"\",\"\",\"string42\",\"string52\",\"string62\",\"string72\",\"string82\",\"string92\",\"string102\",\"1.112\",\"string122\",\"string132\",\"\",\"string152\",\"07. Mär 2018\"\n",
-                w.toString());
+        assertTrue(Pattern.matches(
+                "\"10\",\"15\\. Jan\\.? 1978\",\"\",\"\",\"string4\",\"string5\",\"string6\",\"string7\",\"string8\",\"string9\",\"string10\",\"1.111\",\"string12\",\"string13\",\"\",\"string15\",\"06\\. März? 2018\"\n"
+                + "\"12\",\"16\\. Jan\\.? 1978\",\"\",\"\",\"string42\",\"string52\",\"string62\",\"string72\",\"string82\",\"string92\",\"string102\",\"1.112\",\"string122\",\"string132\",\"\",\"string152\",\"07\\. März? 2018\"\n",
+                w.toString()));
     }
     
     @Test

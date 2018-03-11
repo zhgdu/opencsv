@@ -133,12 +133,12 @@ public class AnnotationTest {
             assertEquals(2L, (long) bean.getByteWrappedSetLocale());
             assertEquals(3L, (long) bean.getBytePrimitiveDefaultLocale());
             assertEquals(4L, (long) bean.getBytePrimitiveSetLocale());
-            assertEquals((double) 123101.101, (double) bean.getDoubleWrappedDefaultLocale(), 0);
-            assertEquals((double) 123202.202, (double) bean.getDoubleWrappedSetLocale(), 0);
+            assertEquals(123101.101, bean.getDoubleWrappedDefaultLocale(), 0);
+            assertEquals(123202.202, bean.getDoubleWrappedSetLocale(), 0);
             assertEquals(123303.303, bean.getDoublePrimitiveDefaultLocale(), 0);
             assertEquals(123404.404, bean.getDoublePrimitiveSetLocale(), 0);
-            assertEquals((float) 123101.101, (float) bean.getFloatWrappedDefaultLocale(), 0);
-            assertEquals((float) 123202.202, (float) bean.getFloatWrappedSetLocale(), 0);
+            assertEquals((float) 123101.101, bean.getFloatWrappedDefaultLocale(), 0);
+            assertEquals((float) 123202.202, bean.getFloatWrappedSetLocale(), 0);
 
             // There appear to be rounding errors when converting from Float to float.
             assertEquals(123303.303, bean.getFloatPrimitiveDefaultLocale(), 0.002);
@@ -224,12 +224,12 @@ public class AnnotationTest {
         assertEquals(Byte.MAX_VALUE, (long) bean.getByteWrappedDefaultLocale());
         assertEquals(Byte.MAX_VALUE, (long) bean.getByteWrappedSetLocale());
         assertEquals(Byte.MAX_VALUE, (long) bean.getBytePrimitiveDefaultLocale());
-        assertEquals(Double.MAX_VALUE, (double) bean.getDoubleWrappedDefaultLocale(), 0);
-        assertEquals(Double.MAX_VALUE, (double) bean.getDoubleWrappedSetLocale(), 0);
+        assertEquals(Double.MAX_VALUE, bean.getDoubleWrappedDefaultLocale(), 0);
+        assertEquals(Double.MAX_VALUE, bean.getDoubleWrappedSetLocale(), 0);
         assertEquals(Double.MAX_VALUE, bean.getDoublePrimitiveDefaultLocale(), 0);
         assertEquals(Double.MAX_VALUE, bean.getDoublePrimitiveSetLocale(), 0);
-        assertEquals(Float.MAX_VALUE, (float) bean.getFloatWrappedDefaultLocale(), 0);
-        assertEquals(Float.MAX_VALUE, (float) bean.getFloatWrappedSetLocale(), 0);
+        assertEquals(Float.MAX_VALUE, bean.getFloatWrappedDefaultLocale(), 0);
+        assertEquals(Float.MAX_VALUE, bean.getFloatWrappedSetLocale(), 0);
         assertEquals(Float.MAX_VALUE, bean.getFloatPrimitiveDefaultLocale(), 0);
         assertEquals(Float.MAX_VALUE, bean.getFloatPrimitiveSetLocale(), 0);
         assertEquals(Integer.MAX_VALUE, (int) bean.getIntegerWrappedDefaultLocale());
@@ -336,7 +336,7 @@ public class AnnotationTest {
     }
 
     @Test
-    public void testCase11() throws FileNotFoundException, IOException {
+    public void testCase11() throws IOException {
         HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat =
                 new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanFull.class);
@@ -352,7 +352,7 @@ public class AnnotationTest {
     }
 
     @Test
-    public void testCase55() throws FileNotFoundException, IOException {
+    public void testCase55() throws IOException {
         ColumnPositionMappingStrategy<AnnotatedMockBeanFull> strat =
                 new ColumnPositionMappingStrategy<>();
         strat.setType(AnnotatedMockBeanFull.class);
@@ -379,7 +379,7 @@ public class AnnotationTest {
             CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) e.getCause();
             assertEquals(1, csve.getLineNumber());
             assertTrue(csve.getSourceObject() instanceof String);
-            assertEquals("mismatchedtype", (String) csve.getSourceObject());
+            assertEquals("mismatchedtype", csve.getSourceObject());
             assertEquals(Byte.class, csve.getDestinationClass());
             errorMessage = csve.getLocalizedMessage();
             assertTrue(csve.getCause() instanceof ConversionException);
@@ -389,7 +389,7 @@ public class AnnotationTest {
     }
 
     @Test
-    public void testCase21() throws FileNotFoundException {
+    public void testCase21() {
         HeaderColumnNameMappingStrategy<TestCases21And63> strat =
                 new HeaderColumnNameMappingStrategy<>();
         strat.setType(TestCases21And63.class);
@@ -398,7 +398,7 @@ public class AnnotationTest {
     }
 
     @Test
-    public void testCase63() throws FileNotFoundException {
+    public void testCase63() {
         ColumnPositionMappingStrategy<TestCases21And63> strat =
                 new ColumnPositionMappingStrategy<>();
         strat.setType(TestCases21And63.class);
@@ -416,7 +416,7 @@ public class AnnotationTest {
             CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) e.getCause();
             assertEquals(1, csve.getLineNumber());
             assertTrue(csve.getSourceObject() instanceof String);
-            assertEquals("true false true", (String) csve.getSourceObject());
+            assertEquals("true false true", csve.getSourceObject());
             assertEquals(List.class, csve.getDestinationClass());
         }
     }
@@ -438,7 +438,7 @@ public class AnnotationTest {
         CsvDataTypeMismatchException innere = (CsvDataTypeMismatchException) exceptionList.get(0);
         assertEquals(1, innere.getLineNumber());
         assertTrue(innere.getSourceObject() instanceof String);
-        assertEquals("19780115T063209", (String) innere.getSourceObject());
+        assertEquals("19780115T063209", innere.getSourceObject());
         assertEquals(String.class, innere.getDestinationClass());
     }
 
@@ -484,7 +484,7 @@ public class AnnotationTest {
             CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) e.getCause();
             assertEquals(1, csve.getLineNumber());
             assertEquals(GregorianCalendar.class, csve.getDestinationClass());
-            assertEquals(UNPARSABLE, (String) csve.getSourceObject());
+            assertEquals(UNPARSABLE, csve.getSourceObject());
             assertTrue(csve.getCause() instanceof ParseException);
         }
 
@@ -499,7 +499,7 @@ public class AnnotationTest {
             CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) e.getCause();
             assertEquals(1, csve.getLineNumber());
             assertEquals(Date.class, csve.getDestinationClass());
-            assertEquals(UNPARSABLE, (String) csve.getSourceObject());
+            assertEquals(UNPARSABLE, csve.getSourceObject());
             assertTrue(csve.getCause() instanceof ParseException);
         }
 
@@ -513,7 +513,7 @@ public class AnnotationTest {
             CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) e.getCause();
             assertEquals(1, csve.getLineNumber());
             assertEquals(Date.class, csve.getDestinationClass());
-            assertEquals(UNPARSABLE, (String) csve.getSourceObject());
+            assertEquals(UNPARSABLE, csve.getSourceObject());
             assertTrue(csve.getCause() instanceof ParseException);
         }
 
@@ -527,7 +527,7 @@ public class AnnotationTest {
             CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) e.getCause();
             assertEquals(1, csve.getLineNumber());
             assertEquals(GregorianCalendar.class, csve.getDestinationClass());
-            assertEquals(UNPARSABLE, (String) csve.getSourceObject());
+            assertEquals(UNPARSABLE, csve.getSourceObject());
             assertTrue(csve.getCause() instanceof ParseException);
         }
 
@@ -542,7 +542,7 @@ public class AnnotationTest {
             CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) e.getCause();
             assertEquals(1, csve.getLineNumber());
             assertEquals(Date.class, csve.getDestinationClass());
-            assertEquals(UNPARSABLE, (String) csve.getSourceObject());
+            assertEquals(UNPARSABLE, csve.getSourceObject());
             assertTrue(csve.getCause() instanceof ParseException);
         }
 
@@ -556,7 +556,7 @@ public class AnnotationTest {
             CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) e.getCause();
             assertEquals(1, csve.getLineNumber());
             assertEquals(Date.class, csve.getDestinationClass());
-            assertEquals(UNPARSABLE, (String) csve.getSourceObject());
+            assertEquals(UNPARSABLE, csve.getSourceObject());
             assertTrue(csve.getCause() instanceof ParseException);
         }
 
@@ -572,7 +572,7 @@ public class AnnotationTest {
             CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) e.getCause();
             assertEquals(1, csve.getLineNumber());
             assertTrue(csve.getSourceObject() instanceof String);
-            assertEquals("19780115T063209", (String) csve.getSourceObject());
+            assertEquals("19780115T063209", csve.getSourceObject());
             assertEquals(String.class, csve.getDestinationClass());
         }
 
@@ -585,7 +585,7 @@ public class AnnotationTest {
         CsvDataTypeMismatchException innere = (CsvDataTypeMismatchException) exlist.get(0);
         assertEquals(1, innere.getLineNumber());
         assertTrue(innere.getSourceObject() instanceof String);
-        assertEquals("19780115T063209", (String) innere.getSourceObject());
+        assertEquals("19780115T063209", innere.getSourceObject());
         assertEquals(String.class, innere.getDestinationClass());
 
     }
@@ -619,7 +619,7 @@ public class AnnotationTest {
             CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) e.getCause();
             assertEquals(1, csve.getLineNumber());
             assertTrue(csve.getSourceObject() instanceof String);
-            assertEquals("Mismatched data type", (String) csve.getSourceObject());
+            assertEquals("Mismatched data type", csve.getSourceObject());
             assertEquals(ComplexClassForCustomAnnotation.class, csve.getDestinationClass());
             assertTrue(csve.getCause() instanceof IllegalArgumentException);
         }
@@ -643,7 +643,7 @@ public class AnnotationTest {
             CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) e.getCause();
             assertEquals(1, csve.getLineNumber());
             assertTrue(csve.getSourceObject() instanceof String);
-            assertEquals("invalidstring", (String) csve.getSourceObject());
+            assertEquals("invalidstring", csve.getSourceObject());
             assertEquals(Boolean.class, csve.getDestinationClass());
             assertTrue(csve.getCause() instanceof ConversionException);
         }

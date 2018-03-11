@@ -94,10 +94,10 @@ public class PositionToBeanField extends AbstractFieldMapEntry<String, Integer> 
                                 max = maxIndex;
                             }
                         }
-                        range = Range.<Integer>between(min, max);
+                        range = Range.between(min, max);
                     }
                     else {
-                        range = Range.<Integer>is(Integer.valueOf(r));
+                        range = Range.is(Integer.valueOf(r));
                     }
 
                     // Find out if this new range overlaps any of the
@@ -111,16 +111,16 @@ public class PositionToBeanField extends AbstractFieldMapEntry<String, Integer> 
                         }
                         else {
                             if(next.isOverlappedBy(range)) {
-                                range = Range.<Integer>between(
+                                range = Range.between(
                                         Math.min(next.getMinimum(), range.getMinimum()),
                                         Math.max(next.getMaximum(), range.getMaximum()));
                                 it.remove();
                             }
                             else if(next.getMaximum()+1 == range.getMinimum()) {
-                                range = Range.<Integer>between(next.getMinimum(), range.getMaximum());
+                                range = Range.between(next.getMinimum(), range.getMaximum());
                             }
                             else if(range.getMaximum()+1 == next.getMinimum()) {
-                                range = Range.<Integer>between(range.getMinimum(), next.getMaximum());
+                                range = Range.between(range.getMinimum(), next.getMaximum());
                             }
                         }
                     }
@@ -159,10 +159,10 @@ public class PositionToBeanField extends AbstractFieldMapEntry<String, Integer> 
             Range<Integer> r = ranges.get(i);
             if(r.getMaximum() > maxIndex) {
                 if(r.getMinimum() > maxIndex) {
-                    ranges.set(i, Range.<Integer>is(r.getMinimum()));
+                    ranges.set(i, Range.is(r.getMinimum()));
                 }
                 else {
-                    ranges.set(i, Range.<Integer>between(r.getMinimum(), maxIndex));
+                    ranges.set(i, Range.between(r.getMinimum(), maxIndex));
                 }
             }
         }

@@ -161,7 +161,7 @@ public class StatefulBeanToCsvBuilder<T> {
      * @return A new {@link StatefulBeanToCsv}
      */
     public StatefulBeanToCsv<T> build() {
-        StatefulBeanToCsv<T> sbtcsv = new StatefulBeanToCsv(escapechar, lineEnd, mappingStrategy,
+        StatefulBeanToCsv<T> sbtcsv = new StatefulBeanToCsv<>(escapechar, lineEnd, mappingStrategy,
                 quotechar, separator, throwExceptions, writer);
         sbtcsv.setOrderedResults(orderedResults);
         sbtcsv.setErrorLocale(errorLocale);

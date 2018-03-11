@@ -63,16 +63,15 @@ public class ProcessCsvBean<T> implements Runnable {
     public void run() {
         try {
             opencsvUtils.queueRefuseToAcceptDefeat(resultantLineQueue,
-                    new OrderedObject(lineNumber, mappingStrategy.transmuteBean(bean)));
+                    new OrderedObject<>(lineNumber, mappingStrategy.transmuteBean(bean)));
         }
         catch (CsvException e) {
-            CsvException csve = (CsvException) e;
-            csve.setLineNumber(lineNumber);
+            e.setLineNumber(lineNumber);
             if(throwExceptions) {
-                throw new RuntimeException(csve);
+                throw new RuntimeException(e);
             }
             opencsvUtils.queueRefuseToAcceptDefeat(thrownExceptionsQueue,
-                    new OrderedObject<>(lineNumber, csve));
+                    new OrderedObject<>(lineNumber, e));
         }
         catch(CsvRuntimeException csvre) {
             // Rethrowing exception here because I do not want the CsvRuntimeException caught and rewrapped in the catch below.

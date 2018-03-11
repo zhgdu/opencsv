@@ -41,7 +41,7 @@ public class ErrorHeaderMappingStrategy<T> implements MappingStrategy<T> {
     }
 
     @Override
-    public T createBean() throws InstantiationException, IllegalAccessException {
+    public T createBean() {
        return null;
     }
 
@@ -80,17 +80,17 @@ public class ErrorHeaderMappingStrategy<T> implements MappingStrategy<T> {
     public void setType(Class type) throws CsvBadConverterException {}
 
     @Override
-    public T populateNewBean(String[] line) throws InstantiationException, IllegalAccessException, IntrospectionException, InvocationTargetException, CsvRequiredFieldEmptyException, CsvDataTypeMismatchException, CsvConstraintViolationException {
+    public T populateNewBean(String[] line) {
         return null;
     }
 
     @Override
-    public T populateNewBeanWithIntrospection(String[] line) throws InstantiationException, IllegalAccessException, IntrospectionException, InvocationTargetException, CsvRequiredFieldEmptyException {
+    public T populateNewBeanWithIntrospection(String[] line) {
         return null;
     }
 
     @Override
-    public String[] transmuteBean(T bean) throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
+    public String[] transmuteBean(T bean) {
         return ArrayUtils.EMPTY_STRING_ARRAY;
     }
 }

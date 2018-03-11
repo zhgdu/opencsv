@@ -141,7 +141,7 @@ public class CsvToBeanBuilder<T> {
         }
         
         // Build Parser and Reader
-        CsvToBean<T> bean = new CsvToBean();
+        CsvToBean<T> bean = new CsvToBean<>();
         CSVParser parser = buildParser();
         bean.setCsvReader(buildReader(parser));
         
@@ -153,7 +153,7 @@ public class CsvToBeanBuilder<T> {
         
         // Now find the mapping strategy.
         if(mappingStrategy == null) {
-            mappingStrategy = opencsvUtils.<T>determineMappingStrategy(type, errorLocale);
+            mappingStrategy = opencsvUtils.determineMappingStrategy(type, errorLocale);
         }
         bean.setMappingStrategy(mappingStrategy);
         

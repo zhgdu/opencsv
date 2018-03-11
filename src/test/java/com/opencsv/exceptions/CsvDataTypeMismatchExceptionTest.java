@@ -31,7 +31,7 @@ public class CsvDataTypeMismatchExceptionTest {
     private static final String TEST_MESSAGE = "some test message";
     
     @Test
-    public void codeCoverageConstructors() throws NoSuchFieldException {
+    public void codeCoverageConstructors() {
         CsvDataTypeMismatchException e2 = new CsvDataTypeMismatchException();
         assertNull(e2.getDestinationClass());
         assertNull(e2.getSourceObject());

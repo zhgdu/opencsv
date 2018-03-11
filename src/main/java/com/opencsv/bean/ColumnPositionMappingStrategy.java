@@ -81,7 +81,7 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<T>
     }
     
     @Override
-    public BeanField findField(int col) {
+    public BeanField<T> findField(int col) {
         return fieldMap.get(col);
     }
 

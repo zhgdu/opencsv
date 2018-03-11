@@ -190,7 +190,7 @@ public class BeanFieldSplit<T> extends AbstractBeanField<T> {
     // The rest of the Javadoc is inherited
     @Override
     protected String convertToWrite(Object value)
-            throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
+            throws CsvDataTypeMismatchException {
         String retval = StringUtils.EMPTY;
         if(value != null) {
             Collection<Object> collection = (Collection<Object>) value;

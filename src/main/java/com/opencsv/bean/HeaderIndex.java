@@ -75,8 +75,10 @@ public class HeaderIndex {
     public void initializeHeaderIndex(String[] header) {
         positionToHeader = header != null ? ArrayUtils.clone(header): new String[0];
         headerToPosition.clear();
-        for(int i = 0; i < positionToHeader.length; i++) {
+        int i = 0;
+        while(i < positionToHeader.length) {
             headerToPosition.put(header[i], i);
+            i++;
         }
     }
     

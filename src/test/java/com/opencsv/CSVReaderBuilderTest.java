@@ -30,7 +30,7 @@ public class CSVReaderBuilderTest {
     }
 
    @Before
-   public void setUp() throws Exception {
+   public void setUp() {
       Locale.setDefault(Locale.US);
       reader = mock(Reader.class);
       builder = new CSVReaderBuilder(reader);

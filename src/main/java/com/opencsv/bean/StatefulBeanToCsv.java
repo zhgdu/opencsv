@@ -118,7 +118,7 @@ public class StatefulBeanToCsv<T> {
         
         // Determine mapping strategy
         if(mappingStrategy == null) {
-            mappingStrategy = opencsvUtils.<T>determineMappingStrategy(bean.getClass(), errorLocale);
+            mappingStrategy = opencsvUtils.determineMappingStrategy(bean.getClass(), errorLocale);
         }
         
         // Build CSVWriter
@@ -155,7 +155,7 @@ public class StatefulBeanToCsv<T> {
             // Process the bean
             resultantLineQueue = new ArrayBlockingQueue<>(1);
             thrownExceptionsQueue = new ArrayBlockingQueue<>(1);
-            ProcessCsvBean proc = new ProcessCsvBean(++lineNumber,
+            ProcessCsvBean<T> proc = new ProcessCsvBean<>(++lineNumber,
                     mappingStrategy, bean, resultantLineQueue,
                     thrownExceptionsQueue, throwExceptions);
             try {
@@ -167,16 +167,13 @@ public class StatefulBeanToCsv<T> {
                         // Can't currently happen, but who knows what might be
                         // in the future? I'm certain we wouldn't want to wrap
                         // these in another RuntimeException.
-                        CsvRuntimeException csve = (CsvRuntimeException) re.getCause();
-                        throw csve;
+                        throw (CsvRuntimeException) re.getCause();
                     }
                     if(re.getCause() instanceof CsvDataTypeMismatchException) {
-                        CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) re.getCause();
-                        throw csve;
+                        throw (CsvDataTypeMismatchException) re.getCause();
                     }
                     if(re.getCause() instanceof CsvRequiredFieldEmptyException) {
-                        CsvRequiredFieldEmptyException csve = (CsvRequiredFieldEmptyException) re.getCause();
-                        throw csve;
+                        throw (CsvRequiredFieldEmptyException) re.getCause();
                     }
                 }
                 throw re;
@@ -239,7 +236,7 @@ public class StatefulBeanToCsv<T> {
     private void submitAllLines(List<T> beans) throws InterruptedException {
         for(T bean : beans) {
             if(bean != null) {
-                executor.execute(new ProcessCsvBean(
+                executor.execute(new ProcessCsvBean<T>(
                         ++lineNumber, mappingStrategy, bean,
                         resultantLineQueue, thrownExceptionsQueue,
                         throwExceptions));
@@ -322,16 +319,13 @@ public class StatefulBeanToCsv<T> {
                     accumulateThread.setMustStop(true);
                 }
                 if(executor.getTerminalException() instanceof RuntimeException) {
-                    RuntimeException re = (RuntimeException) executor.getTerminalException();
-                    throw re;
+                    throw (RuntimeException) executor.getTerminalException();
                 }
                 if(executor.getTerminalException() instanceof CsvDataTypeMismatchException) {
-                    CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) executor.getTerminalException();
-                    throw csve;
+                    throw (CsvDataTypeMismatchException) executor.getTerminalException();
                 }
                 if(executor.getTerminalException() instanceof CsvRequiredFieldEmptyException) {
-                    CsvRequiredFieldEmptyException csve = (CsvRequiredFieldEmptyException) executor.getTerminalException();
-                    throw csve;
+                    throw (CsvRequiredFieldEmptyException) executor.getTerminalException();
                 }
                 throw new RuntimeException(
                         ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("error.writing.beans"), executor.getTerminalException());
@@ -344,8 +338,7 @@ public class StatefulBeanToCsv<T> {
                     accumulateThread.setMustStop(true);
                 }
                 if(executor.getTerminalException() instanceof RuntimeException) {
-                    RuntimeException re = (RuntimeException) executor.getTerminalException();
-                    throw re;
+                    throw (RuntimeException) executor.getTerminalException();
                 }
                 throw new RuntimeException(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("error.writing.beans"), e);
             }

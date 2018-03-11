@@ -80,13 +80,12 @@ public class ProcessCsvLine<T> implements Runnable {
                         new OrderedObject<>(lineNumber, obj));
             }
         } catch (CsvException e) {
-            CsvException csve = (CsvException) e;
-            csve.setLineNumber(lineNumber);
+            e.setLineNumber(lineNumber);
             if (throwExceptions) {
-                throw new RuntimeException(csve);
+                throw new RuntimeException(e);
             }
             opencsvUtils.queueRefuseToAcceptDefeat(thrownExceptionsQueue,
-                    new OrderedObject<>(lineNumber, csve));
+                    new OrderedObject<>(lineNumber, e));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

@@ -135,7 +135,7 @@ public class CSVParserBuilder {
      */
     public CSVParser build() {
 
-        CSVParser parser = new CSVParser(
+        return new CSVParser(
                 separator,
                 quoteChar,
                 escapeChar,
@@ -144,7 +144,6 @@ public class CSVParserBuilder {
                 ignoreQuotations,
                 nullFieldIndicator,
                 errorLocale);
-        return parser;
     }
 
     /**

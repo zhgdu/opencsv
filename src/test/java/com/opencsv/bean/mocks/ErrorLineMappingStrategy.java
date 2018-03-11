@@ -41,12 +41,12 @@ public class ErrorLineMappingStrategy<T> implements MappingStrategy<T> {
     }
 
     @Override
-    public T createBean() throws InstantiationException, IllegalAccessException {
+    public T createBean() throws InstantiationException {
        throw new InstantiationException("this is a test Exception");
     }
 
     @Override
-    public void captureHeader(CSVReader reader) throws IOException {
+    public void captureHeader(CSVReader reader) {
     }
 
     @Override
@@ -79,17 +79,17 @@ public class ErrorLineMappingStrategy<T> implements MappingStrategy<T> {
     public void setType(Class type) throws CsvBadConverterException {}
 
     @Override
-    public T populateNewBean(String[] line) throws InstantiationException, IllegalAccessException, IntrospectionException, InvocationTargetException, CsvRequiredFieldEmptyException, CsvDataTypeMismatchException, CsvConstraintViolationException {
+    public T populateNewBean(String[] line) throws InstantiationException {
        throw new InstantiationException("this is a test Exception");
     }
 
     @Override
-    public T populateNewBeanWithIntrospection(String[] line) throws InstantiationException, IllegalAccessException, IntrospectionException, InvocationTargetException, CsvRequiredFieldEmptyException {
+    public T populateNewBeanWithIntrospection(String[] line) {
         return null;
     }
 
     @Override
-    public String[] transmuteBean(T bean) throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
+    public String[] transmuteBean(T bean) {
         return ArrayUtils.EMPTY_STRING_ARRAY;
     }
 }

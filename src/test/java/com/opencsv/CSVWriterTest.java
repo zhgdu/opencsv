@@ -45,14 +45,14 @@ public class CSVWriterTest {
     * @return a String version
     * @throws IOException if there are problems writing
     */
-   private String invokeWriter(String ... args) throws IOException {
+   private String invokeWriter(String ... args) {
       StringWriter sw = new StringWriter();
       CSVWriter csvw = new CSVWriter(sw, ',', '\'');
       csvw.writeNext(args);
       return sw.toString();
    }
 
-   private String invokeNoEscapeWriter(String ... args) throws IOException {
+   private String invokeNoEscapeWriter(String ... args) {
       StringWriter sw = new StringWriter();
       CSVWriter csvw = new CSVWriter(sw, CSVWriter.DEFAULT_SEPARATOR, '\'', CSVWriter.NO_ESCAPE_CHARACTER);
       csvw.writeNext(args);
@@ -207,7 +207,7 @@ public class CSVWriterTest {
 
       Answer<Iterator> iteratorAnswer = new Answer<Iterator>() {
          @Override
-         public Iterator answer(InvocationOnMock invocationOnMock) throws Exception {
+         public Iterator answer(InvocationOnMock invocationOnMock) {
             Iterator<String[]> iterator = mock(Iterator.class);
             when(iterator.hasNext()).thenReturn(true).thenReturn(true).thenReturn(true)
                     .thenReturn(false);
@@ -240,7 +240,7 @@ public class CSVWriterTest {
     * @throws IOException if the reader fails.
     */
    @Test
-   public void testWriteAllObjects() throws IOException {
+   public void testWriteAllObjects() {
 
       List<String[]> allElements = new ArrayList<>(3);
       String[] line1 = "Name#Phone#Email".split("#");
@@ -269,7 +269,7 @@ public class CSVWriterTest {
     * @throws IOException if bad things happen
     */
    @Test
-   public void testNoQuoteChars() throws IOException {
+   public void testNoQuoteChars() {
 
       String[] line = {"Foo", "Bar", "Baz"};
       StringWriter sw = new StringWriter();
@@ -286,7 +286,7 @@ public class CSVWriterTest {
     * @throws IOException if bad things happen
     */
    @Test
-   public void testNoQuoteCharsAndNoEscapeChars() throws IOException {
+   public void testNoQuoteCharsAndNoEscapeChars() {
 
       String[] line = {"Foo", "Bar", "Baz"};
       StringWriter sw = new StringWriter();
@@ -318,7 +318,7 @@ public class CSVWriterTest {
     * @throws IOException if bad things happen
     */
    @Test
-   public void testNullValues() throws IOException {
+   public void testNullValues() {
 
       String[] line = {"Foo", null, "Bar", "baz"};
       StringWriter sw = new StringWriter();

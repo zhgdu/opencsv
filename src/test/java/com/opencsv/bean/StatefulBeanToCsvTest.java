@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.regex.Pattern;
 
 import static org.junit.Assert.*;
 
@@ -44,18 +45,18 @@ public class StatefulBeanToCsvTest {
     
     private static Locale systemLocale;
     private static final String EXTRA_STRING_FOR_WRITING = "extrastringforwritinghowcreative";
-    private static final String GOOD_DATA_1 = "test string;true;false;1;2;3;4;123,101.101;123.202,202;123303.303;123.404,404;123101.1;1.000,2;2000.3;3.000,4;5000;6.000;2147476647;8.000;9000;10.000;11000;12.000;13000;14.000;15000;16.000;a;b;123101.101;123.102,102;101;102;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;01/15/1978;13. Dez 2018;19780115T063209;19780115T063209;1.01;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;";
-    private static final String GOOD_DATA_2 = "test string;;false;1;2;3;4;123,101.101;123.202,202;123303.303;123.404,404;123101.1;1.000,2;2000.3;3.000,4;5000;6.000;2147476647;8.000;9000;10.000;11000;12.000;13000;14.000;15000;16.000;a;b;123101.101;123.102,102;101;102;19780115T063209;19780115T163209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;01/15/1978;13. Dez 2018;19780115T063209;19780115T063209;2.02;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;";
-    private static final String GOOD_DATA_OPTIONALS_NULL = "test string;true;false;1;2;3;4;123,101.101;123.202,202;123303.303;123.404,404;;1.000,2;2000.3;3.000,4;5000;6.000;2147476647;8.000;9000;10.000;11000;12.000;13000;14.000;15000;16.000;a;b;123101.101;123.102,102;101;102;19780115T063209;19780115T063209;;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;01/15/1978;13. Dez 2018;19780115T063209;19780115T063209;1.01;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;";
+    private static final String GOOD_DATA_1 = "test string;true;false;1;2;3;4;123,101.101;123.202,202;123303.303;123.404,404;123101.1;1.000,2;2000.3;3.000,4;5000;6.000;2147476647;8.000;9000;10.000;11000;12.000;13000;14.000;15000;16.000;a;b;123101.101;123.102,102;101;102;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;01/15/1978;13. Dez\\.? 2018;19780115T063209;19780115T063209;1.01;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;";
+    private static final String GOOD_DATA_2 = "test string;;false;1;2;3;4;123,101.101;123.202,202;123303.303;123.404,404;123101.1;1.000,2;2000.3;3.000,4;5000;6.000;2147476647;8.000;9000;10.000;11000;12.000;13000;14.000;15000;16.000;a;b;123101.101;123.102,102;101;102;19780115T063209;19780115T163209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;01/15/1978;13. Dez\\.? 2018;19780115T063209;19780115T063209;2.02;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;";
+    private static final String GOOD_DATA_OPTIONALS_NULL = "test string;true;false;1;2;3;4;123,101.101;123.202,202;123303.303;123.404,404;;1.000,2;2000.3;3.000,4;5000;6.000;2147476647;8.000;9000;10.000;11000;12.000;13000;14.000;15000;16.000;a;b;123101.101;123.102,102;101;102;19780115T063209;19780115T063209;;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;01/15/1978;13. Dez\\.? 2018;19780115T063209;19780115T063209;1.01;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;";
     private static final String GOOD_DATA_CUSTOM_1 = "inside custom converter;wahr;falsch;127;127;127;;1.7976931348623157E308;1.7976931348623157E308;1.7976931348623157E308;1.7976931348623157E308;3.4028235E38;3.4028235E38;3.4028235E38;3.4028235E38;2147483647;2147483647;2147483647;2147483647;9223372036854775807;9223372036854775807;9223372036854775807;9223372036854775807;32767;32767;32767;32767;\uFFFF;\uFFFF;10;10;10;10;;;;;;;;;;;;;falsch;wahr;really long test string, yeah!;1.a.long,long.string1;2147483645.z.Inserted in setter methodlong,long.string2;3.c.long,long.derived.string3;inside custom converter";
     private static final String HEADER_NAME_FULL = "BIGDECIMAL1;BIGDECIMAL2;BIGINTEGER1;BIGINTEGER2;BOOL1;BOOLPRIMITIVE;BYTE1;BYTE2;BYTE3;BYTE4;CHAR1;CHAR2;DATE1;DATE10;DATE11;DATE12;DATE13;DATE14;DATE15;DATE16;DATE2;DATE3;DATE4;DATE5;DATE6;DATE7;DATE8;DATE9;DOUBLE1;DOUBLE2;DOUBLE3;DOUBLE4;FLOAT1;FLOAT2;FLOAT3;FLOAT4;FLOAT5;INTEGER1;INTEGER2;INTEGER3;INTEGER4;ITNOGOODCOLUMNITVERYBAD;LONG1;LONG2;LONG3;LONG4;SHORT1;SHORT2;SHORT3;SHORT4;STRING1";
-    private static final String GOOD_DATA_NAME_1 = "123101.101;123.102,102;101;102;true;false;1;2;3;4;a;b;19780115T063209;19780115T063209;19780115T063209;19780115T063209;01/15/1978;13. Dez 2018;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;123,101.101;123.202,202;123303.303;123.404,404;123101.1;1.000,2;2000.3;3.000,4;1.01;5000;6.000;2147476647;8.000;;9000;10.000;11000;12.000;13000;14.000;15000;16.000;test string";
+    private static final String GOOD_DATA_NAME_1 = "123101.101;123.102,102;101;102;true;false;1;2;3;4;a;b;19780115T063209;19780115T063209;19780115T063209;19780115T063209;01/15/1978;13. Dez\\.? 2018;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;123,101.101;123.202,202;123303.303;123.404,404;123101.1;1.000,2;2000.3;3.000,4;1.01;5000;6.000;2147476647;8.000;;9000;10.000;11000;12.000;13000;14.000;15000;16.000;test string";
     private static final String HEADER_NAME_FULL_CUSTOM = "BIGDECIMAL1;BIGDECIMAL2;BIGINTEGER1;BIGINTEGER2;BOOL1;BOOL2;BOOL3;BOOLPRIMITIVE;BYTE1;BYTE2;BYTE3;CHAR1;CHAR2;COMPLEX1;COMPLEX2;COMPLEX3;DOUBLE1;DOUBLE2;DOUBLE3;DOUBLE4;FLOAT1;FLOAT2;FLOAT3;FLOAT4;INTEGER1;INTEGER2;INTEGER3;INTEGER4;LONG1;LONG2;LONG3;LONG4;REQUIREDWITHCUSTOM;SHORT1;SHORT2;SHORT3;SHORT4;STRING1;STRING2";
     private static final String GOOD_DATA_NAME_CUSTOM_1 = "10;10;10;10;wahr;falsch;wahr;falsch;127;127;127;\uFFFF;\uFFFF;1.a.long,long.string1;2147483645.z.Inserted in setter methodlong,long.string2;3.c.long,long.derived.string3;1.7976931348623157E308;1.7976931348623157E308;1.7976931348623157E308;1.7976931348623157E308;3.4028235E38;3.4028235E38;3.4028235E38;3.4028235E38;2147483647;2147483647;2147483647;2147483647;9223372036854775807;9223372036854775807;9223372036854775807;9223372036854775807;inside custom converter;32767;32767;32767;32767;inside custom converter;really long test string, yeah!";
     private static final String GOOD_DATA_NAME_CUSTOM_2 = "10;10;10;10;wahr;falsch;wahr;falsch;127;127;127;\uFFFF;\uFFFF;4.d.long,long.string4;2147483642.z.Inserted in setter methodlong,long.derived.string5;6.f.long,long.string6;1.7976931348623157E308;1.7976931348623157E308;1.7976931348623157E308;1.7976931348623157E308;3.4028235E38;3.4028235E38;3.4028235E38;3.4028235E38;2147483647;2147483647;2147483647;2147483647;9223372036854775807;9223372036854775807;9223372036854775807;9223372036854775807;inside custom converter;32767;32767;32767;32767;inside custom converter;really";
     private static final String HEADER_NAME_FULL_DERIVED = "BIGDECIMAL1;BIGDECIMAL2;BIGINTEGER1;BIGINTEGER2;BOOL1;BOOLPRIMITIVE;BYTE1;BYTE2;BYTE3;BYTE4;CHAR1;CHAR2;DATE1;DATE10;DATE11;DATE12;DATE13;DATE14;DATE15;DATE16;DATE2;DATE3;DATE4;DATE5;DATE6;DATE7;DATE8;DATE9;DOUBLE1;DOUBLE2;DOUBLE3;DOUBLE4;FLOAT1;FLOAT2;FLOAT3;FLOAT4;FLOAT5;INT IN SUBCLASS;INTEGER1;INTEGER2;INTEGER3;INTEGER4;ITNOGOODCOLUMNITVERYBAD;LONG1;LONG2;LONG3;LONG4;SHORT1;SHORT2;SHORT3;SHORT4;STRING1";
-    private static final String GOOD_DATA_NAME_DERIVED_1 = "123101.101;123.102,102;101;102;true;false;1;2;3;4;a;b;19780115T063209;19780115T063209;19780115T063209;19780115T063209;01/15/1978;13. Dez 2018;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;123,101.101;123.202,202;123303.303;123.404,404;123101.1;123.202,203;123303.305;123.404,406;1.01;7;5000;6.000;2147476647;8.000;;9000;10.000;11000;12.000;13000;14.000;15000;16.000;test string";
-    private static final String GOOD_DATA_NAME_DERIVED_SUB_1 = "123101.101;123.102,102;101;102;true;false;1;2;3;4;a;b;19780115T063209;19780115T063209;19780115T063209;19780115T063209;01/15/1978;13. Dez 2018;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;123,101.101;123.202,202;123303.303;123.404,404;123101.1;123.202,203;123303.305;123.404,406;1.01;5000;6.000;2147476647;8.000;;9000;10.000;11000;12.000;13000;14.000;15000;16.000;test string";
+    private static final String GOOD_DATA_NAME_DERIVED_1 = "123101.101;123.102,102;101;102;true;false;1;2;3;4;a;b;19780115T063209;19780115T063209;19780115T063209;19780115T063209;01/15/1978;13. Dez\\.? 2018;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;123,101.101;123.202,202;123303.303;123.404,404;123101.1;123.202,203;123303.305;123.404,406;1.01;7;5000;6.000;2147476647;8.000;;9000;10.000;11000;12.000;13000;14.000;15000;16.000;test string";
+    private static final String GOOD_DATA_NAME_DERIVED_SUB_1 = "123101.101;123.102,102;101;102;true;false;1;2;3;4;a;b;19780115T063209;19780115T063209;19780115T063209;19780115T063209;01/15/1978;13. Dez\\.? 2018;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;123,101.101;123.202,202;123303.303;123.404,404;123101.1;123.202,203;123303.305;123.404,406;1.01;5000;6.000;2147476647;8.000;;9000;10.000;11000;12.000;13000;14.000;15000;16.000;test string";
 
     @BeforeClass
     public static void storeSystemLocale() {
@@ -128,7 +129,7 @@ public class StatefulBeanToCsvTest {
                 .withSeparator(';')
                 .build();
         btcsv.write(beans.left);
-        assertEquals(GOOD_DATA_1 + "\n", writer.toString());
+        assertTrue(Pattern.matches(GOOD_DATA_1 + "\n", writer.toString()));
     }
         
     /**
@@ -147,7 +148,7 @@ public class StatefulBeanToCsvTest {
                 .withSeparator(';')
                 .build();
         btcsv.write(beanList);
-        assertEquals(GOOD_DATA_1 + "\n" + GOOD_DATA_2 + "\n", writer.toString());
+        assertTrue(Pattern.matches(GOOD_DATA_1 + "\n" + GOOD_DATA_2 + "\n", writer.toString()));
     }
         
     /**
@@ -168,7 +169,7 @@ public class StatefulBeanToCsvTest {
                 .build();
         btcsv.write(beanList);
         String r = writer.toString();
-        assertTrue(r.equals(GOOD_DATA_1 + "\n" + GOOD_DATA_2 + "\n") || r.equals(GOOD_DATA_2 + "\n" + GOOD_DATA_1 + "\n"));
+        assertTrue(Pattern.matches(GOOD_DATA_1 + "\n" + GOOD_DATA_2 + "\n", r) || Pattern.matches(GOOD_DATA_2 + "\n" + GOOD_DATA_1 + "\n", r));
     }
         
     /**
@@ -189,7 +190,7 @@ public class StatefulBeanToCsvTest {
                 .build();
         btcsv.write(beanList);
         btcsv.write(beans.left);
-        assertEquals(GOOD_DATA_1 + "arj\n" + GOOD_DATA_2 + "arj\n" + GOOD_DATA_1 + "arj\n", writer.toString());
+        assertTrue(Pattern.matches(GOOD_DATA_1 + "arj\n" + GOOD_DATA_2 + "arj\n" + GOOD_DATA_1 + "arj\n", writer.toString()));
     }
         
     /**
@@ -212,7 +213,7 @@ public class StatefulBeanToCsvTest {
                 .withEscapechar('|') // Just for code coverage. Doesn't do anything else.
                 .build();
         btcsv.write(beans.left);
-        assertEquals(GOOD_DATA_OPTIONALS_NULL + "\n", writer.toString());
+        assertTrue(Pattern.matches(GOOD_DATA_OPTIONALS_NULL + "\n", writer.toString()));
     }
         
     /**
@@ -231,7 +232,7 @@ public class StatefulBeanToCsvTest {
                 .withSeparator(';')
                 .build();
         btcsv.write(beans.left);
-        assertEquals(GOOD_DATA_1 + EXTRA_STRING_FOR_WRITING + "\n", writer.toString());
+        assertTrue(Pattern.matches(GOOD_DATA_1 + EXTRA_STRING_FOR_WRITING + "\n", writer.toString()));
     }
     
     /**
@@ -251,7 +252,7 @@ public class StatefulBeanToCsvTest {
                 .withMappingStrategy(strat)
                 .build();
         btcsv.write(beans.left);
-        assertEquals(HEADER_NAME_FULL + "\n" + GOOD_DATA_NAME_1 + "\n", writer.toString());
+        assertTrue(Pattern.matches(HEADER_NAME_FULL + "\n" + GOOD_DATA_NAME_1 + "\n", writer.toString()));
     }
         
     /**
@@ -261,7 +262,7 @@ public class StatefulBeanToCsvTest {
      * @throws CsvException Never
      */
     @Test
-    public void writeBindByPositionUnknownType() throws IOException, CsvException {
+    public void writeBindByPositionUnknownType() throws CsvException {
         BindUnknownType byNameUnsupported = new BindUnknownType();
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv btcsv = new StatefulBeanToCsvBuilder(writer)
@@ -278,7 +279,7 @@ public class StatefulBeanToCsvTest {
      * @throws CsvException Never
      */
     @Test
-    public void writeBindByNameUnknownType() throws IOException, CsvException {
+    public void writeBindByNameUnknownType() throws CsvException {
         BindUnknownType byNameUnsupported = new BindUnknownType();
         StringWriter writer = new StringWriter();
         HeaderColumnNameMappingStrategy strat = new HeaderColumnNameMappingStrategy();
@@ -297,7 +298,7 @@ public class StatefulBeanToCsvTest {
      * @throws CsvException Never
      */
     @Test
-    public void writeWithoutAnnotations() throws IOException, CsvException {
+    public void writeWithoutAnnotations() throws CsvException {
         StringWriter writer = new StringWriter();
         ComplexClassForCustomAnnotation cc = new ComplexClassForCustomAnnotation();
         cc.c = 'A'; cc.i = 1; cc.s = "String";
@@ -326,7 +327,7 @@ public class StatefulBeanToCsvTest {
                 .withMappingStrategy(strat)
                 .build();
         btcsv.write(derivedList.left);
-        assertEquals(HEADER_NAME_FULL_DERIVED + "\n" + GOOD_DATA_NAME_DERIVED_1 + "\n", writer.toString());
+        assertTrue(Pattern.matches(HEADER_NAME_FULL_DERIVED + "\n" + GOOD_DATA_NAME_DERIVED_1 + "\n", writer.toString()));
     }
         
     /**
@@ -347,7 +348,7 @@ public class StatefulBeanToCsvTest {
                 .withMappingStrategy(strat)
                 .build();
         btcsv.write(derivedList.left);
-        assertEquals(HEADER_NAME_FULL + "\n" + GOOD_DATA_NAME_DERIVED_SUB_1 + "\n", writer.toString());
+        assertTrue(Pattern.matches(HEADER_NAME_FULL + "\n" + GOOD_DATA_NAME_DERIVED_SUB_1 + "\n", writer.toString()));
     }
     
     /**
@@ -359,7 +360,7 @@ public class StatefulBeanToCsvTest {
      * @throws NoSuchFieldException Never
      */
     @Test
-    public void writeGetterMissing() throws IOException, CsvException, NoSuchFieldException {
+    public void writeGetterMissing() throws CsvException {
         GetterMissing getterMissing = new GetterMissing();
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv sbtcsv = new StatefulBeanToCsvBuilder(writer)
@@ -382,7 +383,7 @@ public class StatefulBeanToCsvTest {
      * @throws NoSuchFieldException Never
      */
     @Test
-    public void writeGetterPrivate() throws IOException, CsvException, NoSuchFieldException {
+    public void writeGetterPrivate() throws CsvException {
         GetterPrivate getterPrivate = new GetterPrivate();
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv sbtcsv = new StatefulBeanToCsvBuilder(writer)
@@ -556,7 +557,7 @@ public class StatefulBeanToCsvTest {
      * @throws NoSuchFieldException Never
      */
     @Test
-    public void readCapturedExceptionsIsDestructive() throws IOException, CsvException, NoSuchFieldException {
+    public void readCapturedExceptionsIsDestructive() throws IOException, CsvException {
         ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
         beans.left.setByteWrappedSetLocale(null); // required
         beans.right.setDateDefaultLocale(null); // required
@@ -579,7 +580,7 @@ public class StatefulBeanToCsvTest {
      * @throws NoSuchFieldException Never
      */
     @Test
-    public void multipleWritesCapturedExceptions() throws IOException, CsvException, NoSuchFieldException {
+    public void multipleWritesCapturedExceptions() throws IOException, CsvException {
         ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
         beans.left.setByteWrappedSetLocale(null); // required
         beans.right.setDateDefaultLocale(null); // required
@@ -602,7 +603,7 @@ public class StatefulBeanToCsvTest {
      * @throws NoSuchFieldException Never
      */
     @Test
-    public void bindCustomConverterToWrongDataType() throws IOException, CsvException, NoSuchFieldException {
+    public void bindCustomConverterToWrongDataType() throws CsvException {
         BindCustomToWrongDataType wrongTypeBean = new BindCustomToWrongDataType();
         wrongTypeBean.setWrongType(GOOD_DATA_1);
         StringWriter writer = new StringWriter();
@@ -700,7 +701,7 @@ public class StatefulBeanToCsvTest {
      * @throws NoSuchFieldException Never
      */
     @Test
-    public void writeEmptyFieldWithConvertGermanToBooleanRequired() throws IOException, CsvException, NoSuchFieldException {
+    public void writeEmptyFieldWithConvertGermanToBooleanRequired() throws IOException, CsvException {
         ImmutablePair<AnnotatedMockBeanCustom, AnnotatedMockBeanCustom> beans = createTwoGoodCustomBeans();
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv btcsv = new StatefulBeanToCsvBuilder(writer)
@@ -787,7 +788,7 @@ public class StatefulBeanToCsvTest {
      * @throws CsvException Never
      */
     @Test
-    public void writeWithSplitOnWhitespaceWrongType() throws IOException, CsvException {
+    public void writeWithSplitOnWhitespaceWrongType() throws CsvException {
         SplitOnWhitespaceWrongDataType bean = new SplitOnWhitespaceWrongDataType();
         bean.setValues(Integer.MAX_VALUE);
         StringWriter writer = new StringWriter();

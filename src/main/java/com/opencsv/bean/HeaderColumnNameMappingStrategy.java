@@ -110,8 +110,8 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
     }
     
     @Override
-    public BeanField findField(int col) throws CsvBadConverterException {
-        BeanField beanField = null;
+    public BeanField<T> findField(int col) throws CsvBadConverterException {
+        BeanField<T> beanField = null;
         String columnName = getColumnName(col);
         if(StringUtils.isNotBlank(columnName)) {
             beanField = fieldMap.get(columnName.toUpperCase().trim());

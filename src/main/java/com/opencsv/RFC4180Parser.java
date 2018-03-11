@@ -159,9 +159,8 @@ public class RFC4180Parser implements ICSVParser {
      * @param nextLine The string to parse
      * @param multi    Does it take multiple lines to form a single record?
      * @return The list of elements, or null if nextLine is null
-     * @throws IOException If bad things happen during the read
      */
-    protected String[] parseLine(String nextLine, boolean multi) throws IOException {
+    protected String[] parseLine(String nextLine, boolean multi) {
         String[] elements;
 
         if (!multi && pending != null) {

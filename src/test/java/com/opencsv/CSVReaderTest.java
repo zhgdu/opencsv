@@ -47,7 +47,7 @@ public class CSVReaderTest {
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         Locale.setDefault(Locale.US);
         StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
         sb.append("a,b,c").append("\n");   // standard case

@@ -23,7 +23,7 @@ class CSVParserBuilderSpec extends Specification {
         CSVParser parser = builder.build()
 
         then:
-        parser.getQuotechar() == ICSVParser.DEFAULT_QUOTE_CHARACTER;
-        parser.getSeparator() == ICSVParser.DEFAULT_SEPARATOR;
+        parser.getQuotechar() == ICSVParser.DEFAULT_QUOTE_CHARACTER
+        parser.getSeparator() == ICSVParser.DEFAULT_SEPARATOR
     }
 }

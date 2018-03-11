@@ -39,7 +39,7 @@ public class CsvRequiredFieldEmptyException extends CsvException {
      */
     public CsvRequiredFieldEmptyException() {
         beanClass = null;
-        destinationFields = Collections.<Field>emptyList();
+        destinationFields = Collections.emptyList();
     }
 
     /**
@@ -50,7 +50,7 @@ public class CsvRequiredFieldEmptyException extends CsvException {
     public CsvRequiredFieldEmptyException(String message) {
         super(message);
         beanClass = null;
-        destinationFields = Collections.<Field>emptyList();
+        destinationFields = Collections.emptyList();
     }
 
     /**
@@ -77,7 +77,7 @@ public class CsvRequiredFieldEmptyException extends CsvException {
      */
     public CsvRequiredFieldEmptyException(Class<?> beanClass, List<Field> destinationFields) {
         this.beanClass = beanClass;
-        this.destinationFields = new UnmodifiableList(destinationFields);
+        this.destinationFields = new UnmodifiableList<>(destinationFields);
     }
     
     /**
@@ -92,7 +92,7 @@ public class CsvRequiredFieldEmptyException extends CsvException {
     public CsvRequiredFieldEmptyException(Class<?> beanClass, String message) {
         super(message);
         this.beanClass = beanClass;
-        this.destinationFields = Collections.<Field>emptyList();
+        this.destinationFields = Collections.emptyList();
     }
 
     /**
@@ -125,7 +125,7 @@ public class CsvRequiredFieldEmptyException extends CsvException {
     public CsvRequiredFieldEmptyException(Class<?> beanClass, List<Field> destinationFields, String message) {
         super(message);
         this.beanClass = beanClass;
-        this.destinationFields = new UnmodifiableList(destinationFields);
+        this.destinationFields = new UnmodifiableList<>(destinationFields);
     }
 
     /**
