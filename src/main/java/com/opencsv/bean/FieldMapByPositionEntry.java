@@ -20,17 +20,18 @@ package com.opencsv.bean;
  * Note: This is not used in the internal structure of
  * {@link FieldMapByPosition}, but rather when representing its contents to the
  * outside world.
+ * @param <T> The type of the bean being converted
  * 
  * @author Andrew Rucker Jones
  * @since 4.2
  */
-public class FieldMapByPositionEntry {
+public class FieldMapByPositionEntry<T> {
     
     /** The position of the related field in the CSV input. */
     private final int position;
     
     /** The {@link BeanField} associated with this position. */
-    private final BeanField field;
+    private final BeanField<T> field;
     
     /**
      * Initializes this entry.
@@ -38,7 +39,7 @@ public class FieldMapByPositionEntry {
      * @param position The position from the CSV input
      * @param field The field associated with this position
      */
-    public FieldMapByPositionEntry(int position, BeanField field) {
+    public FieldMapByPositionEntry(int position, BeanField<T> field) {
         this.position = position;
         this.field = field;
     }
@@ -47,5 +48,5 @@ public class FieldMapByPositionEntry {
     public int getPosition() {return position;}
     
     /** @return The {@link BeanField} with which this entry was initialized */
-    public BeanField getField() {return field;}
+    public BeanField<T> getField() {return field;}
 }

@@ -32,7 +32,7 @@ import org.apache.commons.lang3.StringUtils;
  *
  * @author Andrew Rucker Jones
  */
-public class PositionToBeanField extends AbstractFieldMapEntry<String, Integer> implements Iterable<FieldMapByPositionEntry> {
+public class PositionToBeanField<T> extends AbstractFieldMapEntry<String, Integer, T> implements Iterable<FieldMapByPositionEntry<T>> {
     
     /**
      * This is the string used to initialize this set of ranges.
@@ -57,7 +57,7 @@ public class PositionToBeanField extends AbstractFieldMapEntry<String, Integer> 
      * @param errorLocale The locale for error messages
      * @throws CsvBadConverterException If {@code rangeDefinition} cannot be parsed
      */
-    public PositionToBeanField(final String rangeDefinition, int maxIndex, final BeanField field, Locale errorLocale) {
+    public PositionToBeanField(final String rangeDefinition, int maxIndex, final BeanField<T> field, Locale errorLocale) {
         super(field, errorLocale);
         initializer = rangeDefinition;
         ranges = new LinkedList<>();
@@ -187,7 +187,7 @@ public class PositionToBeanField extends AbstractFieldMapEntry<String, Integer> 
     }
     
     @Override
-    public Iterator<FieldMapByPositionEntry> iterator() {
+    public Iterator<FieldMapByPositionEntry<T>> iterator() {
         return new PositionIterator();
     }
     
@@ -205,7 +205,7 @@ public class PositionToBeanField extends AbstractFieldMapEntry<String, Integer> 
      * reason for user code to use this iterator at all, but if it does, the
      * user is herewith warned.</p>
      */
-    private class PositionIterator implements Iterator<FieldMapByPositionEntry> {
+    private class PositionIterator implements Iterator<FieldMapByPositionEntry<T>> {
         
         private int listIndex;
         private int position;
@@ -226,7 +226,7 @@ public class PositionToBeanField extends AbstractFieldMapEntry<String, Integer> 
         }
 
         @Override
-        public FieldMapByPositionEntry next() {
+        public FieldMapByPositionEntry<T> next() {
             
             // Standard handling
             if(!hasNext()) {
@@ -234,7 +234,7 @@ public class PositionToBeanField extends AbstractFieldMapEntry<String, Integer> 
             }
             
             // Value to return
-            FieldMapByPositionEntry entry = new FieldMapByPositionEntry(position, field);
+            FieldMapByPositionEntry<T> entry = new FieldMapByPositionEntry<>(position, field);
             
             // Advance the cursor. We add one extra precaution here: if a range
             // goes out to Integer.MAX_VALUE, we only return the minimum. This

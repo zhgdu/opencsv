@@ -19,11 +19,12 @@ package com.opencsv.bean;
  * Represents one entry in {@link FieldMapByName}.
  * Note: This is not used in the internal structure of {@link FieldMapByName}, but
  * rather when representing its contents to the outside world.
- * 
+ * @param <T> The type of the bean being converted
+ *
  * @author Andrew Rucker Jones
  * @since 4.2
  */
-public class FieldMapByNameEntry {
+public class FieldMapByNameEntry<T> {
     
     /**
      * The name of the header or a regular expression pattern matching possible
@@ -32,7 +33,7 @@ public class FieldMapByNameEntry {
     private final String name;
     
     /** The {@link BeanField} associated with this header or these headers. */
-    private final BeanField field;
+    private final BeanField<T> field;
     
     /**
      * Whether {@link #name} is a header name or a regular expression pattern
@@ -47,7 +48,7 @@ public class FieldMapByNameEntry {
      * @param field The field associated with the header(s)
      * @param regexPattern Whether or not {@code name} is a regular expression pattern
      */
-    public FieldMapByNameEntry(String name, BeanField field, boolean regexPattern) {
+    public FieldMapByNameEntry(String name, BeanField<T> field, boolean regexPattern) {
         this.name = name;
         this.field = field;
         this.regexPattern = regexPattern;
@@ -64,7 +65,7 @@ public class FieldMapByNameEntry {
     /**
      * @return The {@link BeanField} associated with this header or these headers
      */
-    public BeanField getField() {
+    public BeanField<T> getField() {
         return field;
     }
 

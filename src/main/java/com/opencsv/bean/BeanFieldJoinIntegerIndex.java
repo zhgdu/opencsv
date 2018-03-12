@@ -28,7 +28,7 @@ import org.apache.commons.collections4.MultiValuedMap;
  * @author Andrew Rucker Jones
  * @since 4.2
  */
-public class BeanFieldJoinIntegerIndex<T> extends BeanFieldJoin<T> {
+public class BeanFieldJoinIntegerIndex<T> extends BeanFieldJoin<T, Integer> {
     
     public BeanFieldJoinIntegerIndex(
             Field field, boolean required, Locale errorLocale,
@@ -37,7 +37,7 @@ public class BeanFieldJoinIntegerIndex<T> extends BeanFieldJoin<T> {
     }
 
     @Override
-    protected Object putNewValue(MultiValuedMap map, String index, Object newValue) {
+    protected Object putNewValue(MultiValuedMap<Integer, Object> map, String index, Object newValue) {
         return map.put(Integer.valueOf(index), newValue);
     }
 }

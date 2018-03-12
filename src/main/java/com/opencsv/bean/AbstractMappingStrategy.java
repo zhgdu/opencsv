@@ -52,7 +52,7 @@ import org.apache.commons.lang3.StringUtils;
  * @author Andrew Rucker Jones
  * @since 4.2
  */
-abstract public class AbstractMappingStrategy<T> implements MappingStrategy<T> {
+abstract public class AbstractMappingStrategy<I, K, C extends ComplexFieldMapEntry<I, K, T>, T> implements MappingStrategy<T> {
     
     /**
      * Given a header name, this map allows one to find the corresponding
@@ -101,7 +101,7 @@ abstract public class AbstractMappingStrategy<T> implements MappingStrategy<T> {
      * 
      * @return The {@link FieldMap} used by this strategy
      */
-    abstract protected FieldMap getFieldMap();
+    abstract protected FieldMap<I,K,? extends C,T> getFieldMap();
     
     /**
      * Builds a map of fields for the bean.
@@ -393,10 +393,10 @@ abstract public class AbstractMappingStrategy<T> implements MappingStrategy<T> {
      * @return The custom converter
      * @throws CsvBadConverterException If the class cannot be instantiated
      */
-    protected BeanField instantiateCustomConverter(Class<? extends AbstractBeanField> converter)
+    protected BeanField<T> instantiateCustomConverter(Class<? extends AbstractBeanField> converter)
             throws CsvBadConverterException {
         try {
-            BeanField c = converter.newInstance();
+            BeanField<T> c = converter.newInstance();
             c.setErrorLocale(errorLocale);
             return c;
         } catch (IllegalAccessException | InstantiationException oldEx) {
@@ -422,7 +422,7 @@ abstract public class AbstractMappingStrategy<T> implements MappingStrategy<T> {
         // them all.
         if(getFieldMap() != null) {
             getFieldMap().setErrorLocale(this.errorLocale);
-            for(BeanField f : (Collection<BeanField>) getFieldMap().values()) {
+            for(BeanField<T> f : (Collection<BeanField<T>>) getFieldMap().values()) {
                 f.setErrorLocale(this.errorLocale);
             }
         }
@@ -449,7 +449,7 @@ abstract public class AbstractMappingStrategy<T> implements MappingStrategy<T> {
     protected void setFieldValue(T bean, String value, int column)
             throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException,
             CsvConstraintViolationException {
-        BeanField beanField = findField(column);
+        BeanField<T> beanField = findField(column);
         if (beanField != null) {
             beanField.setFieldValue(bean, value, findHeader(column));
         }
@@ -470,7 +470,7 @@ abstract public class AbstractMappingStrategy<T> implements MappingStrategy<T> {
 
     private List<String> writeWithReflection(T bean, int numColumns)
             throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
-        BeanField firstBeanField, subsequentBeanField;
+        BeanField<T> firstBeanField, subsequentBeanField;
         Object firstIndex, subsequentIndex;
         List<String> contents = new ArrayList<>(numColumns > 0 ? numColumns : 0);
         

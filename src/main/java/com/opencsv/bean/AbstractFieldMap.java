@@ -32,12 +32,13 @@ import org.apache.commons.lang3.ObjectUtils;
  * @param <I> The initializer type used to build the many-to-one mapping
  * @param <K> Type of the field identifier (key)
  * @param <C> Type of the ComplexFieldMapEntry used
+ * @param <T> Type of the bean being converted
  * 
  * @author Andrew Rucker Jones
  * @since 4.2
  */
-abstract public class AbstractFieldMap<I, K, C extends ComplexFieldMapEntry<I, K>>
-        implements FieldMap<I, K, C> {
+abstract public class AbstractFieldMap<I, K, C extends ComplexFieldMapEntry<I, K, T>, T>
+        implements FieldMap<I, K, C, T> {
     
     /** The locale for error messages. */
     protected Locale errorLocale;
@@ -46,7 +47,7 @@ abstract public class AbstractFieldMap<I, K, C extends ComplexFieldMapEntry<I, K
      * A map for all simple, that is one-to-one, mappings represented in this
      * {@link FieldMap}.
      */
-    protected final SortedMap<K, BeanField> simpleMap = new TreeMap<>();
+    protected final SortedMap<K, BeanField<T>> simpleMap = new TreeMap<>();
     
     /**
      * A list of entries representing all complex, that is many-to-one, mappings
@@ -64,11 +65,11 @@ abstract public class AbstractFieldMap<I, K, C extends ComplexFieldMapEntry<I, K
     }
     
     @Override
-    public BeanField get(final K key) {
-        BeanField f = simpleMap.get(key);
+    public BeanField<T> get(final K key) {
+        BeanField<T> f = simpleMap.get(key);
         final ListIterator<C> iterator = complexMapList.listIterator();
         while(f == null && iterator.hasNext()) {
-            final ComplexFieldMapEntry r = iterator.next();
+            final ComplexFieldMapEntry<I,K,T> r = iterator.next();
             if(r.contains(key)) {
                 f = r.getBeanField();
             }
@@ -77,15 +78,15 @@ abstract public class AbstractFieldMap<I, K, C extends ComplexFieldMapEntry<I, K
     }
     
     @Override
-    public BeanField put(final K key, final BeanField value) {
+    public BeanField<T> put(final K key, final BeanField<T> value) {
         return simpleMap.put(key, value);
     }
     
     @Override
-    public Collection<BeanField> values() {
-        final List<BeanField> l = new ArrayList<>(simpleMap.size() + complexMapList.size());
+    public Collection<BeanField<T>> values() {
+        final List<BeanField<T>> l = new ArrayList<>(simpleMap.size() + complexMapList.size());
         l.addAll(simpleMap.values());
-        for(ComplexFieldMapEntry r : complexMapList) {
+        for(ComplexFieldMapEntry<I,K,T> r : complexMapList) {
             l.add(r.getBeanField());
         }
         return l;

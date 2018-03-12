@@ -38,10 +38,11 @@ import org.apache.commons.lang3.reflect.FieldUtils;
  * with multiple identically named columns, into one field.
  * 
  * @param <T> The type of the bean being populated
+ * @param <I> The index of the {@link org.apache.commons.collections4.MultiValuedMap} in use
  * @author Andrew Rucker Jones
  * @since 4.2
  */
-abstract public class BeanFieldJoin<T> extends BeanFieldSingleValue<T> {
+abstract public class BeanFieldJoin<T, I> extends BeanFieldSingleValue<T> {
     
     /**
      * The type of the {@link org.apache.commons.collections4.MultiValuedMap}
@@ -133,7 +134,7 @@ abstract public class BeanFieldJoin<T> extends BeanFieldSingleValue<T> {
      * @return The previous value under this index, or null if there was no
      *   previous value
      */
-    abstract protected Object putNewValue(MultiValuedMap map, String index, Object newValue);
+    abstract protected Object putNewValue(MultiValuedMap<I, Object> map, String index, Object newValue);
 
     /**
      * Assigns the value given to the proper field of the bean given.
@@ -153,7 +154,7 @@ abstract public class BeanFieldJoin<T> extends BeanFieldSingleValue<T> {
             Method getterMethod = getReadMethod(bean);
             Method setterMethod = getWriteMethod(bean);
             try {
-                MultiValuedMap currentValue = (MultiValuedMap) getterMethod.invoke(bean);
+                MultiValuedMap<I,Object> currentValue = (MultiValuedMap<I,Object>) getterMethod.invoke(bean);
                 if(currentValue == null) {
                     currentValue = mapType.newInstance();
                     setterMethod.invoke(bean, currentValue);
@@ -195,7 +196,8 @@ abstract public class BeanFieldJoin<T> extends BeanFieldSingleValue<T> {
         Object[] splitObjects = ArrayUtils.EMPTY_OBJECT_ARRAY;
         if(value != null) {
             if(MultiValuedMap.class.isAssignableFrom(value.getClass())) {
-                MultiValuedMap map = (MultiValuedMap) value;
+                @SuppressWarnings("unchecked")
+                MultiValuedMap<Object,Object> map = (MultiValuedMap<Object,Object>) value;
                 Collection<Object> splitCollection = map.get(index);
                 splitObjects = splitCollection.toArray(new Object[splitCollection.size()]);
             }
@@ -215,6 +217,7 @@ abstract public class BeanFieldJoin<T> extends BeanFieldSingleValue<T> {
      */
     // The rest of the Javadoc is inherited
     @Override
+    @SuppressWarnings("unchecked")
     protected boolean isFieldEmptyForWrite(Object value) {
         return super.isFieldEmptyForWrite(value) || ((MultiValuedMap<Object, Object>)value).isEmpty();
     }
@@ -234,7 +237,7 @@ abstract public class BeanFieldJoin<T> extends BeanFieldSingleValue<T> {
      *   be assigned
      */
     private void writeWithoutSetter(T bean, Object obj, String header) throws CsvDataTypeMismatchException {
-        MultiValuedMap map;
+        MultiValuedMap<I,Object> map;
         try {
             Object existingValue = FieldUtils.readField(field, bean, true);
             if(existingValue == null) {
@@ -243,7 +246,7 @@ abstract public class BeanFieldJoin<T> extends BeanFieldSingleValue<T> {
                 super.writeWithoutSetter(bean, map);
             }
             else {
-                map = (MultiValuedMap) existingValue;
+                map = (MultiValuedMap<I,Object>) existingValue;
                 putNewValue(map, header, obj);
             }
         } catch (IllegalAccessException e2) {

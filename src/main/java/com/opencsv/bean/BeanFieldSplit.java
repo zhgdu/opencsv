@@ -184,8 +184,6 @@ public class BeanFieldSplit<T> extends AbstractBeanField<T> {
     /**
      * Manages converting a collection of values into a single string.
      * The conversion of each individual value is performed by the converter.
-     * @throws CsvRequiredFieldEmptyException This implementation does not throw
-     *   this exception
      */
     // The rest of the Javadoc is inherited
     @Override
@@ -193,7 +191,7 @@ public class BeanFieldSplit<T> extends AbstractBeanField<T> {
             throws CsvDataTypeMismatchException {
         String retval = StringUtils.EMPTY;
         if(value != null) {
-            Collection<Object> collection = (Collection<Object>) value;
+            @SuppressWarnings("unchecked") Collection<Object> collection = (Collection<Object>) value;
             String[] convertedValue = new String[collection.size()];
             int i = 0;
             for(Object o : collection) {

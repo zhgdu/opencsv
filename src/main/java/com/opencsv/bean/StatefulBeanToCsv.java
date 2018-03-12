@@ -118,7 +118,7 @@ public class StatefulBeanToCsv<T> {
         
         // Determine mapping strategy
         if(mappingStrategy == null) {
-            mappingStrategy = opencsvUtils.determineMappingStrategy(bean.getClass(), errorLocale);
+            mappingStrategy = opencsvUtils.<T>determineMappingStrategy((Class<T>)bean.getClass(), errorLocale);
         }
         
         // Build CSVWriter

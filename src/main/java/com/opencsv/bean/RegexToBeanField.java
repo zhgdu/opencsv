@@ -25,11 +25,12 @@ import java.util.regex.PatternSyntaxException;
 
 /**
  * Maps any header name matching a regular expression to a {@link BeanField}.
- * 
+ *
+ * @param <T> The type of the bean being converted
  * @author Andrew Rucker Jones
  * @since 4.2
  */
-public class RegexToBeanField extends AbstractFieldMapEntry<String, String> {
+public class RegexToBeanField<T> extends AbstractFieldMapEntry<String, String, T> {
 
     /** The compiled regular expression used to match header names. */
     private final Pattern regex;
@@ -43,7 +44,7 @@ public class RegexToBeanField extends AbstractFieldMapEntry<String, String> {
      * @param field The {@link BeanField} this mapping maps to
      * @param errorLocale The locale for error messages
      */
-    public RegexToBeanField(final String pattern, final BeanField field, final Locale errorLocale) {
+    public RegexToBeanField(final String pattern, final BeanField<T> field, final Locale errorLocale) {
         super(field, errorLocale);
         try {
             regex = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);

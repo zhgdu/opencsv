@@ -32,7 +32,7 @@ import java.util.*;
  * @author Andrew Rucker Jones
  * @since 4.2
  */
-public class FieldMapByName extends AbstractFieldMap<String, String, RegexToBeanField> {
+public class FieldMapByName<T> extends AbstractFieldMap<String, String, RegexToBeanField<T>, T> {
     
     /**
      * Initializes this {@link FieldMap}.
@@ -48,8 +48,8 @@ public class FieldMapByName extends AbstractFieldMap<String, String, RegexToBean
      */
     // The rest of the Javadoc is inherited
     @Override
-    public void putComplex(final String key, final BeanField value) {
-        complexMapList.add(new RegexToBeanField(key, value, errorLocale));
+    public void putComplex(final String key, final BeanField<T> value) {
+        complexMapList.add(new RegexToBeanField<>(key, value, errorLocale));
     }
     
     /**
@@ -59,17 +59,17 @@ public class FieldMapByName extends AbstractFieldMap<String, String, RegexToBean
      * @return A list of name + field for all of the required headers that were
      *   not found
      */
-    public List<FieldMapByNameEntry> determineMissingRequiredHeaders(final String[] headersPresent) {
+    public List<FieldMapByNameEntry<T>> determineMissingRequiredHeaders(final String[] headersPresent) {
         
         // Start with collections of all required headers
         final List<String> requiredStringList = new ArrayList<>();
-        for(Map.Entry<String, BeanField> entry : simpleMap.entrySet()) {
+        for(Map.Entry<String, BeanField<T>> entry : simpleMap.entrySet()) {
             if(entry.getValue().isRequired()) {
                 requiredStringList.add(entry.getKey());
             }
         }
-        final List<ComplexFieldMapEntry<String, String>> requiredRegexList = new ArrayList<>();
-        for(ComplexFieldMapEntry<String, String> r : complexMapList) {
+        final List<ComplexFieldMapEntry<String, String, T>> requiredRegexList = new ArrayList<>();
+        for(ComplexFieldMapEntry<String, String, T> r : complexMapList) {
             if(r.getBeanField().isRequired()) {
                 requiredRegexList.add(r);
             }
@@ -78,10 +78,10 @@ public class FieldMapByName extends AbstractFieldMap<String, String, RegexToBean
         // Now remove the ones we found
         for(String h : headersPresent) {
             if(!requiredStringList.remove(h.toUpperCase())) {
-                final ListIterator<ComplexFieldMapEntry<String, String>> requiredRegexListIterator = requiredRegexList.listIterator();
+                final ListIterator<ComplexFieldMapEntry<String, String, T>> requiredRegexListIterator = requiredRegexList.listIterator();
                 boolean found = false;
                 while(!found && requiredRegexListIterator.hasNext()) {
-                    final ComplexFieldMapEntry<String, String> r = requiredRegexListIterator.next();
+                    final ComplexFieldMapEntry<String, String, T> r = requiredRegexListIterator.next();
                     if(r.contains(h)) {
                         found = true;
                         requiredRegexListIterator.remove();
@@ -91,12 +91,12 @@ public class FieldMapByName extends AbstractFieldMap<String, String, RegexToBean
         }
         
         // Repackage what remains
-        List<FieldMapByNameEntry> missingRequiredHeaders = new ArrayList<>();
+        List<FieldMapByNameEntry<T>> missingRequiredHeaders = new ArrayList<>();
         for(String s : requiredStringList) {
-            missingRequiredHeaders.add(new FieldMapByNameEntry(s, simpleMap.get(s), false));
+            missingRequiredHeaders.add(new FieldMapByNameEntry<T>(s, simpleMap.get(s), false));
         }
-        for(ComplexFieldMapEntry r : requiredRegexList) {
-            missingRequiredHeaders.add(new FieldMapByNameEntry(r.getInitializer().toString(), r.getBeanField(), true));
+        for(ComplexFieldMapEntry<String, String, T> r : requiredRegexList) {
+            missingRequiredHeaders.add(new FieldMapByNameEntry<T>(r.getInitializer().toString(), r.getBeanField(), true));
         }
         
         return missingRequiredHeaders;
@@ -121,13 +121,14 @@ public class FieldMapByName extends AbstractFieldMap<String, String, RegexToBean
      */
     // The rest of the Javadoc is inherited.
     @Override
-    public String[] generateHeader(final Object bean) throws CsvRequiredFieldEmptyException {
+    public String[] generateHeader(final T bean) throws CsvRequiredFieldEmptyException {
         final List<Field> missingRequiredHeaders = new ArrayList<>();
         final List<String> headerList = new ArrayList<>(simpleMap.keySet());
-        for(ComplexFieldMapEntry<String, String> r : complexMapList) {
-            final MultiValuedMap<String,Object> m = (MultiValuedMap) r.getBeanField().getFieldValue(bean);
+        for(ComplexFieldMapEntry<String, String, T> r : complexMapList) {
+            @SuppressWarnings("unchecked")
+            final MultiValuedMap<String,T> m = (MultiValuedMap<String,T>) r.getBeanField().getFieldValue(bean);
             if(m != null && !m.isEmpty()) {
-                for(Map.Entry<String,Object> entry : m.entries()) {
+                for(Map.Entry<String,T> entry : m.entries()) {
                     String key = entry.getKey();
                     if(r.contains(key)) {
                         headerList.add(key);

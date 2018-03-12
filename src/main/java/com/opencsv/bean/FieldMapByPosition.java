@@ -40,7 +40,7 @@ import org.apache.commons.text.StrBuilder;
  * @author Andrew Rucker Jones
  * @since 4.2
  */
-public class FieldMapByPosition extends AbstractFieldMap<String, Integer, PositionToBeanField> implements Iterable<FieldMapByPositionEntry> {
+public class FieldMapByPosition<T> extends AbstractFieldMap<String, Integer, PositionToBeanField<T>, T> implements Iterable<FieldMapByPositionEntry<T>> {
     
     private int maxIndex = Integer.MAX_VALUE;
     
@@ -60,17 +60,18 @@ public class FieldMapByPosition extends AbstractFieldMap<String, Integer, Positi
      */
     // The rest of the Javadoc is inherited.
     @Override
-    public String[] generateHeader(final Object bean) throws CsvRequiredFieldEmptyException {
+    public String[] generateHeader(final T bean) throws CsvRequiredFieldEmptyException {
         final List<Field> missingRequiredHeaders = new ArrayList<>();
         final SortedMap<Integer, String> headerMap = new TreeMap<>();
-        for(Map.Entry<Integer, BeanField> entry : simpleMap.entrySet()) {
+        for(Map.Entry<Integer, BeanField<T>> entry : simpleMap.entrySet()) {
             headerMap.put(entry.getKey(), entry.getValue().getField().getName());
         }
-        for(ComplexFieldMapEntry r : complexMapList) {
-            final MultiValuedMap<Integer,Object> m = (MultiValuedMap) r.getBeanField().getFieldValue(bean);
+        for(ComplexFieldMapEntry<String, Integer, T> r : complexMapList) {
+            @SuppressWarnings("unchecked")
+            final MultiValuedMap<Integer,T> m = (MultiValuedMap<Integer, T>) r.getBeanField().getFieldValue(bean);
             boolean oneEntryMatched = false;
             if(m != null && !m.isEmpty()) {
-                for(Map.Entry<Integer,Object> entry : m.entries()) {
+                for(Map.Entry<Integer,T> entry : m.entries()) {
                     Integer key = entry.getKey();
                     if(r.contains(key)) {
                         headerMap.put(entry.getKey(), r.getBeanField().getField().getName());
@@ -117,8 +118,8 @@ public class FieldMapByPosition extends AbstractFieldMap<String, Integer, Positi
      */
     // The rest of the Javadoc is inherited
     @Override
-    public void putComplex(final String rangeDefinition, final BeanField field) {
-        complexMapList.add(new PositionToBeanField(rangeDefinition, maxIndex, field, errorLocale));
+    public void putComplex(final String rangeDefinition, final BeanField<T> field) {
+        complexMapList.add(new PositionToBeanField<>(rangeDefinition, maxIndex, field, errorLocale));
     }
     
     /**
@@ -141,21 +142,21 @@ public class FieldMapByPosition extends AbstractFieldMap<String, Integer, Positi
     }
 
     @Override
-    public Iterator<FieldMapByPositionEntry> iterator() {
-        return new LazyIteratorChain<FieldMapByPositionEntry>() {
+    public Iterator<FieldMapByPositionEntry<T>> iterator() {
+        return new LazyIteratorChain<FieldMapByPositionEntry<T>>() {
             
             @Override
-            protected Iterator<FieldMapByPositionEntry> nextIterator(int count) {
+            protected Iterator<FieldMapByPositionEntry<T>> nextIterator(int count) {
                 if(count <= complexMapList.size()) {
                     return complexMapList.get(count-1).iterator();
                 }
                 if(count == complexMapList.size()+1) {
-                    return new TransformIterator<>(
+                    return new TransformIterator<Map.Entry<Integer, BeanField<T>>, FieldMapByPositionEntry<T>>(
                             simpleMap.entrySet().iterator(),
-                            new Transformer<Map.Entry<Integer, BeanField>, FieldMapByPositionEntry>() {
+                            new Transformer<Map.Entry<Integer, BeanField<T>>, FieldMapByPositionEntry<T>>() {
                                 @Override
-                                public FieldMapByPositionEntry transform(Map.Entry<Integer, BeanField> input) {
-                                    return new FieldMapByPositionEntry(input.getKey(), input.getValue());
+                                public FieldMapByPositionEntry<T> transform(Map.Entry<Integer, BeanField<T>> input) {
+                                    return new FieldMapByPositionEntry<T>(input.getKey(), input.getValue());
                                 }
                             });
                 }

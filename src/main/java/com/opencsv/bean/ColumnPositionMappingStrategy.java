@@ -23,7 +23,7 @@ import org.apache.commons.lang3.ArrayUtils;
  *
  * @param <T> Type of object that is being processed.
  */
-public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<T> {
+public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<String, Integer, ComplexFieldMapEntry<String, Integer, T>, T> {
 
     /**
      * Whether the user has programmatically set the map from column positions
@@ -32,7 +32,7 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<T>
     private boolean columnsExplicitlySet = false;
     
     /** The map from column position to {@link BeanField}. */
-    private FieldMapByPosition fieldMap;
+    private FieldMapByPosition<T> fieldMap;
 
     /**
      * Default constructor.
@@ -136,7 +136,7 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<T>
     @Override
     protected void loadFieldMap() throws CsvBadConverterException {
         boolean required;
-        fieldMap = new FieldMapByPosition(errorLocale);
+        fieldMap = new FieldMapByPosition<>(errorLocale);
 
         for (Field field : loadFields(getType())) {
             String fieldLocale;
@@ -146,7 +146,7 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<T>
                 CsvCustomBindByPosition annotation = field
                         .getAnnotation(CsvCustomBindByPosition.class);
                 Class<? extends AbstractBeanField> converter = annotation.converter();
-                BeanField bean = instantiateCustomConverter(converter);
+                BeanField<T> bean = instantiateCustomConverter(converter);
                 bean.setField(field);
                 required = annotation.required();
                 bean.setRequired(required);
@@ -170,7 +170,7 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<T>
                 } else {
                     converter = new ConverterPrimitiveTypes(elementType, fieldLocale, errorLocale);
                 }
-                fieldMap.put(annotation.position(), new BeanFieldSplit(
+                fieldMap.put(annotation.position(), new BeanFieldSplit<T>(
                         field, required, errorLocale, converter, splitOn,
                         writeDelimiter, collectionType));
             }
@@ -190,7 +190,7 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<T>
                 } else {
                     converter = new ConverterPrimitiveTypes(elementType, fieldLocale, errorLocale);
                 }
-                fieldMap.putComplex(annotation.position(), new BeanFieldJoinIntegerIndex(
+                fieldMap.putComplex(annotation.position(), new BeanFieldJoinIntegerIndex<T>(
                         field, required, errorLocale, converter, mapType));
             }
 
@@ -206,7 +206,7 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<T>
                 } else {
                     converter = new ConverterPrimitiveTypes(field.getType(), fieldLocale, errorLocale);
                 }
-                fieldMap.put(annotation.position(), new BeanFieldSingleValue(field, required, errorLocale, converter));
+                fieldMap.put(annotation.position(), new BeanFieldSingleValue<T>(field, required, errorLocale, converter));
             }
         }
     }
@@ -258,5 +258,5 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<T>
     }
     
     @Override
-    protected FieldMap getFieldMap() {return fieldMap;}
+    protected FieldMap<String, Integer, ? extends ComplexFieldMapEntry<String, Integer, T>, T> getFieldMap() {return fieldMap;}
 }

@@ -57,7 +57,7 @@ public final class opencsvUtils {
      *   default locale is used.
      * @return A functional mapping strategy for the bean in question
      */
-    public static <T> MappingStrategy<T> determineMappingStrategy(Class type, Locale errorLocale) {
+    public static <T> MappingStrategy<T> determineMappingStrategy(Class<? extends T> type, Locale errorLocale) {
         // Check for annotations
         Field[] fields = FieldUtils.getAllFields(type);
         boolean positionAnnotationsPresent = false;

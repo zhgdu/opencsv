@@ -26,11 +26,12 @@ import java.util.Locale;
  * 
  * @param <I> The initializer type used to build the many-to-one mapping
  * @param <K> The type of the key used for indexing
- * 
+ * @param <T> The type of the bean being converted
+ *
  * @author Andrew Rucker Jones
  * @since 4.2
  */
-public interface ComplexFieldMapEntry<I, K> {
+public interface ComplexFieldMapEntry<I, K, T> {
     
     /**
      * Determines whether or not the given key is contained in this entry.
@@ -43,7 +44,7 @@ public interface ComplexFieldMapEntry<I, K> {
     /**
      * @return The {@link BeanField} to which this entry maps
      */
-    BeanField getBeanField();
+    BeanField<T> getBeanField();
     
     /**
      * Returns the information used to initialize this entry.

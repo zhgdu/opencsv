@@ -33,10 +33,11 @@ import java.util.Locale;
  *   interface on the one hand, and still extend specific implementations with
  *   methods needed for that type of complex mapping without having to add every
  *   such method to the generic interface.
+ * @param <T> The type of the bean
  * @author Andrew Rucker Jones
  * @since 4.2
  */
-public interface FieldMap<I, K, C extends ComplexFieldMapEntry<I, K>> {
+public interface FieldMap<I, K, C extends ComplexFieldMapEntry<I, K, T>, T> {
 
     /**
      * This method generates a header that can be used for writing beans of the
@@ -57,7 +58,7 @@ public interface FieldMap<I, K, C extends ComplexFieldMapEntry<I, K>> {
      *   through the bean fields and their associated annotations, this can only
      *   happen with multi-valued fields.
      */
-    String[] generateHeader(final Object bean) throws CsvRequiredFieldEmptyException;
+    String[] generateHeader(final T bean) throws CsvRequiredFieldEmptyException;
 
     /**
      * Gets the {@link BeanField} associated with this key.
@@ -71,7 +72,7 @@ public interface FieldMap<I, K, C extends ComplexFieldMapEntry<I, K>> {
      * @param key The key under which to search for a {@link BeanField}
      * @return The {@link BeanField} found, or null if none is present
      */
-    BeanField get(final K key);
+    BeanField<T> get(final K key);
 
     /**
      * Associates the given {@link BeanField} with the given {@code key}.
@@ -81,7 +82,7 @@ public interface FieldMap<I, K, C extends ComplexFieldMapEntry<I, K>> {
      * @return If there was a value previously associated with this key, it is
      *   returned
      */
-    BeanField put(final K key, final BeanField value);
+    BeanField<T> put(final K key, final BeanField<T> value);
     
     /**
      * Adds a {@link BeanField} to this map indexed by the data in
@@ -94,7 +95,7 @@ public interface FieldMap<I, K, C extends ComplexFieldMapEntry<I, K>> {
      * @param value The {@link BeanField} that is to be returned on a later
      *   match
      */
-    void putComplex(final I initializer, final BeanField value);
+    void putComplex(final I initializer, final BeanField<T> value);
     
     /**
      * Sets the locale to be used for error messages.
@@ -108,6 +109,6 @@ public interface FieldMap<I, K, C extends ComplexFieldMapEntry<I, K>> {
      * 
      * @return The values in the map
      */
-    Collection<BeanField> values();
+    Collection<BeanField<T>> values();
     
 }

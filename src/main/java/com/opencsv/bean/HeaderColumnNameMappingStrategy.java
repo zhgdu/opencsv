@@ -36,13 +36,13 @@ import org.apache.commons.collections4.MultiValuedMap;
  *
  * @param <T> Type of the bean to be returned
  */
-public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<T> {
+public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<String, String, ComplexFieldMapEntry<String, String, T>, T> {
 
     /**
      * Given a header name, this map allows one to find the corresponding
      * {@link BeanField}.
      */
-    protected FieldMapByName fieldMap = null;
+    protected FieldMapByName<T> fieldMap = null;
     
     /**
      * Default constructor.
@@ -64,7 +64,7 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
         headerIndex.initializeHeaderIndex(header);
 
         // Throw an exception if any required headers are missing
-        List<FieldMapByNameEntry> missingRequiredHeaders = fieldMap.determineMissingRequiredHeaders(header);
+        List<FieldMapByNameEntry<T>> missingRequiredHeaders = fieldMap.determineMissingRequiredHeaders(header);
         if (!missingRequiredHeaders.isEmpty()) {
             String[] requiredHeaderNames = new String[missingRequiredHeaders.size()];
             List<Field> requiredFields = new ArrayList<>(missingRequiredHeaders.size());
@@ -122,7 +122,7 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
     @Override
     protected void loadFieldMap() throws CsvBadConverterException {
         boolean required;
-        fieldMap = new FieldMapByName(errorLocale);
+        fieldMap = new FieldMapByName<>(errorLocale);
 
         for (Field field : loadFields(getType())) {
             String columnName;
@@ -138,7 +138,7 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
                 Class<? extends AbstractBeanField> converter = field
                         .getAnnotation(CsvCustomBindByName.class)
                         .converter();
-                BeanField bean = instantiateCustomConverter(converter);
+                BeanField<T> bean = instantiateCustomConverter(converter);
                 bean.setField(field);
                 required = annotation.required();
                 bean.setRequired(required);
@@ -165,11 +165,11 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
                 }
                 if (StringUtils.isEmpty(columnName)) {
                     fieldMap.put(field.getName().toUpperCase(),
-                            new BeanFieldSplit(
+                            new BeanFieldSplit<T>(
                                     field, required, errorLocale, converter,
                                     splitOn, writeDelimiter, collectionType));
                 } else {
-                    fieldMap.put(columnName, new BeanFieldSplit(
+                    fieldMap.put(columnName, new BeanFieldSplit<T>(
                             field, required, errorLocale, converter, splitOn,
                             writeDelimiter, collectionType));
                 }
@@ -193,11 +193,11 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
                 }
                 if (StringUtils.isEmpty(columnRegex)) {
                     fieldMap.putComplex(field.getName(),
-                            new BeanFieldJoinStringIndex(
+                            new BeanFieldJoinStringIndex<T>(
                                     field, required, errorLocale, converter,
                                     mapType));
                 } else {
-                    fieldMap.putComplex(columnRegex, new BeanFieldJoinStringIndex(
+                    fieldMap.putComplex(columnRegex, new BeanFieldJoinStringIndex<T>(
                             field, required, errorLocale, converter, mapType));
                 }
             }
@@ -217,9 +217,9 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
                 }
                 if (StringUtils.isEmpty(columnName)) {
                     fieldMap.put(field.getName().toUpperCase(),
-                            new BeanFieldSingleValue(field, required, errorLocale, converter));
+                            new BeanFieldSingleValue<T>(field, required, errorLocale, converter));
                 } else {
-                    fieldMap.put(columnName, new BeanFieldSingleValue(field, required, errorLocale, converter));
+                    fieldMap.put(columnName, new BeanFieldSingleValue<T>(field, required, errorLocale, converter));
                 }
             }
         }
@@ -240,7 +240,7 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
     }
 
     @Override
-    protected FieldMap getFieldMap() {return fieldMap;}
+    protected FieldMap<String, String, ? extends ComplexFieldMapEntry<String, String, T>, T> getFieldMap() {return fieldMap;}
     
     @Override
     public String findHeader(int col) {

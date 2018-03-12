@@ -23,14 +23,15 @@ import org.apache.commons.lang3.ObjectUtils;
  * 
  * @param <I> The initializer type used to build the many-to-one mapping
  * @param <K> The type of the key used for indexing
- * 
+ * @param <T> The type of the bean being converted
+ *
  * @author Andrew Rucker Jones
  * @since 4.2
  */
-abstract public class AbstractFieldMapEntry<I, K> implements ComplexFieldMapEntry<I, K> {
+abstract public class AbstractFieldMapEntry<I, K, T> implements ComplexFieldMapEntry<I, K, T> {
     
     /** The {@link BeanField} that is the target of this mapping. */
-    protected final BeanField field;
+    protected final BeanField<T> field;
     
     /** The locale to be used for error messages. */
     protected Locale errorLocale;
@@ -41,13 +42,13 @@ abstract public class AbstractFieldMapEntry<I, K> implements ComplexFieldMapEntr
      * @param field The BeanField being mapped to
      * @param errorLocale The locale to be used for error messages
      */
-    protected AbstractFieldMapEntry(final BeanField field, final Locale errorLocale) {
+    protected AbstractFieldMapEntry(final BeanField<T> field, final Locale errorLocale) {
         this.field = field;
         this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
     }
     
     @Override
-    public BeanField getBeanField() {
+    public BeanField<T> getBeanField() {
         return field;
     }
     
