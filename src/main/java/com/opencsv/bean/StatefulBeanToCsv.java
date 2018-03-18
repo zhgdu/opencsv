@@ -70,6 +70,7 @@ public class StatefulBeanToCsv<T> {
     private ConcurrentNavigableMap<Long, String[]> resultantBeansMap = null;
     private ConcurrentNavigableMap<Long, CsvException> thrownExceptionsMap = null;
     private Locale errorLocale = Locale.getDefault();
+    private boolean applyQuotesToAll;
     
     /** The nullary constructor should never be used. */
     private StatefulBeanToCsv() {
@@ -80,6 +81,7 @@ public class StatefulBeanToCsv<T> {
     
     /**
      * The only constructor that should be used.
+     * It is defined as package protected to ensure that {@link StatefulBeanToCsvBuilder} is always used.
      * 
      * @param escapechar The escape character to use when writing a CSV file
      * @param lineEnd The line ending to use when writing a CSV file
@@ -90,10 +92,11 @@ public class StatefulBeanToCsv<T> {
      *   writing the CSV file. If not, they are collected and can be retrieved
      *   via {@link #getCapturedExceptions() }.
      * @param writer A {@link java.io.Writer} for writing the beans as a CSV to
+     * @param applyQuotesToAll Whether all output fields should be quoted
      */
-    public StatefulBeanToCsv(char escapechar, String lineEnd,
+    StatefulBeanToCsv(char escapechar, String lineEnd,
             MappingStrategy<T> mappingStrategy, char quotechar, char separator,
-            boolean throwExceptions, Writer writer) {
+            boolean throwExceptions, Writer writer, boolean applyQuotesToAll) {
         this.escapechar = escapechar;
         this.lineEnd = lineEnd;
         this.mappingStrategy = mappingStrategy;
@@ -101,6 +104,7 @@ public class StatefulBeanToCsv<T> {
         this.separator = separator;
         this.throwExceptions = throwExceptions;
         this.writer = writer;
+        this.applyQuotesToAll = applyQuotesToAll;
     }
     
     /**
@@ -127,7 +131,7 @@ public class StatefulBeanToCsv<T> {
         // Write the header
         String[] header = mappingStrategy.generateHeader(bean);
         if(header.length > 0) {
-            csvwriter.writeNext(header);
+            csvwriter.writeNext(header, applyQuotesToAll);
         }
         headerWritten = true;
     }
@@ -190,7 +194,7 @@ public class StatefulBeanToCsv<T> {
                 // No exception, so there really must always be a string
                 OrderedObject<String[]> result = resultantLineQueue.poll();
                 if(result != null && result.getElement() != null) {
-                    csvwriter.writeNext(result.getElement());
+                    csvwriter.writeNext(result.getElement(), applyQuotesToAll);
                 }
             }
         }
@@ -264,7 +268,7 @@ public class StatefulBeanToCsv<T> {
         if(thrownExceptionsMap != null && resultantBeansMap != null) {
             capturedExceptions = new ArrayList<>(thrownExceptionsMap.values());
             for(String[] oneLine : resultantBeansMap.values()) {
-                csvwriter.writeNext(oneLine);
+                csvwriter.writeNext(oneLine, applyQuotesToAll);
             }
         }
         else {
@@ -280,7 +284,7 @@ public class StatefulBeanToCsv<T> {
             while(!resultantLineQueue.isEmpty()) {
                 try {
                     ooresult = resultantLineQueue.take();
-                    csvwriter.writeNext(ooresult.getElement());
+                    csvwriter.writeNext(ooresult.getElement(), applyQuotesToAll);
                 }
                 catch(InterruptedException e) {/* We'll get it during the next loop through. */}
             }

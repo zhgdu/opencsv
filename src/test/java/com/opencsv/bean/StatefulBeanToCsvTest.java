@@ -121,7 +121,7 @@ public class StatefulBeanToCsvTest {
      * @throws CsvException Never
      */
     @Test
-    public void writeSingleBean() throws IOException, CsvException {
+    public void writeSingleBeanNoQuotes() throws IOException, CsvException {
         ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv btcsv = new StatefulBeanToCsvBuilder(writer)
@@ -131,7 +131,36 @@ public class StatefulBeanToCsvTest {
         btcsv.write(beans.left);
         assertTrue(Pattern.matches(GOOD_DATA_1 + "\n", writer.toString()));
     }
-        
+
+    @Test
+    public void writeSingleOptionallyQuotedBean() throws IOException, CsvException {
+        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
+        StringWriter writer = new StringWriter();
+        StatefulBeanToCsv btcsv = new StatefulBeanToCsvBuilder(writer)
+                .withSeparator(';')
+                .build();
+        beans.left.setStringClass("Quoted \"air quotes\" string");
+        btcsv.write(beans.left);
+        assertTrue(Pattern.matches(
+                "\"Quoted \"\"air quotes\"\" string\";\"true\";\"false\";\"1\";\"2\";\"3\";\"4\";\"123,101\\.101\";\"123\\.202,202\";\"123303\\.303\";\"123\\.404,404\";\"123101\\.1\";\"1\\.000,2\";\"2000\\.3\";\"3\\.000,4\";\"5000\";\"6\\.000\";\"2147476647\";\"8\\.000\";\"9000\";\"10\\.000\";\"11000\";\"12\\.000\";\"13000\";\"14\\.000\";\"15000\";\"16\\.000\";\"a\";\"b\";\"123101\\.101\";\"123\\.102,102\";\"101\";\"102\";\"19780115T063209\";\"19780115T063209\";\"19780115T063209\";\"19780115T063209\";\"19780115T063209\";\"19780115T063209\";\"19780115T063209\";\"19780115T063209\";\"19780115T063209\";\"19780115T063209\";\"19780115T063209\";\"19780115T063209\";\"01/15/1978\";\"13\\. Dez\\.? 2018\";\"19780115T063209\";\"19780115T063209\";\"1\\.01\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\";\"\"\n",
+                writer.toString()));
+    }
+
+    @Test
+    public void writeSingleQuotedBean() throws IOException, CsvException {
+        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
+        StringWriter writer = new StringWriter();
+        StatefulBeanToCsv btcsv = new StatefulBeanToCsvBuilder(writer)
+                .withApplyQuotesToAll(false)
+                .withSeparator(';')
+                .build();
+        beans.left.setStringClass("Quoted \"air quotes\" string");
+        btcsv.write(beans.left);
+        assertTrue(Pattern.matches(
+                "\"Quoted \"\"air quotes\"\" string\";true;false;1;2;3;4;123,101\\.101;123\\.202,202;123303\\.303;123\\.404,404;123101.1;1\\.000,2;2000\\.3;3\\.000,4;5000;6\\.000;2147476647;8\\.000;9000;10\\.000;11000;12\\.000;13000;14\\.000;15000;16\\.000;a;b;123101\\.101;123\\.102,102;101;102;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;01/15/1978;13\\. Dez\\.? 2018;19780115T063209;19780115T063209;1\\.01;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;\n",
+                writer.toString()));
+    }
+
     /**
      * Test of writing multiple beans at once when order counts.
      * @throws IOException Never
