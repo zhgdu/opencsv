@@ -45,7 +45,7 @@ import java.util.concurrent.*;
  * 
  * @param <T> Type of the bean to be written
  * @author Andrew Rucker Jones
- * @see opencsvUtils#determineMappingStrategy(java.lang.Class, java.util.Locale) 
+ * @see OpencsvUtils#determineMappingStrategy(java.lang.Class, java.util.Locale)
  * @since 3.9
  */
 public class StatefulBeanToCsv<T> {
@@ -122,7 +122,7 @@ public class StatefulBeanToCsv<T> {
         
         // Determine mapping strategy
         if(mappingStrategy == null) {
-            mappingStrategy = opencsvUtils.<T>determineMappingStrategy((Class<T>)bean.getClass(), errorLocale);
+            mappingStrategy = OpencsvUtils.<T>determineMappingStrategy((Class<T>)bean.getClass(), errorLocale);
         }
         
         // Build CSVWriter

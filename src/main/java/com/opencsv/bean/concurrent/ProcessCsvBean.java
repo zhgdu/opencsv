@@ -16,7 +16,7 @@
 package com.opencsv.bean.concurrent;
 
 import com.opencsv.bean.MappingStrategy;
-import com.opencsv.bean.opencsvUtils;
+import com.opencsv.bean.OpencsvUtils;
 import com.opencsv.exceptions.*;
 import java.util.concurrent.BlockingQueue;
 
@@ -62,7 +62,7 @@ public class ProcessCsvBean<T> implements Runnable {
     @Override
     public void run() {
         try {
-            opencsvUtils.queueRefuseToAcceptDefeat(resultantLineQueue,
+            OpencsvUtils.queueRefuseToAcceptDefeat(resultantLineQueue,
                     new OrderedObject<>(lineNumber, mappingStrategy.transmuteBean(bean)));
         }
         catch (CsvException e) {
@@ -70,7 +70,7 @@ public class ProcessCsvBean<T> implements Runnable {
             if(throwExceptions) {
                 throw new RuntimeException(e);
             }
-            opencsvUtils.queueRefuseToAcceptDefeat(thrownExceptionsQueue,
+            OpencsvUtils.queueRefuseToAcceptDefeat(thrownExceptionsQueue,
                     new OrderedObject<>(lineNumber, e));
         }
         catch(CsvRuntimeException csvre) {

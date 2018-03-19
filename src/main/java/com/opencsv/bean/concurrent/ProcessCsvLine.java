@@ -17,7 +17,7 @@ package com.opencsv.bean.concurrent;
 
 import com.opencsv.bean.CsvToBeanFilter;
 import com.opencsv.bean.MappingStrategy;
-import com.opencsv.bean.opencsvUtils;
+import com.opencsv.bean.OpencsvUtils;
 import com.opencsv.exceptions.CsvBadConverterException;
 import com.opencsv.exceptions.CsvConstraintViolationException;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
@@ -75,7 +75,7 @@ public class ProcessCsvLine<T> implements Runnable {
         try {
             if (filter == null || filter.allowLine(line)) {
                 T obj = processLine();
-                opencsvUtils.queueRefuseToAcceptDefeat(
+                OpencsvUtils.queueRefuseToAcceptDefeat(
                         resultantBeanQueue,
                         new OrderedObject<>(lineNumber, obj));
             }
@@ -84,7 +84,7 @@ public class ProcessCsvLine<T> implements Runnable {
             if (throwExceptions) {
                 throw new RuntimeException(e);
             }
-            opencsvUtils.queueRefuseToAcceptDefeat(thrownExceptionsQueue,
+            OpencsvUtils.queueRefuseToAcceptDefeat(thrownExceptionsQueue,
                     new OrderedObject<>(lineNumber, e));
         } catch (Exception e) {
             throw new RuntimeException(e);

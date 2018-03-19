@@ -153,7 +153,7 @@ public class CsvToBeanBuilder<T> {
         
         // Now find the mapping strategy.
         if(mappingStrategy == null) {
-            mappingStrategy = opencsvUtils.determineMappingStrategy(type, errorLocale);
+            mappingStrategy = OpencsvUtils.determineMappingStrategy(type, errorLocale);
         }
         bean.setMappingStrategy(mappingStrategy);
         

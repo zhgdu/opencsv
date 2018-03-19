@@ -35,10 +35,10 @@ import org.apache.commons.lang3.reflect.FieldUtils;
  * @author Andrew Rucker Jones
  * @since 3.9
  */
-public final class opencsvUtils {
+public final class OpencsvUtils {
     
     /** This class can't be instantiated. */
-    private opencsvUtils() {}
+    private OpencsvUtils() {}
     
     /**
      * Determines which mapping strategy is appropriate for this bean.

@@ -148,7 +148,7 @@ public class PositionToBeanField<T> extends AbstractFieldMapEntry<String, Intege
      * that stretch beyond the maximum index given, they are shortened to be
      * no longer than the maximum index.
      * Ranges that lie completely beyond the maximum index are shortened to a
-     * one-element range consisting of the range's lower boundry. No ranges are
+     * one-element range consisting of the range's lower boundary. No ranges are
      * under any circumstances removed, as this might compromise checks for
      * required fields.
      * 

@@ -17,8 +17,7 @@ package com.opencsv.bean.concurrent;
 
 /**
  * A simple class for ordering objects.
- * Isn't there already something for this purpose in the JDK or Apache Lang? I
- * couldn't find anything.
+ *
  * @param <E> Type of the element to be ordered
  * @author Andrew Rucker Jones
  * @since 4.0

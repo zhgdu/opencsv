@@ -49,7 +49,7 @@ public class HeaderIndex {
      */
     public void clear() {
         positionToHeader = new String[0];
-        headerToPosition = new ArrayListValuedHashMap<>();
+        headerToPosition.clear();
     }
     
     /**
