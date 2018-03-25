@@ -7,6 +7,12 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+/**
+ * The AbstractCSVWriter was created to prevent duplication of code between the CSVWriter and the
+ * CSVParserWriter classes.
+ *
+ * @since 4.2
+ */
 public abstract class AbstractCSVWriter implements ICSVWriter {
 
     protected final Writer writer;
@@ -14,6 +20,11 @@ public abstract class AbstractCSVWriter implements ICSVWriter {
     protected ResultSetHelper resultService;
     protected volatile IOException exception;
 
+    /**
+     * Constructor to initialize the common values.
+     * @param writer Writer used for output of csv data.
+     * @param lineEnd String to append at end of data (either "\n" or "\r\n").
+     */
     public AbstractCSVWriter(Writer writer, String lineEnd) {
         this.writer = writer;
         this.lineEnd = lineEnd;

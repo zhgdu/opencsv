@@ -187,7 +187,7 @@ class RFC4180ParserSpec extends Specification {
 
         expect:
 
-        parser.parseToLine(valuesToParse) == expectedResult
+        parser.parseToLine(valuesToParse, false) == expectedResult
 
         where:
         nullField                                    | string1 | string2 | string3 | string4 | string5 | expectedResult
@@ -249,7 +249,7 @@ class RFC4180ParserSpec extends Specification {
         RFC4180ParserBuilder builder = new RFC4180ParserBuilder()
         RFC4180Parser parser = builder.build()
         String[] parsedValues = parser.parseLine(testLine)
-        String finalString = parser.parseToLine(parsedValues)
+        String finalString = parser.parseToLine(parsedValues, false)
 
         expect:
         finalString == testLine
@@ -274,7 +274,7 @@ class RFC4180ParserSpec extends Specification {
         RFC4180ParserBuilder builder = new RFC4180ParserBuilder()
         RFC4180Parser parser = builder.build()
         String[] expectedArray = [expected1, expected2, expected3, expected4]
-        String parsedString = parser.parseToLine(expectedArray)
+        String parsedString = parser.parseToLine(expectedArray, false)
         String[] finalArray = parser.parseLine(parsedString)
         expect:
         finalArray == expectedArray
@@ -356,32 +356,37 @@ class RFC4180ParserSpec extends Specification {
         lines == readLines
     }
 
-    def 'bug 165 - No character line showing up as an extra record with CSVParser'() {
+    @Unroll
+    def 'parseToLine with applyQuotesToAll of false of #string1, #string2, #string3, #string4 should yield #expectedResult'() {
         given:
-        List<String[]> lines = new ArrayList<String[]>()
+        RFC4180ParserBuilder builder = new RFC4180ParserBuilder()
+        RFC4180Parser parser = builder.build()
+        String[] items = [string1, string2, string3, string4]
+        String line = parser.parseToLine(items, false)
 
-        lines.add(["value 1.1", "\n"])
-        lines.add(["value 2.1", "value 2.2"])
-        lines.add(["\"value 3.1\"", "\"I talked with Stefan and he asked \"\"\nWhat about odd number of quotes?\"\" and now I have doubts about my solution\""])
+        expect:
+        line == expectedResult
 
-        when:
-        StringWriter stringWriter = new StringWriter(128)
+        where:
+        string1     | string2             | string3 | string4  | expectedResult
+        "This"      | " is"               | " a"    | " test." | "This, is, a, test."
+        "This line" | " has \"a\" quote " | "in"    | "it"     | "This line,\" has \"\"a\"\" quote \",in,it"
+    }
 
-        CSVWriter csvWriter = new CSVWriter(stringWriter)
-        for (String[] strings : lines) {
-            csvWriter.writeNext(strings)
-        }
-        csvWriter.close()
+    @Unroll
+    def 'parseToLine with applyQuotesToAll of true of #string1, #string2, #string3, #string4 should yield #expectedResult'() {
+        given:
+        RFC4180ParserBuilder builder = new RFC4180ParserBuilder()
+        RFC4180Parser parser = builder.build()
+        String[] items = [string1, string2, string3, string4]
+        String line = parser.parseToLine(items, true)
 
-        StringReader stringReader = new StringReader(stringWriter.toString())
+        expect:
+        line == expectedResult
 
-        CSVReader csvReader = new CSVReaderBuilder(stringReader).withCSVParser(new CSVParser()).build()
-
-        List<String[]> readLines = csvReader.readAll()
-
-        csvReader.close()
-
-        then:
-        lines == readLines
+        where:
+        string1     | string2             | string3 | string4  | expectedResult
+        "This"      | " is"               | " a"    | " test." | "\"This\",\" is\",\" a\",\" test.\""
+        "This line" | " has \"a\" quote " | "in"    | "it"     | "\"This line\",\" has \"\"a\"\" quote \",\"in\",\"it\""
     }
 }

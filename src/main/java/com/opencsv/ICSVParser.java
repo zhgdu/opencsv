@@ -129,11 +129,13 @@ public interface ICSVParser {
      * been implemented yet.   I am adding this now because because I need to do the 4.1
      * release because of the number of defect fixes and I do not want to strip this out.
      *
-     * @param values List of elements to parse
+     * @param values List of elements to parse.
+     * @param applyQuotesToAll - If true all strings in the array will have quotes if it needs it or not.
+     *                         If false then it will only have quotes if it needs it (i.e. contains a quote character).
      * @return CSV formatted string representing the values in the array.
      * @since 4.1
      */
-    String parseToLine(String[] values);
+    String parseToLine(String[] values, boolean applyQuotesToAll);
 
     /**
      * @return The null field indicator.

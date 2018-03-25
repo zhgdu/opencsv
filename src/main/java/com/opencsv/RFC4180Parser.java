@@ -112,11 +112,11 @@ public class RFC4180Parser implements ICSVParser {
     }
 
     @Override
-    public String parseToLine(String[] values) {
+    public String parseToLine(String[] values, boolean applyQuotesToAll) {
         StringBuilder builder = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
 
         for (int i = 0; i < values.length; i++) {
-            builder.append(convertToCsvValue(values[i]));
+            builder.append(convertToCsvValue(values[i], applyQuotesToAll));
             if (i < values.length - 1) {
                 builder.append(getSeparator());
             }
@@ -124,11 +124,11 @@ public class RFC4180Parser implements ICSVParser {
         return builder.toString();
     }
 
-    private String convertToCsvValue(String value) {
+    private String convertToCsvValue(String value, boolean applyQuotesToAll) {
         String testValue = (value == null && !nullFieldIndicator.equals(CSVReaderNullFieldIndicator.NEITHER)) ? "" : value;
         StringBuilder builder = new StringBuilder(testValue == null ? MAX_SIZE_FOR_EMPTY_FIELD : (testValue.length() * 2));
         boolean containsQuoteChar = testValue != null && testValue.contains(Character.toString(getQuotechar()));
-        boolean surroundWithQuotes = isSurroundWithQuotes(value, containsQuoteChar);
+        boolean surroundWithQuotes = applyQuotesToAll || isSurroundWithQuotes(value, containsQuoteChar);
 
         String convertedString = !containsQuoteChar ? testValue : testValue.replaceAll(Character.toString(getQuotechar()), Character.toString(getQuotechar()) + Character.toString(getQuotechar()));
 

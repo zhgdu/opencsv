@@ -20,27 +20,41 @@ class CSVParserWriterSpec extends Specification {
     ICSVParser csvParser = csvParserBuilder.build();
 
     @Shared
-    StringWriter csvStringWriter = new StringWriter(INITIAL_SIZE);
+    StringWriter csvStringWriter;
     @Shared
-    StringWriter csvParserStringWriter = new StringWriter(INITIAL_SIZE);
+    StringWriter csvParserStringWriter;
     @Shared
-    StringWriter rfc4180StringWriter = new StringWriter(INITIAL_SIZE);
+    StringWriter rfc4180StringWriter;
 
     // The reason for three different builders is I wanted three different writers
     // to ensure there is no "cross contamination" by sharing a StringWriter.
     @Shared
-    CSVWriterBuilder csvWriterBuilder = new CSVWriterBuilder(csvStringWriter);
+    CSVWriterBuilder csvWriterBuilder;
     @Shared
-    CSVWriterBuilder csvParserWriterBuilder = new CSVWriterBuilder(csvParserStringWriter);
+    CSVWriterBuilder csvParserWriterBuilder;
     @Shared
-    CSVWriterBuilder rfc4180WriterBuilder = new CSVWriterBuilder(rfc4180StringWriter);
+    CSVWriterBuilder rfc4180WriterBuilder;
 
     @Shared
-    ICSVWriter defaultCSVWriter = csvWriterBuilder.build();
+    ICSVWriter defaultCSVWriter;
     @Shared
-    ICSVWriter defaultCSVParserWriter = csvParserWriterBuilder.withParser(csvParser).build();
+    ICSVWriter defaultCSVParserWriter;
     @Shared
-    ICSVWriter defaultRFC4180ParserWriter = rfc4180WriterBuilder.withParser(rfc4180Parser).build();
+    ICSVWriter defaultRFC4180ParserWriter;
+
+    def setup() {
+        csvStringWriter = new StringWriter(INITIAL_SIZE);
+        csvParserStringWriter = new StringWriter(INITIAL_SIZE);
+        rfc4180StringWriter = new StringWriter(INITIAL_SIZE);
+
+        csvWriterBuilder = new CSVWriterBuilder(csvStringWriter);
+        csvParserWriterBuilder = new CSVWriterBuilder(csvParserStringWriter);
+        rfc4180WriterBuilder = new CSVWriterBuilder(rfc4180StringWriter);
+
+        defaultCSVWriter = csvWriterBuilder.build();
+        defaultCSVParserWriter = csvParserWriterBuilder.withParser(csvParser).build();
+        defaultRFC4180ParserWriter = rfc4180WriterBuilder.withParser(rfc4180Parser).build();
+    }
 
     @Unroll
     def '#value1, #value2, #value3 should produce #csvWriterValue from CSVWriter, #csvParserValue from CSVParserWriter with CSVParser, and #rfc4180Value from CSVParserWriter with RFC4180Parser'(String value1, String value2, String value3, String csvWriterValue, String csvParserValue, String rfc4180Value) {
@@ -57,8 +71,28 @@ class CSVParserWriterSpec extends Specification {
         rfc4180Value == rfc4180StringWriter.toString()
 
         where:
-        value1 | value2 | value3 | csvWriterValue        | csvParserValue | rfc4180Value
-        "a"    | "b"    | "c"    | "\"a\",\"b\",\"c\"\n" | "a,b,c\n"      | "a,b,c\n"
+        value1 | value2 | value3 | csvWriterValue        | csvParserValue        | rfc4180Value
+        "a"    | "b"    | "c"    | "\"a\",\"b\",\"c\"\n" | "\"a\",\"b\",\"c\"\n" | "\"a\",\"b\",\"c\"\n"
+
+    }
+
+    @Unroll
+    def 'applyQuotesToAll is false then #value1, #value2, #value3 should produce #csvWriterValue from CSVWriter, #csvParserValue from CSVParserWriter with CSVParser, and #rfc4180Value from CSVParserWriter with RFC4180Parser'(String value1, String value2, String value3, String csvWriterValue, String csvParserValue, String rfc4180Value) {
+        given:
+        String[] values = [value1, value2, value3]
+        defaultCSVWriter.writeNext(values, false);
+        defaultCSVParserWriter.writeNext(values, false);
+        defaultRFC4180ParserWriter.writeNext(values, false);
+
+        expect:
+
+        csvWriterValue == csvStringWriter.toString()
+        csvParserValue == csvParserStringWriter.toString()
+        rfc4180Value == rfc4180StringWriter.toString()
+
+        where:
+        value1 | value2 | value3 | csvWriterValue | csvParserValue | rfc4180Value
+        "a"    | "b"    | "c"    | "a,b,c\n"      | "a,b,c\n"      | "a,b,c\n"
 
     }
 }
