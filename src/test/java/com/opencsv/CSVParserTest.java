@@ -767,4 +767,16 @@ public class CSVParserTest {
         assertTrue(nextLine[0].isEmpty());
         assertEquals("2", nextLine[1]);
     }
+
+    @Test
+    public void parseToLineApplyQuotesToAllIsFalse() throws Exception {
+        String items[] = {"This", " is", " a", " test."};
+        assertEquals("This, is, a, test.", csvParser.parseToLine(items, false));
+    }
+
+    @Test
+    public void parseToLineApplyQuotesToAllIsTrue() throws Exception {
+        String items[] = {"This", " is", " a", " test."};
+        assertEquals("\"This\",\" is\",\" a\",\" test.\"", csvParser.parseToLine(items, true));
+    }
 }
