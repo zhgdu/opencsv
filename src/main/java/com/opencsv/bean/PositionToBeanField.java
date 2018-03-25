@@ -155,14 +155,15 @@ public class PositionToBeanField<T> extends AbstractFieldMapEntry<String, Intege
      * @param maxIndex The new maximum for ranges
      */
     public void attenuateRanges(int maxIndex) {
-        for(int i = 0; i < ranges.size(); i++) {
-            Range<Integer> r = ranges.get(i);
+        ListIterator<Range<Integer>> rangeIterator = ranges.listIterator();
+        while(rangeIterator.hasNext()) {
+            Range<Integer> r = rangeIterator.next();
             if(r.getMaximum() > maxIndex) {
                 if(r.getMinimum() > maxIndex) {
-                    ranges.set(i, Range.is(r.getMinimum()));
+                    rangeIterator.set(Range.is(r.getMinimum()));
                 }
                 else {
-                    ranges.set(i, Range.between(r.getMinimum(), maxIndex));
+                    rangeIterator.set(Range.between(r.getMinimum(), maxIndex));
                 }
             }
         }
@@ -206,17 +207,19 @@ public class PositionToBeanField<T> extends AbstractFieldMapEntry<String, Intege
      * user is herewith warned.</p>
      */
     private class PositionIterator implements Iterator<FieldMapByPositionEntry<T>> {
-        
-        private int listIndex;
+
+        private ListIterator<Range<Integer>> rangeIterator;
+        private Range<Integer> currentRange;
         private int position;
         
         public PositionIterator() {
-            listIndex = 0;
             if(ranges.isEmpty()) {
                 position = -1;
             }
             else {
-                position = ranges.get(0).getMinimum();
+                rangeIterator = ranges.listIterator();
+                currentRange = rangeIterator.next();
+                position = currentRange.getMinimum();
             }
         }
 
@@ -239,13 +242,14 @@ public class PositionToBeanField<T> extends AbstractFieldMapEntry<String, Intege
             // Advance the cursor. We add one extra precaution here: if a range
             // goes out to Integer.MAX_VALUE, we only return the minimum. This
             // is to prevent a seemingly endless loop on iteration.
-            if(position == ranges.get(listIndex).getMaximum()
-                    || Integer.MAX_VALUE == ranges.get(listIndex).getMaximum()) {
-                if(listIndex == ranges.size()-1) {
+            if(position == currentRange.getMaximum()
+                    || Integer.MAX_VALUE == currentRange.getMaximum()) {
+                if(!rangeIterator.hasNext()) {
                     position = -1;
                 }
                 else {
-                    position = ranges.get(++listIndex).getMinimum();
+                    currentRange = rangeIterator.next();
+                    position = currentRange.getMinimum();
                 }
             }
             else {

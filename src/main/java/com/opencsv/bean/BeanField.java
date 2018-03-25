@@ -22,7 +22,7 @@ import java.util.Locale;
 // then be used for write() and indexAndSplitMultivaluedField(), and may even
 // obviate the need for BeanFieldJoinIntegerIndex and BeanFieldJoinStringIndex,
 // though I'm not certain about that. I cannot implement this change before
-// version 5.0 because it would break every custom converter in existance,
+// version 5.0 because it would break every custom converter in existence,
 // assuming the author used the type parameter instead of a raw class.
 public interface BeanField<T> {
 

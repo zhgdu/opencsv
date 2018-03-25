@@ -93,6 +93,16 @@ public class AnnotationTest {
         strat.setType(AnnotatedMockBeanFull.class);
         FileReader fin = new FileReader("src/test/resources/testinputposfullgood.csv");
         testGoodData(strat, fin, true);
+
+        ColumnPositionMappingStrategy<AnnotatedMockBeanFullDerived> stratd =
+                new ColumnPositionMappingStrategy<>();
+        stratd.setType(AnnotatedMockBeanFullDerived.class);
+        fin = new FileReader("src/test/resources/testinputposderivedgood.csv");
+        List<AnnotatedMockBeanFull> beanList = testGoodData(stratd, fin, true);
+        AnnotatedMockBeanFullDerived bean = (AnnotatedMockBeanFullDerived) beanList.get(0);
+        assertEquals(7, bean.getIntInSubclass());
+        bean = (AnnotatedMockBeanFullDerived) beanList.get(1);
+        assertEquals(8, bean.getIntInSubclass());
     }
 
     @Test

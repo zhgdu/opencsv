@@ -262,7 +262,6 @@ public class CsvToBean<T> implements Iterable<T> {
      * accumulator is not necessary, and thus is not started.</p>
      */
     private void prepareForParallelProcessing() {
-        // 
         executor = new IntolerantThreadPoolExecutor();
         executor.prestartAllCoreThreads();
         resultantBeansQueue = new LinkedBlockingQueue<>();

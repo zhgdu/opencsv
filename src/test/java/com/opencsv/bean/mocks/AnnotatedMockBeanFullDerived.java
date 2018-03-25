@@ -16,6 +16,7 @@
 package com.opencsv.bean.mocks;
 
 import com.opencsv.bean.CsvBindByName;
+import com.opencsv.bean.CsvBindByPosition;
 
 /**
  * A derived class with one additional field to test mapping with inheritance.
@@ -27,6 +28,7 @@ public class AnnotatedMockBeanFullDerived extends AnnotatedMockBeanFull {
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
      * <li>81</li>
+     * <li>91</li>
      * </ul></p>
      * <p>Used for the following test cases, writing:<ul>
      * <li>Writing a subclass with annotations in the subclass and the superclass</li>
@@ -34,6 +36,7 @@ public class AnnotatedMockBeanFullDerived extends AnnotatedMockBeanFull {
      * </ul></p>
      */
     @CsvBindByName(required = true, column = "int in subclass")
+    @CsvBindByPosition(required = true, position = 50)
     private int intInSubclass;
 
     public int getIntInSubclass() {

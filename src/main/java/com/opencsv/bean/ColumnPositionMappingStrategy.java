@@ -10,6 +10,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.reflect.FieldUtils;
 
 /**
  * Allows for the mapping of columns with their positions. Using this strategy
@@ -234,7 +235,7 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
     
     private List<Field> loadFields(Class<? extends T> cls) {
         List<Field> fields = new ArrayList<>();
-        for (Field field : cls.getDeclaredFields()) {
+        for (Field field : FieldUtils.getAllFields(cls)) {
             if (field.isAnnotationPresent(CsvBindByPosition.class)
                     || field.isAnnotationPresent(CsvCustomBindByPosition.class)
                     || field.isAnnotationPresent(CsvBindAndJoinByPosition.class)
