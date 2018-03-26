@@ -21,15 +21,14 @@ import com.opencsv.exceptions.CsvBeanIntrospectionException;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.StringWriter;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -689,7 +688,7 @@ public class StatefulBeanToCsvTest {
         ImmutablePair<AnnotatedMockBeanCustom, AnnotatedMockBeanCustom> beans = createTwoGoodCustomBeans();
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv btcsv = new StatefulBeanToCsvBuilder(writer)
-                .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
                 .withSeparator(';')
                 .build();
         btcsv.write(beans.left);
@@ -711,7 +710,7 @@ public class StatefulBeanToCsvTest {
         HeaderColumnNameMappingStrategy strat = new HeaderColumnNameMappingStrategy();
         strat.setType(AnnotatedMockBeanCustom.class);
         StatefulBeanToCsv btcsv = new StatefulBeanToCsvBuilder(writer)
-                .withQuotechar(CSVWriter.NO_QUOTE_CHARACTER)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
                 .withSeparator(';')
                 .withMappingStrategy(strat)
                 .build();

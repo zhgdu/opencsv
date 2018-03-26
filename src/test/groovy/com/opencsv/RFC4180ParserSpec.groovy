@@ -187,7 +187,7 @@ class RFC4180ParserSpec extends Specification {
 
         expect:
 
-        parser.parseToLine(valuesToParse) == expectedResult
+        parser.parseToLine(valuesToParse, false) == expectedResult
 
         where:
         nullField                                    | string1 | string2 | string3 | string4 | string5 | expectedResult
@@ -274,7 +274,7 @@ class RFC4180ParserSpec extends Specification {
         RFC4180ParserBuilder builder = new RFC4180ParserBuilder()
         RFC4180Parser parser = builder.build()
         String[] expectedArray = [expected1, expected2, expected3, expected4]
-        String parsedString = parser.parseToLine(expectedArray)
+        String parsedString = parser.parseToLine(expectedArray, false)
         String[] finalArray = parser.parseLine(parsedString)
         expect:
         finalArray == expectedArray
