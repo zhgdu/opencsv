@@ -148,7 +148,6 @@ public class CsvToBeanBuilder<T> {
         // Set variables in CsvToBean itself
         bean.setThrowExceptions(throwExceptions);
         bean.setOrderedResults(orderedResults);
-        bean.setErrorLocale(errorLocale);
         if(filter != null) { bean.setFilter(filter); }
         
         // Now find the mapping strategy.
@@ -156,7 +155,11 @@ public class CsvToBeanBuilder<T> {
             mappingStrategy = OpencsvUtils.determineMappingStrategy(type, errorLocale);
         }
         bean.setMappingStrategy(mappingStrategy);
-        
+
+        // The error locale comes at the end so it can be propagated through all
+        // of the components of CsvToBean, rendering the error locale homogeneous.
+        bean.setErrorLocale(errorLocale);
+
         return bean;
     }
     
