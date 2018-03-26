@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 /**
@@ -158,9 +159,8 @@ public class RFC4180Parser implements ICSVParser {
      * @param nextLine The string to parse
      * @param multi    Does it take multiple lines to form a single record?
      * @return The list of elements, or null if nextLine is null
-     * @throws IOException If bad things happen during the read
      */
-    protected String[] parseLine(String nextLine, boolean multi) throws IOException {
+    protected String[] parseLine(String nextLine, boolean multi) {
         String[] elements;
 
         if (!multi && pending != null) {
@@ -303,5 +303,11 @@ public class RFC4180Parser implements ICSVParser {
     @Override
     public String getPendingText() {
         return StringUtils.defaultString(pending);
+    }
+    
+    @Override
+    public void setErrorLocale(Locale errorLocale) {
+        // Curiously enough, this implementation never throws exceptions and so
+        // has no need of translations.
     }
 }

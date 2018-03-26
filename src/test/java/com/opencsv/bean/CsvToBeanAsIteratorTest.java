@@ -218,7 +218,7 @@ public class CsvToBeanAsIteratorTest {
     }
 
     @Test(expected = RuntimeException.class)
-    public void testRequiredHeaderMissing() throws FileNotFoundException {
+    public void testRequiredHeaderMissing() {
         HeaderColumnNameMappingStrategy<AnnotatedMockBeanForIterator> strat
                 = new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanForIterator.class);
@@ -237,7 +237,7 @@ public class CsvToBeanAsIteratorTest {
     }
 
     @Test
-    public void testPrematureEOLUsingHeaderNameMappingWithoutExceptionCapturing() throws FileNotFoundException {
+    public void testPrematureEOLUsingHeaderNameMappingWithoutExceptionCapturing() {
         HeaderColumnNameMappingStrategy<AnnotatedMockBeanForIterator> strat
                 = new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanForIterator.class);
@@ -258,7 +258,7 @@ public class CsvToBeanAsIteratorTest {
     }
 
     @Test
-    public void testPrematureEOLUsingHeaderNameMappingWithExceptionCapturing() throws FileNotFoundException {
+    public void testPrematureEOLUsingHeaderNameMappingWithExceptionCapturing() {
         HeaderColumnNameMappingStrategy<AnnotatedMockBeanForIterator> strat
                 = new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanForIterator.class);

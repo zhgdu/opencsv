@@ -262,7 +262,6 @@ public class CsvToBean<T> implements Iterable<T> {
      * accumulator is not necessary, and thus is not started.</p>
      */
     private void prepareForParallelProcessing() {
-        // 
         executor = new IntolerantThreadPoolExecutor();
         executor.prestartAllCoreThreads();
         resultantBeansQueue = new LinkedBlockingQueue<>();
@@ -443,6 +442,12 @@ public class CsvToBean<T> implements Iterable<T> {
      */
     public void setErrorLocale(Locale errorLocale) {
         this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
+        if(csvReader != null) {
+            csvReader.setErrorLocale(this.errorLocale);
+        }
+        if(mappingStrategy != null) {
+            mappingStrategy.setErrorLocale(this.errorLocale);
+        }
     }
     
     private void prepareToReadInput() throws IllegalStateException {

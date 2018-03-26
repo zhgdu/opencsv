@@ -16,7 +16,6 @@
 package com.opencsv.bean.mocks;
 
 import com.opencsv.bean.CsvBindAndSplitByName;
-import java.util.HashSet;
 import java.util.List;
 
 /**

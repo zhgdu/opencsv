@@ -56,10 +56,11 @@ public class CSVReader implements Closeable, Iterable<String[]> {
     protected boolean keepCR;
     protected boolean verifyReader;
     protected int multilineLimit = DEFAULT_MULTILINE_LIMIT;
-    protected final Locale errorLocale;
+    protected Locale errorLocale;
 
     protected long linesRead = 0;
     protected long recordsRead = 0;
+    protected String[] peekedLine = null;
 
     /**
      * Constructs CSVReader using defaults for all parameters.
@@ -323,6 +324,14 @@ public class CSVReader implements Closeable, Iterable<String[]> {
      * @throws IOException If bad things happen during the read
      */
     public String[] readNext() throws IOException {
+        
+        // If someone already peeked, we have the previously read, parsed, and
+        // validated data
+        if(peekedLine != null) {
+            String[] l = peekedLine;
+            peekedLine = null;
+            return l;
+        }
 
         String[] result = null;
         int linesInThisRecord = 0;
@@ -579,5 +588,38 @@ public class CSVReader implements Closeable, Iterable<String[]> {
         for (int j = 0; j < numberOfLinesToSkip; j++) {
                 readNext();
         }
+    }
+    
+    /**
+     * Sets the locale for all error messages.
+     * @param errorLocale Locale for error messages. If null, the default locale
+     *   is used.
+     * @since 4.2
+     */
+    public void setErrorLocale(Locale errorLocale) {
+        this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
+        if(parser != null) {
+            parser.setErrorLocale(this.errorLocale);
+        }
+    }
+    
+    /**
+     * Returns the next line from the input without removing it from the
+     * CSVReader.
+     * Subsequent calls to this method will continue to return the same line
+     * until a call is made to {@link #readNext()} or any other method that
+     * advances the cursor position in the input. The first call to
+     * {@link #readNext()} after calling this method will return the same line
+     * this method does.
+     * 
+     * @return The next line from the input, or null if there are no more lines
+     * @throws IOException If bad things happen during the read operation
+     * @since 4.2
+     */
+    public String[] peek() throws IOException {
+        if(peekedLine == null) {
+            peekedLine = readNext();
+        }
+        return peekedLine;
     }
 }

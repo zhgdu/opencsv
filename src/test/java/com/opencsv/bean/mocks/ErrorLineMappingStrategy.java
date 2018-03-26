@@ -19,11 +19,17 @@ import com.opencsv.CSVReader;
 import com.opencsv.bean.BeanField;
 import com.opencsv.bean.MappingStrategy;
 import com.opencsv.exceptions.CsvBadConverterException;
+import com.opencsv.exceptions.CsvConstraintViolationException;
+import com.opencsv.exceptions.CsvDataTypeMismatchException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Locale;
+import org.apache.commons.lang3.ArrayUtils;
 
-public class ErrorLineMappingStrategy implements MappingStrategy {
+public class ErrorLineMappingStrategy<T> implements MappingStrategy<T> {
     @Override
     public PropertyDescriptor findDescriptor(int col) {
        return null;
@@ -35,12 +41,12 @@ public class ErrorLineMappingStrategy implements MappingStrategy {
     }
 
     @Override
-    public Object createBean() throws InstantiationException, IllegalAccessException {
+    public T createBean() throws InstantiationException {
        throw new InstantiationException("this is a test Exception");
     }
 
     @Override
-    public void captureHeader(CSVReader reader) throws IOException {
+    public void captureHeader(CSVReader reader) {
     }
 
     @Override
@@ -54,7 +60,7 @@ public class ErrorLineMappingStrategy implements MappingStrategy {
     }
     
     @Override
-    public String[] generateHeader() {
+    public String[] generateHeader(T bean) {
         return new String[0];
     }
     
@@ -71,4 +77,19 @@ public class ErrorLineMappingStrategy implements MappingStrategy {
 
     @Override
     public void setType(Class type) throws CsvBadConverterException {}
+
+    @Override
+    public T populateNewBean(String[] line) throws InstantiationException {
+       throw new InstantiationException("this is a test Exception");
+    }
+
+    @Override
+    public T populateNewBeanWithIntrospection(String[] line) {
+        return null;
+    }
+
+    @Override
+    public String[] transmuteBean(T bean) {
+        return ArrayUtils.EMPTY_STRING_ARRAY;
+    }
 }

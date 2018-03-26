@@ -17,6 +17,7 @@ package com.opencsv.bean;
 
 import com.opencsv.exceptions.CsvConstraintViolationException;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
+import java.util.Locale;
 
 /**
  * Classes implementing this interface perform a conversion from String to
@@ -42,7 +43,7 @@ public interface CsvConverter {
      * @throws CsvConstraintViolationException When the internal structure of
      *                                         data would be violated by the data in the CSV file
      */
-    public Object convertToRead(String value)
+    Object convertToRead(String value)
             throws CsvDataTypeMismatchException, CsvConstraintViolationException;
     
     /**
@@ -56,6 +57,13 @@ public interface CsvConverter {
      * @throws CsvDataTypeMismatchException If the input cannot be converted to
      *   a string by this converter
      */
-    public String convertToWrite(Object value)
+    String convertToWrite(Object value)
             throws CsvDataTypeMismatchException;
+    
+    /**
+     * Sets the locale for all error messages.
+     * @param errorLocale Locale for error messages. If null, the default locale
+     *   is used.
+     */
+    void setErrorLocale(Locale errorLocale);
 }

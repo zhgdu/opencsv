@@ -12,7 +12,7 @@ public class RFC4180ParserBuilderTest {
     private RFC4180ParserBuilder builder;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         builder = new RFC4180ParserBuilder();
     }
 

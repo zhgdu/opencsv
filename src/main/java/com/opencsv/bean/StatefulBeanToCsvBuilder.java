@@ -43,6 +43,7 @@ public class StatefulBeanToCsvBuilder<T> {
     private boolean throwExceptions = true;
     private boolean orderedResults = true;
     private Locale errorLocale = Locale.getDefault();
+    private boolean applyQuotesToAll = true;
     
     /** The nullary constructor may never be used. */
     private StatefulBeanToCsvBuilder() {
@@ -155,6 +156,20 @@ public class StatefulBeanToCsvBuilder<T> {
         this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
         return this;
     }
+
+    /**
+     * Sets whether all outputs should be put in quotes.
+     * Defaults to {@code true}.
+     *
+     * @param applyQuotesToAll Whether all outputs should be quoted
+     * @return this
+     * @see com.opencsv.CSVWriter#writeNext(String[], boolean)
+     * @since 4.2
+     */
+    public StatefulBeanToCsvBuilder<T> withApplyQuotesToAll(boolean applyQuotesToAll) {
+        this.applyQuotesToAll = applyQuotesToAll;
+        return this;
+    }
     
     /**
      * Builds a StatefulBeanToCsv from the information provided, filling in
@@ -162,8 +177,8 @@ public class StatefulBeanToCsvBuilder<T> {
      * @return A new {@link StatefulBeanToCsv}
      */
     public StatefulBeanToCsv<T> build() {
-        StatefulBeanToCsv<T> sbtcsv = new StatefulBeanToCsv(escapechar, lineEnd, mappingStrategy,
-                quotechar, separator, throwExceptions, writer);
+        StatefulBeanToCsv<T> sbtcsv = new StatefulBeanToCsv<>(escapechar, lineEnd, mappingStrategy,
+                quotechar, separator, throwExceptions, writer, applyQuotesToAll);
         sbtcsv.setOrderedResults(orderedResults);
         sbtcsv.setErrorLocale(errorLocale);
         return sbtcsv;

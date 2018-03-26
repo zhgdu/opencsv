@@ -5,7 +5,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.Reader;
-import java.io.StringReader;
 import java.util.Locale;
 import org.junit.After;
 
@@ -31,7 +30,7 @@ public class CSVReaderBuilderTest {
     }
 
    @Before
-   public void setUp() throws Exception {
+   public void setUp() {
       Locale.setDefault(Locale.US);
       reader = mock(Reader.class);
       builder = new CSVReaderBuilder(reader);

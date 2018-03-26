@@ -15,19 +15,15 @@
  */
 package com.opencsv.bean.concurrent;
 
-import com.opencsv.bean.AbstractCSVToBean;
-import com.opencsv.bean.BeanField;
 import com.opencsv.bean.CsvToBeanFilter;
 import com.opencsv.bean.MappingStrategy;
-import com.opencsv.bean.opencsvUtils;
+import com.opencsv.bean.OpencsvUtils;
 import com.opencsv.exceptions.CsvBadConverterException;
 import com.opencsv.exceptions.CsvConstraintViolationException;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import java.beans.IntrospectionException;
-import java.beans.PropertyDescriptor;
-import java.beans.PropertyEditor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.BlockingQueue;
 
@@ -38,7 +34,7 @@ import java.util.concurrent.BlockingQueue;
  * @author Andrew Rucker Jones
  * @since 4.0
  */
-public class ProcessCsvLine<T> extends AbstractCSVToBean implements Runnable {
+public class ProcessCsvLine<T> implements Runnable {
     private final long lineNumber;
     private final MappingStrategy<T> mapper;
     private final CsvToBeanFilter filter;
@@ -46,7 +42,6 @@ public class ProcessCsvLine<T> extends AbstractCSVToBean implements Runnable {
     private final BlockingQueue<OrderedObject<T>> resultantBeanQueue;
     private final BlockingQueue<OrderedObject<CsvException>> thrownExceptionsQueue;
     private final boolean throwExceptions;
-    T bean;
 
     /**
      * The only constructor for creating a bean out of a line of input.
@@ -80,18 +75,17 @@ public class ProcessCsvLine<T> extends AbstractCSVToBean implements Runnable {
         try {
             if (filter == null || filter.allowLine(line)) {
                 T obj = processLine();
-                opencsvUtils.queueRefuseToAcceptDefeat(
+                OpencsvUtils.queueRefuseToAcceptDefeat(
                         resultantBeanQueue,
                         new OrderedObject<>(lineNumber, obj));
             }
         } catch (CsvException e) {
-            CsvException csve = (CsvException) e;
-            csve.setLineNumber(lineNumber);
+            e.setLineNumber(lineNumber);
             if (throwExceptions) {
-                throw new RuntimeException(csve);
+                throw new RuntimeException(e);
             }
-            opencsvUtils.queueRefuseToAcceptDefeat(thrownExceptionsQueue,
-                    new OrderedObject<>(lineNumber, csve));
+            OpencsvUtils.queueRefuseToAcceptDefeat(thrownExceptionsQueue,
+                    new OrderedObject<>(lineNumber, e));
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -119,45 +113,6 @@ public class ProcessCsvLine<T> extends AbstractCSVToBean implements Runnable {
             InstantiationException, IntrospectionException,
             CsvBadConverterException, CsvDataTypeMismatchException,
             CsvRequiredFieldEmptyException, CsvConstraintViolationException {
-        mapper.verifyLineLength(line.length);
-        bean = mapper.createBean();
-        for (int col = 0; col < line.length; col++) {
-            if (mapper.isAnnotationDriven()) {
-                processField(col);
-            } else {
-                processProperty(col);
-            }
-        }
-        return bean;
-    }
-
-    private void processField(int col)
-            throws CsvBadConverterException, CsvDataTypeMismatchException,
-            CsvRequiredFieldEmptyException, CsvConstraintViolationException {
-        BeanField beanField = mapper.findField(col);
-        if (beanField != null) {
-            String value = line[col];
-            beanField.setFieldValue(bean, value);
-        }
-    }
-
-    private void processProperty(int col)
-            throws IntrospectionException, InstantiationException,
-            IllegalAccessException, InvocationTargetException, CsvBadConverterException {
-        PropertyDescriptor prop = mapper.findDescriptor(col);
-        if (null != prop) {
-            String value = checkForTrim(line[col], prop);
-            Object obj = convertValue(value, prop);
-            prop.getWriteMethod().invoke(bean, obj);
-        }
-    }
-
-    @Override
-    protected PropertyEditor getPropertyEditor(PropertyDescriptor desc) throws InstantiationException, IllegalAccessException {
-        Class<?> cls = desc.getPropertyEditorClass();
-        if (null != cls) {
-            return (PropertyEditor) cls.newInstance();
-        }
-        return getPropertyEditorValue(desc.getPropertyType());
+        return mapper.populateNewBean(line);
     }
 }

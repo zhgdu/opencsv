@@ -12,26 +12,26 @@ import spock.lang.Unroll
 class CSVReaderAndParserIntegrationSpec extends Specification {
 
     @Shared
-    RFC4180ParserBuilder rfc4180ParserBuilder = new RFC4180ParserBuilder();
+    RFC4180ParserBuilder rfc4180ParserBuilder = new RFC4180ParserBuilder()
     @Shared
-    CSVParserBuilder csvParserBuilder = new CSVParserBuilder();
+    CSVParserBuilder csvParserBuilder = new CSVParserBuilder()
 
     @Shared
-    ICSVParser rfc4180Parser = rfc4180ParserBuilder.build();
+    ICSVParser rfc4180Parser = rfc4180ParserBuilder.build()
     @Shared
-    ICSVParser csvParser = csvParserBuilder.build();
+    ICSVParser csvParser = csvParserBuilder.build()
 
     @Unroll
     def 'parsing with #parserName'() {
         given:
-        StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
-        sb.append("a,b,c").append("\n");   // standard case
-        sb.append("a,\"b,b,b\",c").append("\n");  // quoted elements
-        sb.append(",,").append("\n"); // empty elements
-        sb.append("a,\"PO Box 123,\nKippax,ACT. 2615.\nAustralia\",d.\n");
-        StringReader sr = new StringReader(sb.toString());
+        StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE)
+        sb.append("a,b,c").append("\n")   // standard case
+        sb.append("a,\"b,b,b\",c").append("\n")  // quoted elements
+        sb.append(",,").append("\n") // empty elements
+        sb.append("a,\"PO Box 123,\nKippax,ACT. 2615.\nAustralia\",d.\n")
+        StringReader sr = new StringReader(sb.toString())
 
-        CSVReaderBuilder builder = new CSVReaderBuilder(sr);
+        CSVReaderBuilder builder = new CSVReaderBuilder(sr)
         CSVReader reader = builder.withCSVParser(parser).build()
 
         expect:
@@ -52,7 +52,7 @@ class CSVReaderAndParserIntegrationSpec extends Specification {
     @Unroll
     def 'Bug 143 - Quote Character should be the escaper for #parserName'() {
         given:
-        StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
+        StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE)
         String value1 = "100"
         String value2 = "\"that \"\"if the reptile is killed the baby will pine away and die a few weeks later.\"\"\r\n\r\nThese mystical snakes will protect their owner and be a topic of conversation for sure.\""
         String readValue2 = "that \"if the reptile is killed the baby will pine away and die a few weeks later.\"\r\n\r\nThese mystical snakes will protect their owner and be a topic of conversation for sure."

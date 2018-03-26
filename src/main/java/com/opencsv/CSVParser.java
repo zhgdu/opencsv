@@ -74,7 +74,7 @@ public class CSVParser implements ICSVParser {
     private boolean inField = false;
     
     /** Locale for all translations. */
-    private final Locale errorLocale;
+    private Locale errorLocale;
 
     /**
      * Constructs CSVParser using default values for everything.
@@ -580,6 +580,11 @@ public class CSVParser implements ICSVParser {
     @Override
     public String getPendingText() {
         return StringUtils.defaultString(pending);
+    }
+    
+    @Override
+    public void setErrorLocale(Locale errorLocale) {
+        this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
     }
     
     /**

@@ -69,8 +69,10 @@ the bean fields with the opencsv annotations, then do this:
 
 --+++Even quickier start
 
-Starting from version 4.2, there's another handy way of reading CSV's that doens't even require creating special classes.
-If your CSV file has headers, you can just initialize a CSVReaderHeaderAware and start reading the values out as a map:
+Starting with version 4.2, there's another handy way of reading CSV files that
+doesn't even require creating special classes. If your CSV file has headers,
+you can just initialize a CSVReaderHeaderAware and start reading the values
+out as a map:
 
    <verbatim>
       Map<String, String> values = new CSVReaderHeaderAware(new FileReader("yourfile.csv")).readMap();
@@ -191,7 +193,9 @@ annotations are:
    * CsvBindByPosition: Maps a bean field to a field in the CSV file based on the numerical position of the field in the CSV input.
    * CsvBindAndSplitByName: Maps a Collection-based bean field to a field in the CSV file based on the name of the header for that field in the CSV input.
    * CsvBindAndSplitByPosition: Maps a Collection-based bean field to a field in the CSV file based on the numerical position of the field in the CSV input.
-   * CsvDate: Must be applied to bean fields of date/time types for automatic conversion to work, and must be used in conjunction with one of the preceding four annotations.
+   * CsvBindAndJoinByName: Maps multiple input columns in the CSV file to one bean field based on the name of the headers for those fields in the CSV input.
+   * CsvBindAndJoinByPosition: Maps multiple input columns in the CSV file to one bean field based on the numerical positions of those fields in the CSV input.
+   * CsvDate: Must be applied to bean fields of date/time types for automatic conversion to work, and must be used in conjunction with one of the preceding six annotations.
    * CsvCustomBindByName: The same as CsvBindByName, but must provide its own data conversion class.
    * CsvCustomBindByPosition: The same as CsvBindByPosition, but must provide its own data conversion class.
 
@@ -312,12 +316,14 @@ The bean work was begun by Kyle Miller and extended by Tom Squires and Andrew Jo
 
 By simply defining a bean and annotating the fields, opencsv can do all of the
 rest. When we write "bean", that's a loose approximation of the requirements.
-Actually, if you use annotations, opencsv uses reflection (not introspection),
-so all you need is a POJO (plain old Java object) that does not have to conform
-to the Java Bean Specification, but is required to be public and have a public
-nullary constructor. If getters and setters are present and accessible, they are
-used. Otherwise, opencsv bypasses access control restrictions to get to member
-variables. This is true for reading and writing.
+Actually, if you use annotations, opencsv uses reflection (not introspection) on
+reading, so all you need is a POJO (plain old Java object) that does not have to
+conform to the Java Bean Specification, but is required to be public and have a
+public nullary constructor. If getters and setters are present and accessible,
+they are used. Otherwise, opencsv bypasses access control restrictions to get to
+member variables.
+
+Writing is unfortunately not quite the same. Writing requires getters.
 
 Besides the basic mapping strategy, there are various mechanisms for processing
 certain kinds of data.
@@ -455,7 +461,7 @@ classes. See the Javadocs for more details. The thousands separator in the salar
 is dealt with by using the German locale, one of many countries where the thousands
 separator is a dot.
 
----+++++Collection-based bean fields
+---+++++Collection-based bean fields (one-to-many mappings)
 CSV files are lists, right? Well, some people like lists within lists. For them,
 we have the ability to annotate bean fields that are declared to be some type
 implementing java.util.Collection. When using CsvBindAndSplitByName or
@@ -562,6 +568,197 @@ For details on which subinterfaces of Collection opencsv knows and exactly what
 implementation opencsv uses for those interfaces if you don't specify one, see
 the Javadoc for the annotations CsvBindAndSplitByName or
 CsvBindAndSplitByPosition.
+
+---+++++MultiValuedMap-based bean fields (many-to-one mappings)
+If Collection-based bean fields were there to split one element into many,
+MultiValuedMap-based bean fields are there to consolidate many elements into
+one. What if you have the following input?
+   <verbatim>
+     Album,Artist,Artist,Artist,Track1,Track2,Track3,Track4
+     We are the World,Michael Jackson,Lionel Richie,Stevie Wonder,We are the World,We are the World (instrumental),Did this album,Have any other tracks?
+   </verbatim>
+The first difficulty you will encounter is that three columns have the same
+name. The second difficulty is that the number of tracks in the header might
+increase over time, but you want them all. Both problems are easily solved, as
+are all problems in the opencsv-world:
+   <verbatim>
+     public class Album {
+
+       @CsvBindByName(column = "Album")
+       private String albumTitle;
+
+       @CsvBindAndJoinByName(column = "Artist", elementType = String.class)
+       private MultiValuedMap<String, String> artists;
+
+       @CsvBindAndJoinByName(column = "Track[0-9]+", elementType = String.class, mapType = HashSetValuedHashMap.class, required = true)
+       private MultiValuedMap<String, String> tracks;
+
+       // Getters and setters go here
+     }
+   </verbatim>
+
+The first field is unimportant for this illustration.
+
+The second field is a MultiValuedMap that collects all of the values under all
+of the columns with the name "Album". If you are not familiar with
+MultiValuedMap, it is a part of Apache Commons Collections. The first parameter
+is the index, and the second parameter is the value. In the case of
+CsvBindAndJoinByName, the index should always be a string. The value should be
+of a type to which the elementType from the annotation is assignable.
+
+Why would we choose to use such a cumbersome data type as a MultiValuedMap to
+implement this feature? Why not a simple List and everyone is happy? Two
+reasons: First, someone will want to know what the header was actually named on
+reading, and second, opencsv needs to know what the header is named when it
+writes beans to a CSV file. And really, at least for reading, a MultiValuedMap
+isn't that cubersome: Mostly you will want a list of all values, not caring
+about which header they were under, and that can simply be had by calling
+values() on the field.
+
+Back to our topic, the second field will be a MultiValuedMap with exactly one
+key: "Album". Under this key, there will be a list with up to three entries, in
+this case "Michael Jackson", "Lionel Richie" and "Stevie Wonder". It only
+remains to note that the type of the elements being read must always be
+specified for the same reason it is necessary for Collection-based bean fields.
+
+The third field sums up most of the rest of the features this annotation
+provides. As you can see, the definition of the column names is a regular
+expression. Naturally, the "column" attribute of CsvBindAndJoinByName is always
+interpreted as a regular expression. In this annotation we have also requested
+a specific implementation of MultiValuedMap, which opencsv will honor. We have
+decided that this field is mandatory, which in this case means that at least one
+matching header must be in the input, and every record must have a non-empty
+value for at least one of the matching columns. Given the input from above, this
+MultiValuedMap will have four entries, one for each column, and each of these
+entries will have a list of one element as its value. The elements will be the
+track titles.
+
+All of the usual features apply: conversion locale, combination with CsvDate,
+and specifying your own implementation of MultiValuedMap either through the
+annotation or by defining the field with the specific implementation (default
+implementations for the applicable interface are documented in the Javadoc for
+CsvBindAndJoinByName). The latter being said, if the MultiValuedMap is already
+present (and possibly contains values), say through the use of a constructor,
+it will not be overwritten, but rather added to.
+
+What about precedence? To stay with our running example, what if after extending
+the number of track titles in the input significantly (which would require no
+changes to the bean), we hire some junior programmer who doesn't get it, and he
+adds the following field to the bean:
+   <verbatim>
+     @CsvBindByName(column = "Track21")
+     private String track21;
+   </verbatim>
+What does opencsv do with this? It follows the general computing principle of
+"specific trumps general": It puts any information found under the header
+"Track21" into the new field, not the MultiValuedMap. Obviously this doesn't
+exist for the sole purpose of creating mistakes; you can use it to your
+advantage if you want one otherwise matching column to be treated individually.
+
+Since we're on the topic of precedence, what happens if two regular expressions
+from CsvBindAndJoinByName match one and the same input header name? Don't do
+this. The results are undefined.
+
+While minding the last caveat, it is possible to use this feature to collect
+everything not otherwise mapped:
+   <verbatim>
+     public class Demonstration {
+
+       @CsvBindByName(column = "index")
+       private String index;
+
+       @CsvBindAndJoinByName(column = ".*", elementType = String.class)
+       private MultiValuedMap<String, String> theRest;
+
+       // Getters and setters go here
+     }
+   </verbatim>
+
+There is another way one could possibly use this feature: Let's say you get
+input of the same information from two different sources, and for reasons that
+are beyond your control, they have different header names. Perhaps they are in
+different languages. In one file, the header is:
+   <verbatim>studentID,given name,surname</verbatim>
+And in another file, it's:
+   <verbatim>Schueler-ID,Vorname,Nachname</verbatim>
+You really don't want two beans for the same thing. You can simply do this:
+   <verbatim>
+     public class Student {
+
+       @CsvBindAndJoinByName(column = "(student|Schueler-)ID")
+       private MultiValuedMap<String, Integer> id;
+
+       @CsvBindAndJoinByName(column = "(given |Vor)name")
+       private MultiValuedMap<String, String> givenName;
+
+       @CsvBindAndJoinByName(column = "(sur|Nach)name")
+       private MultiValuedMap<String, String> surname;
+
+       // Getters and setters go here
+     }
+   </verbatim>
+The only down side is, you will have to unpack the values with code like:
+   <verbatim>
+     bean.getSurname().values().toArray(new String[1])[0];
+   </verbatim>
+
+But wait! That's not all! Using CsvBindAndJoinByPosition we can do the same
+thing with input that does not include headers. Let's just say for the sake of
+argument that our album example from earlier now no longer includes headers, and
+that the structure grew over time. Perhaps the first version of the CSV file
+only included one artist, and the other two fields for artist were added at two
+different points in time after that. The tracks grew over time as well. So now
+our input looks like this:
+   <verbatim>
+     We are the World,Michael Jackson,We are the World,We are the World (instrumental),Lionel Richie,Did this album,Stevie Wonder,Have any other tracks?
+   </verbatim>
+In other words, first the album name, then the first artist, followed by two
+tracks, then the second artist followed by one more track, then the third artist
+again followed by one track. The bean for these data would look like this:
+   <verbatim>
+     public class Album {
+
+       @CsvBindByPosition(position = 0)
+       private String albumName;
+
+       @CsvBindAndJoinByPosition(position = "1,4,6", elementType = String.class)
+       MultiValuedMap<Integer, String> artists;
+
+       @CsvBindAndJoinByPosition(position = "2-3,5,7-", elementType = String.class)
+       MultiValuedMap<Integer, String> tracks;
+
+       // Getters and setters go here
+     }
+   </verbatim>
+The first thing to notice in this example is that we have used
+CsvBindAndJoinByPosition, which takes a list of zero-based column numbers and
+ranges as its most important argument. The list is comma-separated, and can
+include any number of column indices as well as closed (e.g. "3-5") and
+half-open (e.g. "-5" or "10-") ranges.
+
+The next thing to notice in this example is that for CsvBindAndJoinByPosition,
+the index type to MultiValuedMap must be Integer. Values are saved under the
+index of the column position they were found in.
+
+The last thing to notice is that as long as new column positions are added to
+the end of the file and these are all new tracks, they will all be placed in the
+variable "tracks" because the column position definition from the
+CsvBindAndJoinByPosition annotation defines an open range starting at index 7.
+
+As with a header-based mapping, it is possible to create a mop-up field, if no
+other fields are mapped with CsvBindAndJoinByPosition, by mapping to a
+MultiValuedMap using the fully open range expression "-".
+
+Writing with CsvBindAndJoinByName and CsvBindAndJoinByPosition are slightly more
+complicated. Both include ambiguous information about the source of the data,
+one in the form of regular expressions, and the other in the form of ranges.
+Once the data have been read in, there is no way from this information alone
+to determine which column each header came from. That, as we have already said,
+is why we use a MultiValuedMap: the index gives us this vital information. That
+said, it should be obvious that when writing, the MultiValuedMap must be
+completely filled out for every bean before sending it off to be written. That
+is, every index that is expected in the output must be present in the map and
+have at least a null value.
 
 ---+++++Custom converters
 Now, we know that input data can get very messy, so we have provided our users

@@ -7,16 +7,16 @@ import spock.lang.Unroll
 class RFC4180ParserSpec extends Specification {
     private static final char SINGLE_QUOTE = '\''
     private static final char PERIOD = '.'
-    private static final String NULL_STRING = null;
+    private static final String NULL_STRING = null
 
     def 'create a parser from the default constructor'() {
         when:
-        RFC4180Parser parser = new RFC4180Parser();
+        RFC4180Parser parser = new RFC4180Parser()
 
         then:
-        parser.getQuotechar() == ICSVParser.DEFAULT_QUOTE_CHARACTER;
-        parser.getSeparator() == ICSVParser.DEFAULT_SEPARATOR;
-        parser.nullFieldIndicator() == CSVReaderNullFieldIndicator.NEITHER;
+        parser.getQuotechar() == ICSVParser.DEFAULT_QUOTE_CHARACTER
+        parser.getSeparator() == ICSVParser.DEFAULT_SEPARATOR
+        parser.nullFieldIndicator() == CSVReaderNullFieldIndicator.NEITHER
     }
 
     def 'able to parse a simple line'() {
@@ -187,7 +187,7 @@ class RFC4180ParserSpec extends Specification {
 
         expect:
 
-        parser.parseToLine(valuesToParse, false) == expectedResult
+        parser.parseToLine(valuesToParse) == expectedResult
 
         where:
         nullField                                    | string1 | string2 | string3 | string4 | string5 | expectedResult
@@ -228,7 +228,7 @@ class RFC4180ParserSpec extends Specification {
         given:
         RFC4180ParserBuilder builder = new RFC4180ParserBuilder()
         RFC4180Parser parser = builder.build()
-        String testLine = "\"\\\"\"\",\\,\\,\"\"\"\",\"\"\",\"";
+        String testLine = "\"\\\"\"\",\\,\\,\"\"\"\",\"\"\",\""
 
         when:
         String[] values = parser.parseLine(testLine)
@@ -274,7 +274,7 @@ class RFC4180ParserSpec extends Specification {
         RFC4180ParserBuilder builder = new RFC4180ParserBuilder()
         RFC4180Parser parser = builder.build()
         String[] expectedArray = [expected1, expected2, expected3, expected4]
-        String parsedString = parser.parseToLine(expectedArray, false)
+        String parsedString = parser.parseToLine(expectedArray)
         String[] finalArray = parser.parseLine(parsedString)
         expect:
         finalArray == expectedArray
@@ -329,26 +329,26 @@ class RFC4180ParserSpec extends Specification {
 
     def 'bug 165 - No character line showing up as an extra record with RFC4180Parser'() {
         given:
-        List<String[]> lines = new ArrayList<String[]>();
+        List<String[]> lines = new ArrayList<String[]>()
 
         lines.add(["value 1.1", "\n"])
         lines.add(["value 2.1", "value 2.2"])
 
         when:
-        StringWriter stringWriter = new StringWriter(128);
+        StringWriter stringWriter = new StringWriter(128)
 
-        CSVWriter csvWriter = new CSVWriter(stringWriter);
+        CSVWriter csvWriter = new CSVWriter(stringWriter)
         for (String[] strings : lines) {
-            csvWriter.writeNext(strings);
+            csvWriter.writeNext(strings)
         }
-        csvWriter.close();
+        csvWriter.close()
 
-        StringReader stringReader = new StringReader(stringWriter.toString());
+        StringReader stringReader = new StringReader(stringWriter.toString())
 
         RFC4180ParserBuilder parserBuilder = new RFC4180ParserBuilder()
-        CSVReader csvReader = new CSVReaderBuilder(stringReader).withCSVParser(parserBuilder.build()).build();
+        CSVReader csvReader = new CSVReaderBuilder(stringReader).withCSVParser(parserBuilder.build()).build()
 
-        List<String[]> readLines = csvReader.readAll();
+        List<String[]> readLines = csvReader.readAll()
 
         csvReader.close()
 

@@ -28,67 +28,67 @@ public class MockClob implements Clob {
    }
 
    @Override
-   public long length() throws SQLException {
+   public long length() {
       return 0;
    }
 
    @Override
-   public String getSubString(long l, int i) throws SQLException {
+   public String getSubString(long l, int i) {
       return null;
    }
 
    @Override
-   public Reader getCharacterStream() throws SQLException {
+   public Reader getCharacterStream() {
       return new StringReader(clobValue);
    }
 
    @Override
-   public InputStream getAsciiStream() throws SQLException {
+   public InputStream getAsciiStream() {
       return null;
    }
 
    @Override
-   public long position(String s, long l) throws SQLException {
+   public long position(String s, long l) {
       return 0;
    }
 
    @Override
-   public long position(Clob clob, long l) throws SQLException {
+   public long position(Clob clob, long l) {
       return 0;
    }
 
    @Override
-   public int setString(long l, String s) throws SQLException {
+   public int setString(long l, String s) {
       return 0;
    }
 
    @Override
-   public int setString(long l, String s, int i, int i1) throws SQLException {
+   public int setString(long l, String s, int i, int i1) {
       return 0;
    }
 
    @Override
-   public OutputStream setAsciiStream(long l) throws SQLException {
+   public OutputStream setAsciiStream(long l) {
       return null;
    }
 
    @Override
-   public Writer setCharacterStream(long l) throws SQLException {
+   public Writer setCharacterStream(long l) {
       return null;
    }
 
    @Override
-   public void truncate(long l) throws SQLException {
+   public void truncate(long l) {
 
    }
 
    @Override
-   public void free() throws SQLException {
+   public void free() {
 
    }
 
    @Override
-   public Reader getCharacterStream(long l, long l1) throws SQLException {
+   public Reader getCharacterStream(long l, long l1) {
       return null;
    }
 }

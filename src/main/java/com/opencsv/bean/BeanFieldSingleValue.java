@@ -26,10 +26,11 @@ import java.util.ResourceBundle;
 /**
  * This class concerns itself with handling single-valued bean fields.
  * 
+ * @param <T> The type of the bean being populated
  * @author Andrew Rucker Jones
  * @since 4.2
  */
-public class BeanFieldSingleValue extends AbstractBeanField {
+public class BeanFieldSingleValue<T> extends AbstractBeanField<T> {
     
     /**
      * Simply calls the same constructor in the base class.

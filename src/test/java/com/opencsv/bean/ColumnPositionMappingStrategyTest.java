@@ -46,7 +46,7 @@ public class ColumnPositionMappingStrategyTest {
     }
 
    @Before
-   public void setUp() throws Exception {
+   public void setUp() {
       Locale.setDefault(Locale.US);
       strat = new ColumnPositionMappingStrategy<>();
       strat.setType(MockBean.class);
@@ -182,7 +182,7 @@ public class ColumnPositionMappingStrategyTest {
    }
    
    @Test
-   public void throwsIllegalStateExceptionIfTypeNotSet() throws IOException {
+   public void throwsIllegalStateExceptionIfTypeNotSet() {
       ColumnPositionMappingStrategy<MockBean> s = new ColumnPositionMappingStrategy<>();
       StringReader reader = new StringReader("doesnt,matter\nat,all");
       CSVReader csvReader = new CSVReader(reader);

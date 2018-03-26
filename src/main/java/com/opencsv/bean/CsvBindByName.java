@@ -34,7 +34,7 @@ public @interface CsvBindByName {
      * data set of the input.
      * This means that the input cannot be empty. The output after conversion is
      * not guaranteed to be non-empty. "Input" means the string from the field
-     * in the CSV-file on reading and the bean member variable on writing.
+     * in the CSV file on reading and the bean member variable on writing.
      *
      * @return If the field is required to contain information.
      */

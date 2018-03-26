@@ -5,6 +5,7 @@ import com.opencsv.enums.CSVReaderNullFieldIndicator;
 import java.io.IOException;
 
 import static com.opencsv.enums.CSVReaderNullFieldIndicator.NEITHER;
+import java.util.Locale;
 
 /**
  * This interface defines all of the behavior {@link com.opencsv.CSVReader}
@@ -77,12 +78,12 @@ public interface ICSVParser {
     /**
      * When creating builders this should be the smallest size to account for quotes and any possible escape characters.
      */
-    static final int MAX_SIZE_FOR_EMPTY_FIELD = 16;
+    int MAX_SIZE_FOR_EMPTY_FIELD = 16;
 
     /**
      * Default newline character for the parser.
      */
-    static final String NEWLINE = "\n";
+    String NEWLINE = "\n";
 
     /**
      * @return The default separator for this parser.
@@ -150,4 +151,12 @@ public interface ICSVParser {
      * @since 4.1
      */
     String getPendingText();
+    
+    /**
+     * Sets the locale for all error messages.
+     * @param errorLocale Locale for error messages. If null, the default locale
+     *   is used.
+     * @since 4.2
+     */
+    void setErrorLocale(Locale errorLocale);
 }

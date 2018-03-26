@@ -35,7 +35,7 @@ public @interface CsvBindAndSplitByName {
      * data set of the input.
      * This means that the input cannot be empty. The output after conversion is
      * not guaranteed to be non-empty. "Input" means the string from the field
-     * in the CSV-file on reading and the bean member variable on writing.
+     * in the CSV file on reading and the bean member variable on writing.
      *
      * @return If the field is required to contain information.
      */
@@ -122,7 +122,7 @@ public @interface CsvBindAndSplitByName {
      * <li>{@link java.util.ArrayDeque} for {@link java.util.Queue}</li>
      * <li>{@link java.util.ArrayDeque} for {@link java.util.Deque}</li>
      * <li>{@link org.apache.commons.collections4.bag.HashBag} for {@link org.apache.commons.collections4.Bag}</li>
-     * <li>{@link org.apache.commons.collections4.bag.TreeBag} for {@link org.apache.commons.collections4.SortedBag}</ul></ol>
+     * <li>{@link org.apache.commons.collections4.bag.TreeBag} for {@link org.apache.commons.collections4.SortedBag}</ul></li></ol>
      * 
      * @return A class implementing {@link java.util.Collection}
      */

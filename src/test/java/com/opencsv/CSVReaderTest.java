@@ -47,7 +47,7 @@ public class CSVReaderTest {
     }
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         Locale.setDefault(Locale.US);
         StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
         sb.append("a,b,c").append("\n");   // standard case
@@ -741,5 +741,14 @@ public class CSVReaderTest {
         catch(IOException e) {
             assertTrue(e.getMessage().contains(part2));
         }
+    }
+    
+    @Test
+    public void testPeek() throws IOException {
+        String[] peeked = csvr.peek();
+        assertArrayEquals(peeked, csvr.peek());
+        assertArrayEquals(peeked, csvr.peek());
+        assertArrayEquals(peeked, csvr.readNext());
+        assertNotEquals(peeked[1], csvr.readNext()[1]);
     }
 }

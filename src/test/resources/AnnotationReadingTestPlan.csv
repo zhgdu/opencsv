@@ -71,7 +71,7 @@ Test case,Test,Expected behavior,Status
 78,Required date field with empty input,RuntimeException with inner exception CsvRequiredFieldEmptyException,pass
 79,"Verify that reflection is being used for setter, and not introspection",Members are filled correctly,pass
 80,Mapping optional date field using @CsvDate and no source data,Members are null,pass
-81,Mapping a subclass with annotations in both subclass and superclass,Members are filled correctly,pass
+81,Mapping a subclass with annotations in both subclass and superclass (HeaderColumnNameMappingStrategy),Members are filled correctly,pass
 82,Importing an unparsable locale-specific date,RuntimeException with inner exception CsvDataTypeMismatchException,pass
 83,Importing an unparsable locale-inspecific date,RuntimeException with inner exception CsvDataTypeMismatchException,pass
 84,Required column completely missing with header name mapping,RuntimeException with inner exception CsvRequiredFieldEmptyException,pass
@@ -80,3 +80,5 @@ Test case,Test,Expected behavior,Status
 87,Reading with a custom converter with required = true and value present in input,Members are filled correctly,pass
 88,Reading with a custom converter with required = true and value absent in input,RuntimeException with inner exception CsvRequiredFieldEmptyException,pass
 89,Writing with a custom converter with required = true and value absent in input,RuntimeException with inner exception CsvRequiredFieldEmptyException,pass
+90,Reading into a bean with a setter that throws an exception,RuntimeException with inner exception CsvBeanIntrospectionException,pass
+91,Mapping a subclass with annotations in both subclass and superclass (ColumnPositionMappingStrategy,Members are filled correctly,pass

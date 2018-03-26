@@ -15,22 +15,8 @@
  */
 package com.opencsv.bean;
 
-import com.opencsv.bean.mocks.AnnotatedMockBeanCollectionSplit;
-import com.opencsv.bean.mocks.AnnotatedMockBeanCollectionSplitByColumn;
-import com.opencsv.bean.mocks.AnnotationPrecedenceWithCollections;
-import com.opencsv.bean.mocks.DerivedMockBeanCollectionSplit;
-import com.opencsv.bean.mocks.IntegerSetSortedToString;
-import com.opencsv.bean.mocks.InterfaceAsCollectionType;
-import com.opencsv.bean.mocks.InvalidRegexAsSplitOn;
-import com.opencsv.bean.mocks.NonCollectionBeanMember;
-import com.opencsv.bean.mocks.UnknownCollectionType;
-import com.opencsv.bean.mocks.UnknownElementType;
-import com.opencsv.bean.mocks.WrongCollectionType;
-import com.opencsv.bean.mocks.WrongElementType;
-import com.opencsv.exceptions.CsvBadConverterException;
-import com.opencsv.exceptions.CsvDataTypeMismatchException;
-import com.opencsv.exceptions.CsvException;
-import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+import com.opencsv.bean.mocks.*;
+import com.opencsv.exceptions.*;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
@@ -42,8 +28,6 @@ import org.apache.commons.collections4.SortedBag;
 import org.apache.commons.collections4.bag.HashBag;
 import org.apache.commons.collections4.bag.TreeBag;
 import static org.junit.Assert.*;
-
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
@@ -314,7 +298,7 @@ public class CollectionSplitTest {
             fail("Should have thrown exception.");
         }
         catch(CsvBadConverterException csve) {
-            assertEquals(BeanFieldCollectionSplit.class, csve.getConverterClass());
+            assertEquals(BeanFieldSplit.class, csve.getConverterClass());
         }
     }
     
@@ -327,7 +311,7 @@ public class CollectionSplitTest {
             fail("Exception should have been thrown.");
         }
         catch(CsvBadConverterException csve) {
-            assertEquals(BeanFieldCollectionSplit.class, csve.getConverterClass());
+            assertEquals(BeanFieldSplit.class, csve.getConverterClass());
         }
     }
     
@@ -367,7 +351,7 @@ public class CollectionSplitTest {
             fail("Should have thrown exception.");
         }
         catch(CsvBadConverterException csve) {
-            assertEquals(BeanFieldCollectionSplit.class, csve.getConverterClass());
+            assertEquals(BeanFieldSplit.class, csve.getConverterClass());
         }
     }
     
@@ -380,7 +364,7 @@ public class CollectionSplitTest {
             fail("Should have thrown exception.");
         }
         catch(CsvBadConverterException csve) {
-            assertEquals(BeanFieldCollectionSplit.class, csve.getConverterClass());
+            assertEquals(BeanFieldSplit.class, csve.getConverterClass());
         }
     }
     
@@ -392,12 +376,11 @@ public class CollectionSplitTest {
             fail("Exception should have been thrown.");
         }
         catch(CsvBadConverterException csve) {
-            assertEquals(BeanFieldCollectionSplit.class, csve.getConverterClass());
+            assertEquals(BeanFieldSplit.class, csve.getConverterClass());
         }
     }
     
     @Test
-    @Ignore("TODO: Is the assertion on the wrong order?")
     public void testWriteHeaderNameStrategy() throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv<AnnotatedMockBeanCollectionSplit> b2csv =
@@ -413,8 +396,16 @@ public class CollectionSplitTest {
         set.add(cal.getTime());
         bean.setSetType(set);
         b2csv.write(bean);
-        assertEquals("\"COLLECTIONTYPE\",\"DEQUETYPE\",\"LISTTYPE\",\"NAVIGABLESETTYPE\",\"QUEUETYPE\",\"SETTYPE\",\"SORTEDSETTYPE\"\n" +
-"\"\",\"\",\"\",\"\",\"\",\"1978-01-15 2018-01-01\",\"1 2 3\"\n", writer.toString());
+        String s = writer.toString();
+        
+        // Unfortunately, the set the dates are read into is not sorted, so
+        // depending on I don't know what (probably the JDK version), the order
+        // can change.
+        String option1 = "\"COLLECTIONTYPE\",\"DEQUETYPE\",\"LISTTYPE\",\"NAVIGABLESETTYPE\",\"QUEUETYPE\",\"SETTYPE\",\"SORTEDSETTYPE\"\n" +
+                "\"\",\"\",\"\",\"\",\"\",\"1978-01-15 2018-01-01\",\"1 2 3\"\n";
+        String option2 = "\"COLLECTIONTYPE\",\"DEQUETYPE\",\"LISTTYPE\",\"NAVIGABLESETTYPE\",\"QUEUETYPE\",\"SETTYPE\",\"SORTEDSETTYPE\"\n" +
+                "\"\",\"\",\"\",\"\",\"\",\"2018-01-01 1978-01-15\",\"1 2 3\"\n";
+        assertTrue(option1.equals(s) || option2.equals(s));
     }
     
     /**

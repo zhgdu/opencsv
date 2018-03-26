@@ -11,7 +11,7 @@ public class CSVParserBuilderTest {
    private CSVParserBuilder builder;
 
    @Before
-   public void setUp() throws Exception {
+   public void setUp() {
       builder = new CSVParserBuilder();
    }
 

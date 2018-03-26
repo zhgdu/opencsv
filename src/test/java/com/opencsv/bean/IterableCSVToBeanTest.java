@@ -207,7 +207,7 @@ public class IterableCSVToBeanTest {
     }
 
     @Test
-    public void testRequiredHeaderMissing() throws FileNotFoundException {
+    public void testRequiredHeaderMissing() {
         IterableCSVToBeanBuilder<AnnotatedMockBeanForIterator> minimalBuilder = new IterableCSVToBeanBuilder<>();
         HeaderColumnNameMappingStrategy<AnnotatedMockBeanForIterator> strat =
                 new HeaderColumnNameMappingStrategy<>();
@@ -228,7 +228,7 @@ public class IterableCSVToBeanTest {
     }
 
     @Test
-    public void testPrematureEOLUsingHeaderNameMapping() throws FileNotFoundException {
+    public void testPrematureEOLUsingHeaderNameMapping() {
         IterableCSVToBeanBuilder<AnnotatedMockBeanForIterator> minimalBuilder = new IterableCSVToBeanBuilder<>();
         HeaderColumnNameMappingStrategy<AnnotatedMockBeanForIterator> strat =
                 new HeaderColumnNameMappingStrategy<>();
