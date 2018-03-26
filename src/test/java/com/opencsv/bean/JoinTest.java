@@ -753,7 +753,8 @@ public class JoinTest {
         assertEquals(1, beans.size());
         GoodJoinByNameAnnotations bean = beans.get(0);
         assertNotNull(bean.getMap4());
-        assertTrue(bean.getMap4().isEmpty());
+        assertEquals(1, bean.getMap4().size());
+        assertNull(bean.getMap4().get("converted").toArray(new String[1])[0]);
     }
     
     @Test
@@ -942,7 +943,6 @@ public class JoinTest {
      * 
      * @throws CsvException Never
      */
-    @Ignore
     @Test
     public void testWriteColumnMapping() throws CsvException {
         List<GoodJoinByPositionAnnotationsForWriting> beanList = new ArrayList<>();
@@ -1004,8 +1004,8 @@ public class JoinTest {
         StatefulBeanToCsv<GoodJoinByPositionAnnotationsForWriting> btc = new StatefulBeanToCsvBuilder<GoodJoinByPositionAnnotationsForWriting>(w).build();
         btc.write(beanList);
         assertTrue(Pattern.matches(
-                "\"10\",\"15\\. Jan\\.? 1978\",\"\",\"\",\"string4\",\"string5\",\"string6\",\"string7\",\"string8\",\"string9\",\"string10\",\"1.111\",\"string12\",\"string13\",\"\",\"string15\",\"06\\. März? 2018\"\n"
-                + "\"12\",\"16\\. Jan\\.? 1978\",\"\",\"\",\"string42\",\"string52\",\"string62\",\"string72\",\"string82\",\"string92\",\"string102\",\"1.112\",\"string122\",\"string132\",\"\",\"string152\",\"07\\. März? 2018\"\n",
+                "\"10\",\"15\\. Jan\\.? 1978\",\"\",\"\",\"string4\",\"string5\",\"string6\",\"string7\",\"string8\",\"string9\",\"string10\",\"1\\.111\",\"string12\",\"string13\",\"\",\"string15\",\"06\\. Mä?rz? 2018\"\n"
+                + "\"12\",\"16\\. Jan\\.? 1978\",\"\",\"\",\"string42\",\"string52\",\"string62\",\"string72\",\"string82\",\"string92\",\"string102\",\"1\\.112\",\"string122\",\"string132\",\"\",\"string152\",\"07\\. Mä?rz? 2018\"\n",
                 w.toString()));
     }
     
@@ -1162,9 +1162,9 @@ public class JoinTest {
         }
         catch(RuntimeException e) {
             assertNotNull(e.getCause());
-            assertTrue(e.getCause() instanceof CsvBeanIntrospectionException);
-            CsvBeanIntrospectionException csve = (CsvBeanIntrospectionException)e.getCause();
-            assertEquals("map", csve.getField().getName());
+            assertTrue(e.getCause() instanceof CsvBadConverterException);
+            CsvBadConverterException csve = (CsvBadConverterException)e.getCause();
+            assertEquals(BeanFieldJoin.class, csve.getConverterClass());
         }
     }
     
