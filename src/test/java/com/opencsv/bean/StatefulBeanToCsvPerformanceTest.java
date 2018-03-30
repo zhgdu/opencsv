@@ -55,6 +55,7 @@ public class StatefulBeanToCsvPerformanceTest {
             beanList.add(pair.left);
             beanList.add(pair.right);
         }
+        while(true) {
 
         // Writing, ordered
         Writer writer = new StringWriter();
@@ -102,6 +103,8 @@ public class StatefulBeanToCsvPerformanceTest {
         watch.stop();
         assertEquals(numBeans, beans.size());
         System.out.println("Time taken to read " + numBeans + " beans, unordered: " + watch.toString());
+        }
+
     }
 
 }

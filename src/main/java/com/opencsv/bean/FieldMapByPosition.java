@@ -18,14 +18,8 @@ package com.opencsv.bean;
 import com.opencsv.ICSVParser;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
+
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.collections4.iterators.LazyIteratorChain;
@@ -61,7 +55,7 @@ public class FieldMapByPosition<T> extends AbstractFieldMap<String, Integer, Pos
     // The rest of the Javadoc is inherited.
     @Override
     public String[] generateHeader(final T bean) throws CsvRequiredFieldEmptyException {
-        final List<Field> missingRequiredHeaders = new ArrayList<>();
+        final List<Field> missingRequiredHeaders = new LinkedList<>();
         final SortedMap<Integer, String> headerMap = new TreeMap<>();
         for(Map.Entry<Integer, BeanField<T>> entry : simpleMap.entrySet()) {
             headerMap.put(entry.getKey(), entry.getValue().getField().getName());

@@ -62,13 +62,13 @@ public class FieldMapByName<T> extends AbstractFieldMap<String, String, RegexToB
     public List<FieldMapByNameEntry<T>> determineMissingRequiredHeaders(final String[] headersPresent) {
         
         // Start with collections of all required headers
-        final List<String> requiredStringList = new ArrayList<>();
+        final List<String> requiredStringList = new LinkedList<>();
         for(Map.Entry<String, BeanField<T>> entry : simpleMap.entrySet()) {
             if(entry.getValue().isRequired()) {
                 requiredStringList.add(entry.getKey());
             }
         }
-        final List<ComplexFieldMapEntry<String, String, T>> requiredRegexList = new ArrayList<>();
+        final List<ComplexFieldMapEntry<String, String, T>> requiredRegexList = new LinkedList<>();
         for(ComplexFieldMapEntry<String, String, T> r : complexMapList) {
             if(r.getBeanField().isRequired()) {
                 requiredRegexList.add(r);
@@ -91,7 +91,7 @@ public class FieldMapByName<T> extends AbstractFieldMap<String, String, RegexToB
         }
         
         // Repackage what remains
-        List<FieldMapByNameEntry<T>> missingRequiredHeaders = new ArrayList<>();
+        List<FieldMapByNameEntry<T>> missingRequiredHeaders = new LinkedList<>();
         for(String s : requiredStringList) {
             missingRequiredHeaders.add(new FieldMapByNameEntry<T>(s, simpleMap.get(s), false));
         }
@@ -122,7 +122,7 @@ public class FieldMapByName<T> extends AbstractFieldMap<String, String, RegexToB
     // The rest of the Javadoc is inherited.
     @Override
     public String[] generateHeader(final T bean) throws CsvRequiredFieldEmptyException {
-        final List<Field> missingRequiredHeaders = new ArrayList<>();
+        final List<Field> missingRequiredHeaders = new LinkedList<>();
         final List<String> headerList = new ArrayList<>(simpleMap.keySet());
         for(ComplexFieldMapEntry<String, String, T> r : complexMapList) {
             @SuppressWarnings("unchecked")

@@ -377,7 +377,7 @@ public class CsvToBean<T> implements Iterable<T> {
      */
     public List<CsvException> getCapturedExceptions() {
         if (capturedExceptions == null) {
-            capturedExceptions = new ArrayList<>();
+            capturedExceptions = new LinkedList<>();
         }
         return capturedExceptions;
     }
@@ -501,7 +501,7 @@ public class CsvToBean<T> implements Iterable<T> {
             OrderedObject<CsvException> o = thrownExceptionsQueue.poll();
             if(o != null && o.getElement() != null) {
                 if(capturedExceptions == null) {
-                    capturedExceptions = new ArrayList<>();
+                    capturedExceptions = new LinkedList<>();
                 }
                 capturedExceptions.add(o.getElement());
             }

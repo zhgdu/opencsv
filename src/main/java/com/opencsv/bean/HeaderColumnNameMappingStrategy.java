@@ -226,7 +226,7 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
     }
 
     private List<Field> loadFields(Class<? extends T> cls) {
-        List<Field> fields = new ArrayList<>();
+        List<Field> fields = new LinkedList<>();
         for (Field field : FieldUtils.getAllFields(cls)) {
             if (field.isAnnotationPresent(CsvBindByName.class)
                     || field.isAnnotationPresent(CsvCustomBindByName.class)
