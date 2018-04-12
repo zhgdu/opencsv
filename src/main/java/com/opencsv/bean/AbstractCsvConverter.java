@@ -16,10 +16,11 @@
 package com.opencsv.bean;
 
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
-import java.util.Locale;
-import java.util.Objects;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.Locale;
+import java.util.Objects;
 
 /**
  * This implementation of {@link CsvConverter} provides a reasonable default
@@ -38,7 +39,7 @@ public abstract class AbstractCsvConverter implements CsvConverter {
     protected final Class<?> type;
     
     /** The locale to be used when converting, if a locale is relevant. */
-    protected final String locale;
+    protected final Locale locale;
     
     /** The locale to be used for error messages. */
     protected Locale errorLocale;
@@ -54,8 +55,8 @@ public abstract class AbstractCsvConverter implements CsvConverter {
      */
     public AbstractCsvConverter(Class<?> type, String locale, Locale errorLocale) {
         this.type = type;
-        this.locale = locale;
-        this.errorLocale = errorLocale;
+        this.locale = StringUtils.isNotEmpty(locale) ? Locale.forLanguageTag(locale) : null;
+        this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
     }
     
     /**

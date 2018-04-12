@@ -35,6 +35,26 @@ import java.util.ResourceBundle;
 public class ConverterPrimitiveTypes extends AbstractCsvConverter {
 
     /**
+     * The formatter for all inputs to and from wrapped and unwrapped primitive
+     * types when a specific locale is not required.
+     * <p>Either this or {@link #localeConverter} should be used, and the other
+     * should always be {@code null}.</p>
+     * <p><em>It is absolutely critical that access to this member variable is
+     * always synchronized!</em></p>
+     */
+    protected final ConvertUtilsBean converter;
+
+    /**
+     * The formatter for all inputs to and from wrapped and unwrapped primitive
+     * types when a specific locale is required.
+     * <p>Either this or {@link #converter} should be used, and the other
+     * should always be {@code null}.</p>
+     * <p><em>It is absolutely critical that access to this member variable is
+     * always synchronized!</em></p>
+     */
+    protected final LocaleConvertUtilsBean localeConverter;
+
+    /**
      * @param type    The class of the type of the data being processed
      * @param locale   If not null or empty, specifies the locale used for
      *                 converting locale-specific data types
@@ -42,6 +62,16 @@ public class ConverterPrimitiveTypes extends AbstractCsvConverter {
      */
     public ConverterPrimitiveTypes(Class<?> type, String locale, Locale errorLocale) {
         super(type, locale, errorLocale);
+        if(this.locale == null) {
+            converter = new ConvertUtilsBean();
+            converter.register(true, false, 0);
+            localeConverter = null;
+        }
+        else {
+            localeConverter = new LocaleConvertUtilsBean();
+            localeConverter.setDefaultLocale(this.locale);
+            converter = null;
+        }
     }
 
     @Override
@@ -51,15 +81,15 @@ public class ConverterPrimitiveTypes extends AbstractCsvConverter {
 
         if (StringUtils.isNotBlank(value) || (value != null && type.equals(String.class))) {
             try {
-                if(StringUtils.isEmpty(locale)) {
-                    ConvertUtilsBean converter = new ConvertUtilsBean();
-                    converter.register(true, false, 0);
-                    o = converter.convert(value, type);
+                if(converter != null) {
+                    synchronized (converter) {
+                        o = converter.convert(value, type);
+                    }
                 }
                 else {
-                    LocaleConvertUtilsBean lcub = new LocaleConvertUtilsBean();
-                    lcub.setDefaultLocale(new Locale(locale));
-                    o = lcub.convert(value, type);
+                    synchronized (localeConverter) {
+                        o = localeConverter.convert(value, type);
+                    }
                 }
             } catch (ConversionException e) {
                 CsvDataTypeMismatchException csve = new CsvDataTypeMismatchException(
@@ -90,14 +120,15 @@ public class ConverterPrimitiveTypes extends AbstractCsvConverter {
         String result = null;
         if(value != null) {
             try {
-                if(StringUtils.isEmpty(locale)) {
-                    ConvertUtilsBean converter = new ConvertUtilsBean();
-                    result = converter.convert(value);
+                if(converter != null) {
+                    synchronized (converter) {
+                        result = converter.convert(value);
+                    }
                 }
                 else {
-                    LocaleConvertUtilsBean converter = new LocaleConvertUtilsBean();
-                    converter.setDefaultLocale(new Locale(locale));
-                    result = converter.convert(value);
+                    synchronized (localeConverter) {
+                        result = localeConverter.convert(value);
+                    }
                 }
             }
             catch(ConversionException e) {

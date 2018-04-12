@@ -4,6 +4,7 @@ import com.opencsv.CSVReader;
 import com.opencsv.ICSVParser;
 import com.opencsv.exceptions.CsvBadConverterException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -12,7 +13,6 @@ import org.apache.commons.lang3.reflect.FieldUtils;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.*;
-import org.apache.commons.collections4.MultiValuedMap;
 
 /*
  * Copyright 2007 Kyle Miller.
@@ -156,13 +156,7 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
                 Class<? extends Collection> collectionType = annotation.collectionType();
                 Class<?> elementType = annotation.elementType();
                 
-                CsvConverter converter;
-                if (field.isAnnotationPresent(CsvDate.class)) {
-                    String formatString = field.getAnnotation(CsvDate.class).value();
-                    converter = new ConverterDate(elementType, locale, errorLocale, formatString);
-                } else {
-                    converter = new ConverterPrimitiveTypes(elementType, locale, errorLocale);
-                }
+                CsvConverter converter = determineConverter(field, elementType, locale);
                 if (StringUtils.isEmpty(columnName)) {
                     fieldMap.put(field.getName().toUpperCase(),
                             new BeanFieldSplit<T>(
@@ -184,13 +178,7 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
                 Class<?> elementType = annotation.elementType();
                 Class<? extends MultiValuedMap> mapType = annotation.mapType();
                 
-                CsvConverter converter;
-                if (field.isAnnotationPresent(CsvDate.class)) {
-                    String formatString = field.getAnnotation(CsvDate.class).value();
-                    converter = new ConverterDate(elementType, locale, errorLocale, formatString);
-                } else {
-                    converter = new ConverterPrimitiveTypes(elementType, locale, errorLocale);
-                }
+                CsvConverter converter = determineConverter(field, elementType, locale);
                 if (StringUtils.isEmpty(columnRegex)) {
                     fieldMap.putComplex(field.getName(),
                             new BeanFieldJoinStringIndex<T>(
@@ -208,13 +196,7 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
                 required = annotation.required();
                 columnName = annotation.column().toUpperCase().trim();
                 locale = annotation.locale();
-                CsvConverter converter;
-                if (field.isAnnotationPresent(CsvDate.class)) {
-                    String formatString = field.getAnnotation(CsvDate.class).value();
-                    converter = new ConverterDate(field.getType(), locale, errorLocale, formatString);
-                } else {
-                    converter = new ConverterPrimitiveTypes(field.getType(), locale, errorLocale);
-                }
+                CsvConverter converter = determineConverter(field, field.getType(), locale);
                 if (StringUtils.isEmpty(columnName)) {
                     fieldMap.put(field.getName().toUpperCase(),
                             new BeanFieldSingleValue<T>(field, required, errorLocale, converter));

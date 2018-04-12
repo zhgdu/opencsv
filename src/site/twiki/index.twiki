@@ -67,7 +67,7 @@ the bean fields with the opencsv annotations, then do this:
      writer.close();
    </verbatim>
 
---+++Even quickier start
+--+++Even quicker start
 
 Starting with version 4.2, there's another handy way of reading CSV files that
 doesn't even require creating special classes. If your CSV file has headers,
@@ -105,7 +105,7 @@ do about them.
       * The method setErrorLocale() is now required. If you derive your implementation from one of ours, you're fine. If not, implement it, or make it a no-op.
       * The method setType() is now required. If you derive your implementation from one of ours, you're fine. If not, implement it, or make it a no-op.
    * MappingUtils was really meant to be for internal use, but of course we can't control that, so let it be said that:
-      * the class is now named opencsvUtils, because it encompasses more than mapping, and
+      * the class is now named OpencsvUtils, because it encompasses more than mapping, and
       * the determineMappingStrategy() method now requires a locale for error messages. Null can be used for the default locale.
    * The constructors for BeanFieldDate and BeanFieldPrimitiveType now require a locale for error messages. This is to avoid a proliferation of constructors or setters. These classes probably ought not to be used in your code directly, and probably ought to be final, but we still thought it best to inform you.
    * The interface BeanField requires the method setErrorLocale(). Assuming you derive all of your BeanField implementations from AbstractBeanField, this does not affect you.
@@ -196,6 +196,7 @@ annotations are:
    * CsvBindAndJoinByName: Maps multiple input columns in the CSV file to one bean field based on the name of the headers for those fields in the CSV input.
    * CsvBindAndJoinByPosition: Maps multiple input columns in the CSV file to one bean field based on the numerical positions of those fields in the CSV input.
    * CsvDate: Must be applied to bean fields of date/time types for automatic conversion to work, and must be used in conjunction with one of the preceding six annotations.
+   * CsvNumber: May be applied to bean fields of a type derived from java.lang.Number, and when used must be used in conjunction with one of the first six annotations.
    * CsvCustomBindByName: The same as CsvBindByName, but must provide its own data conversion class.
    * CsvCustomBindByPosition: The same as CsvBindByPosition, but must provide its own data conversion class.
 
@@ -428,16 +429,18 @@ The bean for these data would be:
    </verbatim>
 Besides that, the annotations behave the same as their header name counterparts.
 
----+++++Locales, dates
+---+++++Locales, dates, numbers
 We've considered primitives, but we haven't considered more complex yet common
-data types. We have also not considered locales other than the default locale.
-Here we shall do both at the same time. Consider this input file:
+data types. We have also not considered locales other than the default locale
+or formatting options beyond those provided by a locale. Here we shall do all
+of this at the same time. Consider this input file:
    <verbatim>
      username,valid since,annual salary
-     user1,01.01.2010,100.000
-     user2,31.07.2014,50.000
+     user1,01.01.2010,100.000€
+     user2,31.07.2014,50.000€
    </verbatim>
-The dates are dd.MM.yyyy, and the salaries use a dot as the thousands delimiter.
+The dates are dd.MM.yyyy, the salaries use a dot as the thousands delimiter,
+and a currency symbol is in use.
 For this input we create the following bean:
    <verbatim>
      public class Employees {
@@ -449,7 +452,8 @@ For this input we create the following bean:
      @CsvDate("dd.MM.yyyy")
      private Date validSince;
 
-     @CsvBindByName(column = "annual salary", locale = "de")
+     @CsvBindByName(column = "annual salary", locale = "de-DE")
+     @CsvNumber("#.###¤")
      private int salary;
 
      // Getters and setters go here.
@@ -457,9 +461,10 @@ For this input we create the following bean:
    </verbatim>
 The date is handled with the annotation @CsvDate in addition to the mapping annotation.
 @CsvDate can take a format string, and incidentally handles all common date-type
-classes. See the Javadocs for more details. The thousands separator in the salaries
-is dealt with by using the German locale, one of many countries where the thousands
-separator is a dot.
+classes. See the Javadocs for more details. The format of the salary, including
+thousands separator and currency symbol, are dealt with using a combination of
+the German locale, one of many countries where the thousands
+separator is a dot, and @CsvNumber.
 
 ---+++++Collection-based bean fields (one-to-many mappings)
 CSV files are lists, right? Well, some people like lists within lists. For them,
@@ -611,7 +616,7 @@ implement this feature? Why not a simple List and everyone is happy? Two
 reasons: First, someone will want to know what the header was actually named on
 reading, and second, opencsv needs to know what the header is named when it
 writes beans to a CSV file. And really, at least for reading, a MultiValuedMap
-isn't that cubersome: Mostly you will want a list of all values, not caring
+isn't that cumbersome: Mostly you will want a list of all values, not caring
 about which header they were under, and that can simply be had by calling
 values() on the field.
 
@@ -765,7 +770,7 @@ Now, we know that input data can get very messy, so we have provided our users
 with the ability to deal with the messiest of data by allowing you to define your
 own custom converters. Every converter must be derived from AbstractBeanField,
 must be public, and must have a public nullary constructor. For reading, the
-convert() method must be overriden. opencsv provides two custom converters in
+convert() method must be overridden. opencsv provides two custom converters in
 the package com.opencsv.bean.customconverter. These can be useful converters
 themselves, but they also exist for instructive purposes: If you want to write
 your own custom converter, look at these for examples of how it's done.

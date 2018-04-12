@@ -17,13 +17,16 @@ package com.opencsv.bean;
 
 import com.opencsv.exceptions.CsvConstraintViolationException;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
+
 import java.util.Locale;
 
 /**
  * Classes implementing this interface perform a conversion from String to
  * some type on reading and some type to String on writing.
- * This interface is used by BeanField to perform the actual data conversion.
- * 
+ * <p>This interface is used by BeanField to perform the actual data conversion.</p>
+ * <p><b><i>Synchronization:</i></b> All implementations of this interface must
+ * be thread-safe.</p>
+ *
  * @author Andrew Rucker Jones
  * @since 4.2
  */
@@ -34,7 +37,7 @@ public interface CsvConverter {
      *
      * @param value The string from the selected field of the CSV file. If the
      *   field is marked as required in the annotation, this value is guaranteed
-     *   not to be null, empty or blank according to
+     *   not to be {@code null}, empty or blank according to
      *   {@link org.apache.commons.lang3.StringUtils#isBlank(java.lang.CharSequence)}
      * @return An {@link java.lang.Object} representing the input data converted
      *   into the proper type
@@ -51,9 +54,11 @@ public interface CsvConverter {
      * string.
      * 
      * @param value The contents of the field currently being processed from the
-     *   bean to be written. Can be null if the field is not marked as required.
+     *   bean to be written. Can be {@code null} if the field is not marked as
+     *   required.
      * @return A string representation of the value of the field in question in
-     *   the bean passed in, or an empty string if {@code value} is null
+     *   the bean passed in, or an empty string if {@code value} is
+     *   {@code null}
      * @throws CsvDataTypeMismatchException If the input cannot be converted to
      *   a string by this converter
      */
@@ -62,8 +67,8 @@ public interface CsvConverter {
     
     /**
      * Sets the locale for all error messages.
-     * @param errorLocale Locale for error messages. If null, the default locale
-     *   is used.
+     * @param errorLocale Locale for error messages. If {@code null}, the
+     *   default locale is used.
      */
     void setErrorLocale(Locale errorLocale);
 }
