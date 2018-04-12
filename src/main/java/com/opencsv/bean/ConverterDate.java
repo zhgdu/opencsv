@@ -38,7 +38,12 @@ import java.util.*;
  */
 public class ConverterDate extends AbstractCsvConverter {
 
-    private final String formatString;
+    /**
+     * The formatter for all inputs to and from date representations.
+     * <em>It is absolutely critical that access to this member variable is always
+     * synchronized!</em>
+     */
+    private final SimpleDateFormat sdf;
 
     /**
      * @param type         The type of the field being populated
@@ -50,22 +55,11 @@ public class ConverterDate extends AbstractCsvConverter {
      */
     public ConverterDate(Class<?> type, String locale, Locale errorLocale, String formatString) {
         super(type, locale, errorLocale);
-        this.formatString = formatString;
-    }
-    
-    /**
-     * @return A {@link java.text.SimpleDateFormat} primed with the proper
-     *   format string and a locale, if one has been set.
-     */
-    private SimpleDateFormat getFormat() {
-        SimpleDateFormat sdf;
-        if (StringUtils.isNotEmpty(locale)) {
-            Locale l = Locale.forLanguageTag(locale);
-            sdf = new SimpleDateFormat(formatString, l);
+        if (this.locale != null) {
+            sdf = new SimpleDateFormat(formatString, this.locale);
         } else {
             sdf = new SimpleDateFormat(formatString);
         }
-        return sdf;
     }
     
     /**
@@ -93,10 +87,13 @@ public class ConverterDate extends AbstractCsvConverter {
         if(value instanceof String) {
             Date d;
             try {
-                d = getFormat().parse((String)value);
+                synchronized (sdf) {
+                    d = sdf.parse((String)value);
+                }
+
                 o = fieldType.getConstructor(Long.TYPE).newInstance(d.getTime());
             }
-            // I would have prefered a CsvBeanIntrospectionException, but that
+            // I would have preferred a CsvBeanIntrospectionException, but that
             // would have broken backward compatibility. This is not completely
             // illogical: I know all of the data types I expect here, and they
             // should all be instantiated with no problems. Ergo, this must be
@@ -110,7 +107,11 @@ public class ConverterDate extends AbstractCsvConverter {
             }
         }
         else if(Date.class.isAssignableFrom(value.getClass())) {
-            o = fieldType.cast(getFormat().format((Date)value));
+            String s;
+            synchronized (sdf) {
+                s = sdf.format((Date)value);
+            }
+            o = fieldType.cast(s);
         }
         else {
             throw new CsvDataTypeMismatchException(value, fieldType,
@@ -147,7 +148,10 @@ public class ConverterDate extends AbstractCsvConverter {
             // Parse input
             Date d;
             try {
-                d = getFormat().parse((String)value);
+                synchronized (sdf) {
+                    d = sdf.parse((String)value);
+                }
+
             } catch (ParseException e) {
                 CsvDataTypeMismatchException csve = new CsvDataTypeMismatchException(value, fieldType);
                 csve.initCause(e);
@@ -191,7 +195,11 @@ public class ConverterDate extends AbstractCsvConverter {
                 throw new CsvDataTypeMismatchException(value, fieldType,
                         ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("csvdate.not.date"));
             }
-            o = fieldType.cast(getFormat().format(c.getTime()));
+            String s;
+            synchronized (sdf) {
+                s = sdf.format(c.getTime());
+            }
+            o = fieldType.cast(s);
         }
 
         return o;
@@ -205,7 +213,7 @@ public class ConverterDate extends AbstractCsvConverter {
      *   versa
      * @param fieldType The class of the destination field
      * @return The object resulting from the conversion
-     * @throws CsvDataTypeMismatchException If a non-convertable type is
+     * @throws CsvDataTypeMismatchException If a non-convertible type is
      *                                      passed in, or if the conversion fails
      */
     private <U> U convertCommon(Object value, Class<U> fieldType)
@@ -213,7 +221,7 @@ public class ConverterDate extends AbstractCsvConverter {
         U o;
         Class conversionClass = (fieldType == String.class)?value.getClass():fieldType;
         
-        // Send to the proper submethod
+        // Send to the proper sub-method
         if (Date.class.isAssignableFrom(conversionClass)) {
             o = convertDate(value, fieldType);
         } else if (Calendar.class.isAssignableFrom(conversionClass)

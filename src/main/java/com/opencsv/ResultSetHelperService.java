@@ -15,13 +15,13 @@ package com.opencsv;
  limitations under the License.
  */
 
-import org.apache.commons.text.StrBuilder;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.text.TextStringBuilder;
 
 import java.io.IOException;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.Objects;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * Helper class for processing JDBC ResultSet objects.
@@ -205,7 +205,7 @@ public class ResultSetHelperService implements ResultSetHelper {
       String value = DEFAULT_VALUE;
       Clob c = rs.getClob(colIndex);
       if (c != null) {
-         StrBuilder sb = new StrBuilder();
+         TextStringBuilder sb = new TextStringBuilder();
          sb.readFrom(c.getCharacterStream());
          value = sb.toString();
       }
@@ -216,7 +216,7 @@ public class ResultSetHelperService implements ResultSetHelper {
       String value = DEFAULT_VALUE;
       NClob nc = rs.getNClob(colIndex);
       if (nc != null) {
-         StrBuilder sb = new StrBuilder();
+         TextStringBuilder sb = new TextStringBuilder();
          sb.readFrom(nc.getCharacterStream());
          value = sb.toString();
       }

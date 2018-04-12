@@ -4,13 +4,16 @@ import com.opencsv.CSVReader;
 import com.opencsv.ICSVParser;
 import com.opencsv.exceptions.CsvBadConverterException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
-
-import java.io.IOException;
-import java.lang.reflect.Field;
-import java.util.*;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
+
+import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ResourceBundle;
 
 /**
  * Allows for the mapping of columns with their positions. Using this strategy
@@ -164,13 +167,7 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
                 Class<? extends Collection> collectionType = annotation.collectionType();
                 Class<?> elementType = annotation.elementType();
                 
-                CsvConverter converter;
-                if (field.isAnnotationPresent(CsvDate.class)) {
-                    String formatString = field.getAnnotation(CsvDate.class).value();
-                    converter = new ConverterDate(elementType, fieldLocale, errorLocale, formatString);
-                } else {
-                    converter = new ConverterPrimitiveTypes(elementType, fieldLocale, errorLocale);
-                }
+                CsvConverter converter = determineConverter(field, elementType, fieldLocale);
                 fieldMap.put(annotation.position(), new BeanFieldSplit<T>(
                         field, required, errorLocale, converter, splitOn,
                         writeDelimiter, collectionType));
@@ -184,13 +181,7 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
                 Class<?> elementType = annotation.elementType();
                 Class<? extends MultiValuedMap> mapType = annotation.mapType();
                 
-                CsvConverter converter;
-                if (field.isAnnotationPresent(CsvDate.class)) {
-                    String formatString = field.getAnnotation(CsvDate.class).value();
-                    converter = new ConverterDate(elementType, fieldLocale, errorLocale, formatString);
-                } else {
-                    converter = new ConverterPrimitiveTypes(elementType, fieldLocale, errorLocale);
-                }
+                CsvConverter converter = determineConverter(field, elementType, fieldLocale);
                 fieldMap.putComplex(annotation.position(), new BeanFieldJoinIntegerIndex<T>(
                         field, required, errorLocale, converter, mapType));
             }
@@ -200,13 +191,7 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
                 CsvBindByPosition annotation = field.getAnnotation(CsvBindByPosition.class);
                 required = annotation.required();
                 fieldLocale = annotation.locale();
-                CsvConverter converter;
-                if (field.isAnnotationPresent(CsvDate.class)) {
-                    String formatString = field.getAnnotation(CsvDate.class).value();
-                    converter = new ConverterDate(field.getType(), fieldLocale, errorLocale, formatString);
-                } else {
-                    converter = new ConverterPrimitiveTypes(field.getType(), fieldLocale, errorLocale);
-                }
+                CsvConverter converter = determineConverter(field, field.getType(), fieldLocale);
                 fieldMap.put(annotation.position(), new BeanFieldSingleValue<T>(field, required, errorLocale, converter));
             }
         }

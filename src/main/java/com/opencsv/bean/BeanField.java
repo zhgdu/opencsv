@@ -10,10 +10,12 @@ import java.util.Locale;
 /**
  * Used to extend the {@link java.lang.reflect.Field} class to include
  * functionality that opencsv requires.
- * This includes a required flag and a
+ * <p>This includes a required flag and a
  * {@link #write(java.lang.Object, java.lang.Object) } method for writing beans
  * back out to a CSV file. The required flag determines if the field has to be
- * non-empty.
+ * non-empty.</p>
+ * <p><b><i>Synchronization:</i></b> All implementations of this interface must
+ * be thread-safe.</p>
  *
  * @param <T> Type of the bean being populated
  */

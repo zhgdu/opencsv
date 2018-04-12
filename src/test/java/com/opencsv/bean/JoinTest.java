@@ -24,7 +24,10 @@ import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -942,7 +945,6 @@ public class JoinTest {
      * 
      * @throws CsvException Never
      */
-    @Ignore
     @Test
     public void testWriteColumnMapping() throws CsvException {
         List<GoodJoinByPositionAnnotationsForWriting> beanList = new ArrayList<>();
@@ -1004,8 +1006,8 @@ public class JoinTest {
         StatefulBeanToCsv<GoodJoinByPositionAnnotationsForWriting> btc = new StatefulBeanToCsvBuilder<GoodJoinByPositionAnnotationsForWriting>(w).build();
         btc.write(beanList);
         assertTrue(Pattern.matches(
-                "\"10\",\"15\\. Jan\\.? 1978\",\"\",\"\",\"string4\",\"string5\",\"string6\",\"string7\",\"string8\",\"string9\",\"string10\",\"1.111\",\"string12\",\"string13\",\"\",\"string15\",\"06\\. März? 2018\"\n"
-                + "\"12\",\"16\\. Jan\\.? 1978\",\"\",\"\",\"string42\",\"string52\",\"string62\",\"string72\",\"string82\",\"string92\",\"string102\",\"1.112\",\"string122\",\"string132\",\"\",\"string152\",\"07\\. März? 2018\"\n",
+                "\"10\",\"15\\. Jan\\.? 1978\",\"\",\"\",\"string4\",\"string5\",\"string6\",\"string7\",\"string8\",\"string9\",\"string10\",\"1.111\",\"string12\",\"string13\",\"\",\"string15\",\"06\\. Mä?rz? 2018\"\n"
+                + "\"12\",\"16\\. Jan\\.? 1978\",\"\",\"\",\"string42\",\"string52\",\"string62\",\"string72\",\"string82\",\"string92\",\"string102\",\"1.112\",\"string122\",\"string132\",\"\",\"string152\",\"07\\. Mä?rz? 2018\"\n",
                 w.toString()));
     }
     

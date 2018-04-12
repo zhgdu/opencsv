@@ -298,6 +298,9 @@ public class CSVReader implements Closeable, Iterable<String[]> {
     /**
      * Reads the entire file into a List with each element being a String[] of
      * tokens.
+     * Since the current implementation returns a {@link java.util.LinkedList},
+     * you are strongly discouraged from using index-based access methods to
+     * get at items in the list. Instead, iterate over the list.
      *
      * @return A List of String[], with each String[] representing a line of the
      * file.
@@ -305,7 +308,7 @@ public class CSVReader implements Closeable, Iterable<String[]> {
      */
     public List<String[]> readAll() throws IOException {
 
-        List<String[]> allElements = new ArrayList<>();
+        List<String[]> allElements = new LinkedList<>();
         while (hasNext) {
             String[] nextLineAsTokens = readNext();
             if (nextLineAsTokens != null) {
