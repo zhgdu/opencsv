@@ -1,5 +1,6 @@
 package com.opencsv
 
+import com.opencsv.enums.CSVReaderNullFieldIndicator
 import spock.lang.Shared
 import spock.lang.Specification
 import spock.lang.Unroll
@@ -42,6 +43,7 @@ class CSVParserWriterSpec extends Specification {
     @Shared
     ICSVWriter defaultRFC4180ParserWriter;
 
+
     def setup() {
         csvStringWriter = new StringWriter(INITIAL_SIZE);
         csvParserStringWriter = new StringWriter(INITIAL_SIZE);
@@ -54,6 +56,7 @@ class CSVParserWriterSpec extends Specification {
         defaultCSVWriter = csvWriterBuilder.build();
         defaultCSVParserWriter = csvParserWriterBuilder.withParser(csvParser).build();
         defaultRFC4180ParserWriter = rfc4180WriterBuilder.withParser(rfc4180Parser).build();
+
     }
 
     @Unroll
@@ -64,11 +67,25 @@ class CSVParserWriterSpec extends Specification {
         defaultCSVParserWriter.writeNext(values);
         defaultRFC4180ParserWriter.writeNext(values);
 
+        String csvStringWriterValue = csvStringWriter.toString()
+        String csvParserStringWriterValue = csvParserStringWriter.toString()
+        String rfc4180StringWriterValue = rfc4180StringWriter.toString()
+
+        CSVReader csvReader = new CSVReaderBuilder(new StringReader(csvParserStringWriterValue)).withCSVParser(csvParser).build()
+        CSVReader rfc4180Reader = new CSVReaderBuilder(new StringReader(rfc4180StringWriterValue)).withCSVParser(rfc4180Parser).build()
+
+        String[] csvReaderValues = csvReader.readNext();
+        String[] rfc4180ReaderValues = rfc4180Reader.readNext()
+
         expect:
 
-        csvWriterValue == csvStringWriter.toString()
-        csvParserValue == csvParserStringWriter.toString()
-        rfc4180Value == rfc4180StringWriter.toString()
+        csvWriterValue == csvStringWriterValue
+        csvParserValue == csvParserStringWriterValue
+        rfc4180Value == rfc4180StringWriterValue
+
+        // Reading what was written from same parser produces original values
+        values == csvReaderValues
+        values == rfc4180ReaderValues
 
         where:
         value1 | value2 | value3 | csvWriterValue        | csvParserValue        | rfc4180Value
@@ -84,15 +101,56 @@ class CSVParserWriterSpec extends Specification {
         defaultCSVParserWriter.writeNext(values, false);
         defaultRFC4180ParserWriter.writeNext(values, false);
 
+        String csvStringWriterValue = csvStringWriter.toString()
+        String csvParserStringWriterValue = csvParserStringWriter.toString()
+        String rfc4180StringWriterValue = rfc4180StringWriter.toString()
+
+        CSVReader csvReader = new CSVReaderBuilder(new StringReader(csvParserStringWriterValue)).withCSVParser(csvParser).build()
+        CSVReader rfc4180Reader = new CSVReaderBuilder(new StringReader(rfc4180StringWriterValue)).withCSVParser(rfc4180Parser).build()
+
+        String[] csvReaderValues = csvReader.readNext();
+        String[] rfc4180ReaderValues = rfc4180Reader.readNext()
+
         expect:
 
-        csvWriterValue == csvStringWriter.toString()
-        csvParserValue == csvParserStringWriter.toString()
-        rfc4180Value == rfc4180StringWriter.toString()
+        csvWriterValue == csvStringWriterValue
+        csvParserValue == csvParserStringWriterValue
+        rfc4180Value == rfc4180StringWriterValue
+
+        // Reading what was written from same parser produces original values
+        values == csvReaderValues
+        values == rfc4180ReaderValues
 
         where:
         value1 | value2 | value3 | csvWriterValue | csvParserValue | rfc4180Value
         "a"    | "b"    | "c"    | "a,b,c\n"      | "a,b,c\n"      | "a,b,c\n"
+
+    }
+
+    @Unroll
+    def 'withFieldAsNull writes correctly with the CSVParserWriter #nullFieldIndicator'(CSVReaderNullFieldIndicator nullFieldIndicator, String expectedResult) {
+        given:
+        String[] values = ["First", null, "", "Last"]
+
+        ICSVParser csvParser = csvParserBuilder
+                .withFieldAsNull(nullFieldIndicator)
+                .build()
+        StringWriter csvParserStringWriter = new StringWriter(INITIAL_SIZE)
+        CSVWriterBuilder csvParserWriterBuilder = new CSVWriterBuilder(csvParserStringWriter)
+        ICSVWriter csvParserWriter = csvParserWriterBuilder.withParser(csvParser).build()
+
+        expect:
+
+        csvParserWriter.writeNext(values, false)
+        csvParserStringWriter.toString() == expectedResult
+        csvParserStringWriter.toString().length() == expectedResult.length()
+
+        where:
+        nullFieldIndicator                           | expectedResult
+        CSVReaderNullFieldIndicator.EMPTY_QUOTES     | "First,\"\",,Last\n"
+        CSVReaderNullFieldIndicator.EMPTY_SEPARATORS | "First,,,Last\n"
+        CSVReaderNullFieldIndicator.BOTH             | "First,,,Last\n"
+        CSVReaderNullFieldIndicator.NEITHER          | "First,null,,Last\n"
 
     }
 }

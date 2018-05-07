@@ -115,9 +115,7 @@
     <profiles>
         <profile>
             <id>allTests</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
+
             <build>
                 <plugins>
                     <plugin>
@@ -136,6 +134,9 @@
         </profile>
         <profile>
             <id>skipPerformanceTests</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <build>
                 <plugins>
                     <plugin>
@@ -223,6 +224,17 @@
                     <meminitial>256m</meminitial>
                     <maxmem>768m</maxmem>
                     <showWarnings>true</showWarnings>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven.surefire.version}</version>
+                <configuration>
+                    <includes>
+                        <include>**/*Spec.java</include>
+                        <include>**/*Test.java</include>
+                    </includes>
                 </configuration>
             </plugin>
             <plugin>
