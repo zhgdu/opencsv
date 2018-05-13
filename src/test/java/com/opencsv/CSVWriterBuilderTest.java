@@ -103,9 +103,9 @@ public class CSVWriterBuilderTest {
         ICSVWriter csvWriter = builder.build();
         assertTrue(csvWriter instanceof CSVWriter);
         assertSame(writer, FieldUtils.readField(csvWriter, "writer", true));
-        assertEquals(ICSVParser.DEFAULT_SEPARATOR, FieldUtils.readField(csvWriter, "separator", true));
-        assertEquals(ICSVParser.DEFAULT_QUOTE_CHARACTER, FieldUtils.readField(csvWriter, "quotechar", true));
-        assertEquals(ICSVParser.DEFAULT_ESCAPE_CHARACTER, FieldUtils.readField(csvWriter, "escapechar", true));
+        assertEquals(ICSVWriter.DEFAULT_SEPARATOR, FieldUtils.readField(csvWriter, "separator", true));
+        assertEquals(ICSVWriter.DEFAULT_QUOTE_CHARACTER, FieldUtils.readField(csvWriter, "quotechar", true));
+        assertEquals(ICSVWriter.DEFAULT_ESCAPE_CHARACTER, FieldUtils.readField(csvWriter, "escapechar", true));
         assertEquals(ICSVWriter.DEFAULT_LINE_END, FieldUtils.readField(csvWriter, "lineEnd", true));
     }
 

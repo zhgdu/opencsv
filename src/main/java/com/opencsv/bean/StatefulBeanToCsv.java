@@ -50,6 +50,7 @@ import java.util.concurrent.*;
  * @since 3.9
  */
 public class StatefulBeanToCsv<T> {
+    private static final char NO_CHARACTER = '\0';
     /** The beans being written are counted in the order they are written. */
     private int lineNumber = 0;
     
@@ -107,7 +108,20 @@ public class StatefulBeanToCsv<T> {
         this.writer = writer;
         this.applyQuotesToAll = applyQuotesToAll;
     }
-    
+
+    public StatefulBeanToCsv(MappingStrategy<T> mappingStrategy, boolean throwExceptions, boolean applyQuotesToAll, ICSVWriter csvWriter) {
+        this.mappingStrategy = mappingStrategy;
+        this.throwExceptions = throwExceptions;
+        this.applyQuotesToAll = applyQuotesToAll;
+        this.csvwriter = csvWriter;
+
+        this.escapechar = NO_CHARACTER;
+        this.lineEnd = "";
+        this.quotechar = NO_CHARACTER;
+        this.separator = NO_CHARACTER;
+        this.writer = null;
+    }
+
     /**
      * Custodial tasks that must be performed before beans are written to a CSV
      * destination for the first time.
@@ -127,8 +141,10 @@ public class StatefulBeanToCsv<T> {
         }
         
         // Build CSVWriter
-        csvwriter = new CSVWriter(writer, separator, quotechar, escapechar, lineEnd);
-        
+        if (csvwriter == null) {
+            csvwriter = new CSVWriter(writer, separator, quotechar, escapechar, lineEnd);
+        }
+
         // Write the header
         String[] header = mappingStrategy.generateHeader(bean);
         if(header.length > 0) {

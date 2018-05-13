@@ -40,6 +40,7 @@ public class StatefulBeanToCsvBuilder<T> {
     private String lineEnd = CSVWriter.DEFAULT_LINE_END;
     private MappingStrategy<T> mappingStrategy = null;
     private final Writer writer;
+    private final ICSVWriter csvWriter;
     private boolean throwExceptions = true;
     private boolean orderedResults = true;
     private Locale errorLocale = Locale.getDefault();
@@ -59,6 +60,20 @@ public class StatefulBeanToCsvBuilder<T> {
      */
     public StatefulBeanToCsvBuilder(Writer writer) {
         this.writer = writer;
+        this.csvWriter = null;
+    }
+
+    /**
+     * Being stateful the writer is required by the builder at the start and not added in later.
+     * By passing in the ICSVWriter you can create a writer with the desired ICSVParser to allow you to
+     * use the exact same parser for reading and writing.
+     *
+     * @param icsvWriter - the ICSVWriter that will be used to output the csv version of the bean.
+     * @since 4.2
+     */
+    public StatefulBeanToCsvBuilder(ICSVWriter icsvWriter) {
+        this.writer = null;
+        this.csvWriter = icsvWriter;
     }
     
     /**
@@ -177,8 +192,14 @@ public class StatefulBeanToCsvBuilder<T> {
      * @return A new {@link StatefulBeanToCsv}
      */
     public StatefulBeanToCsv<T> build() {
-        StatefulBeanToCsv<T> sbtcsv = new StatefulBeanToCsv<>(escapechar, lineEnd, mappingStrategy,
-                quotechar, separator, throwExceptions, writer, applyQuotesToAll);
+        StatefulBeanToCsv<T> sbtcsv;
+        if (writer != null) {
+            sbtcsv = new StatefulBeanToCsv<>(escapechar, lineEnd, mappingStrategy,
+                    quotechar, separator, throwExceptions, writer, applyQuotesToAll);
+        } else {
+            sbtcsv = new StatefulBeanToCsv<>(mappingStrategy, throwExceptions, applyQuotesToAll, csvWriter);
+        }
+
         sbtcsv.setOrderedResults(orderedResults);
         sbtcsv.setErrorLocale(errorLocale);
         return sbtcsv;
