@@ -143,13 +143,13 @@ public class CSVWriterBuilder {
 
     private ICSVWriter createCSVWriter() {
         if (separator == null) {
-            separator = ICSVParser.DEFAULT_SEPARATOR;
+            separator = ICSVWriter.DEFAULT_SEPARATOR;
         }
         if (quotechar == null) {
-            quotechar = ICSVParser.DEFAULT_QUOTE_CHARACTER;
+            quotechar = ICSVWriter.DEFAULT_QUOTE_CHARACTER;
         }
         if (escapechar == null) {
-            escapechar = ICSVParser.DEFAULT_ESCAPE_CHARACTER;
+            escapechar = ICSVWriter.DEFAULT_ESCAPE_CHARACTER;
         }
         return new CSVWriter(writer, separator, quotechar, escapechar, lineEnd);
     }
