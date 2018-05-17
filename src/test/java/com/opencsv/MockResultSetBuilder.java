@@ -55,7 +55,7 @@ public class MockResultSetBuilder {
             when(rs.getBoolean(index)).thenReturn(Boolean.valueOf(value));
             break;
          case BIGINT:
-            when(rs.getLong(index)).thenReturn(value != null ? Long.valueOf(value) : 0);
+            when(rs.getBigDecimal(index)).thenReturn(value != null ? new BigDecimal(value) : BigDecimal.ZERO);
             wnrl.add(value == null);
             break;
          case Types.DECIMAL:

@@ -15,9 +15,10 @@
  */
 package com.opencsv.bean.mocks;
 
+import org.apache.commons.text.TextStringBuilder;
+
 import java.util.Arrays;
 import java.util.HashSet;
-import org.apache.commons.text.StrBuilder;
 
 /**
  *
@@ -26,7 +27,7 @@ import org.apache.commons.text.StrBuilder;
 public class IntegerSetSortedToString extends HashSet<Integer> {
     @Override
     public String toString() {
-        StrBuilder sb = new StrBuilder("[");
+        TextStringBuilder sb = new TextStringBuilder("[");
         Integer[] intArray = this.toArray(new Integer[this.size()]);
         Arrays.sort(intArray);
         sb.appendWithSeparators(intArray, ",");

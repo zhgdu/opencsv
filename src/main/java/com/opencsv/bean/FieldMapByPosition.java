@@ -17,21 +17,15 @@ package com.opencsv.bean;
 
 import com.opencsv.ICSVParser;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.SortedMap;
-import java.util.TreeMap;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.Transformer;
 import org.apache.commons.collections4.iterators.LazyIteratorChain;
 import org.apache.commons.collections4.iterators.TransformIterator;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.StrBuilder;
+import org.apache.commons.text.TextStringBuilder;
+
+import java.lang.reflect.Field;
+import java.util.*;
 
 /**
  * This class maintains a mapping from column position out of a CSV file to bean
@@ -95,7 +89,7 @@ public class FieldMapByPosition<T> extends AbstractFieldMap<String, Integer, Pos
         
         // Report headers that should have been present
         if(!missingRequiredHeaders.isEmpty()) {
-            StrBuilder sb = new StrBuilder();
+            TextStringBuilder sb = new TextStringBuilder();
             for(Field f : missingRequiredHeaders) {
                 sb.appendSeparator(' '); sb.append(f.getName());
             }
