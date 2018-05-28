@@ -101,8 +101,8 @@ public class ResultSetHelperServiceTest {
    @Test
    public void getBigIntFromResultSet() throws SQLException, IOException {
       String[] expectedNames = {"BigInt", "Null BigInt"};
-      String[] realValues = {"100", null};
-      String[] expectedValues = {"100", ""};
+      String[] realValues = {"11772935803167061222", null};
+      String[] expectedValues = {"11772935803167061222", ""};
       int[] expectedTypes = {Types.BIGINT, Types.BIGINT};
 
       ResultSetMetaData metaData = MockResultSetMetaDataBuilder.buildMetaData(expectedNames, expectedTypes);

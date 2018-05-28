@@ -19,6 +19,8 @@ import com.opencsv.ICSVParser;
 import com.opencsv.exceptions.CsvBadConverterException;
 import com.opencsv.exceptions.CsvBeanIntrospectionException;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
+
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -150,37 +152,29 @@ abstract public class BeanFieldJoin<T, I> extends BeanFieldSingleValue<T> {
         // Find and use getter and setter methods if available
         // obj == null means that the source field was empty. Then we simply
         // make certain that a(n empty) map exists.
+        MultiValuedMap<I,Object> currentValue = (MultiValuedMap<I,Object>) getFieldValue(bean);
         try {
-            Method getterMethod = getReadMethod(bean);
-            Method setterMethod = getWriteMethod(bean);
-            try {
-                MultiValuedMap<I,Object> currentValue = (MultiValuedMap<I,Object>) getterMethod.invoke(bean);
-                if(currentValue == null) {
-                    currentValue = mapType.newInstance();
-                    setterMethod.invoke(bean, currentValue);
-                }
-                if(obj != null) {
-                    putNewValue(currentValue, header, obj);
-                }
-            } catch (IllegalAccessException | InvocationTargetException | ClassCastException e) {
-                CsvBeanIntrospectionException csve =
-                        new CsvBeanIntrospectionException(bean, field,
-                                e.getLocalizedMessage());
-                csve.initCause(e);
-                throw csve;
-            } catch(InstantiationException e) {
-                CsvBadConverterException csve = new CsvBadConverterException(
-                        BeanFieldJoin.class,
-                        String.format(
-                                ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
-                                        .getString("map.cannot.be.instantiated"),
-                                mapType.getName()));
-                csve.initCause(e);
-                throw csve;
+            if(currentValue == null) {
+                Constructor<? extends MultiValuedMap> c = mapType.getConstructor();
+                currentValue = c.newInstance();
             }
-        } catch (NoSuchMethodException | SecurityException e1) {
-            // Otherwise set the field directly.
-            writeWithoutSetter(bean, obj, header);
+            putNewValue(currentValue, header, obj);
+            super.assignValueToField(bean, currentValue, header);
+        } catch (IllegalAccessException | InvocationTargetException | ClassCastException e) {
+            CsvBeanIntrospectionException csve =
+                    new CsvBeanIntrospectionException(bean, field,
+                            e.getLocalizedMessage());
+            csve.initCause(e);
+            throw csve;
+        } catch(InstantiationException | NoSuchMethodException e) {
+            CsvBadConverterException csve = new CsvBadConverterException(
+                    BeanFieldJoin.class,
+                    String.format(
+                            ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
+                                    .getString("map.cannot.be.instantiated"),
+                            mapType.getName()));
+            csve.initCause(e);
+            throw csve;
         }
     }
     
@@ -220,48 +214,5 @@ abstract public class BeanFieldJoin<T, I> extends BeanFieldSingleValue<T> {
     @SuppressWarnings("unchecked")
     protected boolean isFieldEmptyForWrite(Object value) {
         return super.isFieldEmptyForWrite(value) || ((MultiValuedMap<Object, Object>)value).isEmpty();
-    }
-    
-    /**
-     * Adds the given value to the MultiValuedMap contained in {@link #field}.
-     * If the map does not yet exist, one is instantiated and assigned to the
-     * field represented by {@link #field} in {@code bean}. If one already
-     * exists, {@code obj} is added to it under the index {@code header}.
-     * 
-     * @param bean The bean to be populated
-     * @param obj The object to be added to the MultiValuedMap in {@code bean}
-     *   in the field {@link #field}
-     * @param header The index under which {@code obj} should be added to the
-     *   MultiValuedMap in {@code bean} in the field {@link #field}
-     * @throws CsvDataTypeMismatchException If the data to be assigned cannot
-     *   be assigned
-     */
-    private void writeWithoutSetter(T bean, Object obj, String header) throws CsvDataTypeMismatchException {
-        MultiValuedMap<I,Object> map;
-        try {
-            Object existingValue = FieldUtils.readField(field, bean, true);
-            if(existingValue == null) {
-                map = mapType.newInstance();
-                putNewValue(map, header, obj);
-                super.writeWithoutSetter(bean, map);
-            }
-            else {
-                map = (MultiValuedMap<I,Object>) existingValue;
-                putNewValue(map, header, obj);
-            }
-        } catch (IllegalAccessException e2) {
-            // The Apache Commons Lang Javadoc claims this can be thrown
-            // if the field is final, but it's not true if we override
-            // accessibility. This is never thrown.
-        } catch(InstantiationException e) {
-            CsvBadConverterException csve = new CsvBadConverterException(
-                    BeanFieldJoin.class,
-                    String.format(
-                            ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
-                                    .getString("map.cannot.be.instantiated"),
-                            mapType.getName()));
-            csve.initCause(e);
-            throw csve;
-        }
     }
 }

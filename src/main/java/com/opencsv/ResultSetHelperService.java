@@ -118,7 +118,7 @@ public class ResultSetHelperService implements ResultSetHelper {
             value = handleClob(rs, colIndex);
             break;
          case Types.BIGINT:
-            value = Objects.toString(rs.getLong(colIndex));
+            value = Objects.toString(rs.getBigDecimal(colIndex).toBigInteger());
             break;
          case Types.DECIMAL:
          case Types.REAL:
