@@ -1,5 +1,6 @@
 package com.opencsv.bean;
 
+import com.opencsv.*;
 import com.opencsv.bean.mocks.AnnotatedMockBeanFull;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
@@ -18,7 +19,15 @@ import java.util.Locale;
 import static org.junit.Assert.assertEquals;
 
 public class StatefulBeanToCsvPerformanceTest {
+    private static final int NUM_BEANS = 50000;
     private static Locale systemLocale;
+
+    private RFC4180ParserBuilder rfc4180ParserBuilder = new RFC4180ParserBuilder();
+    private RFC4180Parser rfc4180Parser;
+    private CSVParserBuilder csvParserBuilder = new CSVParserBuilder();
+    private CSVParser csvParser;
+    private CSVWriterBuilder csvWriterBuilder;
+    private ICSVWriter icsvWriter;
 
     @BeforeClass
     public static void storeSystemLocale() {
@@ -48,7 +57,7 @@ public class StatefulBeanToCsvPerformanceTest {
             throws IOException, CsvDataTypeMismatchException,
             CsvRequiredFieldEmptyException {
         System.out.println("The following are performance data. Please keep an eye on them as you develop.");
-        int numBeans = 10000;
+        int numBeans = NUM_BEANS;
         List<AnnotatedMockBeanFull> beanList = new ArrayList<>(numBeans);
         ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> pair = createTwoGoodBeans();
         for (int i = 0; i < numBeans / 2; i++) {
@@ -56,29 +65,51 @@ public class StatefulBeanToCsvPerformanceTest {
             beanList.add(pair.right);
         }
 
-        // Writing, ordered
-        Writer writer = new StringWriter();
-        HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat = new HeaderColumnNameMappingStrategy<>();
+        StopWatch watch;
+        Writer writer;
+        HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat;
+
+        csvParser = csvParserBuilder.build();
+        rfc4180Parser = rfc4180ParserBuilder.build();
+
+        csvWriterBuilder = new CSVWriterBuilder(new StringWriter());
+        icsvWriter = csvWriterBuilder.withParser(csvParser).build();
+
+        writeOrderedWithICSVWriter(100, beanList, icsvWriter, "throw away");
+
+        csvWriterBuilder = new CSVWriterBuilder(new StringWriter());
+        icsvWriter = csvWriterBuilder.withParser(csvParser).build();
+
+        writeOrderedWithICSVWriter(numBeans, beanList, icsvWriter, "ordered with CSVParser");
+
+        csvWriterBuilder = new CSVWriterBuilder(new StringWriter());
+        icsvWriter = csvWriterBuilder.withParser(csvParser).build();
+
+        writeUnorderedWithICSVWriter(numBeans, beanList, icsvWriter, "unordered with CSVParser");
+
+        strat = new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanFull.class);
-        StatefulBeanToCsv<AnnotatedMockBeanFull> btcsv = new StatefulBeanToCsvBuilder<AnnotatedMockBeanFull>(writer)
-                .withMappingStrategy((MappingStrategy) strat).build();
-        StopWatch watch = StopWatch.createStarted();
-        btcsv.write(beanList);
-        watch.stop();
-        System.out.println("Time taken to write " + numBeans + " beans, ordered: " + watch.toString());
+
+        csvWriterBuilder = new CSVWriterBuilder(new StringWriter());
+        icsvWriter = csvWriterBuilder.withParser(rfc4180Parser).build();
+
+        writeOrderedWithICSVWriter(numBeans, beanList, icsvWriter, "ordered with RFC4180Parser");
+
+        csvWriterBuilder = new CSVWriterBuilder(new StringWriter());
+        icsvWriter = csvWriterBuilder.withParser(rfc4180Parser).build();
+
+        writeUnorderedWithICSVWriter(numBeans, beanList, icsvWriter, "unordered with RFC4180Parser");
+
+        // Writing, ordered
+        writer = new StringWriter();
+        writeOrderedWithWriter(numBeans, beanList, writer, "ordered with Writer");
 
         // Writing, unordered
         writer = new StringWriter();
+        writeUnorderedWithWriter(numBeans, beanList, writer, "unordered with Writer");
+
         strat = new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanFull.class);
-        btcsv = new StatefulBeanToCsvBuilder<AnnotatedMockBeanFull>(writer)
-                .withMappingStrategy((MappingStrategy) strat)
-                .withOrderedResults(false)
-                .build();
-        watch = StopWatch.createStarted();
-        btcsv.write(beanList);
-        watch.stop();
-        System.out.println("Time taken to write " + numBeans + " beans, unordered: " + watch.toString());
 
         // Reading, ordered
         Reader reader = new StringReader(writer.toString());
@@ -104,4 +135,68 @@ public class StatefulBeanToCsvPerformanceTest {
         System.out.println("Time taken to read " + numBeans + " beans, unordered: " + watch.toString());
     }
 
+    private void writeUnorderedWithWriter(int numBeans, List<AnnotatedMockBeanFull> beanList, Writer writer,
+                                          String type) throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
+        HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat;
+        StatefulBeanToCsv<AnnotatedMockBeanFull> btcsv;
+        StopWatch watch;
+        strat = new HeaderColumnNameMappingStrategy<>();
+        strat.setType(AnnotatedMockBeanFull.class);
+        btcsv = new StatefulBeanToCsvBuilder<AnnotatedMockBeanFull>(writer)
+                .withMappingStrategy((MappingStrategy) strat)
+                .withOrderedResults(false)
+                .build();
+        watch = StopWatch.createStarted();
+        btcsv.write(beanList);
+        watch.stop();
+        System.out.println("Time taken to write " + numBeans + " beans, " + type + ": " + watch.toString());
+    }
+
+    private void writeOrderedWithWriter(int numBeans, List<AnnotatedMockBeanFull> beanList,
+                                        Writer writer, String type) throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
+        HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat;
+        StatefulBeanToCsv<AnnotatedMockBeanFull> btcsv;
+        StopWatch watch;
+        strat = new HeaderColumnNameMappingStrategy<>();
+        strat.setType(AnnotatedMockBeanFull.class);
+        btcsv = new StatefulBeanToCsvBuilder<AnnotatedMockBeanFull>(writer)
+                .withMappingStrategy((MappingStrategy) strat).build();
+        watch = StopWatch.createStarted();
+        btcsv.write(beanList);
+        watch.stop();
+        System.out.println("Time taken to write " + numBeans + " beans, " + type + ": " + watch.toString());
+    }
+
+    private void writeUnorderedWithICSVWriter(int numBeans, List<AnnotatedMockBeanFull> beanList, ICSVWriter writer,
+                                              String type) throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
+        StatefulBeanToCsv<AnnotatedMockBeanFull> btcsv;
+        HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat;
+
+        StopWatch watch;
+        strat = new HeaderColumnNameMappingStrategy<>();
+        strat.setType(AnnotatedMockBeanFull.class);
+        btcsv = new StatefulBeanToCsvBuilder<AnnotatedMockBeanFull>(writer)
+                .withMappingStrategy((MappingStrategy) strat)
+                .withOrderedResults(false)
+                .build();
+        watch = StopWatch.createStarted();
+        btcsv.write(beanList);
+        watch.stop();
+        System.out.println("Time taken to write " + numBeans + " beans, " + type + ": " + watch.toString());
+    }
+
+    private void writeOrderedWithICSVWriter(int numBeans, List<AnnotatedMockBeanFull> beanList,
+                                            ICSVWriter writer, String type) throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
+        HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat;
+        StatefulBeanToCsv<AnnotatedMockBeanFull> btcsv;
+        StopWatch watch;
+        strat = new HeaderColumnNameMappingStrategy<>();
+        strat.setType(AnnotatedMockBeanFull.class);
+        btcsv = new StatefulBeanToCsvBuilder<AnnotatedMockBeanFull>(writer)
+                .withMappingStrategy((MappingStrategy) strat).build();
+        watch = StopWatch.createStarted();
+        btcsv.write(beanList);
+        watch.stop();
+        System.out.println("Time taken to write " + numBeans + " beans, " + type + ": " + watch.toString());
+    }
 }
