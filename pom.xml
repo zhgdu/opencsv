@@ -37,25 +37,35 @@
     </scm>
     <developers>
         <developer>
+            <id>scott_conway</id>
+            <name>Scott Conway</name>
+            <email>sconway@users.sourceforge.net</email>
+            <timezone>-6</timezone>
+            <roles>
+                <role>lead</role>
+                <role>architect</role>
+                <role>developer</role>
+                <role>maintainer</role>
+            </roles>
+        </developer>
+        <developer>
+            <id>aruckerjones</id>
+            <name>Andrew Rucker Jones</name>
+            <email>arjones@t-online.de</email>
+            <roles>
+                <role>architect</role>
+                <role>developer</role>
+                <role>maintainer</role>
+            </roles>
+        </developer>
+        <developer>
             <id>glen-smith</id>
             <name>Glen Smith</name>
             <email>glen_a_smith@users.sourceforge.net</email>
             <url>http://blogs.bytecode.com.au/glen</url>
             <timezone>+10</timezone>
             <roles>
-                <role>Creator</role>
-                <role>architect</role>
-            </roles>
-        </developer>
-        <developer>
-            <id>scott_conway</id>
-            <name>Scott Conway</name>
-            <email>sconway@users.sourceforge.net</email>
-            <timezone>-6</timezone>
-            <roles>
-                <role>project keeper</role>
-                <role>architect</role>
-                <role>developer</role>
+                <role>Founder</role>
             </roles>
         </developer>
     </developers>
@@ -92,13 +102,6 @@
             <name>Kyle Miller</name>
             <roles>
                 <role>Developed bean logic.</role>
-            </roles>
-        </contributor>
-        <contributor>
-            <name>Andrew Rucker Jones</name>
-            <email>arjones@t-online.de</email>
-            <roles>
-                <role>Expanded on annotated beans.</role>
             </roles>
         </contributor>
         <contributor>
