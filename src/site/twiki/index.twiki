@@ -621,7 +621,7 @@ about which header they were under, and that can simply be had by calling
 values() on the field.
 
 Back to our topic, the second field will be a MultiValuedMap with exactly one
-key: "Album". Under this key, there will be a list with up to three entries, in
+key: "Artist". Under this key, there will be a list with up to three entries, in
 this case "Michael Jackson", "Lionel Richie" and "Stevie Wonder". It only
 remains to note that the type of the elements being read must always be
 specified for the same reason it is necessary for Collection-based bean fields.
