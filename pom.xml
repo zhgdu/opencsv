@@ -58,8 +58,9 @@
                 <role>maintainer</role>
             </roles>
         </developer>
-        <developer>
-            <id>glen-smith</id>
+    </developers>
+    <contributors>
+        <contributor>
             <name>Glen Smith</name>
             <email>glen_a_smith@users.sourceforge.net</email>
             <url>http://blogs.bytecode.com.au/glen</url>
@@ -67,9 +68,7 @@
             <roles>
                 <role>Founder</role>
             </roles>
-        </developer>
-    </developers>
-    <contributors>
+        </contributor>
         <contributor>
             <name>Tom Squires</name>
             <email>tom@tomsquires.com</email>
