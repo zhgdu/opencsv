@@ -153,7 +153,7 @@ public class ConverterNumber extends AbstractCsvConverter {
     @Override
     public String convertToWrite(Object value) {
         synchronized (df) {
-            return df.format(value);
+            return value != null ? df.format(value) : null;
         }
     }
 }

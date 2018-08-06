@@ -351,4 +351,16 @@ public class NumberTest {
         assertEquals(1, beans.size());
         assertEquals(3L, (long)beans.get(0).getNumber());
     }
+
+    @Test
+    public void testWriteNull() throws CsvException {
+        StringWriter w = new StringWriter();
+        new StatefulBeanToCsvBuilder<NumberMockColumn>(w)
+                .withSeparator(';')
+                .withApplyQuotesToAll(false)
+                .build()
+                .write(new NumberMockColumn());
+        assertEquals(";\n",
+                w.toString());
+    }
 }
