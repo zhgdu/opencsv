@@ -19,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.TextStringBuilder;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.Objects;
@@ -118,7 +119,8 @@ public class ResultSetHelperService implements ResultSetHelper {
             value = handleClob(rs, colIndex);
             break;
          case Types.BIGINT:
-            value = Objects.toString(rs.getBigDecimal(colIndex).toBigInteger());
+            BigDecimal d = rs.getBigDecimal(colIndex);
+            value = Objects.toString(d!=null?d.toBigInteger():null);
             break;
          case Types.DECIMAL:
          case Types.REAL:
