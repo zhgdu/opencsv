@@ -694,7 +694,7 @@ public class JoinTest {
             CsvRequiredFieldEmptyException csve = (CsvRequiredFieldEmptyException) e.getCause();
             assertEquals(GoodJoinByNameAnnotations.class, csve.getBeanClass());
             assertEquals("map2", csve.getDestinationField().getName());
-            assertEquals(1, csve.getLineNumber());
+            assertEquals(2, csve.getLineNumber());
         }
     }
     

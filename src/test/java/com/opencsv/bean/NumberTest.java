@@ -277,7 +277,7 @@ public class NumberTest {
         CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) e;
         assertEquals("\u20BE \u20BE \u20BE 1.2 \u20BE \u20BE \u20BE", csve.getSourceObject());
         assertEquals(Byte.class, csve.getDestinationClass());
-        assertEquals(1, csve.getLineNumber());
+        assertEquals(2, csve.getLineNumber());
         assertNotNull(csve.getCause());
     }
 

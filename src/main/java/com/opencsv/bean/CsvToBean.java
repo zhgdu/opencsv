@@ -286,7 +286,7 @@ public class CsvToBean<T> implements Iterable<T> {
     
     private void submitAllBeans() throws IOException, InterruptedException {
         while (null != (line = csvReader.readNext())) {
-            lineProcessed++;
+            lineProcessed = csvReader.getLinesRead();
             executor.execute(new ProcessCsvLine<>(
                     lineProcessed, mappingStrategy, filter, line,
                     resultantBeansQueue, thrownExceptionsQueue,
@@ -511,7 +511,7 @@ public class CsvToBean<T> implements Iterable<T> {
             // Read a line
             bean = null;
             while(bean == null && null != (line = csvReader.readNext())) {
-                lineProcessed++;
+                lineProcessed = csvReader.getLinesRead();
                 // Create a bean
                 ProcessCsvLine<T> proc = new ProcessCsvLine<>(
                         lineProcessed, mappingStrategy, filter, line,

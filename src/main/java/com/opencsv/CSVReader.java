@@ -506,7 +506,7 @@ public class CSVReader implements Closeable, Iterable<String[]> {
     }
 
     /**
-     * Used for debugging purposes, this method returns the number of lines that
+     * This method returns the number of lines that
      * has been read from the reader passed into the CSVReader.
      * <p>
      * Given the following data:</p>
@@ -525,18 +525,14 @@ public class CSVReader implements Closeable, Iterable<String[]> {
      *                      .build();<br>
      * </code><br>
      * The initial call to getLinesRead() will be 0. After the first call to
-     * readNext() then getLinesRead() will return 3 (because header was read).
+     * readNext() then getLinesRead() will return 3 (because the header was read).
      * After the second call to read the blank line then getLinesRead() will
-     * return 4 (still a read). After third call to readNext() getLinesRead()
+     * return 4 (still a read). After the third call to readNext(), getLinesRead()
      * will return 6 because it took two line reads to retrieve this record.
      * Subsequent calls to readNext() (since we are out of data) will not
      * increment the number of lines read.</p>
-     * <p>
-     * An example of this is in the linesAndRecordsRead() test in CSVReaderTest.
-     * </p>
      *
-     * @return The number of lines read by the reader (including skip lines).
-     * @see <a href="https://sourceforge.net/p/opencsv/feature-requests/73/">Feature Request 73</a>
+     * @return The number of lines read by the reader (including skipped lines).
      * @since 3.6
      */
     public long getLinesRead() {

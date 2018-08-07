@@ -317,7 +317,7 @@ public class AnnotationTest {
                 new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanFull.class);
         FileReader fin = new FileReader("src/test/resources/testinputcase7.csv");
-        testCases7And51(strat, fin);
+        testCases7And51(strat, fin, 2);
     }
 
     @Test
@@ -326,10 +326,10 @@ public class AnnotationTest {
                 new ColumnPositionMappingStrategy<>();
         strat.setType(AnnotatedMockBeanFull.class);
         FileReader fin = new FileReader("src/test/resources/testinputcase51.csv");
-        testCases7And51(strat, fin);
+        testCases7And51(strat, fin, 1);
     }
 
-    private void testCases7And51(MappingStrategy strat, Reader fin) {
+    private void testCases7And51(MappingStrategy strat, Reader fin, long expectedLineNumber) {
         CSVReader read = new CSVReader(fin, ';');
         CsvToBean ctb = new CsvToBean();
         try {
@@ -338,7 +338,7 @@ public class AnnotationTest {
         } catch (RuntimeException e) {
             assertTrue(e.getCause() instanceof CsvRequiredFieldEmptyException);
             CsvRequiredFieldEmptyException csve = (CsvRequiredFieldEmptyException) e.getCause();
-            assertEquals(1, csve.getLineNumber());
+            assertEquals(expectedLineNumber, csve.getLineNumber());
             assertEquals(AnnotatedMockBeanFull.class.getName(), csve.getBeanClass().getName());
             assertEquals("byteWrappedSetLocale", csve.getDestinationField().getName());
         }
@@ -351,14 +351,14 @@ public class AnnotationTest {
                 new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanFull.class);
         Reader fin = new FileReader("src/test/resources/testinputcase11.csv");
-        String englishErrorMessage = testCases11And55(strat, fin);
+        String englishErrorMessage = testCases11And55(strat, fin, 2);
         
         // Now with another locale
         strat = new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanFull.class);
         strat.setErrorLocale(Locale.GERMAN); // In this test, setType(), then setErrorLocale()
         fin = new FileReader("src/test/resources/testinputcase11.csv");
-        assertNotEquals(englishErrorMessage, testCases11And55(strat, fin));
+        assertNotEquals(englishErrorMessage, testCases11And55(strat, fin, 2));
     }
 
     @Test
@@ -367,17 +367,17 @@ public class AnnotationTest {
                 new ColumnPositionMappingStrategy<>();
         strat.setType(AnnotatedMockBeanFull.class);
         Reader fin = new FileReader("src/test/resources/testinputcase55.csv");
-        String englishErrorMessage = testCases11And55(strat, fin);
+        String englishErrorMessage = testCases11And55(strat, fin, 1);
         
         // Now with a different locale
         strat = new ColumnPositionMappingStrategy<>();
         strat.setErrorLocale(Locale.GERMAN); // In this test, setErrorLocale(), then setType()
         strat.setType(AnnotatedMockBeanFull.class);
         fin = new FileReader("src/test/resources/testinputcase55.csv");
-        assertNotEquals(englishErrorMessage, testCases11And55(strat, fin));
+        assertNotEquals(englishErrorMessage, testCases11And55(strat, fin, 1));
     }
 
-    private String testCases11And55(MappingStrategy strat, Reader fin) {
+    private String testCases11And55(MappingStrategy strat, Reader fin, long expectedLineNumber) {
         CSVReader read = new CSVReader(fin, ';');
         CsvToBean ctb = new CsvToBean();
         String errorMessage = null;
@@ -387,7 +387,7 @@ public class AnnotationTest {
         } catch (RuntimeException e) {
             assertTrue(e.getCause() instanceof CsvDataTypeMismatchException);
             CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) e.getCause();
-            assertEquals(1, csve.getLineNumber());
+            assertEquals(expectedLineNumber, csve.getLineNumber());
             assertTrue(csve.getSourceObject() instanceof String);
             assertEquals("mismatchedtype", csve.getSourceObject());
             assertEquals(Byte.class, csve.getDestinationClass());
@@ -404,7 +404,7 @@ public class AnnotationTest {
                 new HeaderColumnNameMappingStrategy<>();
         strat.setType(TestCases21And63.class);
         CSVReader read = new CSVReader(new StringReader("list\ntrue false true"));
-        testCases21And63(strat, read);
+        testCases21And63(strat, read, 2);
     }
 
     @Test
@@ -413,10 +413,10 @@ public class AnnotationTest {
                 new ColumnPositionMappingStrategy<>();
         strat.setType(TestCases21And63.class);
         CSVReader read = new CSVReader(new StringReader("true false true"));
-        testCases21And63(strat, read);
+        testCases21And63(strat, read, 1);
     }
 
-    private void testCases21And63(MappingStrategy strat, CSVReader read) {
+    private void testCases21And63(MappingStrategy strat, CSVReader read, long expectedLineNumber) {
         CsvToBean ctb = new CsvToBean();
         try {
             ctb.parse(strat, read);
@@ -424,7 +424,7 @@ public class AnnotationTest {
         } catch (RuntimeException e) {
             assertTrue(e.getCause() instanceof CsvDataTypeMismatchException);
             CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) e.getCause();
-            assertEquals(1, csve.getLineNumber());
+            assertEquals(expectedLineNumber, csve.getLineNumber());
             assertTrue(csve.getSourceObject() instanceof String);
             assertEquals("true false true", csve.getSourceObject());
             assertEquals(List.class, csve.getDestinationClass());
@@ -433,7 +433,7 @@ public class AnnotationTest {
     
     @Test
     public void testBadDataExceptionsCapturedUnordered() {
-        CsvToBean ctb = new CsvToBeanBuilder(new StringReader("isnotdate\n19780115T063209"))
+        CsvToBean<TestCase34> ctb = new CsvToBeanBuilder<TestCase34>(new StringReader("isnotdate\n19780115T063209"))
                 .withType(TestCase34.class)
                 .withThrowExceptions(false)
                 .withOrderedResults(false)
@@ -446,7 +446,7 @@ public class AnnotationTest {
         assertEquals(1, exceptionList.size());
         assertTrue(exceptionList.get(0) instanceof CsvDataTypeMismatchException);
         CsvDataTypeMismatchException innere = (CsvDataTypeMismatchException) exceptionList.get(0);
-        assertEquals(1, innere.getLineNumber());
+        assertEquals(2, innere.getLineNumber());
         assertTrue(innere.getSourceObject() instanceof String);
         assertEquals("19780115T063209", innere.getSourceObject());
         assertEquals(String.class, innere.getDestinationClass());
@@ -466,7 +466,7 @@ public class AnnotationTest {
         } catch (RuntimeException e) {
             assertTrue(e.getCause() instanceof CsvRequiredFieldEmptyException);
             CsvRequiredFieldEmptyException csve = (CsvRequiredFieldEmptyException) e.getCause();
-            assertEquals(1, csve.getLineNumber());
+            assertEquals(2, csve.getLineNumber());
             assertEquals(AnnotatedMockBeanFull.class, csve.getBeanClass());
             assertEquals("dateDefaultLocale", csve.getDestinationField().getName());
         }
@@ -479,7 +479,7 @@ public class AnnotationTest {
         } catch (RuntimeException e) {
             assertTrue(e.getCause() instanceof CsvRequiredFieldEmptyException);
             CsvRequiredFieldEmptyException csve = (CsvRequiredFieldEmptyException) e.getCause();
-            assertEquals(1, csve.getLineNumber());
+            assertEquals(2, csve.getLineNumber());
             assertEquals(AnnotatedMockBeanFull.class, csve.getBeanClass());
             assertEquals("dateDefaultLocale", csve.getDestinationField().getName());
         }
@@ -492,7 +492,7 @@ public class AnnotationTest {
         } catch (RuntimeException e) {
             assertTrue(e.getCause() instanceof CsvDataTypeMismatchException);
             CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) e.getCause();
-            assertEquals(1, csve.getLineNumber());
+            assertEquals(2, csve.getLineNumber());
             assertEquals(GregorianCalendar.class, csve.getDestinationClass());
             assertEquals(UNPARSABLE, csve.getSourceObject());
             assertTrue(csve.getCause() instanceof ParseException);
@@ -507,7 +507,7 @@ public class AnnotationTest {
         } catch (RuntimeException e) {
             assertTrue(e.getCause() instanceof CsvDataTypeMismatchException);
             CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) e.getCause();
-            assertEquals(1, csve.getLineNumber());
+            assertEquals(2, csve.getLineNumber());
             assertEquals(Date.class, csve.getDestinationClass());
             assertEquals(UNPARSABLE, csve.getSourceObject());
             assertTrue(csve.getCause() instanceof ParseException);
@@ -521,7 +521,7 @@ public class AnnotationTest {
         } catch (RuntimeException e) {
             assertTrue(e.getCause() instanceof CsvDataTypeMismatchException);
             CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) e.getCause();
-            assertEquals(1, csve.getLineNumber());
+            assertEquals(2, csve.getLineNumber());
             assertEquals(Date.class, csve.getDestinationClass());
             assertEquals(UNPARSABLE, csve.getSourceObject());
             assertTrue(csve.getCause() instanceof ParseException);
@@ -535,7 +535,7 @@ public class AnnotationTest {
         } catch (RuntimeException e) {
             assertTrue(e.getCause() instanceof CsvDataTypeMismatchException);
             CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) e.getCause();
-            assertEquals(1, csve.getLineNumber());
+            assertEquals(2, csve.getLineNumber());
             assertEquals(GregorianCalendar.class, csve.getDestinationClass());
             assertEquals(UNPARSABLE, csve.getSourceObject());
             assertTrue(csve.getCause() instanceof ParseException);
@@ -550,7 +550,7 @@ public class AnnotationTest {
         } catch (RuntimeException e) {
             assertTrue(e.getCause() instanceof CsvDataTypeMismatchException);
             CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) e.getCause();
-            assertEquals(1, csve.getLineNumber());
+            assertEquals(2, csve.getLineNumber());
             assertEquals(Date.class, csve.getDestinationClass());
             assertEquals(UNPARSABLE, csve.getSourceObject());
             assertTrue(csve.getCause() instanceof ParseException);
@@ -564,7 +564,7 @@ public class AnnotationTest {
         } catch (RuntimeException e) {
             assertTrue(e.getCause() instanceof CsvDataTypeMismatchException);
             CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) e.getCause();
-            assertEquals(1, csve.getLineNumber());
+            assertEquals(2, csve.getLineNumber());
             assertEquals(Date.class, csve.getDestinationClass());
             assertEquals(UNPARSABLE, csve.getSourceObject());
             assertTrue(csve.getCause() instanceof ParseException);
@@ -580,7 +580,7 @@ public class AnnotationTest {
         } catch (RuntimeException e) {
             assertTrue(e.getCause() instanceof CsvDataTypeMismatchException);
             CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) e.getCause();
-            assertEquals(1, csve.getLineNumber());
+            assertEquals(2, csve.getLineNumber());
             assertTrue(csve.getSourceObject() instanceof String);
             assertEquals("19780115T063209", csve.getSourceObject());
             assertEquals(String.class, csve.getDestinationClass());
@@ -593,7 +593,7 @@ public class AnnotationTest {
         assertEquals(1, exlist.size());
         assertTrue(exlist.get(0) instanceof CsvDataTypeMismatchException);
         CsvDataTypeMismatchException innere = (CsvDataTypeMismatchException) exlist.get(0);
-        assertEquals(1, innere.getLineNumber());
+        assertEquals(2, innere.getLineNumber());
         assertTrue(innere.getSourceObject() instanceof String);
         assertEquals("19780115T063209", innere.getSourceObject());
         assertEquals(String.class, innere.getDestinationClass());
@@ -606,7 +606,7 @@ public class AnnotationTest {
                 new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanCustom.class);
         Reader fin = new FileReader("src/test/resources/testinputcase16.csv");
-        testCases16And60(strat, fin);
+        testCases16And60(strat, fin, 2);
     }
 
     @Test
@@ -615,10 +615,10 @@ public class AnnotationTest {
                 new ColumnPositionMappingStrategy<>();
         strat.setType(AnnotatedMockBeanCustom.class);
         Reader fin = new FileReader("src/test/resources/testinputcase60.csv");
-        testCases16And60(strat, fin);
+        testCases16And60(strat, fin, 1);
     }
 
-    private void testCases16And60(MappingStrategy strat, Reader fin) {
+    private void testCases16And60(MappingStrategy strat, Reader fin, long expectedLineNumber) {
         CSVReader read = new CSVReader(fin, ';');
         CsvToBean ctb = new CsvToBean();
         try {
@@ -627,7 +627,7 @@ public class AnnotationTest {
         } catch (RuntimeException e) {
             assertTrue(e.getCause() instanceof CsvDataTypeMismatchException);
             CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) e.getCause();
-            assertEquals(1, csve.getLineNumber());
+            assertEquals(expectedLineNumber, csve.getLineNumber());
             assertTrue(csve.getSourceObject() instanceof String);
             assertEquals("Mismatched data type", csve.getSourceObject());
             assertEquals(ComplexClassForCustomAnnotation.class, csve.getDestinationClass());
@@ -651,7 +651,7 @@ public class AnnotationTest {
         } catch (RuntimeException e) {
             assertTrue(e.getCause() instanceof CsvDataTypeMismatchException);
             CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) e.getCause();
-            assertEquals(1, csve.getLineNumber());
+            assertEquals(2, csve.getLineNumber());
             assertTrue(csve.getSourceObject() instanceof String);
             assertEquals("invalidstring", csve.getSourceObject());
             assertEquals(Boolean.class, csve.getDestinationClass());
@@ -666,7 +666,7 @@ public class AnnotationTest {
         } catch (RuntimeException e) {
             assertTrue(e.getCause() instanceof CsvRequiredFieldEmptyException);
             CsvRequiredFieldEmptyException csve = (CsvRequiredFieldEmptyException) e.getCause();
-            assertEquals(1, csve.getLineNumber());
+            assertEquals(2, csve.getLineNumber());
             assertEquals(AnnotatedMockBeanCustom.class, csve.getBeanClass());
             assertEquals("boolWrapped", csve.getDestinationField().getName());
         }
@@ -679,7 +679,7 @@ public class AnnotationTest {
         } catch (RuntimeException e) {
             assertTrue(e.getCause() instanceof CsvDataTypeMismatchException);
             CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) e.getCause();
-            assertEquals(1, csve.getLineNumber());
+            assertEquals(2, csve.getLineNumber());
             assertEquals("invaliddatum", csve.getSourceObject());
             assertEquals(Boolean.class, csve.getDestinationClass());
         }
@@ -765,7 +765,7 @@ public class AnnotationTest {
             assertTrue(e.getCause() instanceof CsvRequiredFieldEmptyException);
             CsvRequiredFieldEmptyException csve = (CsvRequiredFieldEmptyException)e.getCause();
             assertEquals(AnnotatedMockBeanFull.class, csve.getBeanClass());
-            assertEquals(1, csve.getLineNumber());
+            assertEquals(2, csve.getLineNumber());
             assertNull(csve.getDestinationField());
         }
     }
@@ -786,7 +786,7 @@ public class AnnotationTest {
             assertTrue(e.getCause() instanceof CsvRequiredFieldEmptyException);
             CsvRequiredFieldEmptyException csve = (CsvRequiredFieldEmptyException)e.getCause();
             assertEquals(AnnotatedMockBeanCustom.class, csve.getBeanClass());
-            assertEquals(1, csve.getLineNumber());
+            assertEquals(2, csve.getLineNumber());
             assertEquals("requiredWithCustom", csve.getDestinationField().getName());
         }
     }

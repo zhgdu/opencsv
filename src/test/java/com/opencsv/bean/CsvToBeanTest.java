@@ -316,9 +316,9 @@ public class CsvToBeanTest {
         }
         assertEquals(2, c.getCapturedExceptions().size());
         CsvException exception1 = c.getCapturedExceptions().get(0);
-        assertEquals(3, exception1.getLineNumber());
+        assertEquals(4, exception1.getLineNumber());
         CsvException exception2 = c.getCapturedExceptions().get(1);
-        assertEquals(4, exception2.getLineNumber());
+        assertEquals(5, exception2.getLineNumber());
     }
 
 
