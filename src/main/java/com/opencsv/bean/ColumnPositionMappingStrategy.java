@@ -10,10 +10,7 @@ import org.apache.commons.lang3.reflect.FieldUtils;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 
 /**
  * Allows for the mapping of columns with their positions. Using this strategy
@@ -37,6 +34,15 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
     
     /** The map from column position to {@link BeanField}. */
     private FieldMapByPosition<T> fieldMap;
+
+    /** Holds a {@link java.util.Comparator} to sort columns on writing. */
+    private Comparator<Integer> writeOrder;
+
+    /**
+     * Used to store a mapping from presumed input column index to desired
+     * output column index, as determined by applying {@link #writeOrder}.
+     */
+    private Integer[] columnIndexForWriting = null;
 
     /**
      * Default constructor.
@@ -86,6 +92,11 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
     
     @Override
     public BeanField<T> findField(int col) {
+        // If we have a mapping for changing the order of the columns on
+        // writing, be sure to use it.
+        if(columnIndexForWriting != null) {
+            return col < columnIndexForWriting.length ? fieldMap.get(columnIndexForWriting[col]) : null;
+        }
         return fieldMap.get(col);
     }
 
@@ -98,7 +109,14 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
     // The rest of the Javadoc is inherited
     @Override
     public String[] generateHeader(T bean) throws CsvRequiredFieldEmptyException {
-        super.generateHeader(bean);
+        String[] h = super.generateHeader(bean);
+        columnIndexForWriting = new Integer[h.length];
+
+        // Once we support Java 8, this might be nicer with Arrays.parallelSetAll().
+        for(int i = 0; i < columnIndexForWriting.length; i++) columnIndexForWriting[i] = i;
+
+        // Create the mapping for input column index to output column index.
+        Arrays.sort(columnIndexForWriting, writeOrder);
         return ArrayUtils.EMPTY_STRING_ARRAY;
     }
 
@@ -123,7 +141,9 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
     }
 
     /**
-     * Setter for the ColumnMappings.
+     * Setter for the column mapping.
+     * This mapping is for reading. Use of this method in conjunction with
+     * writing is undefined.
      *
      * @param columnMapping Column names to be mapped.
      */
@@ -141,6 +161,7 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
     protected void loadFieldMap() throws CsvBadConverterException {
         boolean required;
         fieldMap = new FieldMapByPosition<>(errorLocale);
+        fieldMap.setColumnOrderOnWrite(writeOrder);
 
         for (Field field : loadFields(getType())) {
             String fieldLocale;
@@ -245,4 +266,21 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
     
     @Override
     protected FieldMap<String, Integer, ? extends ComplexFieldMapEntry<String, Integer, T>, T> getFieldMap() {return fieldMap;}
+
+    /**
+     * Sets the {@link java.util.Comparator} to be used to sort columns when
+     * writing beans to a CSV file.
+     * Behavior of this method when used on a mapping strategy intended for
+     * reading data from a CSV source is not defined.
+     *
+     * @param writeOrder The {@link java.util.Comparator} to use. May be
+     *   {@code null}, in which case the natural ordering is used.
+     * @since 4.3
+     */
+    public void setColumnOrderOnWrite(Comparator<Integer> writeOrder) {
+        this.writeOrder = writeOrder;
+        if(fieldMap != null) {
+            fieldMap.setColumnOrderOnWrite(this.writeOrder);
+        }
+    }
 }

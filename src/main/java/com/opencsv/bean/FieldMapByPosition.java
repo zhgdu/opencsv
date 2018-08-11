@@ -37,6 +37,9 @@ import java.util.*;
 public class FieldMapByPosition<T> extends AbstractFieldMap<String, Integer, PositionToBeanField<T>, T> implements Iterable<FieldMapByPositionEntry<T>> {
     
     private int maxIndex = Integer.MAX_VALUE;
+
+    /** Holds a {@link java.util.Comparator} to sort columns on writing. */
+    private Comparator<Integer> writeOrder = null;
     
     /**
      * Initializes this {@link FieldMap}.
@@ -56,7 +59,7 @@ public class FieldMapByPosition<T> extends AbstractFieldMap<String, Integer, Pos
     @Override
     public String[] generateHeader(final T bean) throws CsvRequiredFieldEmptyException {
         final List<Field> missingRequiredHeaders = new LinkedList<>();
-        final SortedMap<Integer, String> headerMap = new TreeMap<>();
+        final SortedMap<Integer, String> headerMap = new TreeMap<>(writeOrder);
         for(Map.Entry<Integer, BeanField<T>> entry : simpleMap.entrySet()) {
             headerMap.put(entry.getKey(), entry.getValue().getField().getName());
         }
@@ -80,11 +83,22 @@ public class FieldMapByPosition<T> extends AbstractFieldMap<String, Integer, Pos
             }
         }
         
-        // Convert to an array of header "names"
-        int arraySize = headerMap.isEmpty() ? 0 : headerMap.lastKey()+1;
+        // Convert to an array of header "names".
+        // Since the user can pass in an arbitrary collation, we have to
+        // re-sort to get the highest value.
+        SortedSet<Integer> headerSet = new TreeSet<>(headerMap.keySet());
+        int arraySize = headerSet.isEmpty() ? 0 : headerSet.last()+1;
         final String[] headers = new String[arraySize];
-        for(Map.Entry<Integer, String> entry : headerMap.entrySet()) {
-            headers[entry.getKey()] = entry.getValue();
+        int previousIndex = headerSet.isEmpty() ? 0 : headerSet.first();
+        for(Integer i : headerSet) { // Fill in gaps
+            for(int j = previousIndex+1; j < i ; j++) {
+                headerMap.put(j, null);
+            }
+            previousIndex = i;
+        }
+        previousIndex = 0;
+        for(String value : headerMap.values()) {
+            headers[previousIndex++] = value;
         }
         
         // Report headers that should have been present
@@ -157,5 +171,17 @@ public class FieldMapByPosition<T> extends AbstractFieldMap<String, Integer, Pos
                 return null;
             }
         };
+    }
+
+    /**
+     * Sets the {@link java.util.Comparator} to be used to sort columns when
+     * writing beans to a CSV file.
+     *
+     * @param writeOrder The {@link java.util.Comparator} to use. May be
+     *   {@code null}, in which case the natural ordering is used.
+     * @since 4.3
+     */
+    public void setColumnOrderOnWrite(Comparator<Integer> writeOrder) {
+        this.writeOrder = writeOrder;
     }
 }

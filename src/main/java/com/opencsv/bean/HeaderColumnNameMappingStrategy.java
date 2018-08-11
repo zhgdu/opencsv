@@ -43,6 +43,9 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
      * {@link BeanField}.
      */
     protected FieldMapByName<T> fieldMap = null;
+
+    /** Holds a {@link java.util.Comparator} to sort columns on writing. */
+    protected Comparator<String> writeOrder = null;
     
     /**
      * Default constructor.
@@ -123,6 +126,7 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
     protected void loadFieldMap() throws CsvBadConverterException {
         boolean required;
         fieldMap = new FieldMapByName<>(errorLocale);
+        fieldMap.setColumnOrderOnWrite(writeOrder);
 
         for (Field field : loadFields(getType())) {
             String columnName;
@@ -235,5 +239,22 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
             throw new IllegalStateException(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("header.unread"));
         }
         return super.getColumnIndex(name);
+    }
+
+    /**
+     * Sets the {@link java.util.Comparator} to be used to sort columns when
+     * writing beans to a CSV file.
+     * Behavior of this method when used on a mapping strategy intended for
+     * reading data from a CSV source is not defined.
+     *
+     * @param writeOrder The {@link java.util.Comparator} to use. May be
+     *   {@code null}, in which case the natural ordering is used.
+     * @since 4.3
+     */
+    public void setColumnOrderOnWrite(Comparator<String> writeOrder) {
+        this.writeOrder = writeOrder;
+        if(fieldMap != null) {
+            fieldMap.setColumnOrderOnWrite(this.writeOrder);
+        }
     }
 }

@@ -30,10 +30,9 @@ import org.junit.Test;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
+import java.text.ParseException;
+import java.text.RuleBasedCollator;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import static org.junit.Assert.*;
@@ -58,6 +57,9 @@ public class StatefulBeanToCsvTest {
     private static final String HEADER_NAME_FULL_DERIVED = "BIGDECIMAL1;BIGDECIMAL2;BIGINTEGER1;BIGINTEGER2;BOOL1;BOOLPRIMITIVE;BYTE1;BYTE2;BYTE3;BYTE4;CHAR1;CHAR2;DATE1;DATE10;DATE11;DATE12;DATE13;DATE14;DATE15;DATE16;DATE2;DATE3;DATE4;DATE5;DATE6;DATE7;DATE8;DATE9;DOUBLE1;DOUBLE2;DOUBLE3;DOUBLE4;FLOAT1;FLOAT2;FLOAT3;FLOAT4;FLOAT5;INT IN SUBCLASS;INTEGER1;INTEGER2;INTEGER3;INTEGER4;ITNOGOODCOLUMNITVERYBAD;LONG1;LONG2;LONG3;LONG4;SHORT1;SHORT2;SHORT3;SHORT4;STRING1";
     private static final String GOOD_DATA_NAME_DERIVED_1 = "123101.101;123.102,102;101;102;true;false;1;2;3;4;a;b;19780115T063209;19780115T063209;19780115T063209;19780115T063209;01/15/1978;13. Dez\\.? 2018;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;123,101.101;123.202,202;123303.303;123.404,404;123101.1;123.202,203;123303.305;123.404,406;1.01;7;5000;6.000;2147476647;8.000;;9000;10.000;11000;12.000;13000;14.000;15000;16.000;test string";
     private static final String GOOD_DATA_NAME_DERIVED_SUB_1 = "123101.101;123.102,102;101;102;true;false;1;2;3;4;a;b;19780115T063209;19780115T063209;19780115T063209;19780115T063209;01/15/1978;13. Dez\\.? 2018;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;123,101.101;123.202,202;123303.303;123.404,404;123101.1;123.202,203;123303.305;123.404,406;1.01;5000;6.000;2147476647;8.000;;9000;10.000;11000;12.000;13000;14.000;15000;16.000;test string";
+    private static final String REVERSE_GOOD_DATA_1 = ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;1.01;19780115T063209;19780115T063209;13. Dez\\.? 2018;01/15/1978;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;102;101;123.102,102;123101.101;b;a;16.000;15000;14.000;13000;12.000;11000;10.000;9000;8.000;2147476647;6.000;5000;3.000,4;2000.3;1.000,2;123101.1;123.404,404;123303.303;123.202,202;123,101.101;4;3;2;1;false;true;test string";
+    private static final String COLLATED_HEADER_NAME_FULL = "SHORT1;SHORT2;SHORT3;SHORT4;STRING1;BIGDECIMAL1;BIGDECIMAL2;BIGINTEGER1;BIGINTEGER2;BOOLPRIMITIVE;BOOL1;BYTE1;BYTE2;BYTE3;BYTE4;CHAR1;CHAR2;DATE1;DATE10;DATE11;DATE12;DATE13;DATE14;DATE15;DATE16;DATE2;DATE3;DATE4;DATE5;DATE6;DATE7;DATE8;DATE9;DOUBLE1;DOUBLE2;DOUBLE3;DOUBLE4;FLOAT1;FLOAT2;FLOAT3;FLOAT4;FLOAT5;INTEGER1;INTEGER2;INTEGER3;INTEGER4;ITNOGOODCOLUMNITVERYBAD;LONG1;LONG2;LONG3;LONG4";
+    private static final String COLLATED_GOOD_DATA_NAME_1 = "13000;14.000;15000;16.000;test string;123101.101;123.102,102;101;102;false;true;1;2;3;4;a;b;19780115T063209;19780115T063209;19780115T063209;19780115T063209;01/15/1978;13. Dez\\.? 2018;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;19780115T063209;123,101.101;123.202,202;123303.303;123.404,404;123101.1;1.000,2;2000.3;3.000,4;1.01;5000;6.000;2147476647;8.000;;9000;10.000;11000;12.000";
 
     @BeforeClass
     public static void storeSystemLocale() {
@@ -786,6 +788,135 @@ public class StatefulBeanToCsvTest {
             assertNotNull(csve.getCause());
             assertTrue(csve.getCause() instanceof ClassCastException);
             assertNotEquals(csve.getLocalizedMessage(), englishErrorMessage);
+        }
+    }
+
+    @Test
+    public void writeDifferentOrderPositionTypeFirst() throws IOException, CsvException {
+        ColumnPositionMappingStrategy<AnnotatedMockBeanFull> strat = new ColumnPositionMappingStrategy<>();
+        strat.setType(AnnotatedMockBeanFull.class);
+        strat.setColumnMapping();
+        strat.setColumnOrderOnWrite(new ReverseInteger());
+        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
+        StringWriter writer = new StringWriter();
+        StatefulBeanToCsv btcsv = new StatefulBeanToCsvBuilder(writer)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
+                .withSeparator(';')
+                .withMappingStrategy(strat)
+                .build();
+        btcsv.write(beans.left);
+        assertTrue(Pattern.matches(REVERSE_GOOD_DATA_1 + "\n", writer.toString()));
+    }
+
+    @Test
+    public void writeDifferentOrderPositionTypeLast() throws IOException, CsvException {
+        ColumnPositionMappingStrategy<AnnotatedMockBeanFull> strat = new ColumnPositionMappingStrategy<>();
+        strat.setColumnOrderOnWrite(new ReverseInteger());
+        strat.setType(AnnotatedMockBeanFull.class);
+        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
+        StringWriter writer = new StringWriter();
+        StatefulBeanToCsv btcsv = new StatefulBeanToCsvBuilder(writer)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
+                .withSeparator(';')
+                .withMappingStrategy(strat)
+                .build();
+        btcsv.write(beans.left);
+        assertTrue(Pattern.matches(REVERSE_GOOD_DATA_1 + "\n", writer.toString()));
+    }
+
+    @Test
+    public void writeNullOrderPosition() throws IOException, CsvException {
+        ColumnPositionMappingStrategy<AnnotatedMockBeanFull> strat = new ColumnPositionMappingStrategy<>();
+        strat.setColumnOrderOnWrite(null);
+        strat.setType(AnnotatedMockBeanFull.class);
+        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
+        StringWriter writer = new StringWriter();
+        StatefulBeanToCsv btcsv = new StatefulBeanToCsvBuilder(writer)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
+                .withSeparator(';')
+                .withMappingStrategy(strat)
+                .build();
+        btcsv.write(beans.left);
+        assertTrue(Pattern.matches(GOOD_DATA_1 + "\n", writer.toString()));
+    }
+
+    @Test
+    public void writeDifferentOrderNameTypeFirst() throws IOException, CsvException {
+        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
+        StringWriter writer = new StringWriter();
+        HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat = new HeaderColumnNameMappingStrategy<>();
+        strat.setType(AnnotatedMockBeanFull.class);
+        strat.setColumnOrderOnWrite(new SFirstCollator());
+        StatefulBeanToCsv btcsv = new StatefulBeanToCsvBuilder(writer)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
+                .withSeparator(';')
+                .withMappingStrategy(strat)
+                .build();
+        btcsv.write(beans.left);
+        assertTrue(Pattern.matches(COLLATED_HEADER_NAME_FULL + "\n" + COLLATED_GOOD_DATA_NAME_1 + "\n", writer.toString()));
+    }
+
+    @Test
+    public void writeDifferentOrderNameTypeLast() throws IOException, CsvException {
+        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
+        StringWriter writer = new StringWriter();
+        HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat = new HeaderColumnNameMappingStrategy<>();
+        strat.setColumnOrderOnWrite(new SFirstCollator());
+        strat.setType(AnnotatedMockBeanFull.class);
+        StatefulBeanToCsv btcsv = new StatefulBeanToCsvBuilder(writer)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
+                .withSeparator(';')
+                .withMappingStrategy(strat)
+                .build();
+        btcsv.write(beans.left);
+        assertTrue(Pattern.matches(COLLATED_HEADER_NAME_FULL + "\n" + COLLATED_GOOD_DATA_NAME_1 + "\n", writer.toString()));
+    }
+
+    @Test
+    public void writeNullOrderName() throws IOException, CsvException {
+        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
+        StringWriter writer = new StringWriter();
+        HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat = new HeaderColumnNameMappingStrategy<>();
+        strat.setColumnOrderOnWrite(null);
+        strat.setType(AnnotatedMockBeanFull.class);
+        StatefulBeanToCsv btcsv = new StatefulBeanToCsvBuilder(writer)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
+                .withSeparator(';')
+                .withMappingStrategy(strat)
+                .build();
+        btcsv.write(beans.left);
+        assertTrue(Pattern.matches(HEADER_NAME_FULL + "\n" + GOOD_DATA_NAME_1 + "\n", writer.toString()));
+    }
+
+    // Will be unnecessary once we support Java 8
+    private class ReverseInteger implements Comparator<Integer> {
+        @Override
+        public int compare(Integer o1, Integer o2) {
+            if(o1 < o2) {
+                return 1;
+            }
+            if(o2 < o1) {
+                return -1;
+            }
+            return 0;
+        }
+    }
+
+    private class SFirstCollator implements Comparator<String> {
+        private final Comparator<Object> c;
+
+        public SFirstCollator() {
+            RuleBasedCollator rbc = null;
+            try {
+                rbc = new RuleBasedCollator("< s, S < a, A < b, B < c, C < d, D < e, E < f, F < g, G < h, H < i, I < j, J < k, K < l, L < m, M < n, N < o, O < p, P < q, Q < r, R < t, T < u, U < v, V < w, W < x, X < y, Y < z, Z ");
+            }
+            catch(ParseException e) { /* Do nothing. */}
+            c = rbc;
+        }
+
+        @Override
+        public int compare(String o1, String o2) {
+            return c.compare(o1, o2);
         }
     }
 }

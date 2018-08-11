@@ -33,6 +33,9 @@ import java.util.*;
  * @since 4.2
  */
 public class FieldMapByName<T> extends AbstractFieldMap<String, String, RegexToBeanField<T>, T> {
+
+    /** Holds a {@link java.util.Comparator} to sort columns on writing. */
+    private Comparator<String> writeOrder = null;
     
     /**
      * Initializes this {@link FieldMap}.
@@ -105,7 +108,10 @@ public class FieldMapByName<T> extends AbstractFieldMap<String, String, RegexToB
     /**
      * This method generates a header that can be used for writing beans of the
      * type provided back to a file.
-     * <p>The ordering of the headers is alphabetically ascending.</p>
+     * <p>The ordering of the headers is determined by the
+     * {@link java.util.Comparator} passed in to
+     * {@link #setColumnOrderOnWrite(Comparator)}, should that method be called,
+     * otherwise the natural ordering is used (alphabetically ascending).</p>
      * <p>This implementation will not write headers discovered in multi-valued
      * bean fields if the headers would not be matched by the bean field on
      * reading. There are two reasons for this:</p>
@@ -157,10 +163,20 @@ public class FieldMapByName<T> extends AbstractFieldMap<String, String, RegexToB
             throw new CsvRequiredFieldEmptyException(bean.getClass(), missingRequiredHeaders, errorMessage);
         }
         
-        // To make testing simpler and because not all receivers are guaranteed
-        // to be as flexible with column order as opencsv, make the column
-        // ordering deterministic by sorting the column headers alphabetically.
-        Collections.sort(headerList);
+        // Sort and return
+        Collections.sort(headerList, writeOrder);
         return headerList.toArray(new String[headerList.size()]);
+    }
+
+    /**
+     * Sets the {@link java.util.Comparator} to be used to sort columns when
+     * writing beans to a CSV file.
+     *
+     * @param writeOrder The {@link java.util.Comparator} to use. May be
+     *   {@code null}, in which case the natural ordering is used.
+     * @since 4.3
+     */
+    public void setColumnOrderOnWrite(Comparator<String> writeOrder) {
+        this.writeOrder = writeOrder;
     }
 }

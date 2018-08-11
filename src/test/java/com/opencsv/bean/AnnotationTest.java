@@ -633,7 +633,6 @@ public class AnnotationTest {
             assertEquals(ComplexClassForCustomAnnotation.class, csve.getDestinationClass());
             assertTrue(csve.getCause() instanceof IllegalArgumentException);
         }
-
     }
 
     @Test
@@ -794,7 +793,7 @@ public class AnnotationTest {
     @Test
     public void testSetterThrowsException() {
         try {
-            new CsvToBeanBuilder(new StringReader("map\nstring"))
+            new CsvToBeanBuilder<>(new StringReader("map\nstring"))
                     .withType(SetterThrowsException.class).build().parse();
             fail("Exception should have been thrown");
         }
