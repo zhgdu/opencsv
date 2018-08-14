@@ -910,6 +910,33 @@ written to the output and the order of any exceptions captured during processing
 do not matter to you, use StatefulBeanToCsv.withOrderedResults(false) to obtain
 slightly better performance.
 
+---++++Changing the write order
+If you do nothing, the order of the columns on writing will be ascending
+according to position for column index-based mappings, and ascending according
+to name for header name-based mappings. You can change this order, if you must.
+   <verbatim>
+      // List<MyBean> beans comes from somewhere earlier in your code.
+      Writer writer = new FileWriter("yourfile.csv");
+      HeaderColumnNameMappingStrategy<MyBean> strategy = new HeaderColumnNameMappingStrategy<>();
+      strategy.setType(MyBean.class);
+      strategy.setColumnOrderOnWrite(new MyComparator());
+      StatefulBeanToCsvBuilder beanToCsv = StatefulBeanToCsvBuilder(writer)
+         withMappingStrategy(strategy)
+         .build();
+      beanToCsv.write(beans);
+      writer.close();
+   </verbatim>
+The same method exists for ColumnPositionMappingStrategy. If you wish to use
+your own ordering, you must instantiate your own mapping strategy and pass it
+in to StatefulBeanToCsvBuilder.
+
+We expect there will be plenty of people who find using a Comparator
+uncomfortable, because they have an exact order that they need that has nothing
+to do with any kind of rule-based ordering. For these people we have included
+com.opencsv.bean.comparator.LiteralComparator. It is instantiated with an array
+of strings for header name mapping or integers for column position mapping that
+define the order desired.
+
 ---+++From a database table
 
 Here's a nifty little trick for those of you out there who often work directly

@@ -53,7 +53,10 @@ public class FieldMapByPosition<T> extends AbstractFieldMap<String, Integer, Pos
     /**
      * This method generates a header that can be used for writing beans of the
      * type provided back to a file.
-     * The ordering of the headers is ascending according to position, naturally.
+     * The ordering of the headers can be determined with the
+     * {@link java.util.Comparator} passed in to
+     * {@link #setColumnOrderOnWrite(Comparator)}. Otherwise, it is ascending
+     * according to position.
      */
     // The rest of the Javadoc is inherited.
     @Override

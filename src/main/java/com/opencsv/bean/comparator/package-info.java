@@ -1,13 +1,12 @@
 /**
- * Custom converters that are generally useful are collected here.
- * <p>Anyone can write any custom converter they wish to, of course, but if a
- * custom converter seems that it would be of widespread use, it should be
- * provided here.Suggestions for widely applicable, general-purpose converters
- * that can be added to this package are welcome.</p>
+ * This package is a collection of {@link java.util.Comparator}s that could be
+ * useful to anyone using opencsv.
+ * <p>Suggestions for widely applicable, general-purpose comparators that can be
+ * added to this package are welcome.</p>
  */
-package com.opencsv.bean.customconverter;
+package com.opencsv.bean.comparator;
 /*
- * Copyright 2016 Andrew Rucker Jones.
+ * Copyright 2018 Andrew Rucker Jones.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
