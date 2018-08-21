@@ -33,17 +33,29 @@ import java.util.Objects;
 public abstract class AbstractCsvConverter implements CsvConverter {
     
     /**
-     * The type to which (on reading) or from which (on writing) is being
-     * converted.
+     * The type to which (on reading) or from which (on writing) conversion
+     * is being performed.
      */
-    protected final Class<?> type;
+    protected Class<?> type;
     
     /** The locale to be used when converting, if a locale is relevant. */
-    protected final Locale locale;
+    protected Locale locale;
     
     /** The locale to be used for error messages. */
     protected Locale errorLocale;
-    
+
+    /**
+     * Default nullary constructor, so derived classes aren't forced to create
+     * a constructor identical to this one.
+     *
+     * @since 4.3
+     */
+    public AbstractCsvConverter() {
+        this.type = null;
+        this.locale = null;
+        errorLocale = Locale.getDefault();
+    }
+
     /**
      * Currently the only constructor for this class.
      * 
@@ -83,5 +95,15 @@ public abstract class AbstractCsvConverter implements CsvConverter {
     @Override
     public void setErrorLocale(Locale errorLocale) {
         this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
+    }
+
+    @Override
+    public void setType(Class<?> type) {
+        this.type = type;
+    }
+
+    @Override
+    public void setLocale(String locale) {
+        this.locale = StringUtils.isNotEmpty(locale) ? Locale.forLanguageTag(locale) : null;
     }
 }

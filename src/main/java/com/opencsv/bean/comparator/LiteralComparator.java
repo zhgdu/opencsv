@@ -27,6 +27,7 @@ import java.util.Comparator;
  * is then sorted according to its natural order.
  *
  * @param T The type to be sorted
+ * @since 4.3
  */
 public class LiteralComparator<T extends Comparable> implements Comparator<T>, Serializable {
     private static final long serialVersionUID = 1L;

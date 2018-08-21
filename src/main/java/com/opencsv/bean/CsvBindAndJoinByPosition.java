@@ -123,4 +123,16 @@ public @interface CsvBindAndJoinByPosition {
      * @return The type of the map elements
      */
     Class<?> elementType();
+
+    /**
+     * Once the data points have been recovered from the various columns of the
+     * input, a custom converter can optionally be specified for conversion of
+     * each of the data points before they are joined in a
+     * {@link org.apache.commons.collections4.MultiValuedMap}.
+     *
+     * @return The converter applied to each of the data points extracted from
+     * the input
+     * @since 4.3
+     */
+    Class<? extends AbstractCsvConverter> converter() default AbstractCsvConverter.class;
 }

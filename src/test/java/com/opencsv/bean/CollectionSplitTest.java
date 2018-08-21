@@ -15,7 +15,12 @@
  */
 package com.opencsv.bean;
 
+import com.opencsv.bean.customconverter.BadCollectionConverter;
 import com.opencsv.bean.mocks.*;
+import com.opencsv.bean.mocks.join.BadSplitConverter;
+import com.opencsv.bean.mocks.join.ErrorCode;
+import com.opencsv.bean.mocks.join.IdAndErrorSplitByName;
+import com.opencsv.bean.mocks.join.IdAndErrorSplitByPosition;
 import com.opencsv.exceptions.*;
 import java.io.FileReader;
 import java.io.IOException;
@@ -28,6 +33,10 @@ import org.apache.commons.collections4.SortedBag;
 import org.apache.commons.collections4.bag.HashBag;
 import org.apache.commons.collections4.bag.TreeBag;
 import static org.junit.Assert.*;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 /**
@@ -35,7 +44,24 @@ import org.junit.Test;
  * @author Andrew Rucker Jones
  */
 public class CollectionSplitTest {
-    
+
+    private static Locale systemLocale;
+
+    @BeforeClass
+    public static void storeSystemLocale() {
+        systemLocale = Locale.getDefault();
+    }
+
+    @Before
+    public void setSystemLocaleToValueNotGerman() {
+        Locale.setDefault(Locale.US);
+    }
+
+    @After
+    public void setSystemLocaleBackToDefault() {
+        Locale.setDefault(systemLocale);
+    }
+
     @Test
     public void testGoodCollectionPrimitive() throws IOException {
         List<DerivedMockBeanCollectionSplit> beanList = new CsvToBeanBuilder(new FileReader("src/test/resources/testgoodcollections.csv"))
@@ -471,6 +497,113 @@ public class CollectionSplitTest {
             assertEquals(AnnotatedMockBeanCollectionSplitByColumn.class, csve.getBeanClass());
             assertEquals("floatList", csve.getDestinationField().getName());
             assertEquals(1, csve.getLineNumber());
+        }
+    }
+
+    @Test
+    public void testCustomConverterByNameRead() throws IOException {
+        ResourceBundle res = ResourceBundle.getBundle("collectionconverter", Locale.GERMAN);
+        List<IdAndErrorSplitByName> beanList = new CsvToBeanBuilder(new FileReader("src/test/resources/testinputsplitcustombyname.csv"))
+                .withType(IdAndErrorSplitByName.class).build().parse();
+        assertEquals(2, beanList.size());
+
+        // Bean one
+        IdAndErrorSplitByName bean = beanList.get(0);
+        assertEquals(1, bean.getId());
+        List<ErrorCode> errorCodes = bean.getEc();
+        assertEquals(3, errorCodes.size());
+        ErrorCode ec = errorCodes.get(0);
+        assertEquals(10, ec.errorCode);
+        assertEquals(res.getString("default.error"), ec.errorMessage);
+        ec = errorCodes.get(1);
+        assertEquals(11, ec.errorCode);
+        assertEquals("doesnt.exist", ec.errorMessage);
+        ec = errorCodes.get(2);
+        assertEquals(12, ec.errorCode);
+        assertEquals(res.getString("default.error"), ec.errorMessage);
+
+        // Bean two
+        bean = beanList.get(1);
+        assertEquals(2, bean.getId());
+        errorCodes = bean.getEc();
+        assertEquals(3, errorCodes.size());
+        ec = errorCodes.get(0);
+        assertEquals(20, ec.errorCode);
+        assertEquals("doesnt.exist", ec.errorMessage);
+        ec = errorCodes.get(1);
+        assertEquals(21, ec.errorCode);
+        assertEquals(res.getString("default.error"), ec.errorMessage);
+        ec = errorCodes.get(2);
+        assertEquals(22, ec.errorCode);
+        assertEquals("doesnt.exist", ec.errorMessage);
+    }
+
+    @Test
+    public void testCustomConverterByPositionRead() throws IOException {
+        ResourceBundle res = ResourceBundle.getBundle("collectionconverter");
+        List<IdAndErrorSplitByPosition> beanList = new CsvToBeanBuilder(new FileReader("src/test/resources/testinputsplitcustombyposition.csv"))
+                .withType(IdAndErrorSplitByPosition.class).build().parse();
+        assertEquals(2, beanList.size());
+
+        // Bean one
+        IdAndErrorSplitByPosition bean = beanList.get(0);
+        assertEquals(1, bean.getId());
+        List<ErrorCode> errorCodes = bean.getEc();
+        assertEquals(3, errorCodes.size());
+        ErrorCode ec = errorCodes.get(0);
+        assertEquals(10, ec.errorCode);
+        assertEquals(res.getString("default.error"), ec.errorMessage);
+        ec = errorCodes.get(1);
+        assertEquals(11, ec.errorCode);
+        assertEquals("doesnt.exist", ec.errorMessage);
+        ec = errorCodes.get(2);
+        assertEquals(12, ec.errorCode);
+        assertEquals(res.getString("default.error"), ec.errorMessage);
+
+        // Bean two
+        bean = beanList.get(1);
+        assertEquals(2, bean.getId());
+        errorCodes = bean.getEc();
+        assertEquals(3, errorCodes.size());
+        ec = errorCodes.get(0);
+        assertEquals(20, ec.errorCode);
+        assertEquals("doesnt.exist", ec.errorMessage);
+        ec = errorCodes.get(1);
+        assertEquals(21, ec.errorCode);
+        assertEquals(res.getString("default.error"), ec.errorMessage);
+        ec = errorCodes.get(2);
+        assertEquals(22, ec.errorCode);
+        assertEquals("doesnt.exist", ec.errorMessage);
+    }
+
+    @Test
+    public void testCustomConverterByNameWrite() throws IOException, CsvException {
+        List<IdAndErrorSplitByName> beanList = new CsvToBeanBuilder(new FileReader("src/test/resources/testinputsplitcustombyname.csv"))
+                .withType(IdAndErrorSplitByName.class).build().parse();
+        StringWriter writer = new StringWriter();
+        new StatefulBeanToCsvBuilder<IdAndErrorSplitByName>(writer).build().write(beanList);
+        assertEquals("\"EC\",\"ID\"\n\"10default.error 11default.error 12default.error\",\"1\"\n\"20default.error 21default.error 22default.error\",\"2\"\n", writer.toString());
+    }
+
+    @Test
+    public void testCustomConverterByPositionWrite() throws IOException, CsvException {
+        List<IdAndErrorSplitByPosition> beanList = new CsvToBeanBuilder(new FileReader("src/test/resources/testinputsplitcustombyposition.csv"))
+                .withType(IdAndErrorSplitByPosition.class).build().parse();
+        StringWriter writer = new StringWriter();
+        new StatefulBeanToCsvBuilder<IdAndErrorSplitByPosition>(writer).build().write(beanList);
+        assertEquals("\"1\",\"10default.error 11default.error 12default.error\"\n\"2\",\"20default.error 21default.error 22default.error\"\n", writer.toString());
+    }
+
+    @Test
+    public void testBadCustomConverter() throws IOException {
+        try {
+            // Input doesn't matter. The test doesn't get that far.
+            new CsvToBeanBuilder(new FileReader("src/test/resources/testinputsplitcustombyname.csv"))
+                    .withType(BadSplitConverter.class)
+                    .build().parse();
+        }
+        catch(CsvBadConverterException csve) {
+            assertEquals(BadCollectionConverter.class, csve.getConverterClass());
         }
     }
 }

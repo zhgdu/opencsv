@@ -71,4 +71,21 @@ public interface CsvConverter {
      *   default locale is used.
      */
     void setErrorLocale(Locale errorLocale);
+
+    /**
+     * Sets the class of the type of the data being processed.
+     *
+     * @param type The type of the data being processed
+     * @since 4.3
+     */
+    void setType(Class<?> type);
+
+    /**
+     * If not null or empty, specifies the locale used for converting
+     * locale-specific data types.
+     *
+     * @param locale The name of the locale for locale-sensitive data
+     * @since 4.3
+     */
+    void setLocale(String locale);
 }

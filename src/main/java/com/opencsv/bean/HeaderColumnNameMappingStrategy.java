@@ -159,8 +159,9 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
                 String writeDelimiter = annotation.writeDelimiter();
                 Class<? extends Collection> collectionType = annotation.collectionType();
                 Class<?> elementType = annotation.elementType();
+                Class<? extends AbstractCsvConverter> splitConverter = annotation.converter();
                 
-                CsvConverter converter = determineConverter(field, elementType, locale);
+                CsvConverter converter = determineConverter(field, elementType, locale, splitConverter);
                 if (StringUtils.isEmpty(columnName)) {
                     fieldMap.put(field.getName().toUpperCase(),
                             new BeanFieldSplit<T>(
@@ -181,8 +182,9 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
                 locale = annotation.locale();
                 Class<?> elementType = annotation.elementType();
                 Class<? extends MultiValuedMap> mapType = annotation.mapType();
+                Class<? extends AbstractCsvConverter> joinConverter = annotation.converter();
                 
-                CsvConverter converter = determineConverter(field, elementType, locale);
+                CsvConverter converter = determineConverter(field, elementType, locale, joinConverter);
                 if (StringUtils.isEmpty(columnRegex)) {
                     fieldMap.putComplex(field.getName(),
                             new BeanFieldJoinStringIndex<T>(
@@ -200,7 +202,7 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
                 required = annotation.required();
                 columnName = annotation.column().toUpperCase().trim();
                 locale = annotation.locale();
-                CsvConverter converter = determineConverter(field, field.getType(), locale);
+                CsvConverter converter = determineConverter(field, field.getType(), locale, null);
                 if (StringUtils.isEmpty(columnName)) {
                     fieldMap.put(field.getName().toUpperCase(),
                             new BeanFieldSingleValue<T>(field, required, errorLocale, converter));

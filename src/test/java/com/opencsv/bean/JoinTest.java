@@ -15,6 +15,7 @@
  */
 package com.opencsv.bean;
 
+import com.opencsv.bean.customconverter.BadCollectionConverter;
 import com.opencsv.bean.mocks.join.*;
 import com.opencsv.exceptions.CsvBadConverterException;
 import com.opencsv.exceptions.CsvBeanIntrospectionException;
@@ -1197,6 +1198,127 @@ public class JoinTest {
             assertTrue(e.getCause() instanceof CsvBadConverterException);
             CsvBadConverterException csve = (CsvBadConverterException)e.getCause();
             assertEquals(BeanFieldJoin.class, csve.getConverterClass());
+        }
+    }
+
+    @Test
+    public void testCustomConverterByNameRead() throws IOException {
+        ResourceBundle res = ResourceBundle.getBundle("collectionconverter", Locale.GERMAN);
+        List<IdAndErrorJoinByName> beanList = new CsvToBeanBuilder(new FileReader("src/test/resources/testinputjoincustombyname.csv"))
+                .withType(IdAndErrorJoinByName.class).build().parse();
+        assertEquals(2, beanList.size());
+
+        // Bean one
+        IdAndErrorJoinByName bean = beanList.get(0);
+        assertEquals(1, bean.getId());
+        MultiValuedMap<String, ErrorCode> map = bean.getEc();
+        assertEquals(1, map.keySet().size());
+        Collection<ErrorCode> errorCodes = map.values();
+        assertEquals(3, errorCodes.size());
+        ErrorCode[] errorArray = new ErrorCode[3];
+        errorArray = errorCodes.toArray(errorArray);
+        ErrorCode ec = errorArray[0];
+        assertEquals(10, ec.errorCode);
+        assertEquals(res.getString("default.error"), ec.errorMessage);
+        ec = errorArray[1];
+        assertEquals(11, ec.errorCode);
+        assertEquals("doesnt.exist", ec.errorMessage);
+        ec = errorArray[2];
+        assertEquals(12, ec.errorCode);
+        assertEquals(res.getString("default.error"), ec.errorMessage);
+
+        // Bean two
+        bean = beanList.get(1);
+        assertEquals(2, bean.getId());
+        map = bean.getEc();
+        assertEquals(1, map.keySet().size());
+        errorCodes = map.values();
+        assertEquals(3, errorCodes.size());
+        errorArray = errorCodes.toArray(errorArray);
+        ec = errorArray[0];
+        assertEquals(20, ec.errorCode);
+        assertEquals("doesnt.exist", ec.errorMessage);
+        ec = errorArray[1];
+        assertEquals(21, ec.errorCode);
+        assertEquals(res.getString("default.error"), ec.errorMessage);
+        ec = errorArray[2];
+        assertEquals(22, ec.errorCode);
+        assertEquals("doesnt.exist", ec.errorMessage);
+    }
+
+    @Test
+    public void testCustomConverterByPositionRead() throws IOException {
+        ResourceBundle res = ResourceBundle.getBundle("collectionconverter");
+        List<IdAndErrorJoinByPosition> beanList = new CsvToBeanBuilder(new FileReader("src/test/resources/testinputjoincustombyposition.csv"))
+                .withType(IdAndErrorJoinByPosition.class).build().parse();
+        assertEquals(2, beanList.size());
+
+        // Bean one
+        IdAndErrorJoinByPosition bean = beanList.get(0);
+        assertEquals(1, bean.getId());
+        MultiValuedMap<Integer, ErrorCode> map = bean.getEc();
+        assertEquals(3, map.keySet().size());
+        Collection<ErrorCode> errorCodes = map.values();
+        assertEquals(3, errorCodes.size());
+        ErrorCode[] errorArray = new ErrorCode[3];
+        errorArray = errorCodes.toArray(errorArray);
+        ErrorCode ec = errorArray[0];
+        assertEquals(10, ec.errorCode);
+        assertEquals(res.getString("default.error"), ec.errorMessage);
+        ec = errorArray[1];
+        assertEquals(11, ec.errorCode);
+        assertEquals("doesnt.exist", ec.errorMessage);
+        ec = errorArray[2];
+        assertEquals(12, ec.errorCode);
+        assertEquals(res.getString("default.error"), ec.errorMessage);
+
+        // Bean two
+        bean = beanList.get(1);
+        assertEquals(2, bean.getId());
+        map = bean.getEc();
+        assertEquals(3, map.keySet().size());
+        errorCodes = map.values();
+        assertEquals(3, errorCodes.size());
+        errorArray = errorCodes.toArray(errorArray);
+        ec = errorArray[0];
+        assertEquals(20, ec.errorCode);
+        assertEquals("doesnt.exist", ec.errorMessage);
+        ec = errorArray[1];
+        assertEquals(21, ec.errorCode);
+        assertEquals(res.getString("default.error"), ec.errorMessage);
+        ec = errorArray[2];
+        assertEquals(22, ec.errorCode);
+        assertEquals("doesnt.exist", ec.errorMessage);
+    }
+
+    @Test
+    public void testCustomConverterByNameWrite() throws CsvException, IOException {
+        List<IdAndErrorJoinByName> beanList = new CsvToBeanBuilder(new FileReader("src/test/resources/testinputjoincustombyname.csv"))
+                .withType(IdAndErrorJoinByName.class).build().parse();
+        StringWriter writer = new StringWriter();
+        new StatefulBeanToCsvBuilder<IdAndErrorJoinByName>(writer).build().write(beanList);
+        assertEquals("\"ID\",\"ec\",\"ec\",\"ec\"\n\"1\",\"10default.error\",\"11default.error\",\"12default.error\"\n\"2\",\"20default.error\",\"21default.error\",\"22default.error\"\n", writer.toString());
+    }
+
+    @Test
+    public void testCustomConverterByPositionWrite() throws CsvException, IOException {
+        List<IdAndErrorJoinByPosition> beanList = new CsvToBeanBuilder(new FileReader("src/test/resources/testinputjoincustombyposition.csv"))
+                .withType(IdAndErrorJoinByPosition.class).build().parse();
+        StringWriter writer = new StringWriter();
+        new StatefulBeanToCsvBuilder<IdAndErrorJoinByPosition>(writer).build().write(beanList);
+        assertEquals("\"1\",\"10default.error\",\"11default.error\",\"12default.error\"\n\"2\",\"20default.error\",\"21default.error\",\"22default.error\"\n", writer.toString());
+    }
+
+    @Test
+    public void testBadCustomConverter() throws IOException {
+        try {
+            // Input doesn't matter. The test doesn't get that far.
+            new CsvToBeanBuilder(new FileReader("src/test/resources/testinputjoincustombyname.csv"))
+                    .withType(BadJoinConverter.class)
+                    .build().parse();
+        }
+        catch(CsvBadConverterException csve) {
+            assertEquals(BadCollectionConverter.class, csve.getConverterClass());
         }
     }
 }

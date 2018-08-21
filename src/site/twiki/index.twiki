@@ -477,7 +477,7 @@ field. What kind of Collection? Any kind you want. If opencsv knows it, it
 instantiates an implementing class for you. If opencsv doesn't know it, you can
 educate opencsv. Every reasonable Collection-based interface from the JDK is
 known, and well as Bag and SortedBag from Apache Commons Collections. Some
-examples would doubtlessly illuminate my meaning.
+examples would doubtless illuminate my meaning.
 
    <verbatim>
      public class Student {
@@ -491,6 +491,9 @@ examples would doubtlessly illuminate my meaning.
      @CsvBindAndSplitByName(elementType = Date.class, splitOn = ";+", writeDelimiter = ";")
      @CsvDate("yyyy-MM-dd")
      SortedSet<Date> tardies;
+
+     @CsvBindAndSplitByName(elementType= Teacher.class, splitOn = "\\|", converter = TextToTeacher.class)
+     List<Teacher> teachers;
 
      @CsvBindByName
      int studentID;
@@ -521,14 +524,50 @@ out to a CSV file later, the elements of the list should be separated with a
 single semicolon. Perhaps someone is trying to convert the data from a older
 format or remove redundancies.
 
+The forth field is a list of teachers the student has. This field demonstrates
+the combination of collection-based fields and custom converters. The
+converter, which must be derived from AbstractCsvConverter, could look like this:
+
+   <verbatim>
+     public class TextToTeacher extends AbstractCsvConverter {
+
+       @Override
+       public Object convertToRead(String value) {
+           Teacher t = new Teacher();
+           String[] split = value.split("\\.", 2);
+           t.setSalutation(split[0]);
+           t.setSurname(split[1]);
+           return t;
+       }
+
+       @Override
+       public String convertToWrite(Object value) {
+           Teacher t = (Teacher) value;
+           return String.format(""%s.%s", t.getSalutation(), t.getSurname());
+       }
+
+     }
+   </verbatim>
+
+The corresponding data structure would be:
+
+   <verbatim>
+     public class Teacher {
+       private String salutation;
+       private String surname;
+
+       // Getters and setters go here
+     }
+   </verbatim>
+
 The final field is simply for student identification.
 
 The input to be mapped to this bean could look like this:
 
    <verbatim>
-     studentID,testScores,quizScores,tardies
-     1,100.0 97.2 18.9,77 90.3 88.8,
-     2,56.6 97.2 90.0,82.0 79.6 66.9,2017-01-02;2017-03-04;;;2017-03-04;;2017-05-31
+     studentID,testScores,quizScores,tardies,teachers
+     1,100.0 97.2 18.9,77 90.3 88.8,,Mr.Stone|Mrs.Mason
+     2,56.6 97.2 90.0,82.0 79.6 66.9,2017-01-02;2017-03-04;;;2017-03-04;;2017-05-31,Ms.Currie|Mr.Feynman
    </verbatim>
 
 The first student has never been tardy, so that list will be empty (but never
@@ -639,12 +678,13 @@ entries will have a list of one element as its value. The elements will be the
 track titles.
 
 All of the usual features apply: conversion locale, combination with CsvDate,
-and specifying your own implementation of MultiValuedMap either through the
-annotation or by defining the field with the specific implementation (default
-implementations for the applicable interface are documented in the Javadoc for
-CsvBindAndJoinByName). The latter being said, if the MultiValuedMap is already
-present (and possibly contains values), say through the use of a constructor,
-it will not be overwritten, but rather added to.
+custom converters as with collection-based fields, and specifying your own
+implementation of MultiValuedMap either through the annotation or by defining
+the field with the specific implementation (default implementations for the
+applicable interface are documented in the Javadoc for CsvBindAndJoinByName).
+The latter being said, if the MultiValuedMap is already present (and possibly
+contains values), say through the use of a constructor, it will not be
+overwritten, but rather added to.
 
 What about precedence? To stay with our running example, what if after extending
 the number of track titles in the input significantly (which would require no
@@ -768,12 +808,15 @@ have at least a null value.
 ---+++++Custom converters
 Now, we know that input data can get very messy, so we have provided our users
 with the ability to deal with the messiest of data by allowing you to define your
-own custom converters. Every converter must be derived from AbstractBeanField,
-must be public, and must have a public nullary constructor. For reading, the
-convert() method must be overridden. opencsv provides two custom converters in
-the package com.opencsv.bean.customconverter. These can be useful converters
-themselves, but they also exist for instructive purposes: If you want to write
-your own custom converter, look at these for examples of how it's done.
+own custom converters. The custom converters here are used at the level of the
+entire field, not like the custom converters previously covered in
+collection-based and MultiValuedMap-based bean fields. Every converter must be
+derived from AbstractBeanField, must be public, and must have a public nullary
+constructor. For reading, the convert() method must be overridden. opencsv
+provides two custom converters in the package com.opencsv.bean.customconverter.
+These can be useful converters themselves, but they also exist for instructive
+purposes: If you want to write your own custom converter, look at these for
+examples of how it's done.
 
 Let's use two as illustrations. Let's say we have the following input file:
    <verbatim>
@@ -1029,7 +1072,7 @@ Add a dependency element to your pom:
   <dependency>
      <groupId>com.opencsv</groupId>
      <artifactId>opencsv</artifactId>
-     <version>4.2</version>
+     <version>4.3</version>
   </dependency>
 </verbatim>
 

@@ -187,8 +187,9 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
                 String writeDelimiter = annotation.writeDelimiter();
                 Class<? extends Collection> collectionType = annotation.collectionType();
                 Class<?> elementType = annotation.elementType();
-                
-                CsvConverter converter = determineConverter(field, elementType, fieldLocale);
+                Class<? extends AbstractCsvConverter> splitConverter = annotation.converter();
+
+                CsvConverter converter = determineConverter(field, elementType, fieldLocale, splitConverter);
                 fieldMap.put(annotation.position(), new BeanFieldSplit<T>(
                         field, required, errorLocale, converter, splitOn,
                         writeDelimiter, collectionType));
@@ -201,8 +202,9 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
                 fieldLocale = annotation.locale();
                 Class<?> elementType = annotation.elementType();
                 Class<? extends MultiValuedMap> mapType = annotation.mapType();
-                
-                CsvConverter converter = determineConverter(field, elementType, fieldLocale);
+                Class<? extends AbstractCsvConverter> joinConverter = annotation.converter();
+
+                CsvConverter converter = determineConverter(field, elementType, fieldLocale, joinConverter);
                 fieldMap.putComplex(annotation.position(), new BeanFieldJoinIntegerIndex<T>(
                         field, required, errorLocale, converter, mapType));
             }
@@ -212,7 +214,7 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
                 CsvBindByPosition annotation = field.getAnnotation(CsvBindByPosition.class);
                 required = annotation.required();
                 fieldLocale = annotation.locale();
-                CsvConverter converter = determineConverter(field, field.getType(), fieldLocale);
+                CsvConverter converter = determineConverter(field, field.getType(), fieldLocale, null);
                 fieldMap.put(annotation.position(), new BeanFieldSingleValue<T>(field, required, errorLocale, converter));
             }
         }

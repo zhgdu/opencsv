@@ -137,4 +137,14 @@ public @interface CsvBindAndSplitByPosition {
      * @return The type of the collection elements
      */
     Class<?> elementType();
+
+    /**
+     * Once the input has been split, a custom converter can optionally be
+     * specified for conversion of each of the data points.
+     *
+     * @return The converter applied to each of the data points extracted from
+     * the input
+     * @since 4.3
+     */
+    Class<? extends AbstractCsvConverter> converter() default AbstractCsvConverter.class;
 }
