@@ -251,7 +251,7 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
                 fields.add(field);
             }
         }
-        annotationDriven = !fields.isEmpty();
+        setAnnotationDriven(!fields.isEmpty());
         return fields;
     }
     

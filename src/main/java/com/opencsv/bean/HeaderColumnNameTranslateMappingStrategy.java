@@ -65,4 +65,14 @@ public class HeaderColumnNameTranslateMappingStrategy<T> extends HeaderColumnNam
             this.columnMapping.put(entry.getKey().toUpperCase(), entry.getValue());
         }
     }
+
+    /**
+     * This mapping strategy is not compatible with annotations.
+     *
+     * @return {@code false}
+     */
+    @Override
+    public boolean isAnnotationDriven() {
+        return false;
+    }
 }

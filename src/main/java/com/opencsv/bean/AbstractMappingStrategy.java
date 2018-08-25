@@ -60,7 +60,7 @@ abstract public class AbstractMappingStrategy<I, K, C extends ComplexFieldMapEnt
      * the binding between columns in a CSV source or destination and fields in
      * a bean.
      */
-    protected boolean annotationDriven;
+    private boolean annotationDriven;
     
     /** Locale for error messages. */
     protected Locale errorLocale = Locale.getDefault();
@@ -397,6 +397,15 @@ abstract public class AbstractMappingStrategy<I, K, C extends ComplexFieldMapEnt
     @Override
     public boolean isAnnotationDriven() {
         return annotationDriven;
+    }
+
+    /**
+     * Sets whether this mapping strategy uses the opencsv annotations or not.
+     *
+     * @param annotationDriven Whether annotations define field mappings
+     */
+    protected void setAnnotationDriven(boolean annotationDriven) {
+        this.annotationDriven = annotationDriven;
     }
     
     @Override

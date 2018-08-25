@@ -223,7 +223,7 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
                 fields.add(field);
             }
         }
-        annotationDriven = !fields.isEmpty();
+        setAnnotationDriven(!fields.isEmpty());
         return fields;
     }
 

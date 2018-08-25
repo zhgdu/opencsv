@@ -5,6 +5,7 @@ import org.junit.Test;
 
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,8 +26,8 @@ public class CsvToBeanFilterTest {
    }
 
    private MappingStrategy CreateMappingStrategy() {
-      HeaderColumnNameTranslateMappingStrategy<Feature> strategy = new HeaderColumnNameTranslateMappingStrategy();
-      Map<String, String> columnMap = new HashMap();
+      HeaderColumnNameTranslateMappingStrategy<Feature> strategy = new HeaderColumnNameTranslateMappingStrategy<>();
+      Map<String, String> columnMap = new HashMap<>();
       columnMap.put("FEATURE_NAME", "name");
       columnMap.put("STATE", "state");
       strategy.setColumnMapping(columnMap);
@@ -35,7 +36,11 @@ public class CsvToBeanFilterTest {
    }
 
    public static class Feature {
+
+      @CsvBindByName(column = "FEATURE_NAME")
       private String name;
+
+      @CsvBindByName
       private String state;
 
       public void setName(String name) {
@@ -87,16 +92,35 @@ public class CsvToBeanFilterTest {
       assertEquals("The second item has the wrong state.", "alpha", list.get(1).getState());
    }
 
-   public List<Feature> parseCsv(InputStreamReader streamReader) {
-      HeaderColumnNameTranslateMappingStrategy<Feature> strategy = new HeaderColumnNameTranslateMappingStrategy();
-      Map<String, String> columnMap = new HashMap();
-      columnMap.put("FEATURE_NAME", "name");
-      columnMap.put("STATE", "state");
-      strategy.setColumnMapping(columnMap);
+   @Test
+   public void testFilterWithParallelParsing() {
+      MappingStrategy<Feature> strategy = new HeaderColumnNameMappingStrategy<>();
       strategy.setType(Feature.class);
-      CSVReader reader = new CSVReader(streamReader);
-      CsvToBeanFilter filter = new NonProductionFilter(strategy);
-      return new CsvToBean().parse(strategy, reader, filter);
+      List<Feature> list = new CsvToBeanBuilder<Feature>(new StringReader(TEST_STRING))
+              .withMappingStrategy(strategy)
+              .withFilter(new NonProductionFilter(strategy))
+              .build().parse();
+      assertEquals("Parsing resulted in the wrong number of items.", 2, list.size());
+      assertEquals("The first item has the wrong name.", "calc age", list.get(0).getName());
+      assertEquals("The first item has the wrong state.", "beta", list.get(0).getState());
+      assertEquals("The second item has the wrong name.", "wash dishes", list.get(1).getName());
+      assertEquals("The second item has the wrong state.", "alpha", list.get(1).getState());
    }
 
+   @Test
+   public void testFilterWithIteratorParsing() {
+      MappingStrategy<Feature> strategy = new HeaderColumnNameMappingStrategy<>();
+      strategy.setType(Feature.class);
+      CsvToBean<Feature> ctb = new CsvToBeanBuilder<Feature>(new StringReader(TEST_STRING))
+              .withMappingStrategy(strategy)
+              .withFilter(new NonProductionFilter(strategy))
+              .build();
+      List<Feature> list = new ArrayList<>(2);
+      for(Feature f : ctb) { list.add(f); }
+      assertEquals("Parsing resulted in the wrong number of items.", 2, list.size());
+      assertEquals("The first item has the wrong name.", "calc age", list.get(0).getName());
+      assertEquals("The first item has the wrong state.", "beta", list.get(0).getState());
+      assertEquals("The second item has the wrong name.", "wash dishes", list.get(1).getName());
+      assertEquals("The second item has the wrong state.", "alpha", list.get(1).getState());
+   }
 }
