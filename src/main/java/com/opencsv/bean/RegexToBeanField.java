@@ -15,13 +15,9 @@
  */
 package com.opencsv.bean;
 
-import com.opencsv.ICSVParser;
-import com.opencsv.exceptions.CsvBadConverterException;
 import java.util.Locale;
-import java.util.ResourceBundle;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
 
 /**
  * Maps any header name matching a regular expression to a {@link BeanField}.
@@ -46,16 +42,7 @@ public class RegexToBeanField<T> extends AbstractFieldMapEntry<String, String, T
      */
     public RegexToBeanField(final String pattern, final BeanField<T> field, final Locale errorLocale) {
         super(field, errorLocale);
-        try {
-            regex = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE);
-        }
-        catch(PatternSyntaxException e) {
-            CsvBadConverterException csve = new CsvBadConverterException(BeanFieldJoin.class, 
-                    ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, this.errorLocale)
-                            .getString("invalid.regex"));
-            csve.initCause(e);
-            throw csve;
-        }
+        regex = OpencsvUtils.compilePattern(pattern, Pattern.CASE_INSENSITIVE, BeanFieldJoin.class, this.errorLocale);
     }
     
     @Override

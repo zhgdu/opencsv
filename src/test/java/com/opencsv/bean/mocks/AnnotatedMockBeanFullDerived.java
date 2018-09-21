@@ -27,8 +27,8 @@ public class AnnotatedMockBeanFullDerived extends AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>81</li>
-     * <li>91</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDerivedDataByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDerivedDataByPosition()}</li>
      * </ul></p>
      * <p>Used for the following test cases, writing:<ul>
      * <li>Writing a subclass with annotations in the subclass and the superclass</li>

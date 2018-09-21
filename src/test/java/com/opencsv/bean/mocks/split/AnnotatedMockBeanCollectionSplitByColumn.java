@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.opencsv.bean.mocks;
+package com.opencsv.bean.mocks.split;
 
 import com.opencsv.bean.CsvBindAndSplitByPosition;
 import java.util.List;
@@ -25,10 +25,10 @@ import java.util.Queue;
  */
 public class AnnotatedMockBeanCollectionSplitByColumn {
     
-    @CsvBindAndSplitByPosition(elementType = String.class, position = 0, writeDelimiter = ",")
+    @CsvBindAndSplitByPosition(elementType = String.class, position = 0, writeDelimiter = ",", capture = "couldn't possibly match (anything)", format = "g:%s")
     private List<String> stringList;
     
-    @CsvBindAndSplitByPosition(elementType = Float.class, position = 1, required = true, writeDelimiter = " silly delimiter ")
+    @CsvBindAndSplitByPosition(elementType = Float.class, position = 1, required = true, writeDelimiter = " silly delimiter ", capture = "f:([^ ]+)")
     private Queue<Float> floatList;
 
     public List<String> getStringList() {

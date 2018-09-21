@@ -121,7 +121,7 @@ And we have a new list of things that we have deprecated and plan to remove in
 ---++Core concepts
 
 There are a couple of concepts that most users of opencsv need to understand, and
-that apply equally to reading an writing.
+that apply equally to reading and writing.
 
 ---+++Configuration
 
@@ -396,6 +396,26 @@ the name be mandatory. For this case, our bean doesn't look much different:
      }
    </verbatim>
 The code for reading remains unchanged.
+
+Now let's say that your data for whatever reason look like this:
+   <verbatim>
+     First name,Last name,1 visit only
+     John middle:Bubba,Doe,true
+     Jane middle:Rachel,Doe,false
+   </verbatim>
+Someone has included the person's middle name in the field for the first name.
+But we really only want the first name. Do we have to write a custom converter?
+No, friends, there is an easier way:
+   <verbatim>
+     @CsvBindByName(column = "First Name", required = true, capture="([^ ]+) .*")
+     private String firstName;
+   </verbatim>
+The capture option to all of the binding annotations (except the custom binding
+annotations, of course) allows you to tell opencsv just what part of the input
+field should actually be considered significant. opencsv takes the contents of
+the first capture group. In this example, we take everything up to but not
+including the first space and discard the rest. Please read the Javadoc for
+more details and handling of edge cases.
 
 ---+++++Annotating by column position
 Not every scribe of CSV files is kind enough to provide header names. This is a
@@ -943,9 +963,17 @@ named because there used to be a BeanToCsv. Thankfully, no more.
 
 Notice, please, we did not tell opencsv what kind of bean we are writing or what
 mapping strategy is to be used. opencsv determines these things automatically.
-Naturally, the mapping strategy can be dictated, if necessary, through
+Annotations are not even strictly necessary: if there are no annotations,
+opencsv assumes you want to write the whole bean using the header name mapping
+strategy and uses the field names as the column headers. Naturally, the mapping
+strategy can be dictated, if necessary, through
 StatefulBeanToCsvBuilder.withMappingStrategy(), or the constructor for
 StatefulBeanToCsv.
+
+Just as we can use the "capture" option to the binding annotations, if you use
+annotations on writing, you can use the "format" option to dictate how the
+field should be formatted if simply writing the bean field value is not enough.
+Please see the Javadoc for the annotations for details.
 
 Just as in reading into beans, there is a performance trade-off while writing
 that is left in your hands: ordered vs. unordered data. If the order of the data

@@ -28,7 +28,7 @@ import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
  */
 public class GoodJoinByPositionAnnotationsForWriting {
     
-    @CsvBindAndJoinByPosition(position = "0", elementType = Integer.class, required = true)
+    @CsvBindAndJoinByPosition(position = "0", elementType = Integer.class, required = true, format = "?%s?")
     private MultiValuedMap<Integer, Integer> map1;
     
     @CsvBindAndJoinByPosition(position = "1,16-", elementType = Date.class, locale = "de-DE", required = true)

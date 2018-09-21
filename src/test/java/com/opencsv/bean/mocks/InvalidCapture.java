@@ -13,35 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.opencsv.bean.mocks.join;
+package com.opencsv.bean.mocks;
 
-import com.opencsv.bean.CsvBindAndSplitByPosition;
+import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvBindByPosition;
-import com.opencsv.bean.customconverter.ErrorCodeConverter;
 
-import java.util.List;
+public class InvalidCapture {
 
-public class IdAndErrorSplitByPosition {
+    @CsvBindByName(column = "name", capture = "*")
+    @CsvBindByPosition(position = 0, capture = "*")
+    private String name;
 
-    @CsvBindByPosition(position = 0)
-    private int id;
-
-    @CsvBindAndSplitByPosition(position = 1, elementType = ErrorCode.class, converter = ErrorCodeConverter.class)
-    private List<ErrorCode> ec;
-
-    public int getId() {
-        return id;
+    public String getName() {
+        return name;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public List<ErrorCode> getEc() {
-        return ec;
-    }
-
-    public void setEc(List<ErrorCode> ec) {
-        this.ec = ec;
+    public void setName(String name) {
+        this.name = name;
     }
 }

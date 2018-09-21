@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Andrew Rucker Jones.
+ * Copyright 2018 Andrew Rucker Jones.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,23 +15,20 @@
  */
 package com.opencsv.bean.mocks;
 
-import org.apache.commons.text.TextStringBuilder;
+import com.opencsv.bean.CsvBindByName;
+import com.opencsv.bean.CsvBindByPosition;
 
-import java.util.Arrays;
-import java.util.HashSet;
+public class InvalidFormatString {
 
-/**
- *
- * @author Andrew Rucker Jones
- */
-public class IntegerSetSortedToString extends HashSet<Integer> {
-    @Override
-    public String toString() {
-        TextStringBuilder sb = new TextStringBuilder("[");
-        Integer[] intArray = this.toArray(new Integer[this.size()]);
-        Arrays.sort(intArray);
-        sb.appendWithSeparators(intArray, ",");
-        sb.append(']');
-        return sb.toString();
+    @CsvBindByName(column = "name", format = "%s%s")
+    @CsvBindByPosition(position = 0, format = "%d")
+    private String name;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

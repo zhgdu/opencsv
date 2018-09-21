@@ -26,7 +26,7 @@ import org.apache.commons.collections4.MultiValuedMap;
  */
 public class GoodJoinByNameAnnotations {
     
-    @CsvBindAndJoinByName(column = "index", elementType = Integer.class, required = true)
+    @CsvBindAndJoinByName(column = "index", elementType = Integer.class, required = true, capture = "couldn't possibly match (anything)")
     private MultiValuedMap<String, Integer> map1;
     
     @CsvBindAndJoinByName(column = "date[0-9]", elementType = Date.class, locale = "de-DE", required = true)
@@ -36,7 +36,7 @@ public class GoodJoinByNameAnnotations {
     @CsvBindAndJoinByName(column = "regular expression will never match", elementType = String.class)
     private MultiValuedMap<String, String> map3;
     
-    @CsvBindAndJoinByName(column = "conversion", elementType = Integer.class, locale = "de")
+    @CsvBindAndJoinByName(column = "conversion", elementType = Integer.class, locale = "de", capture = "(.*)x", format = "x%s")
     private MultiValuedMap<String, Integer> map4;
 
     public MultiValuedMap<String, Integer> getMap1() {

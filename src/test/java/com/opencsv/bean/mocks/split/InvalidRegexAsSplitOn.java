@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Andrew Rucker Jones.
+ * Copyright 2017 Andrew Rucker Jones.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.opencsv.bean.mocks;
+package com.opencsv.bean.mocks.split;
 
-import com.opencsv.bean.CsvBindByName;
-import com.opencsv.bean.CsvDate;
+import com.opencsv.bean.CsvBindAndSplitByName;
+import java.util.List;
 
 /**
- * Class for annotation test case 34.
  *
  * @author Andrew Rucker Jones
  */
-public class TestCase34 {
-    @CsvBindByName
-    @CsvDate
-    String isnotdate;
+public class InvalidRegexAsSplitOn {
+    
+    @CsvBindAndSplitByName(elementType = Integer.class, splitOn = "[a-z{3")
+    private List<Integer> l;
+
+    public List<Integer> getL() {
+        return l;
+    }
+
+    public void setL(List<Integer> l) {
+        this.l = l;
+    }
 }

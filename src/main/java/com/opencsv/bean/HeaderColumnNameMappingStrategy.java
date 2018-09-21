@@ -129,8 +129,7 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
         fieldMap.setColumnOrderOnWrite(writeOrder);
 
         for (Field field : loadFields(getType())) {
-            String columnName;
-            String locale;
+            String columnName, locale, capture, format;
 
             // Always check for a custom converter first.
             if (field.isAnnotationPresent(CsvCustomBindByName.class)) {
@@ -160,17 +159,20 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
                 Class<? extends Collection> collectionType = annotation.collectionType();
                 Class<?> elementType = annotation.elementType();
                 Class<? extends AbstractCsvConverter> splitConverter = annotation.converter();
+                capture = annotation.capture();
+                format = annotation.format();
                 
                 CsvConverter converter = determineConverter(field, elementType, locale, splitConverter);
                 if (StringUtils.isEmpty(columnName)) {
                     fieldMap.put(field.getName().toUpperCase(),
                             new BeanFieldSplit<T>(
                                     field, required, errorLocale, converter,
-                                    splitOn, writeDelimiter, collectionType));
+                                    splitOn, writeDelimiter, collectionType,
+                                    capture, format));
                 } else {
                     fieldMap.put(columnName, new BeanFieldSplit<T>(
                             field, required, errorLocale, converter, splitOn,
-                            writeDelimiter, collectionType));
+                            writeDelimiter, collectionType, capture, format));
                 }
             }
             
@@ -183,16 +185,19 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
                 Class<?> elementType = annotation.elementType();
                 Class<? extends MultiValuedMap> mapType = annotation.mapType();
                 Class<? extends AbstractCsvConverter> joinConverter = annotation.converter();
+                capture = annotation.capture();
+                format = annotation.format();
                 
                 CsvConverter converter = determineConverter(field, elementType, locale, joinConverter);
                 if (StringUtils.isEmpty(columnRegex)) {
                     fieldMap.putComplex(field.getName(),
                             new BeanFieldJoinStringIndex<T>(
                                     field, required, errorLocale, converter,
-                                    mapType));
+                                    mapType, capture, format));
                 } else {
                     fieldMap.putComplex(columnRegex, new BeanFieldJoinStringIndex<T>(
-                            field, required, errorLocale, converter, mapType));
+                            field, required, errorLocale, converter, mapType,
+                            capture, format));
                 }
             }
 
@@ -202,12 +207,17 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
                 required = annotation.required();
                 columnName = annotation.column().toUpperCase().trim();
                 locale = annotation.locale();
+                capture = annotation.capture();
+                format = annotation.format();
                 CsvConverter converter = determineConverter(field, field.getType(), locale, null);
+
                 if (StringUtils.isEmpty(columnName)) {
                     fieldMap.put(field.getName().toUpperCase(),
-                            new BeanFieldSingleValue<T>(field, required, errorLocale, converter));
+                            new BeanFieldSingleValue<T>(field, required,
+                                    errorLocale, converter, capture, format));
                 } else {
-                    fieldMap.put(columnName, new BeanFieldSingleValue<T>(field, required, errorLocale, converter));
+                    fieldMap.put(columnName, new BeanFieldSingleValue<T>(
+                            field, required, errorLocale, converter, capture, format));
                 }
             }
         }

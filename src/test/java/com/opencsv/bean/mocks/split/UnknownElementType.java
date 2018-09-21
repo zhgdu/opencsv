@@ -13,24 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.opencsv.bean.mocks;
+package com.opencsv.bean.mocks.split;
 
-import com.opencsv.bean.CsvBindAndSplitByName;
+import com.opencsv.bean.CsvBindAndSplitByPosition;
+import java.util.Currency;
+import java.util.List;
 
 /**
  *
  * @author Andrew Rucker Jones
  */
-public class NonCollectionBeanMember {
+public class UnknownElementType {
     
-    @CsvBindAndSplitByName(elementType = Integer.class)
-    private Integer nonCollection;
+    @CsvBindAndSplitByPosition(elementType = Currency.class, position = 0)
+    private List<Currency> l;
 
-    public Integer getNonCollection() {
-        return nonCollection;
+    public List<Currency> getL() {
+        return l;
     }
 
-    public void setNonCollection(Integer nonCollection) {
-        this.nonCollection = nonCollection;
+    public void setL(List<Currency> l) {
+        this.l = l;
     }
 }

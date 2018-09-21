@@ -32,8 +32,9 @@ public class BeanFieldJoinStringIndex<T> extends BeanFieldJoin<T, String> {
     
     public BeanFieldJoinStringIndex(
             Field field, boolean required, Locale errorLocale,
-            CsvConverter converter, Class<? extends MultiValuedMap> mapType) {
-        super(field, required, errorLocale, converter, mapType);
+            CsvConverter converter, Class<? extends MultiValuedMap> mapType,
+            String capture, String format) {
+        super(field, required, errorLocale, converter, mapType, capture, format);
     }
 
     @Override

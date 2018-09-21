@@ -19,9 +19,13 @@ import com.opencsv.ICSVParser;
 import com.opencsv.exceptions.CsvBadConverterException;
 import com.opencsv.exceptions.CsvConstraintViolationException;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
+import org.apache.commons.lang3.StringUtils;
+
 import java.lang.reflect.Field;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This class concerns itself with handling single-valued bean fields.
@@ -31,6 +35,19 @@ import java.util.ResourceBundle;
  * @since 4.2
  */
 public class BeanFieldSingleValue<T> extends AbstractBeanField<T> {
+
+    /**
+     * The regular expression to be used for capturing part of the input for
+     * processing. If there was no regular expression specified, this field
+     * is {@code null}.
+     */
+    protected final Pattern capture;
+
+    /**
+     * The format string used for packaging values to be written. If
+     * {@code null} or empty, it is ignored.
+     */
+    protected final String writeFormat;
     
     /**
      * Simply calls the same constructor in the base class.
@@ -39,10 +56,21 @@ public class BeanFieldSingleValue<T> extends AbstractBeanField<T> {
      * @param errorLocale The errorLocale to use for error messages.
      * @param converter The converter to be used to perform the actual data
      *   conversion
+     * @param capture See {@link CsvBindByName#capture()}
+     * @param format The format string used for packaging values to be written.
+     *               If {@code null} or empty, it is ignored.
      * @see AbstractBeanField#AbstractBeanField(java.lang.reflect.Field, boolean, java.util.Locale, com.opencsv.bean.CsvConverter) 
      */
-    public BeanFieldSingleValue(Field field, boolean required, Locale errorLocale, CsvConverter converter) {
+    public BeanFieldSingleValue(Field field, boolean required,
+                                Locale errorLocale, CsvConverter converter,
+                                String capture, String format) {
         super(field, required, errorLocale, converter);
+        this.capture = OpencsvUtils.compilePatternAtLeastOneGroup(
+                capture, 0, BeanFieldSingleValue.class, this.errorLocale);
+        this.writeFormat = format;
+
+        // Verify that the format string works as expected
+        OpencsvUtils.verifyFormatString(this.writeFormat, BeanFieldSingleValue.class, this.errorLocale);
     }
 
     /**
@@ -52,6 +80,13 @@ public class BeanFieldSingleValue<T> extends AbstractBeanField<T> {
     // The rest of the Javadoc is inherited
     @Override
     protected Object convert(String value) throws CsvDataTypeMismatchException, CsvConstraintViolationException {
+        if(capture != null) {
+            Matcher m = capture.matcher(value);
+            if(m.matches()) {
+                value = m.group(1);
+            }
+            // Otherwise value remains intentionally unchanged
+        }
         if(converter != null) {
             return converter.convertToRead(value);
         }
@@ -66,7 +101,12 @@ public class BeanFieldSingleValue<T> extends AbstractBeanField<T> {
     @Override
     protected String convertToWrite(Object value) throws CsvDataTypeMismatchException {
         if(converter != null) {
-            return converter.convertToWrite(value);
+            String s = converter.convertToWrite(value);
+            if(StringUtils.isNotEmpty(this.writeFormat)
+                    && StringUtils.isNotEmpty(s)) {
+                s = String.format(this.writeFormat, s);
+            }
+            return s;
         }
         throw new CsvBadConverterException(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("no.converter.specified"));
     }

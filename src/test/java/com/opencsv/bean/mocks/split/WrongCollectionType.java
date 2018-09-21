@@ -13,18 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.opencsv.bean.mocks;
+package com.opencsv.bean.mocks.split;
 
 import com.opencsv.bean.CsvBindAndSplitByName;
+import java.util.HashSet;
 import java.util.List;
 
 /**
  *
  * @author Andrew Rucker Jones
  */
-public class InvalidRegexAsSplitOn {
+public class WrongCollectionType {
     
-    @CsvBindAndSplitByName(elementType = Integer.class, splitOn = "[a-z{3")
+    @CsvBindAndSplitByName(collectionType = HashSet.class, elementType = Integer.class)
     private List<Integer> l;
 
     public List<Integer> getL() {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Andrew Rucker Jones.
+ * Copyright 2016 Andrew Rucker Jones.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.opencsv.bean.customconverter;
+package com.opencsv.bean.mocks;
 
-import com.opencsv.bean.AbstractCsvConverter;
+import com.opencsv.bean.CsvBindByName;
+import com.opencsv.bean.CsvDate;
 
-public class BadCollectionConverter extends AbstractCsvConverter {
-
-    private BadCollectionConverter() {}
-
-    @Override
-    public Object convertToRead(String value) {
-        return null;
-    }
+/**
+ * Class for annotation test using {@link CsvDate} on a non-date field.
+ * <p>Is also used incidentally in the following tests:<ul>
+ * <li>Errors in input file with exceptions suppressed</li>
+ * </ul></p>
+ *
+ * @author Andrew Rucker Jones
+ */
+public class DateAnnotationOnNondate {
+    @CsvBindByName
+    @CsvDate
+    String isnotdate;
 }

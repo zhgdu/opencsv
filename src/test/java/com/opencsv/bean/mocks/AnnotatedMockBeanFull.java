@@ -39,46 +39,38 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>2</li>
-     * <li>5</li>
-     * <li>8</li>
-     * <li>10</li>
-     * <li>49</li>
-     * <li>52</li>
-     * <li>54</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByPosition()}</li>
      * </ul></p>
      * <p>Used for the following test cases, writing:<ul>
      * <li>Writing every wrapped primitive data type</li>
      * </ul></p>
      */
-    @CsvBindByName(column = "bool1")
-    @CsvBindByPosition(position = 1)
+    @CsvBindByName(column = "bool1", capture = "^[A-Za-z ]*value: (.*)$", format = "value: %s")
+    @CsvBindByPosition(position = 1, capture = "(?:[A-Za-z ]*value: ){1}(.*)", format = "value: %s")
     private Boolean boolWrapped;
 
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>1</li>
-     * <li>4</li>
-     * <li>9</li>
-     * <li>48</li>
-     * <li>53</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByPosition()}</li>
      * </ul></p>
      * <p>Used for the following test cases, writing:<ul>
      * <li>Writing every primitive data type</li>
      * </ul></p>
      */
-    @CsvBindByName()
-    @CsvBindByPosition(position = 2)
+    @CsvBindByName(capture = "couldn't possibly match (anything)")
+    @CsvBindByPosition(position = 2, capture = "couldn't possibly match (anything)")
     private boolean boolPrimitive;
 
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>5</li>
-     * <li>11</li>
-     * <li>49</li>
-     * <li>55</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testMapByNameMismatchingType()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByPosition()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testMapByPositionMismatchingType()}</li>
      * </ul></p>
      * <p>Used for the following test cases, writing:<ul>
      * <li>Writing every wrapped primitive data type</li>
@@ -91,11 +83,10 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>6</li>
-     * <li>28</li>
-     * <li>7</li>
-     * <li>50</li>
-     * <li>51</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testMapRequiredByNameMissingData()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByPosition()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testMapRequiredByPositionMissingData()}</li>
      * </ul></p>
      * <p>Used for the following test cases, writing:<ul>
      * <li>Writing a required wrapped primitive field that is null</li>
@@ -110,8 +101,8 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>4</li>
-     * <li>48</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByPosition()}</li>
      * </ul></p>
      * <p>Used for the following test cases, writing:<ul>
      * <li>Writing every primitive data type</li>
@@ -124,7 +115,7 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>28</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
      * </ul></p>
      */
     @CsvBindByName(column = "byte4", locale = "de")
@@ -134,8 +125,8 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>5</li>
-     * <li>49</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByPosition()}</li>
      * </ul></p>
      * <p>Used for the following test cases, writing:<ul>
      * <li>Writing every wrapped primitive data type</li>
@@ -148,7 +139,7 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>28</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
      * </ul></p>
      */
     @CsvBindByName(column = "double2", locale = "de")
@@ -158,8 +149,8 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>4</li>
-     * <li>48</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByPosition()}</li>
      * </ul></p>
      * <p>Used for the following test cases, writing:<ul>
      * <li>Writing every primitive data type</li>
@@ -172,7 +163,7 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>28</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
      * </ul></p>
      */
     @CsvBindByName(column = "double4", locale = "de")
@@ -182,8 +173,8 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>5</li>
-     * <li>49</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByPosition()}</li>
      * </ul></p>
      * <p>Used for the following test cases, writing:<ul>
      * <li>Writing every wrapped primitive data type</li>
@@ -197,7 +188,7 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>28</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
      * </ul></p>
      */
     @CsvBindByName(column = "float2", locale = "de")
@@ -207,10 +198,8 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>4</li>
-     * <li>22</li>
-     * <li>48</li>
-     * <li>64</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByPosition()}</li>
      * </ul></p>
      * <p>Used for the following test cases, writing:<ul>
      * <li>Writing every primitive data type</li>
@@ -223,7 +212,7 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>28</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
      * </ul></p>
      */
     @CsvBindByName(column = "float4", locale = "de")
@@ -233,8 +222,8 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>5</li>
-     * <li>49</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByPosition()}</li>
      * </ul></p>
      * <p>Used for the following test cases, writing:<ul>
      * <li>Writing every wrapped primitive data type</li>
@@ -247,7 +236,7 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>28</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
      * </ul></p>
      */
     @CsvBindByName(column = "integer2", locale = "de")
@@ -257,10 +246,8 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>4</li>
-     * <li>24</li>
-     * <li>48</li>
-     * <li>66</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByPosition()}</li>
      * </ul></p>
      * <p>Used for the following test cases, writing:<ul>
      * <li>Writing every primitive data type</li>
@@ -273,7 +260,7 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>28</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
      * </ul></p>
      */
     @CsvBindByName(column = "integer4", locale = "de")
@@ -283,8 +270,8 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>5</li>
-     * <li>49</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByPosition()}</li>
      * </ul></p>
      * <p>Used for the following test cases, writing:<ul>
      * <li>Writing every wrapped primitive data type</li>
@@ -297,7 +284,7 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>28</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
      * </ul></p>
      */
     @CsvBindByName(column = "long2", locale = "de")
@@ -307,10 +294,8 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>4</li>
-     * <li>26</li>
-     * <li>48</li>
-     * <li>68</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByPosition()}</li>
      * </ul></p>
      * <p>Used for the following test cases, writing:<ul>
      * <li>Writing every primitive data type</li>
@@ -323,7 +308,7 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>28</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
      * </ul></p>
      */
     @CsvBindByName(column = "long4", locale = "de")
@@ -333,8 +318,8 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>5</li>
-     * <li>49</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByPosition()}</li>
      * </ul></p>
      * <p>Used for the following test cases, writing:<ul>
      * <li>Writing every wrapped primitive data type</li>
@@ -347,7 +332,7 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>28</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
      * </ul></p>
      */
     @CsvBindByName(column = "short2", locale = "de")
@@ -357,8 +342,8 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>4</li>
-     * <li>48</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByPosition()}</li>
      * </ul></p>
      * <p>Used for the following test cases, writing:<ul>
      * <li>Writing every primitive data type</li>
@@ -371,7 +356,7 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>28</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
      * </ul></p>
      */
     @CsvBindByName(column = "short4", locale = "de")
@@ -381,8 +366,8 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>5</li>
-     * <li>49</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByPosition()}</li>
      * </ul></p>
      * <p>Used for the following test cases, writing:<ul>
      * <li>Writing every wrapped primitive data type</li>
@@ -395,8 +380,8 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>4</li>
-     * <li>48</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByPosition()}</li>
      * </ul></p>
      * <p>Used for the following test cases, writing:<ul>
      * <li>Writing every primitive data type</li>
@@ -409,7 +394,7 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>29</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
      * </ul></p>
      * <p>Used for the following test cases, writing:<ul>
      * <li>Writing String, BigDecimal and BigInteger</li>
@@ -422,7 +407,7 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>28</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
      * </ul></p>
      */
     @CsvBindByName(column = "bigdecimal2", locale = "de")
@@ -432,7 +417,7 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>29</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
      * </ul></p>
      * <p>Used for the following test cases, writing:<ul>
      * <li>Writing String, BigDecimal and BigInteger</li>
@@ -445,7 +430,7 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>28</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
      * </ul></p>
      */
     @CsvBindByName(column = "biginteger2", locale = "de")
@@ -455,9 +440,9 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>30</li>
-     * <li>78</li>
-     * <li>83</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testRequiredDateEmptyInput()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testUnparseableLocaleInspecificDate()}</li>
      * </ul></p>
      * <p>Used for the following test cases, writing:<ul>
      * <li>Writing a required date field that is null</li>
@@ -472,9 +457,7 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>30</li>
-     * <li>70</li>
-     * <li>71</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
      * </ul></p>
      */
     @CsvBindByName(column = "date2")
@@ -485,8 +468,7 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>30</li>
-     * <li>80</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
      * </ul></p>
      * <p>Used for the following test cases, writing:<ul>
      * <li>Writing an optional date field that is null</li>
@@ -500,7 +482,7 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>30</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
      * </ul></p>
      */
     @CsvBindByName(column = "date4")
@@ -511,7 +493,7 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>30</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
      * </ul></p>
      */
     @CsvBindByName(column = "date5")
@@ -522,7 +504,7 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>30</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
      * </ul></p>
      */
     @CsvBindByName(column = "date6")
@@ -533,8 +515,7 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>28</li>
-     * <li>31</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
      * <li>82</li>
      * </ul></p>
      */
@@ -546,8 +527,7 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>28</li>
-     * <li>31</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
      * </ul></p>
      */
     @CsvBindByName(column = "date8", locale = "de")
@@ -558,8 +538,7 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>28</li>
-     * <li>31</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
      * </ul></p>
      */
     @CsvBindByName(column = "date9", locale = "de")
@@ -570,8 +549,7 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>28</li>
-     * <li>31</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
      * </ul></p>
      */
     @CsvBindByName(column = "date10", locale = "de")
@@ -582,8 +560,7 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>28</li>
-     * <li>31</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
      * </ul></p>
      */
     @CsvBindByName(column = "date11", locale = "de")
@@ -594,8 +571,7 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>28</li>
-     * <li>31</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
      * </ul></p>
      */
     @CsvBindByName(column = "date12", locale = "de")
@@ -606,8 +582,8 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>4</li>
-     * <li>48</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByPosition()}</li>
      * </ul></p>
      * <p>Used for the following test cases, writing:<ul>
      * <li>Writing String, BigDecimal and BigInteger</li>
@@ -620,7 +596,7 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>32</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
      * </ul></p>
      */
     @CsvBindByName(column = "date13")
@@ -631,7 +607,7 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>33</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
      * </ul></p>
      */
     @CsvBindByName(column = "date14", locale = "de-DE")
@@ -642,7 +618,7 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>30</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
      * </ul></p>
      */
     @CsvBindByName(column = "date15")
@@ -653,7 +629,7 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>31</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
      * </ul></p>
      */
     @CsvBindByName(column = "date16", locale = "de-DE")
@@ -664,7 +640,7 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>35</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
      * </ul></p>
      */
     @CsvBindByName(column = "float5", locale = "doesntexistquitecertain")
@@ -674,8 +650,8 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>76</li>
-     * <li>77</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByPosition()}</li>
      * </ul></p>
      */
     @CsvBindByName(column = "itnogoodcolumnitverybad")
@@ -685,9 +661,8 @@ public class AnnotatedMockBeanFull {
     /**
      * Field for annotation tests.
      * <p>Used for the following test cases, reading:<ul>
-     * <li>3</li>
-     * <li>31</li>
-     * <li>47</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByPosition()}</li>
      * </ul></p>
      */
     private String unmapped;
@@ -700,13 +675,15 @@ public class AnnotatedMockBeanFull {
         this.boolWrapped = boolWrapped;
     }
 
-    /*
-    For reading test case 79. I have read that introspection is used on beans, and
-    that beans are only allowed a single setter method for any member variable
-    that must have the same type as the member variable. Introspection fails to
-    find the setter otherwise. See:
-    http://commons.apache.org/proper/commons-beanutils/javadocs/v1.9.2/apidocs/org/apache/commons/beanutils/package-summary.html#FAQ.property
-    */
+    /**
+     * For reading test case: Verify that reflection is being used for setter, and
+     * not introspection. I have read that introspection is used on beans, and
+     * that beans are only allowed a single setter method for any member variable
+     * that must have the same type as the member variable. Introspection fails to
+     * find the setter otherwise.
+     *
+     * @see <a href="http://commons.apache.org/proper/commons-beanutils/javadocs/v1.9.2/apidocs/org/apache/commons/beanutils/package-summary.html#FAQ.property">Apache BeanUtils documentation</a>
+     */
     public void setBoolWrapped(String boolWrapped) {
         this.boolWrapped = Boolean.valueOf(boolWrapped);
     }
@@ -803,7 +780,7 @@ public class AnnotatedMockBeanFull {
         return floatPrimitiveDefaultLocale;
     }
 
-    /* Commented out for reading test case 22.
+    /* Commented out for reading test case assigning to private field without setter method.
     public void setFloatPrimitiveDefaultLocale(float floatPrimitiveDefaultLocale) {
         this.floatPrimitiveDefaultLocale = floatPrimitiveDefaultLocale;
     }
@@ -869,7 +846,7 @@ public class AnnotatedMockBeanFull {
         return longPrimitiveDefaultLocale;
     }
 
-    /* Private for test case 26. */
+    /* Private for test case mapping to primitive type with private access and private setter. */
     private void setLongPrimitiveDefaultLocale(long longPrimitiveDefaultLocale) {
         this.longPrimitiveDefaultLocale = Long.MAX_VALUE - longPrimitiveDefaultLocale;
     }

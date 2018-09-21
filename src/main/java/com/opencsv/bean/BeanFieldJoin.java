@@ -61,13 +61,17 @@ abstract public class BeanFieldJoin<T, I> extends BeanFieldSingleValue<T> {
      * @param mapType The type of the
      *   {@link org.apache.commons.collections4.MultiValuedMap} that should be
      *   instantiated for the bean field being populated
+     * @param capture See {@link CsvBindAndJoinByName#capture()}
+     * @param format The format string used for packaging values to be written.
+     *               If {@code null} or empty, it is ignored.
      */
     public BeanFieldJoin(
             Field field, boolean required, Locale errorLocale,
-            CsvConverter converter, Class<? extends MultiValuedMap> mapType) {
+            CsvConverter converter, Class<? extends MultiValuedMap> mapType,
+            String capture, String format) {
         
         // Simple assignments
-        super(field, required, errorLocale, converter);
+        super(field, required, errorLocale, converter, capture, format);
         
         // Check that we really have a collection
         if(!MultiValuedMap.class.isAssignableFrom(field.getType())) {

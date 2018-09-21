@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Andrew Rucker Jones.
+ * Copyright 2018 Andrew Rucker Jones.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,24 +15,20 @@
  */
 package com.opencsv.bean.mocks;
 
-import com.opencsv.bean.CsvBindAndSplitByName;
-import java.util.HashSet;
-import java.util.List;
+import com.opencsv.bean.CsvBindByName;
+import com.opencsv.bean.CsvBindByPosition;
 
-/**
- *
- * @author Andrew Rucker Jones
- */
-public class WrongCollectionType {
-    
-    @CsvBindAndSplitByName(collectionType = HashSet.class, elementType = Integer.class)
-    private List<Integer> l;
+public class NoCaptureGroup {
 
-    public List<Integer> getL() {
-        return l;
+    @CsvBindByName(column = "name", capture = "(?:.*)")
+    @CsvBindByPosition(position = 0, capture = ".*")
+    private String name;
+
+    public String getName() {
+        return name;
     }
 
-    public void setL(List<Integer> l) {
-        this.l = l;
+    public void setName(String name) {
+        this.name = name;
     }
 }

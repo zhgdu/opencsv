@@ -20,11 +20,12 @@ import com.opencsv.exceptions.CsvBadConverterException;
 import com.opencsv.exceptions.CsvBeanIntrospectionException;
 import com.opencsv.exceptions.CsvConstraintViolationException;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
-import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.regex.PatternSyntaxException;
+
 import org.apache.commons.collections4.Bag;
 import org.apache.commons.collections4.SortedBag;
 import org.apache.commons.collections4.bag.HashBag;
@@ -40,8 +41,8 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class BeanFieldSplit<T> extends AbstractBeanField<T> {
     
-    private Pattern splitOn;
-    private final String writeDelimiter;
+    private final Pattern splitOn, capture;
+    private final String writeDelimiter, writeFormat;
     private final Class<? extends Collection> collectionType;
     
     /**
@@ -55,15 +56,20 @@ public class BeanFieldSplit<T> extends AbstractBeanField<T> {
      * @param splitOn See {@link CsvBindAndSplitByName#splitOn()}
      * @param writeDelimiter See {@link CsvBindAndSplitByName#writeDelimiter()}
      * @param collectionType  See {@link CsvBindAndSplitByName#collectionType()}
+     * @param capture See {@link CsvBindAndSplitByName#capture()}
+     * @param format The format string used for packaging values to be written.
+     *               If {@code null} or empty, it is ignored.
      */
     public BeanFieldSplit(
             Field field, boolean required, Locale errorLocale,
             CsvConverter converter, String splitOn, String writeDelimiter,
-            Class<? extends Collection> collectionType) {
+            Class<? extends Collection> collectionType, String capture,
+            String format) {
         
         // Simple assignments
         super(field, required, errorLocale, converter);
         this.writeDelimiter = writeDelimiter;
+        this.writeFormat = format;
         
         // Check that we really have a collection
         if(!Collection.class.isAssignableFrom(field.getType())) {
@@ -76,24 +82,15 @@ public class BeanFieldSplit<T> extends AbstractBeanField<T> {
                             field.getType().toString()));
         }
         
-        // Check the regular expression for validity and compile once for speed
-        try {
-            this.splitOn = Pattern.compile(splitOn);
-        }
-        catch(PatternSyntaxException e) {
-            // Just so this.splitOn isn't null. Shouldn't ever be used, but if
-            // it is, it shouldn't match anything.
-            this.splitOn = Pattern.compile(StringUtils.EMPTY);
-            
-            CsvBadConverterException csve = new CsvBadConverterException(
-                    BeanFieldSplit.class,
-                    String.format(ResourceBundle.getBundle(
-                            ICSVParser.DEFAULT_BUNDLE_NAME,
-                            errorLocale).getString("invalid.regex"), splitOn));
-            csve.initCause(e);
-            throw csve;
-        }
-        
+        // Check the regular expressions for validity and compile once for speed
+        this.splitOn = OpencsvUtils.compilePattern(splitOn, 0,
+                BeanFieldSplit.class, this.errorLocale);
+        this.capture = OpencsvUtils.compilePatternAtLeastOneGroup(capture, 0,
+                BeanFieldSplit.class, this.errorLocale);
+
+        // Verify that the format string works as expected
+        OpencsvUtils.verifyFormatString(this.writeFormat, BeanFieldSplit.class, this.errorLocale);
+
         // Determine the Collection implementation that should be instantiated
         // for every bean.
         Class<?> fieldType = field.getType();
@@ -176,6 +173,13 @@ public class BeanFieldSplit<T> extends AbstractBeanField<T> {
         
         String[] splitValues = splitOn.split(value);
         for(String s : splitValues) {
+            if(capture != null) {
+                Matcher m = capture.matcher(s);
+                if(m.matches()) {
+                    s = m.group(1);
+                }
+                // Otherwise s remains intentionally unchanged
+            }
             collection.add(converter.convertToRead(s));
         }
         return collection;
@@ -195,7 +199,12 @@ public class BeanFieldSplit<T> extends AbstractBeanField<T> {
             String[] convertedValue = new String[collection.size()];
             int i = 0;
             for(Object o : collection) {
-                convertedValue[i++] = converter.convertToWrite(o);
+                convertedValue[i] = converter.convertToWrite(o);
+                if(StringUtils.isNotEmpty(this.writeFormat)
+                        && StringUtils.isNotEmpty(convertedValue[i])) {
+                    convertedValue[i] = String.format(this.writeFormat, convertedValue[i]);
+                }
+                i++;
             }
             retval = StringUtils.join(convertedValue, writeDelimiter);
         }

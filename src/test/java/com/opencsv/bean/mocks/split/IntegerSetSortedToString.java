@@ -13,26 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.opencsv.bean.mocks;
+package com.opencsv.bean.mocks.split;
 
-import com.opencsv.bean.CsvBindAndSplitByPosition;
-import java.util.Currency;
-import java.util.List;
+import org.apache.commons.text.TextStringBuilder;
+
+import java.util.Arrays;
+import java.util.HashSet;
 
 /**
  *
  * @author Andrew Rucker Jones
  */
-public class UnknownElementType {
-    
-    @CsvBindAndSplitByPosition(elementType = Currency.class, position = 0)
-    private List<Currency> l;
-
-    public List<Currency> getL() {
-        return l;
-    }
-
-    public void setL(List<Currency> l) {
-        this.l = l;
+public class IntegerSetSortedToString extends HashSet<Integer> {
+    @Override
+    public String toString() {
+        TextStringBuilder sb = new TextStringBuilder("[");
+        Integer[] intArray = this.toArray(new Integer[this.size()]);
+        Arrays.sort(intArray);
+        sb.appendWithSeparators(intArray, ",");
+        sb.append(']');
+        return sb.toString();
     }
 }

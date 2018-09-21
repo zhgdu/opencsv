@@ -16,7 +16,7 @@
 package com.opencsv.bean;
 
 import com.opencsv.bean.customconverter.BadCollectionConverter;
-import com.opencsv.bean.mocks.*;
+import com.opencsv.bean.mocks.split.*;
 import com.opencsv.bean.mocks.join.BadSplitConverter;
 import com.opencsv.bean.mocks.join.ErrorCode;
 import com.opencsv.bean.mocks.join.IdAndErrorSplitByName;
@@ -62,9 +62,17 @@ public class CollectionSplitTest {
         Locale.setDefault(systemLocale);
     }
 
+    /**
+     * Tests a collection of a wrapped primitive type.
+     * <p>Also incidentally tests:
+     * <ul><li>Capture by name without a matching regular expression</li>
+     * <li>Correct use of {@link java.util.Collection}</li></ul></p>
+     *
+     * @throws IOException Never
+     */
     @Test
     public void testGoodCollectionPrimitive() throws IOException {
-        List<DerivedMockBeanCollectionSplit> beanList = new CsvToBeanBuilder(new FileReader("src/test/resources/testgoodcollections.csv"))
+        List<DerivedMockBeanCollectionSplit> beanList = new CsvToBeanBuilder<DerivedMockBeanCollectionSplit>(new FileReader("src/test/resources/testgoodcollections.csv"))
                 .withType(DerivedMockBeanCollectionSplit.class).build().parse();
         assertEquals(1, beanList.size());
         DerivedMockBeanCollectionSplit bean = beanList.get(0);
@@ -78,7 +86,7 @@ public class CollectionSplitTest {
     
     @Test
     public void testGoodCollectionDate() throws IOException {
-        List<DerivedMockBeanCollectionSplit> beanList = new CsvToBeanBuilder(new FileReader("src/test/resources/testgoodcollections.csv"))
+        List<DerivedMockBeanCollectionSplit> beanList = new CsvToBeanBuilder<DerivedMockBeanCollectionSplit>(new FileReader("src/test/resources/testgoodcollections.csv"))
                 .withType(DerivedMockBeanCollectionSplit.class).build().parse();
         assertEquals(1, beanList.size());
         DerivedMockBeanCollectionSplit bean = beanList.get(0);
@@ -93,23 +101,17 @@ public class CollectionSplitTest {
             assertTrue("1978-01-15".equals(formattedDate) || "2018-01-01".equals(formattedDate));
         }
     }
-    
-    @Test
-    public void testGoodCollectionTypeCollection() throws IOException {
-        List<DerivedMockBeanCollectionSplit> beanList = new CsvToBeanBuilder(new FileReader("src/test/resources/testgoodcollections.csv"))
-                .withType(DerivedMockBeanCollectionSplit.class).build().parse();
-        assertEquals(1, beanList.size());
-        DerivedMockBeanCollectionSplit bean = beanList.get(0);
-        
-        Collection<Integer> collectionType = bean.getCollectionType();
-        assertTrue(collectionType instanceof ArrayList);
-        assertEquals(6, collectionType.size());
-        assertEquals("[2, 2, 1, 3, 3, 3]", collectionType.toString());
-    }
-    
+
+    /**
+     * Tests correct use of {@link java.util.List}.
+     * <p>Also incidentally tests:
+     * <ul><li>Capture by name with a matching regular expression</li></ul></p>
+     *
+     * @throws IOException Never
+     */
     @Test
     public void testGoodCollectionTypeList() throws IOException {
-        List<DerivedMockBeanCollectionSplit> beanList = new CsvToBeanBuilder(new FileReader("src/test/resources/testgoodcollections.csv"))
+        List<DerivedMockBeanCollectionSplit> beanList = new CsvToBeanBuilder<DerivedMockBeanCollectionSplit>(new FileReader("src/test/resources/testgoodcollections.csv"))
                 .withType(DerivedMockBeanCollectionSplit.class).build().parse();
         assertEquals(1, beanList.size());
         DerivedMockBeanCollectionSplit bean = beanList.get(0);
@@ -122,7 +124,7 @@ public class CollectionSplitTest {
     
     @Test
     public void testGoodCollectionTypeSet() throws IOException {
-        List<DerivedMockBeanCollectionSplit> beanList = new CsvToBeanBuilder(new FileReader("src/test/resources/testgoodcollections.csv"))
+        List<DerivedMockBeanCollectionSplit> beanList = new CsvToBeanBuilder<DerivedMockBeanCollectionSplit>(new FileReader("src/test/resources/testgoodcollections.csv"))
                 .withType(DerivedMockBeanCollectionSplit.class).build().parse();
         assertEquals(1, beanList.size());
         DerivedMockBeanCollectionSplit bean = beanList.get(0);
@@ -139,7 +141,7 @@ public class CollectionSplitTest {
     
     @Test
     public void testGoodCollectionTypeSortedSet() throws IOException {
-        List<DerivedMockBeanCollectionSplit> beanList = new CsvToBeanBuilder(new FileReader("src/test/resources/testgoodcollections.csv"))
+        List<DerivedMockBeanCollectionSplit> beanList = new CsvToBeanBuilder<DerivedMockBeanCollectionSplit>(new FileReader("src/test/resources/testgoodcollections.csv"))
                 .withType(DerivedMockBeanCollectionSplit.class).build().parse();
         assertEquals(1, beanList.size());
         DerivedMockBeanCollectionSplit bean = beanList.get(0);
@@ -152,7 +154,7 @@ public class CollectionSplitTest {
     
     @Test
     public void testGoodCollectionTypeNavigableSet() throws IOException {
-        List<DerivedMockBeanCollectionSplit> beanList = new CsvToBeanBuilder(new FileReader("src/test/resources/testgoodcollections.csv"))
+        List<DerivedMockBeanCollectionSplit> beanList = new CsvToBeanBuilder<DerivedMockBeanCollectionSplit>(new FileReader("src/test/resources/testgoodcollections.csv"))
                 .withType(DerivedMockBeanCollectionSplit.class).build().parse();
         assertEquals(1, beanList.size());
         DerivedMockBeanCollectionSplit bean = beanList.get(0);
@@ -165,7 +167,7 @@ public class CollectionSplitTest {
     
     @Test
     public void testGoodCollectionTypeQueue() throws IOException {
-        List<DerivedMockBeanCollectionSplit> beanList = new CsvToBeanBuilder(new FileReader("src/test/resources/testgoodcollections.csv"))
+        List<DerivedMockBeanCollectionSplit> beanList = new CsvToBeanBuilder<DerivedMockBeanCollectionSplit>(new FileReader("src/test/resources/testgoodcollections.csv"))
                 .withType(DerivedMockBeanCollectionSplit.class).build().parse();
         assertEquals(1, beanList.size());
         DerivedMockBeanCollectionSplit bean = beanList.get(0);
@@ -178,7 +180,7 @@ public class CollectionSplitTest {
     
     @Test
     public void testGoodCollectionTypeDeque() throws IOException {
-        List<DerivedMockBeanCollectionSplit> beanList = new CsvToBeanBuilder(new FileReader("src/test/resources/testgoodcollections.csv"))
+        List<DerivedMockBeanCollectionSplit> beanList = new CsvToBeanBuilder<DerivedMockBeanCollectionSplit>(new FileReader("src/test/resources/testgoodcollections.csv"))
                 .withType(DerivedMockBeanCollectionSplit.class).build().parse();
         assertEquals(1, beanList.size());
         DerivedMockBeanCollectionSplit bean = beanList.get(0);
@@ -191,7 +193,7 @@ public class CollectionSplitTest {
     
     @Test
     public void testGoodCollectionTypeBag() throws IOException {
-        List<DerivedMockBeanCollectionSplit> beanList = new CsvToBeanBuilder(new FileReader("src/test/resources/testgoodcollections.csv"))
+        List<DerivedMockBeanCollectionSplit> beanList = new CsvToBeanBuilder<DerivedMockBeanCollectionSplit>(new FileReader("src/test/resources/testgoodcollections.csv"))
                 .withType(DerivedMockBeanCollectionSplit.class).build().parse();
         assertEquals(1, beanList.size());
         DerivedMockBeanCollectionSplit bean = beanList.get(0);
@@ -204,7 +206,7 @@ public class CollectionSplitTest {
     
     @Test
     public void testGoodCollectionTypeSortedBag() throws IOException {
-        List<DerivedMockBeanCollectionSplit> beanList = new CsvToBeanBuilder(new FileReader("src/test/resources/testgoodcollections.csv"))
+        List<DerivedMockBeanCollectionSplit> beanList = new CsvToBeanBuilder<DerivedMockBeanCollectionSplit>(new FileReader("src/test/resources/testgoodcollections.csv"))
                 .withType(DerivedMockBeanCollectionSplit.class).build().parse();
         assertEquals(1, beanList.size());
         DerivedMockBeanCollectionSplit bean = beanList.get(0);
@@ -217,7 +219,7 @@ public class CollectionSplitTest {
     
     @Test
     public void testGoodCollectionTypeNamedParametrized() throws IOException {
-        List<DerivedMockBeanCollectionSplit> beanList = new CsvToBeanBuilder(new FileReader("src/test/resources/testgoodcollections.csv"))
+        List<DerivedMockBeanCollectionSplit> beanList = new CsvToBeanBuilder<DerivedMockBeanCollectionSplit>(new FileReader("src/test/resources/testgoodcollections.csv"))
                 .withType(DerivedMockBeanCollectionSplit.class).build().parse();
         assertEquals(1, beanList.size());
         DerivedMockBeanCollectionSplit bean = beanList.get(0);
@@ -230,7 +232,7 @@ public class CollectionSplitTest {
     
     @Test
     public void testGoodCollectionTypeNamedUnparametrized() throws IOException {
-        List<DerivedMockBeanCollectionSplit> beanList = new CsvToBeanBuilder(new FileReader("src/test/resources/testgoodcollections.csv"))
+        List<DerivedMockBeanCollectionSplit> beanList = new CsvToBeanBuilder<DerivedMockBeanCollectionSplit>(new FileReader("src/test/resources/testgoodcollections.csv"))
                 .withType(DerivedMockBeanCollectionSplit.class).build().parse();
         assertEquals(1, beanList.size());
         DerivedMockBeanCollectionSplit bean = beanList.get(0);
@@ -243,7 +245,7 @@ public class CollectionSplitTest {
     
     @Test
     public void testGoodCollectionHeaderMapping() throws IOException {
-        List<DerivedMockBeanCollectionSplit> beanList = new CsvToBeanBuilder(new FileReader("src/test/resources/testgoodcollections.csv"))
+        List<DerivedMockBeanCollectionSplit> beanList = new CsvToBeanBuilder<DerivedMockBeanCollectionSplit>(new FileReader("src/test/resources/testgoodcollections.csv"))
                 .withType(DerivedMockBeanCollectionSplit.class).build().parse();
         assertEquals(1, beanList.size());
         DerivedMockBeanCollectionSplit bean = beanList.get(0);
@@ -254,11 +256,17 @@ public class CollectionSplitTest {
         assertEquals(6, collectionType.size());
         assertEquals("[2, 2, 1, 3, 3, 3]", collectionType.toString());
     }
-    
+
+    /**
+     * Tests a good split using column mapping.
+     * <p>Also incidentally tests:
+     * <ul><li>Capture by position without a matching regular expression</li>
+     * <li>Capture by position with a matching regular expression</li></ul></p>
+     */
     @Test
     public void testGoodCollectionColumnMapping() {
         List<AnnotatedMockBeanCollectionSplitByColumn> beanList =
-                new CsvToBeanBuilder(new StringReader("A string is great,1.0 2.0 3.0"))
+                new CsvToBeanBuilder<AnnotatedMockBeanCollectionSplitByColumn>(new StringReader("A string is great,f:1.0 f:2.0 f:3.0"))
                         .withType(AnnotatedMockBeanCollectionSplitByColumn.class)
                         .build().parse();
         assertEquals(1, beanList.size());
@@ -268,9 +276,9 @@ public class CollectionSplitTest {
     }
     
     @Test
-    public void testPrecendenceCustomAndCollectionConverter() {
+    public void testPrecedenceCustomAndCollectionConverter() {
         List<AnnotationPrecedenceWithCollections> beanList =
-                new CsvToBeanBuilder(
+                new CsvToBeanBuilder<AnnotationPrecedenceWithCollections>(
                         new StringReader(
                                 "precedenceGoesToCustom,precedenceGoesToCollection\nThis is a string,2 2 1 3 3 3"))
                         .withType(AnnotationPrecedenceWithCollections.class).build().parse();
@@ -283,9 +291,9 @@ public class CollectionSplitTest {
     }
     
     @Test
-    public void testPrecendenceCollectionAndStandardConverter() {
+    public void testPrecedenceCollectionAndStandardConverter() {
         List<AnnotationPrecedenceWithCollections> beanList =
-                new CsvToBeanBuilder(
+                new CsvToBeanBuilder<AnnotationPrecedenceWithCollections>(
                         new StringReader(
                                 "precedenceGoesToCustom,precedenceGoesToCollection\nThis is a string,2 2 1 3 3 3"))
                         .withType(AnnotationPrecedenceWithCollections.class).build().parse();
@@ -300,7 +308,7 @@ public class CollectionSplitTest {
     @Test
     public void testUnknownElementType() {
         final String input = "$45";
-        CsvToBean csv2b = new CsvToBeanBuilder(new StringReader(input))
+        CsvToBean<UnknownElementType> csv2b = new CsvToBeanBuilder<UnknownElementType>(new StringReader(input))
                 .withType(UnknownElementType.class)
                 .withThrowExceptions(false)
                 .build();
@@ -318,7 +326,7 @@ public class CollectionSplitTest {
     @Test
     public void testNonCollectionBeanMember() {
         try {
-            new CsvToBeanBuilder(new StringReader("1 2 3"))
+            new CsvToBeanBuilder<NonCollectionBeanMember>(new StringReader("1 2 3"))
                     .withType(NonCollectionBeanMember.class)
                     .build().parse();
             fail("Should have thrown exception.");
@@ -331,7 +339,7 @@ public class CollectionSplitTest {
     @Test
     public void testWrongCollectionTypeBeanMember() {
         try {
-            new CsvToBeanBuilder(new StringReader("l\n2 2 1 3 3 3"))
+            new CsvToBeanBuilder<WrongCollectionType>(new StringReader("l\n2 2 1 3 3 3"))
                     .withType(WrongCollectionType.class)
                     .build().parse();
             fail("Exception should have been thrown.");
@@ -343,7 +351,7 @@ public class CollectionSplitTest {
     
     @Test
     public void testWrongElementTypeBeanMember() {
-        CsvToBean csv2b = new CsvToBeanBuilder(new StringReader("l\n2 2 1 3 3 3"))
+        CsvToBean<WrongElementType> csv2b = new CsvToBeanBuilder<WrongElementType>(new StringReader("l\n2 2 1 3 3 3"))
                 .withType(WrongElementType.class)
                 .withThrowExceptions(false).build();
         List<WrongElementType> beanList = csv2b.parse();
@@ -360,7 +368,7 @@ public class CollectionSplitTest {
     
     @Test
     public void testInterfaceAsCollectionTypeInAnnotation() {
-        List<InterfaceAsCollectionType> beanList = new CsvToBeanBuilder(new StringReader("1 2 3 4"))
+        List<InterfaceAsCollectionType> beanList = new CsvToBeanBuilder<InterfaceAsCollectionType>(new StringReader("1 2 3 4"))
                 .withType(InterfaceAsCollectionType.class)
                 .build().parse();
         assertEquals(1, beanList.size());
@@ -371,7 +379,7 @@ public class CollectionSplitTest {
     @Test
     public void testEmptySplitOn() {
         try {
-            new CsvToBeanBuilder(new StringReader("1a2b3c4"))
+            new CsvToBeanBuilder<InvalidRegexAsSplitOn>(new StringReader("1a2b3c4"))
                     .withType(InvalidRegexAsSplitOn.class)
                     .build().parse();
             fail("Should have thrown exception.");
@@ -384,7 +392,7 @@ public class CollectionSplitTest {
     @Test
     public void testInvalidRegexAsSplitOn() {
         try {
-            new CsvToBeanBuilder(new StringReader("1a2b3c4"))
+            new CsvToBeanBuilder<InvalidRegexAsSplitOn>(new StringReader("1a2b3c4"))
                     .withType(InvalidRegexAsSplitOn.class)
                     .build().parse();
             fail("Should have thrown exception.");
@@ -397,7 +405,7 @@ public class CollectionSplitTest {
     @Test
     public void testUnknownCollectionType() {
         try {
-            new CsvToBeanBuilder(new StringReader("2 2 1 3 3 3"))
+            new CsvToBeanBuilder<UnknownCollectionType>(new StringReader("2 2 1 3 3 3"))
                     .withType(UnknownCollectionType.class).build().parse();
             fail("Exception should have been thrown.");
         }
@@ -405,7 +413,15 @@ public class CollectionSplitTest {
             assertEquals(BeanFieldSplit.class, csve.getConverterClass());
         }
     }
-    
+
+    /**
+     * Tests writing with a header name mapping strategy.
+     * <p>Also incidentally tests:
+     * <ul><li>Writing with a format string and a header name mapping strategy</li></ul></p>
+     *
+     * @throws CsvDataTypeMismatchException Never
+     * @throws CsvRequiredFieldEmptyException Never
+     */
     @Test
     public void testWriteHeaderNameStrategy() throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
         StringWriter writer = new StringWriter();
@@ -428,14 +444,20 @@ public class CollectionSplitTest {
         // depending on I don't know what (probably the JDK version), the order
         // can change.
         String option1 = "\"COLLECTIONTYPE\",\"DEQUETYPE\",\"LISTTYPE\",\"NAVIGABLESETTYPE\",\"QUEUETYPE\",\"SETTYPE\",\"SORTEDSETTYPE\"\n" +
-                "\"\",\"\",\"\",\"\",\"\",\"1978-01-15 2018-01-01\",\"1 2 3\"\n";
+                "\"\",\"\",\"\",\"\",\"\",\"1978-01-15 2018-01-01\",\"a1j a2j a3j\"\n";
         String option2 = "\"COLLECTIONTYPE\",\"DEQUETYPE\",\"LISTTYPE\",\"NAVIGABLESETTYPE\",\"QUEUETYPE\",\"SETTYPE\",\"SORTEDSETTYPE\"\n" +
-                "\"\",\"\",\"\",\"\",\"\",\"2018-01-01 1978-01-15\",\"1 2 3\"\n";
+                "\"\",\"\",\"\",\"\",\"\",\"2018-01-01 1978-01-15\",\"a1j a2j a3j\"\n";
         assertTrue(option1.equals(s) || option2.equals(s));
     }
     
     /**
-     * This also incidentally tests writing with {@link ColumnPositionMappingStrategy}.
+     * Tests writing with a delimiter.
+     * <p>Also incidentally tests:
+     * <ul><li>writing with {@link ColumnPositionMappingStrategy}</li>
+     * <li>Writing with a format string and {@link ColumnPositionMappingStrategy}</li>
+     * <li>Writing with an empty list</li>
+     * <li>Writing with a list full of {@code null}</li>
+     * <li>Writing with a format string and empty input</li></ul></p>
      * 
      * @throws CsvDataTypeMismatchException Never
      * @throws CsvRequiredFieldEmptyException Never
@@ -446,17 +468,28 @@ public class CollectionSplitTest {
         StatefulBeanToCsv<AnnotatedMockBeanCollectionSplitByColumn> b2csv =
                 new StatefulBeanToCsvBuilder<AnnotatedMockBeanCollectionSplitByColumn>(writer).build();
         AnnotatedMockBeanCollectionSplitByColumn bean = new AnnotatedMockBeanCollectionSplitByColumn();
-        Queue floatList = new ArrayDeque();
-        floatList.addAll(Arrays.asList(1.0, 2.0, 3.0));
+        Queue<Float> floatList = new ArrayDeque<>(Arrays.asList(1.0f, 2.0f, 3.0f));
         bean.setFloatList(floatList);
         bean.setStringList(Arrays.asList("This", "string", "dumb"));
         b2csv.write(bean);
-        assertEquals("\"This,string,dumb\",\"1.0 silly delimiter 2.0 silly delimiter 3.0\"\n", writer.toString());
+        floatList = new LinkedList<>(Arrays.asList(4.0f, 5.0f, 6.0f));
+        bean.setFloatList(floatList);
+        bean.setStringList(Arrays.<String>asList(null, null, null));
+        b2csv.write(bean);
+        floatList = new ArrayDeque<>(Arrays.asList(7.0f, 8.0f, 9.0f));
+        bean.setFloatList(floatList);
+        bean.setStringList(null);
+        b2csv.write(bean);
+        assertEquals(
+                "\"g:This,g:string,g:dumb\",\"1.0 silly delimiter 2.0 silly delimiter 3.0\"\n"
+                + "\",,\",\"4.0 silly delimiter 5.0 silly delimiter 6.0\"\n"
+                + "\"\",\"7.0 silly delimiter 8.0 silly delimiter 9.0\"\n",
+                writer.toString());
     }
     
     @Test
     public void testWithSplitOn() throws IOException {
-        List<DerivedMockBeanCollectionSplit> beanList = new CsvToBeanBuilder(new FileReader("src/test/resources/testgoodcollections.csv"))
+        List<DerivedMockBeanCollectionSplit> beanList = new CsvToBeanBuilder<DerivedMockBeanCollectionSplit>(new FileReader("src/test/resources/testgoodcollections.csv"))
                 .withType(DerivedMockBeanCollectionSplit.class).build().parse();
         assertEquals(1, beanList.size());
         DerivedMockBeanCollectionSplit bean = beanList.get(0);
@@ -468,7 +501,7 @@ public class CollectionSplitTest {
     
     @Test
     public void testRequiredNotPresentOnRead() {
-        CsvToBean<AnnotatedMockBeanCollectionSplitByColumn> csv2b = new CsvToBeanBuilder(new StringReader("A string is great"))
+        CsvToBean<AnnotatedMockBeanCollectionSplitByColumn> csv2b = new CsvToBeanBuilder<AnnotatedMockBeanCollectionSplitByColumn>(new StringReader("A string is great"))
                         .withType(AnnotatedMockBeanCollectionSplitByColumn.class)
                         .withThrowExceptions(false).build();
         List<AnnotatedMockBeanCollectionSplitByColumn> beanList = csv2b.parse();
@@ -503,7 +536,7 @@ public class CollectionSplitTest {
     @Test
     public void testCustomConverterByNameRead() throws IOException {
         ResourceBundle res = ResourceBundle.getBundle("collectionconverter", Locale.GERMAN);
-        List<IdAndErrorSplitByName> beanList = new CsvToBeanBuilder(new FileReader("src/test/resources/testinputsplitcustombyname.csv"))
+        List<IdAndErrorSplitByName> beanList = new CsvToBeanBuilder<IdAndErrorSplitByName>(new FileReader("src/test/resources/testinputsplitcustombyname.csv"))
                 .withType(IdAndErrorSplitByName.class).build().parse();
         assertEquals(2, beanList.size());
 
@@ -541,7 +574,7 @@ public class CollectionSplitTest {
     @Test
     public void testCustomConverterByPositionRead() throws IOException {
         ResourceBundle res = ResourceBundle.getBundle("collectionconverter");
-        List<IdAndErrorSplitByPosition> beanList = new CsvToBeanBuilder(new FileReader("src/test/resources/testinputsplitcustombyposition.csv"))
+        List<IdAndErrorSplitByPosition> beanList = new CsvToBeanBuilder<IdAndErrorSplitByPosition>(new FileReader("src/test/resources/testinputsplitcustombyposition.csv"))
                 .withType(IdAndErrorSplitByPosition.class).build().parse();
         assertEquals(2, beanList.size());
 
@@ -578,7 +611,7 @@ public class CollectionSplitTest {
 
     @Test
     public void testCustomConverterByNameWrite() throws IOException, CsvException {
-        List<IdAndErrorSplitByName> beanList = new CsvToBeanBuilder(new FileReader("src/test/resources/testinputsplitcustombyname.csv"))
+        List<IdAndErrorSplitByName> beanList = new CsvToBeanBuilder<IdAndErrorSplitByName>(new FileReader("src/test/resources/testinputsplitcustombyname.csv"))
                 .withType(IdAndErrorSplitByName.class).build().parse();
         StringWriter writer = new StringWriter();
         new StatefulBeanToCsvBuilder<IdAndErrorSplitByName>(writer).build().write(beanList);
@@ -587,7 +620,7 @@ public class CollectionSplitTest {
 
     @Test
     public void testCustomConverterByPositionWrite() throws IOException, CsvException {
-        List<IdAndErrorSplitByPosition> beanList = new CsvToBeanBuilder(new FileReader("src/test/resources/testinputsplitcustombyposition.csv"))
+        List<IdAndErrorSplitByPosition> beanList = new CsvToBeanBuilder<IdAndErrorSplitByPosition>(new FileReader("src/test/resources/testinputsplitcustombyposition.csv"))
                 .withType(IdAndErrorSplitByPosition.class).build().parse();
         StringWriter writer = new StringWriter();
         new StatefulBeanToCsvBuilder<IdAndErrorSplitByPosition>(writer).build().write(beanList);
@@ -598,12 +631,90 @@ public class CollectionSplitTest {
     public void testBadCustomConverter() throws IOException {
         try {
             // Input doesn't matter. The test doesn't get that far.
-            new CsvToBeanBuilder(new FileReader("src/test/resources/testinputsplitcustombyname.csv"))
+            new CsvToBeanBuilder<BadSplitConverter>(new FileReader("src/test/resources/testinputsplitcustombyname.csv"))
                     .withType(BadSplitConverter.class)
                     .build().parse();
         }
         catch(CsvBadConverterException csve) {
             assertEquals(BadCollectionConverter.class, csve.getConverterClass());
+        }
+    }
+
+    @Test
+    public void testCaptureByNameInvalidRegex() {
+        try {
+            MappingStrategy<InvalidCapture> strat = new HeaderColumnNameMappingStrategy<>();
+            strat.setType(InvalidCapture.class);
+            fail("Exception should have been thrown.");
+        }
+        catch(CsvBadConverterException csve) {
+            assertEquals(BeanFieldSplit.class, csve.getConverterClass());
+            assertNotNull(csve.getCause());
+        }
+    }
+
+    @Test
+    public void testCaptureByPositionInvalidRegex() {
+        try {
+            MappingStrategy<InvalidCapture> strat = new ColumnPositionMappingStrategy<>();
+            strat.setType(InvalidCapture.class);
+            fail("Exception should have been thrown.");
+        }
+        catch(CsvBadConverterException csve) {
+            assertEquals(BeanFieldSplit.class, csve.getConverterClass());
+            assertNotNull(csve.getCause());
+        }
+    }
+
+    @Test
+    public void testCaptureByNameRegexWithoutCaptureGroup() {
+        try {
+            MappingStrategy<NoCaptureGroup> strat = new HeaderColumnNameMappingStrategy<>();
+            strat.setType(NoCaptureGroup.class);
+            fail("Exception should have been thrown.");
+        }
+        catch(CsvBadConverterException csve) {
+            assertEquals(BeanFieldSplit.class, csve.getConverterClass());
+            assertNull(csve.getCause());
+        }
+    }
+
+    @Test
+    public void testCaptureByPositionRegexWithoutCaptureGroup() {
+        try {
+            MappingStrategy<NoCaptureGroup> strat = new ColumnPositionMappingStrategy<>();
+            strat.setType(NoCaptureGroup.class);
+            fail("Exception should have been thrown.");
+        }
+        catch(CsvBadConverterException csve) {
+            assertEquals(BeanFieldSplit.class, csve.getConverterClass());
+            assertNull(csve.getCause());
+        }
+    }
+
+    @Test
+    public void testFormatByNameWriteInvalidFormatString() {
+        try {
+            MappingStrategy<InvalidFormatString> strat = new HeaderColumnNameMappingStrategy<>();
+            strat.setType(InvalidFormatString.class);
+            fail("Exception should have been thrown.");
+        }
+        catch(CsvBadConverterException csve) {
+            assertEquals(BeanFieldSplit.class, csve.getConverterClass());
+            assertNotNull(csve.getCause());
+        }
+    }
+
+    @Test
+    public void testFormatByPositionWriteInvalidFormatString() {
+        try {
+            MappingStrategy<InvalidFormatString> strat = new ColumnPositionMappingStrategy<>();
+            strat.setType(InvalidFormatString.class);
+            fail("Exception should have been thrown.");
+        }
+        catch(CsvBadConverterException csve) {
+            assertEquals(BeanFieldSplit.class, csve.getConverterClass());
+            assertNotNull(csve.getCause());
         }
     }
 }

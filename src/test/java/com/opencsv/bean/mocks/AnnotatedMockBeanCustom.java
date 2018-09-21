@@ -33,8 +33,9 @@ public class AnnotatedMockBeanCustom {
 
     /**
      * <p>Used for the following test cases:<ul>
-     * <li>12</li>
-     * <li>56</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByPosition()}</li>
+     * <li>{@link com.opencsv.bean.StatefulBeanToCsvTest#writeEmptyFieldWithConvertGermanToBooleanRequired()}</li>
      * </ul></p>
      */
     @CsvCustomBindByName(column = "bool1", converter = ConvertGermanToBoolean.class, required = true)
@@ -43,8 +44,8 @@ public class AnnotatedMockBeanCustom {
 
     /**
      * <p>Used for the following test cases:<ul>
-     * <li>13</li>
-     * <li>57</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByPosition()}</li>
      * </ul></p>
      */
     @CsvCustomBindByName(converter = ConvertGermanToBoolean.class, required = true)
@@ -53,11 +54,10 @@ public class AnnotatedMockBeanCustom {
 
     /**
      * <p>Used for the following test cases:<ul>
-     * <li>36</li>
-     * <li>37</li>
-     * <li>38</li>
-     * <li>15</li>
-     * <li>59</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testCustomByNameWrappedPrimitiveDataTypeMismatch()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByPosition()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testCustomByPositionWrappedPrimitiveDataTypeMismatch()}</li>
      * </ul></p>
      * <p>Used for the following test cases, writing:<ul>
      * <li>Writing with ConvertGermanToBoolean</li>
@@ -69,8 +69,7 @@ public class AnnotatedMockBeanCustom {
 
     /**
      * <p>Used for the following test cases:<ul>
-     * <li>36</li>
-     * <li>37</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByName()}</li>
      * </ul></p>
      */
     @CsvCustomBindByName(column = "bool3", converter = ConvertGermanToBoolean.class)
@@ -79,8 +78,8 @@ public class AnnotatedMockBeanCustom {
 
     /**
      * <p>Used for the following test cases:<ul>
-     * <li>12</li>
-     * <li>56</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByPosition()}</li>
      * </ul></p>
      */
     @CsvCustomBindByName(column = "byte1", converter = CustomTestMapper.class)
@@ -89,7 +88,7 @@ public class AnnotatedMockBeanCustom {
 
     /**
      * <p>Used for the following test cases:<ul>
-     * <li></li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByName()}</li>
      * </ul></p>
      */
     @CsvCustomBindByName(column = "byte2", converter = CustomTestMapper.class)
@@ -98,10 +97,8 @@ public class AnnotatedMockBeanCustom {
 
     /**
      * <p>Used for the following test cases:<ul>
-     * <li>13</li>
-     * <li>18</li>
-     * <li>57</li>
-     * <li>62</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByPosition()}</li>
      * </ul></p>
      * <p>Used for the following test cases, writing:<ul>
      * <li>Writing with @CsvBindByPosition and @CsvCustomBindByPosition</li>
@@ -115,8 +112,8 @@ public class AnnotatedMockBeanCustom {
 
     /**
      * <p>Used for the following test cases:<ul>
-     * <li>12</li>
-     * <li>56</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByPosition()}</li>
      * </ul></p>
      */
     @CsvCustomBindByName(column = "double1", converter = CustomTestMapper.class)
@@ -134,8 +131,8 @@ public class AnnotatedMockBeanCustom {
 
     /**
      * <p>Used for the following test cases:<ul>
-     * <li>13</li>
-     * <li>57</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByPosition()}</li>
      * </ul></p>
      */
     @CsvCustomBindByName(column = "double3", converter = CustomTestMapper.class)
@@ -153,8 +150,8 @@ public class AnnotatedMockBeanCustom {
 
     /**
      * <p>Used for the following test cases:<ul>
-     * <li>12</li>
-     * <li>56</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByPosition()}</li>
      * </ul></p>
      */
     @CsvCustomBindByName(column = "float1", converter = CustomTestMapper.class)
@@ -172,8 +169,8 @@ public class AnnotatedMockBeanCustom {
 
     /**
      * <p>Used for the following test cases:<ul>
-     * <li>13</li>
-     * <li>57</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByPosition()}</li>
      * </ul></p>
      */
     @CsvCustomBindByName(column = "float3", converter = CustomTestMapper.class)
@@ -191,8 +188,8 @@ public class AnnotatedMockBeanCustom {
 
     /**
      * <p>Used for the following test cases:<ul>
-     * <li>12</li>
-     * <li>56</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByPosition()}</li>
      * </ul></p>
      */
     @CsvCustomBindByName(column = "integer1", converter = CustomTestMapper.class)
@@ -210,8 +207,8 @@ public class AnnotatedMockBeanCustom {
 
     /**
      * <p>Used for the following test cases:<ul>
-     * <li>13</li>
-     * <li>57</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByPosition()}</li>
      * </ul></p>
      */
     @CsvCustomBindByName(column = "integer3", converter = CustomTestMapper.class)
@@ -229,8 +226,8 @@ public class AnnotatedMockBeanCustom {
 
     /**
      * <p>Used for the following test cases:<ul>
-     * <li>12</li>
-     * <li>56</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByPosition()}</li>
      * </ul></p>
      */
     @CsvCustomBindByName(column = "long1", converter = CustomTestMapper.class)
@@ -248,8 +245,8 @@ public class AnnotatedMockBeanCustom {
 
     /**
      * <p>Used for the following test cases:<ul>
-     * <li>13</li>
-     * <li>57</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByPosition()}</li>
      * </ul></p>
      */
     @CsvCustomBindByName(column = "long3", converter = CustomTestMapper.class)
@@ -267,8 +264,8 @@ public class AnnotatedMockBeanCustom {
 
     /**
      * <p>Used for the following test cases:<ul>
-     * <li>12</li>
-     * <li>56</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByPosition()}</li>
      * </ul></p>
      */
     @CsvCustomBindByName(column = "short1", converter = CustomTestMapper.class)
@@ -286,8 +283,8 @@ public class AnnotatedMockBeanCustom {
 
     /**
      * <p>Used for the following test cases:<ul>
-     * <li>13</li>
-     * <li>57</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByPosition()}</li>
      * </ul></p>
      */
     @CsvCustomBindByName(column = "short3", converter = CustomTestMapper.class)
@@ -305,8 +302,8 @@ public class AnnotatedMockBeanCustom {
 
     /**
      * <p>Used for the following test cases:<ul>
-     * <li>12</li>
-     * <li>56</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByPosition()}</li>
      * </ul></p>
      */
     @CsvCustomBindByName(column = "char1", converter = CustomTestMapper.class)
@@ -315,8 +312,8 @@ public class AnnotatedMockBeanCustom {
 
     /**
      * <p>Used for the following test cases:<ul>
-     * <li>13</li>
-     * <li>57</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByPosition()}</li>
      * </ul></p>
      */
     @CsvCustomBindByName(column = "char2", converter = CustomTestMapper.class)
@@ -361,8 +358,8 @@ public class AnnotatedMockBeanCustom {
 
     /**
      * <p>Used for the following test cases:<ul>
-     * <li>12</li>
-     * <li>56</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByPosition()}</li>
      * </ul></p>
      */
     @CsvCustomBindByName(column = "string1", converter = CustomTestMapper.class)
@@ -371,12 +368,8 @@ public class AnnotatedMockBeanCustom {
 
     /**
      * <p>Used for the following test cases:<ul>
-     * <li>14</li>
-     * <li>42</li>
-     * <li>43</li>
-     * <li>44</li>
-     * <li>45</li>
-     * <li>58</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByPosition()}</li>
      * </ul></p>
      * <p>Used for the following test cases, writing:<ul>
      * <li>Writing with ConvertSplitOnWhitespace</li>
@@ -388,10 +381,8 @@ public class AnnotatedMockBeanCustom {
 
     /**
      * <p>Used for the following test cases:<ul>
-     * <li>23</li>
-     * <li>17</li>
-     * <li>61</li>
-     * <li>65</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByPosition()}</li>
      * </ul></p>
      */
     @CsvCustomBindByName(column = "complex1", converter = ConverterComplexClassForCustomAnnotation.class)
@@ -400,10 +391,8 @@ public class AnnotatedMockBeanCustom {
 
     /**
      * <p>Used for the following test cases:<ul>
-     * <li>25</li>
-     * <li>17</li>
-     * <li>61</li>
-     * <li>67</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByPosition()}</li>
      * </ul></p>
      */
     @CsvCustomBindByName(column = "complex2", converter = ConverterComplexClassForCustomAnnotation.class)
@@ -412,12 +401,10 @@ public class AnnotatedMockBeanCustom {
 
     /**
      * <p>Used for the following test cases:<ul>
-     * <li>27</li>
-     * <li>16</li>
-     * <li>17</li>
-     * <li>60</li>
-     * <li>61</li>
-     * <li>69</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testMapByNameComplexTypeWrongType()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testMapByPositionComplexTypeWrongType()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByPosition()}</li>
      * </ul></p>
      */
     @CsvCustomBindByName(column = "complex3", converter = ConverterComplexClassForCustomAnnotation.class)
@@ -426,8 +413,9 @@ public class AnnotatedMockBeanCustom {
     
     /**
      * <p>Used for the following test cases:<ul>
-     * <li>87</li>
-     * <li>88</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataCustomByPosition()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testCustomConverterRequiredEmptyInput()}</li>
      * </ul></p>
      */
     @CsvCustomBindByName(column = "requiredWithCustom", converter = CustomTestMapper.class, required = true)
@@ -718,7 +706,7 @@ public class AnnotatedMockBeanCustom {
         return complexClass1;
     }
     
-    /* Commented out for test case 23.
+    /* Commented out for test case mapping to complex object with private access, no setter method.
     public void setComplexClass1(ComplexClassForCustomAnnotation complexClass1) {
         this.complexClass1 = complexClass1;
     }
@@ -739,7 +727,7 @@ public class AnnotatedMockBeanCustom {
         return complexClass3;
     }
 
-    /* Private for test case 27. */
+    /* Private for test case mapping to private complex type with private setter. */
     private void setComplexClass3(ComplexClassForCustomAnnotation complexClass3) {
         this.complexClass3 = new ComplexClassForCustomAnnotation();
         this.complexClass3.i = -1;

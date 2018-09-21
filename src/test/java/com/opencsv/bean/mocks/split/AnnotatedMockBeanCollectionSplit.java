@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.opencsv.bean.mocks;
+package com.opencsv.bean.mocks.split;
 
 import com.opencsv.bean.CsvBindAndSplitByName;
 import com.opencsv.bean.CsvDate;
@@ -33,17 +33,17 @@ import java.util.SortedSet;
  */
 public class AnnotatedMockBeanCollectionSplit {
     
-    @CsvBindAndSplitByName(elementType = Integer.class)
+    @CsvBindAndSplitByName(elementType = Integer.class, capture = "couldn't possibly match (anything)")
     private Collection<Integer> collectionType;
     
-    @CsvBindAndSplitByName(collectionType = LinkedList.class, elementType = Integer.class)
+    @CsvBindAndSplitByName(collectionType = LinkedList.class, elementType = Integer.class, capture = "[a-z]([0-9])")
     private List<Integer> listType;
     
     @CsvBindAndSplitByName(elementType = Date.class)
     @CsvDate("yyyy-MM-dd")
     private Set<Date> setType;
     
-    @CsvBindAndSplitByName(elementType = Integer.class)
+    @CsvBindAndSplitByName(elementType = Integer.class, format = "a%sj")
     private SortedSet<? extends Number> sortedSetType;
     
     @CsvBindAndSplitByName(elementType = Integer.class)

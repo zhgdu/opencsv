@@ -21,7 +21,7 @@ import com.opencsv.bean.CsvBindByPosition;
 import java.util.List;
 
 /**
- * For annotation test cases 21 and 63.
+ * For annotation test cases that try to bind to unbindable types.
  * Would love to do this an an inner class, but that won't work without
  * further refactoring. An inner class does not have a nullary constructor,
  * and can't be made to have one. A good, brief explanation can be found at
@@ -30,7 +30,7 @@ import java.util.List;
  *
  * @author Andrew Rucker Jones
  */
-public class TestCases21And63 {
+public class UnbindableField {
     @CsvBindByName
     @CsvBindByPosition(position = 0)
     public List<Boolean> list;

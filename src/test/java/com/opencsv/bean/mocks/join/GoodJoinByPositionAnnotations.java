@@ -28,14 +28,14 @@ import org.apache.commons.collections4.multimap.HashSetValuedHashMap;
  */
 public class GoodJoinByPositionAnnotations {
     
-    @CsvBindAndJoinByPosition(position = "0", elementType = Integer.class, required = true)
+    @CsvBindAndJoinByPosition(position = "0", elementType = Integer.class, required = true, capture = "couldn't possibly match (anything)")
     private MultiValuedMap<Integer, Integer> map1;
     
     @CsvBindAndJoinByPosition(position = "1,16-", elementType = Date.class, locale = "de-DE", required = true)
     @CsvDate(value = "dd. MMM yyyy")
     private MultiValuedMap<Integer, Date> map2;
     
-    @CsvBindAndJoinByPosition(position = "3-2", elementType = Integer.class, mapType = HashSetValuedHashMap.class)
+    @CsvBindAndJoinByPosition(position = "3-2", elementType = Integer.class, mapType = HashSetValuedHashMap.class, capture = "\\|([0-9]+)\\|")
     private MultiValuedMap<Integer, Integer> map3;
     
     @CsvBindAndJoinByPosition(position = "4-6 , 7 - 9,8-10,12,13,15", elementType = String.class)

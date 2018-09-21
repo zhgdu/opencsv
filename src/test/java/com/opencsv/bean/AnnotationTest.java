@@ -67,6 +67,52 @@ public class AnnotationTest {
         return new GregorianCalendar(1978, Calendar.JANUARY, 15, 6, 32, 9);
     }
 
+    /**
+     * Tests mapping of all primitive types by name.
+     * <p>Also incidentally tests:
+     * <ul><li>Mapping of all wrapped primitive types by name</li>
+     * <li>Mapping field of destination class with {@link CsvBindByName} with
+     * members of same names as columns</li>
+     * <li>Mapping field of destination class with {@link CsvBindByName} with
+     * members of different names than columns</li>
+     * <li>Unmapped field using header name strategy</li>
+     * <li>Mapping required fields by {@link CsvBindByName} with complete
+     * source data</li>
+     * <li>Mapping optional fields by {@link CsvBindByName} with complete
+     * source data</li>
+     * <li>Mapping optional primitive fields by {@link CsvBindByName} with
+     * missing source data</li>
+     * <li>Mapping optional object fields by {@link CsvBindByName} with missing
+     * source data</li>
+     * <li>Mapping to primitive types with private access and no setter method
+     * with {@link CsvBindByName}</li>
+     * <li>Mapping to primitive types with private access and a public setter
+     * method with {@link CsvBindByName}</li>
+     * <li>Mapping to primitive types with private access and a private setter
+     * method with {@link CsvBindByName}</li>
+     * <li>Mapping all locale-specific fields using a different locale</li>
+     * <li>Mapping {@link java.math.BigDecimal} and
+     * {@link java.math.BigInteger} without a locale</li>
+     * <li>Mapping all the date types using the default format string and no
+     * locale</li>
+     * <li>Mapping all the date types using the default format string and a
+     * locale</li>
+     * <li>Mapping a date type using a specified format string and no
+     * locale</li>
+     * <li>Mapping a date type using a specified format string and a
+     * locale</li>
+     * <li>Using a non-existent locale</li>
+     * <li>Mapping a time before noon</li>
+     * <li>Mapping a time after noon</li>
+     * <li>Annotating a column with {@link CsvBindByName} with a column name
+     * that is not in the input</li>
+     * <li>Mapping optional date field using {@link com.opencsv.bean.CsvDate}
+     * and no source data</li>
+     * <li>Capture with a matching regular expression</li>
+     * <li>Capture without a matching regular expression</li></ul></p>
+     *
+     * @throws FileNotFoundException Never
+     */
     @Test
     public void testGoodDataByName() throws FileNotFoundException {
         HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat =
@@ -74,11 +120,20 @@ public class AnnotationTest {
         strat.setType(AnnotatedMockBeanFull.class);
         FileReader fin = new FileReader("src/test/resources/testinputfullgood.csv");
         testGoodData(strat, fin, true);
-        
+    }
+
+    /**
+     * Tests mapping a subclass with annotations in both subclass and
+     * superclass using {@link CsvBindByName}.
+     *
+     * @throws IOException Never
+     */
+    @Test
+    public void testGoodDerivedDataByName() throws IOException {
         HeaderColumnNameMappingStrategy<AnnotatedMockBeanFullDerived> stratd =
                 new HeaderColumnNameMappingStrategy<>();
         stratd.setType(AnnotatedMockBeanFullDerived.class);
-        fin = new FileReader("src/test/resources/testinputderivedgood.csv");
+        FileReader fin = new FileReader("src/test/resources/testinputderivedgood.csv");
         List<AnnotatedMockBeanFull> beanList = testGoodData(stratd, fin, true);
         AnnotatedMockBeanFullDerived bean = (AnnotatedMockBeanFullDerived) beanList.get(0);
         assertEquals(7, bean.getIntInSubclass());
@@ -86,6 +141,36 @@ public class AnnotationTest {
         assertEquals(8, bean.getIntInSubclass());
     }
 
+    /**
+     * Tests mapping fields of all wrapped primitive destination objects by
+     * {@link com.opencsv.bean.CsvBindByPosition}.
+     * <p>Also incidentally tests:
+     * <ul><li>Unmapped field using column number strategy</li>
+     * <li>Mapping all wrappers of primitive objects by
+     * {@link com.opencsv.bean.CsvBindByPosition}</li>
+     * <li>Mapping required fields by
+     * {@link com.opencsv.bean.CsvBindByPosition} with complete source
+     * data</li>
+     * <li>Mapping optional fields by
+     * {@link com.opencsv.bean.CsvBindByPosition} with complete source
+     * data</li>
+     * <li>Mapping optional primitive fields by
+     * {@link com.opencsv.bean.CsvBindByPosition} with missing source data</li>
+     * <li>Mapping optional object fields by
+     * {@link com.opencsv.bean.CsvBindByPosition} with missing source data</li>
+     * <li>Mapping to primitive types with private access and no setter method
+     * with {@link com.opencsv.bean.CsvBindByPosition}</li>
+     * <li>Mapping to primitive types with private access and a public setter
+     * method with {@link com.opencsv.bean.CsvBindByPosition}</li>
+     * <li>Mapping to primitive types with private access and a private setter
+     * method with {@link com.opencsv.bean.CsvBindByPosition}</li>
+     * <li>Annotating a column with {@link com.opencsv.bean.CsvBindByPosition}
+     * with a column number that is not in the input</li>
+     * <li>Capture with a matching regular expression</li>
+     * <li>Capture without a matching regular expression</li></ul></p>
+     *
+     * @throws FileNotFoundException Never
+     */
     @Test
     public void testGoodDataByPosition() throws FileNotFoundException {
         ColumnPositionMappingStrategy<AnnotatedMockBeanFull> strat =
@@ -93,11 +178,20 @@ public class AnnotationTest {
         strat.setType(AnnotatedMockBeanFull.class);
         FileReader fin = new FileReader("src/test/resources/testinputposfullgood.csv");
         testGoodData(strat, fin, true);
+    }
 
+    /**
+     * Tests mapping a subclass with annotations in both subclass and
+     * superclass using {@link CsvBindByPosition}.
+     *
+     * @throws IOException Never
+     */
+    @Test
+    public void testGoodDerivedDataByPosition() throws IOException {
         ColumnPositionMappingStrategy<AnnotatedMockBeanFullDerived> stratd =
                 new ColumnPositionMappingStrategy<>();
         stratd.setType(AnnotatedMockBeanFullDerived.class);
-        fin = new FileReader("src/test/resources/testinputposderivedgood.csv");
+        FileReader fin = new FileReader("src/test/resources/testinputposderivedgood.csv");
         List<AnnotatedMockBeanFull> beanList = testGoodData(stratd, fin, true);
         AnnotatedMockBeanFullDerived bean = (AnnotatedMockBeanFullDerived) beanList.get(0);
         assertEquals(7, bean.getIntInSubclass());
@@ -205,6 +299,46 @@ public class AnnotationTest {
         return beanList;
     }
 
+    /**
+     * Tests mapping fields of all wrapped primitive destination objects by
+     * {@link com.opencsv.bean.CsvCustomBindByName}.
+     * <p>Also incidentally tests:
+     * <ul><li>Mapping fields of all primitive destination types by
+     * {@link com.opencsv.bean.CsvCustomBindByName}</li>
+     * <li>Mapping fields of a complex destination object by
+     * {@link com.opencsv.bean.CsvCustomBindByName}</li>
+     * <li>Mapping fields of a complex destination object by
+     * {@link com.opencsv.bean.CsvCustomBindByName} with an assignable derived
+     * type</li>
+     * <li>Mapping fields annotated with {@link CsvBindByName} and
+     * {@link CsvCustomBindByName}</li>
+     * <li>Mapping to complex destination objects with private access and no
+     * setter method with {@link com.opencsv.bean.CsvCustomBindByName}</li>
+     * <li>Mapping to complex destination objects with private access and a
+     * public setter method with {@link CsvCustomBindByName}</li>
+     * <li>Mapping to complex destination objects with private access and a
+     * private setter method with {@link CsvCustomBindByName}</li>
+     * <li>Mapping with
+     * {@link com.opencsv.bean.customconverter.ConvertGermanToBoolean} using
+     * all available values</li>
+     * <li>Mapping with
+     * {@link com.opencsv.bean.customconverter.ConvertGermanToBoolean} using
+     * an empty input</li>
+     * <li>Mapping with
+     * {@link com.opencsv.bean.customconverter.ConvertSplitOnWhitespace} using
+     * multiple whitespace-separated values (space, tab)</li>
+     * <li>Mapping with
+     * {@link com.opencsv.bean.customconverter.ConvertSplitOnWhitespace} using
+     * a null input string</li>
+     * <li>Mapping with
+     * {@link com.opencsv.bean.customconverter.ConvertSplitOnWhitespace} using
+     * a single string with no whitespace</li>
+     * <li>Mapping with
+     * {@link com.opencsv.bean.customconverter.ConvertSplitOnWhitespace} using
+     * an input string of only whitespace characters</li></ul></p>
+     *
+     * @throws FileNotFoundException Never
+     */
     @Test
     public void testGoodDataCustomByName() throws FileNotFoundException {
         HeaderColumnNameMappingStrategy<AnnotatedMockBeanCustom> strat =
@@ -214,6 +348,31 @@ public class AnnotationTest {
         testGoodDataCustom(strat, fin);
     }
 
+    /**
+     * Tests mapping fields of all wrapped primitive destination objects by
+     * {@link com.opencsv.bean.CsvCustomBindByPosition}.
+     * <p>Also incidentally tests:
+     * <ul><li>Mapping fields of all primitive destination types by
+     * {@link com.opencsv.bean.CsvCustomBindByPosition}</li>
+     * <li>Mapping fields of a complex destination object by
+     * {@link com.opencsv.bean.CsvCustomBindByPosition}</li>
+     * <li>Mapping fields of a complex destination object by
+     * {@link com.opencsv.bean.CsvCustomBindByPosition} with an assignable
+     * derived type</li>
+     * <li>Mapping fields annotated with
+     * {@link com.opencsv.bean.CsvBindByPosition} and
+     * {@link com.opencsv.bean.CsvCustomBindByPosition}</li>
+     * <li>Mapping to complex destination objects with private access and no
+     * setter method with {@link com.opencsv.bean.CsvCustomBindByPosition}</li>
+     * <li>Mapping to complex destination objects with private access and a
+     * public setter method with
+     * {@link com.opencsv.bean.CsvCustomBindByPosition}</li>
+     * <li>Mapping to complex destination objects with private access and a
+     * private setter method with
+     * {@link com.opencsv.bean.CsvCustomBindByPosition}</li></ul></p>
+     *
+     * @throws FileNotFoundException Never
+     */
     @Test
     public void testGoodDataCustomByPosition() throws FileNotFoundException {
         ColumnPositionMappingStrategy<AnnotatedMockBeanCustom> strat =
@@ -311,25 +470,34 @@ public class AnnotationTest {
         assertNull(bean.getComplexString());
     }
 
+    /**
+     * Tests mapping a required field with
+     * {@link com.opencsv.bean.CsvBindByName} when the source data are missing.
+     * <p>Also incidentally tests:<ul>
+     * <li>Error in input on line x</li>
+     * </ul></p>
+     *
+     * @throws FileNotFoundException Never
+     */
     @Test
-    public void testCase7() throws FileNotFoundException {
+    public void testMapRequiredByNameMissingData() throws FileNotFoundException {
         HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat =
                 new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanFull.class);
         FileReader fin = new FileReader("src/test/resources/testinputcase7.csv");
-        testCases7And51(strat, fin, 2);
+        auxiliaryTestMissingData(strat, fin, 2);
     }
 
     @Test
-    public void testCase51() throws FileNotFoundException {
+    public void testMapRequiredByPositionMissingData() throws FileNotFoundException {
         ColumnPositionMappingStrategy<AnnotatedMockBeanFull> strat =
                 new ColumnPositionMappingStrategy<>();
         strat.setType(AnnotatedMockBeanFull.class);
         FileReader fin = new FileReader("src/test/resources/testinputcase51.csv");
-        testCases7And51(strat, fin, 1);
+        auxiliaryTestMissingData(strat, fin, 1);
     }
 
-    private void testCases7And51(MappingStrategy strat, Reader fin, long expectedLineNumber) {
+    private void auxiliaryTestMissingData(MappingStrategy strat, Reader fin, long expectedLineNumber) {
         CSVReader read = new CSVReader(fin, ';');
         CsvToBean ctb = new CsvToBean();
         try {
@@ -346,38 +514,38 @@ public class AnnotationTest {
     }
 
     @Test
-    public void testCase11() throws IOException {
+    public void testMapByNameMismatchingType() throws IOException {
         HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat =
                 new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanFull.class);
         Reader fin = new FileReader("src/test/resources/testinputcase11.csv");
-        String englishErrorMessage = testCases11And55(strat, fin, 2);
+        String englishErrorMessage = auxiliaryTestMismatchingType(strat, fin, 2);
         
         // Now with another locale
         strat = new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanFull.class);
         strat.setErrorLocale(Locale.GERMAN); // In this test, setType(), then setErrorLocale()
         fin = new FileReader("src/test/resources/testinputcase11.csv");
-        assertNotEquals(englishErrorMessage, testCases11And55(strat, fin, 2));
+        assertNotEquals(englishErrorMessage, auxiliaryTestMismatchingType(strat, fin, 2));
     }
 
     @Test
-    public void testCase55() throws IOException {
+    public void testMapByPositionMismatchingType() throws IOException {
         ColumnPositionMappingStrategy<AnnotatedMockBeanFull> strat =
                 new ColumnPositionMappingStrategy<>();
         strat.setType(AnnotatedMockBeanFull.class);
         Reader fin = new FileReader("src/test/resources/testinputcase55.csv");
-        String englishErrorMessage = testCases11And55(strat, fin, 1);
+        String englishErrorMessage = auxiliaryTestMismatchingType(strat, fin, 1);
         
         // Now with a different locale
         strat = new ColumnPositionMappingStrategy<>();
         strat.setErrorLocale(Locale.GERMAN); // In this test, setErrorLocale(), then setType()
         strat.setType(AnnotatedMockBeanFull.class);
         fin = new FileReader("src/test/resources/testinputcase55.csv");
-        assertNotEquals(englishErrorMessage, testCases11And55(strat, fin, 1));
+        assertNotEquals(englishErrorMessage, auxiliaryTestMismatchingType(strat, fin, 1));
     }
 
-    private String testCases11And55(MappingStrategy strat, Reader fin, long expectedLineNumber) {
+    private String auxiliaryTestMismatchingType(MappingStrategy strat, Reader fin, long expectedLineNumber) {
         CSVReader read = new CSVReader(fin, ';');
         CsvToBean ctb = new CsvToBean();
         String errorMessage = null;
@@ -399,24 +567,24 @@ public class AnnotationTest {
     }
 
     @Test
-    public void testCase21() {
-        HeaderColumnNameMappingStrategy<TestCases21And63> strat =
+    public void testMapByNameUnbindableField() {
+        HeaderColumnNameMappingStrategy<UnbindableField> strat =
                 new HeaderColumnNameMappingStrategy<>();
-        strat.setType(TestCases21And63.class);
+        strat.setType(UnbindableField.class);
         CSVReader read = new CSVReader(new StringReader("list\ntrue false true"));
-        testCases21And63(strat, read, 2);
+        auxiliaryTestUnbindableField(strat, read, 2);
     }
 
     @Test
-    public void testCase63() {
-        ColumnPositionMappingStrategy<TestCases21And63> strat =
+    public void testMapByPositionUnbindableField() {
+        ColumnPositionMappingStrategy<UnbindableField> strat =
                 new ColumnPositionMappingStrategy<>();
-        strat.setType(TestCases21And63.class);
+        strat.setType(UnbindableField.class);
         CSVReader read = new CSVReader(new StringReader("true false true"));
-        testCases21And63(strat, read, 1);
+        auxiliaryTestUnbindableField(strat, read, 1);
     }
 
-    private void testCases21And63(MappingStrategy strat, CSVReader read, long expectedLineNumber) {
+    private void auxiliaryTestUnbindableField(MappingStrategy strat, CSVReader read, long expectedLineNumber) {
         CsvToBean ctb = new CsvToBean();
         try {
             ctb.parse(strat, read);
@@ -433,12 +601,12 @@ public class AnnotationTest {
     
     @Test
     public void testBadDataExceptionsCapturedUnordered() {
-        CsvToBean<TestCase34> ctb = new CsvToBeanBuilder<TestCase34>(new StringReader("isnotdate\n19780115T063209"))
-                .withType(TestCase34.class)
+        CsvToBean<DateAnnotationOnNondate> ctb = new CsvToBeanBuilder<DateAnnotationOnNondate>(new StringReader("isnotdate\n19780115T063209"))
+                .withType(DateAnnotationOnNondate.class)
                 .withThrowExceptions(false)
                 .withOrderedResults(false)
                 .build();
-        List<TestCase34> beanList = ctb.parse();
+        List<DateAnnotationOnNondate> beanList = ctb.parse();
         assertNotNull(beanList);
         assertEquals(0, beanList.size());
         List<CsvException> exceptionList = ctb.getCapturedExceptions();
@@ -453,58 +621,39 @@ public class AnnotationTest {
     }
 
     @Test
-    public void testBadDataByName() throws FileNotFoundException {
+    public void testRequiredDateEmptyInput() throws IOException {
         HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat =
                 new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanFull.class);
-        Reader fin = new FileReader("src/test/resources/testinputcase78null.csv");
+        CsvToBean ctb = new CsvToBean();
+        for(String fn : Arrays.asList(
+                "src/test/resources/testinputcase78null.csv",
+                "src/test/resources/testinputcase78blank.csv")) {
+            Reader fin = new FileReader(fn);
+            CSVReader read = new CSVReader(fin, ';');
+            try {
+                ctb.parse(strat, read);
+                fail("Expected parse to throw exception. Input filename: " + fn);
+            } catch (RuntimeException e) {
+                assertTrue("Input filename: " + fn,
+                        e.getCause() instanceof CsvRequiredFieldEmptyException);
+                CsvRequiredFieldEmptyException csve = (CsvRequiredFieldEmptyException) e.getCause();
+                assertEquals("Input filename: " + fn, 2, csve.getLineNumber());
+                assertEquals("Input filename: " + fn,
+                        AnnotatedMockBeanFull.class, csve.getBeanClass());
+                assertEquals("Input filename: " + fn, "dateDefaultLocale",
+                        csve.getDestinationField().getName());
+            }
+        }
+    }
+
+    private void auxiliaryTestUnparseableDates(final Reader fin, final MappingStrategy<?> strat) {
         CSVReader read = new CSVReader(fin, ';');
         CsvToBean ctb = new CsvToBean();
         try {
             ctb.parse(strat, read);
             fail("Expected parse to throw exception.");
         } catch (RuntimeException e) {
-            assertTrue(e.getCause() instanceof CsvRequiredFieldEmptyException);
-            CsvRequiredFieldEmptyException csve = (CsvRequiredFieldEmptyException) e.getCause();
-            assertEquals(2, csve.getLineNumber());
-            assertEquals(AnnotatedMockBeanFull.class, csve.getBeanClass());
-            assertEquals("dateDefaultLocale", csve.getDestinationField().getName());
-        }
-
-        fin = new FileReader("src/test/resources/testinputcase78blank.csv");
-        read = new CSVReader(fin, ';');
-        try {
-            ctb.parse(strat, read);
-            fail("Expected parse to throw exception.");
-        } catch (RuntimeException e) {
-            assertTrue(e.getCause() instanceof CsvRequiredFieldEmptyException);
-            CsvRequiredFieldEmptyException csve = (CsvRequiredFieldEmptyException) e.getCause();
-            assertEquals(2, csve.getLineNumber());
-            assertEquals(AnnotatedMockBeanFull.class, csve.getBeanClass());
-            assertEquals("dateDefaultLocale", csve.getDestinationField().getName());
-        }
-
-        fin = new FileReader("src/test/resources/testinputcase81.csv");
-        read = new CSVReader(fin, ';');
-        try {
-            ctb.parse(strat, read);
-            fail("Expected parse to throw exception.");
-        } catch (RuntimeException e) {
-            assertTrue(e.getCause() instanceof CsvDataTypeMismatchException);
-            CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) e.getCause();
-            assertEquals(2, csve.getLineNumber());
-            assertEquals(GregorianCalendar.class, csve.getDestinationClass());
-            assertEquals(UNPARSABLE, csve.getSourceObject());
-            assertTrue(csve.getCause() instanceof ParseException);
-        }
-
-
-        fin = new FileReader("src/test/resources/testinputcase82.csv");
-        read = new CSVReader(fin, ';');
-        try {
-            ctb.parse(strat, read);
-            fail("Expected parse to throw exception.");
-        } catch (RuntimeException e) {
             assertTrue(e.getCause() instanceof CsvDataTypeMismatchException);
             CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) e.getCause();
             assertEquals(2, csve.getLineNumber());
@@ -512,70 +661,74 @@ public class AnnotationTest {
             assertEquals(UNPARSABLE, csve.getSourceObject());
             assertTrue(csve.getCause() instanceof ParseException);
         }
+    }
 
-        fin = new FileReader("src/test/resources/testinputcase83.csv");
-        read = new CSVReader(fin, ';');
-        try {
-            ctb.parse(strat, read);
-            fail("Expected parse to throw exception.");
-        } catch (RuntimeException e) {
-            assertTrue(e.getCause() instanceof CsvDataTypeMismatchException);
-            CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) e.getCause();
-            assertEquals(2, csve.getLineNumber());
-            assertEquals(Date.class, csve.getDestinationClass());
-            assertEquals(UNPARSABLE, csve.getSourceObject());
-            assertTrue(csve.getCause() instanceof ParseException);
-        }
-
-        fin = new FileReader("src/test/resources/testinputcase81.csv");
-        read = new CSVReader(fin, ';');
-        try {
-            ctb.parse(strat, read);
-            fail("Expected parse to throw exception.");
-        } catch (RuntimeException e) {
-            assertTrue(e.getCause() instanceof CsvDataTypeMismatchException);
-            CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) e.getCause();
-            assertEquals(2, csve.getLineNumber());
-            assertEquals(GregorianCalendar.class, csve.getDestinationClass());
-            assertEquals(UNPARSABLE, csve.getSourceObject());
-            assertTrue(csve.getCause() instanceof ParseException);
-        }
-
-
-        fin = new FileReader("src/test/resources/testinputcase82.csv");
-        read = new CSVReader(fin, ';');
-        try {
-            ctb.parse(strat, read);
-            fail("Expected parse to throw exception.");
-        } catch (RuntimeException e) {
-            assertTrue(e.getCause() instanceof CsvDataTypeMismatchException);
-            CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) e.getCause();
-            assertEquals(2, csve.getLineNumber());
-            assertEquals(Date.class, csve.getDestinationClass());
-            assertEquals(UNPARSABLE, csve.getSourceObject());
-            assertTrue(csve.getCause() instanceof ParseException);
-        }
-
-        fin = new FileReader("src/test/resources/testinputcase83.csv");
-        read = new CSVReader(fin, ';');
-        try {
-            ctb.parse(strat, read);
-            fail("Expected parse to throw exception.");
-        } catch (RuntimeException e) {
-            assertTrue(e.getCause() instanceof CsvDataTypeMismatchException);
-            CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) e.getCause();
-            assertEquals(2, csve.getLineNumber());
-            assertEquals(Date.class, csve.getDestinationClass());
-            assertEquals(UNPARSABLE, csve.getSourceObject());
-            assertTrue(csve.getCause() instanceof ParseException);
-        }
-
-        HeaderColumnNameMappingStrategy<TestCase34> strat34 =
+    @Test
+    public void testUnparseableLocaleSpecificDate() throws IOException {
+        HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat =
                 new HeaderColumnNameMappingStrategy<>();
-        strat34.setType(TestCase34.class);
-        read = new CSVReader(new StringReader("isnotdate\n19780115T063209"));
+        strat.setType(AnnotatedMockBeanFull.class);
+        Reader fin = new FileReader("src/test/resources/testinputcase82.csv");
+        auxiliaryTestUnparseableDates(fin, strat);
+    }
+
+    @Test
+    public void testOptionalDateUnparseableInput() throws FileNotFoundException {
+        HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat =
+                new HeaderColumnNameMappingStrategy<>();
+        strat.setType(AnnotatedMockBeanFull.class);
+        Reader fin = new FileReader("src/test/resources/testinputcase81.csv");
+        CSVReader read = new CSVReader(fin, ';');
+        CsvToBean ctb = new CsvToBean();
         try {
-            ctb.parse(strat34, read);
+            ctb.parse(strat, read);
+            fail("Expected parse to throw exception.");
+        } catch (RuntimeException e) {
+            assertTrue(e.getCause() instanceof CsvDataTypeMismatchException);
+            CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) e.getCause();
+            assertEquals(2, csve.getLineNumber());
+            assertEquals(GregorianCalendar.class, csve.getDestinationClass());
+            assertEquals(UNPARSABLE, csve.getSourceObject());
+            assertTrue(csve.getCause() instanceof ParseException);
+        }
+    }
+
+    @Test
+    public void testUnparseableLocaleInspecificDate() throws IOException {
+        HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat =
+                new HeaderColumnNameMappingStrategy<>();
+        strat.setType(AnnotatedMockBeanFull.class);
+        Reader fin = new FileReader("src/test/resources/testinputcase83.csv");
+        auxiliaryTestUnparseableDates(fin, strat);
+    }
+
+    @Test
+    public void testExceptionsSuppressed() {
+        HeaderColumnNameMappingStrategy<DateAnnotationOnNondate> strat =
+                new HeaderColumnNameMappingStrategy<>();
+        strat.setType(DateAnnotationOnNondate.class);
+        CSVReader read = new CSVReader(new StringReader("isnotdate\n19780115T063209"));
+        CsvToBean ctb = new CsvToBean();
+        ctb.parse(strat, read, false);
+        List<CsvException> exlist = ctb.getCapturedExceptions();
+        assertEquals(1, exlist.size());
+        assertTrue(exlist.get(0) instanceof CsvDataTypeMismatchException);
+        CsvDataTypeMismatchException innere = (CsvDataTypeMismatchException) exlist.get(0);
+        assertEquals(2, innere.getLineNumber());
+        assertTrue(innere.getSourceObject() instanceof String);
+        assertEquals("19780115T063209", innere.getSourceObject());
+        assertEquals(String.class, innere.getDestinationClass());
+    }
+
+    @Test
+    public void testDateAnnotationOnNondate() {
+        CsvToBean ctb = new CsvToBean();
+        HeaderColumnNameMappingStrategy<DateAnnotationOnNondate> strat =
+                new HeaderColumnNameMappingStrategy<>();
+        strat.setType(DateAnnotationOnNondate.class);
+        CSVReader read = new CSVReader(new StringReader("isnotdate\n19780115T063209"));
+        try {
+            ctb.parse(strat, read);
             fail("Expected parse to throw exception.");
         } catch (RuntimeException e) {
             assertTrue(e.getCause() instanceof CsvDataTypeMismatchException);
@@ -585,40 +738,27 @@ public class AnnotationTest {
             assertEquals("19780115T063209", csve.getSourceObject());
             assertEquals(String.class, csve.getDestinationClass());
         }
-
-        // For test case 73
-        read = new CSVReader(new StringReader("isnotdate\n19780115T063209"));
-        ctb.parse(strat34, read, false);
-        List<CsvException> exlist = ctb.getCapturedExceptions();
-        assertEquals(1, exlist.size());
-        assertTrue(exlist.get(0) instanceof CsvDataTypeMismatchException);
-        CsvDataTypeMismatchException innere = (CsvDataTypeMismatchException) exlist.get(0);
-        assertEquals(2, innere.getLineNumber());
-        assertTrue(innere.getSourceObject() instanceof String);
-        assertEquals("19780115T063209", innere.getSourceObject());
-        assertEquals(String.class, innere.getDestinationClass());
-
     }
 
     @Test
-    public void testCase16() throws FileNotFoundException {
+    public void testMapByNameComplexTypeWrongType() throws FileNotFoundException {
         HeaderColumnNameMappingStrategy<AnnotatedMockBeanCustom> strat =
                 new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanCustom.class);
         Reader fin = new FileReader("src/test/resources/testinputcase16.csv");
-        testCases16And60(strat, fin, 2);
+        auxiliaryTestWrongComplexType(strat, fin, 2);
     }
 
     @Test
-    public void testCase60() throws FileNotFoundException {
+    public void testMapByPositionComplexTypeWrongType() throws FileNotFoundException {
         ColumnPositionMappingStrategy<AnnotatedMockBeanCustom> strat =
                 new ColumnPositionMappingStrategy<>();
         strat.setType(AnnotatedMockBeanCustom.class);
         Reader fin = new FileReader("src/test/resources/testinputcase60.csv");
-        testCases16And60(strat, fin, 1);
+        auxiliaryTestWrongComplexType(strat, fin, 1);
     }
 
-    private void testCases16And60(MappingStrategy strat, Reader fin, long expectedLineNumber) {
+    private void auxiliaryTestWrongComplexType(MappingStrategy strat, Reader fin, long expectedLineNumber) {
         CSVReader read = new CSVReader(fin, ';');
         CsvToBean ctb = new CsvToBean();
         try {
@@ -635,13 +775,7 @@ public class AnnotationTest {
         }
     }
 
-    @Test
-    public void testBadDataCustomByName() throws FileNotFoundException {
-        HeaderColumnNameMappingStrategy<AnnotatedMockBeanCustom> strat =
-                new HeaderColumnNameMappingStrategy<>();
-        strat.setType(AnnotatedMockBeanCustom.class);
-
-        FileReader fin = new FileReader("src/test/resources/testinputcase38.csv");
+    private void auxiliaryTestCustomMismatch(Reader fin, MappingStrategy<?> strat, int lineNumber) {
         CSVReader read = new CSVReader(fin, ';');
         CsvToBean ctb = new CsvToBean();
         try {
@@ -650,39 +784,48 @@ public class AnnotationTest {
         } catch (RuntimeException e) {
             assertTrue(e.getCause() instanceof CsvDataTypeMismatchException);
             CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) e.getCause();
-            assertEquals(2, csve.getLineNumber());
+            assertEquals(lineNumber, csve.getLineNumber());
             assertTrue(csve.getSourceObject() instanceof String);
             assertEquals("invalidstring", csve.getSourceObject());
             assertEquals(Boolean.class, csve.getDestinationClass());
             assertTrue(csve.getCause() instanceof ConversionException);
         }
+    }
 
-        fin = new FileReader("src/test/resources/testinputcase40.csv");
-        read = new CSVReader(fin, ';');
-        try {
-            ctb.parse(strat, read);
-            fail("Expected parse to throw exception.");
-        } catch (RuntimeException e) {
-            assertTrue(e.getCause() instanceof CsvRequiredFieldEmptyException);
-            CsvRequiredFieldEmptyException csve = (CsvRequiredFieldEmptyException) e.getCause();
-            assertEquals(2, csve.getLineNumber());
-            assertEquals(AnnotatedMockBeanCustom.class, csve.getBeanClass());
-            assertEquals("boolWrapped", csve.getDestinationField().getName());
-        }
+    /**
+     * Tests mapping fields of a wrapped primitive destination object by
+     * {@link com.opencsv.bean.CsvCustomBindByPosition} with mismatching types.
+     *
+     * @throws FileNotFoundException Never
+     */
+    @Test
+    public void testCustomByPositionWrappedPrimitiveDataTypeMismatch() throws FileNotFoundException {
+        ColumnPositionMappingStrategy<AnnotatedMockBeanCustom> strat =
+                new ColumnPositionMappingStrategy<>();
+        strat.setType(AnnotatedMockBeanCustom.class);
 
-        fin = new FileReader("src/test/resources/testinputcase41.csv");
-        read = new CSVReader(fin, ';');
-        try {
-            ctb.parse(strat, read);
-            fail("Expected parse to throw exception.");
-        } catch (RuntimeException e) {
-            assertTrue(e.getCause() instanceof CsvDataTypeMismatchException);
-            CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) e.getCause();
-            assertEquals(2, csve.getLineNumber());
-            assertEquals("invaliddatum", csve.getSourceObject());
-            assertEquals(Boolean.class, csve.getDestinationClass());
-        }
+        FileReader fin = new FileReader("src/test/resources/testinputcase59.csv");
+        auxiliaryTestCustomMismatch(fin, strat, 1);
+    }
 
+    /**
+     * Tests mapping fields of a wrapped primitive destination object by
+     * {@link com.opencsv.bean.CsvCustomBindByName} with mismatching types.
+     * <p>Also incidentally tests:
+     * <ul><li>Mapping with
+     * {@link com.opencsv.bean.customconverter.ConvertGermanToBoolean} using an
+     * invalid string</li></ul></p>
+     *
+     * @throws FileNotFoundException Never
+     */
+    @Test
+    public void testCustomByNameWrappedPrimitiveDataTypeMismatch() throws FileNotFoundException {
+        HeaderColumnNameMappingStrategy<AnnotatedMockBeanCustom> strat =
+                new HeaderColumnNameMappingStrategy<>();
+        strat.setType(AnnotatedMockBeanCustom.class);
+
+        FileReader fin = new FileReader("src/test/resources/testinputcase38.csv");
+        auxiliaryTestCustomMismatch(fin, strat, 2);
     }
 
     @Test
@@ -707,7 +850,7 @@ public class AnnotationTest {
     }
 
     @Test
-    public void testRequiredColumnNonexistantHeaderNameMapping() throws FileNotFoundException {
+    public void testRequiredColumnNonexistentHeaderNameMapping() throws FileNotFoundException {
         HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat =
                 new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanFull.class);
@@ -727,12 +870,7 @@ public class AnnotationTest {
         }
     }
 
-    @Test
-    public void testRequiredColumnNonexistantColumnPositionMapping() throws FileNotFoundException {
-        ColumnPositionMappingStrategy<AnnotatedMockBeanFull> strat =
-                new ColumnPositionMappingStrategy<>();
-        strat.setType(AnnotatedMockBeanFull.class);
-        FileReader fin = new FileReader("src/test/resources/testinputcase85.csv");
+    private void auxiliaryTestColumnMissing(final Reader fin, final MappingStrategy<AnnotatedMockBeanFull> strat) {
         CSVReader read = new CSVReader(fin, ';');
         CsvToBean<AnnotatedMockBeanFull> ctb = new CsvToBean<>();
         try {
@@ -749,28 +887,25 @@ public class AnnotationTest {
     }
 
     @Test
+    public void testRequiredColumnNonexistentColumnPositionMapping() throws FileNotFoundException {
+        ColumnPositionMappingStrategy<AnnotatedMockBeanFull> strat =
+                new ColumnPositionMappingStrategy<>();
+        strat.setType(AnnotatedMockBeanFull.class);
+        FileReader fin = new FileReader("src/test/resources/testinputcase85.csv");
+        auxiliaryTestColumnMissing(fin, strat);
+    }
+
+    @Test
     public void testPrematureEOLUsingHeaderNameMapping() throws FileNotFoundException {
         HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat =
                 new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanFull.class);
         FileReader fin = new FileReader("src/test/resources/testinputcase86.csv");
-        CSVReader read = new CSVReader(fin, ';');
-        CsvToBean<AnnotatedMockBeanFull> ctb = new CsvToBean<>();
-        try {
-            ctb.parse(strat, read);
-            fail("RuntimeException with inner exception CsvRequiredFieldEmpty should have been thrown because a required column is completely missing.");
-        }
-        catch(RuntimeException e) {
-            assertTrue(e.getCause() instanceof CsvRequiredFieldEmptyException);
-            CsvRequiredFieldEmptyException csve = (CsvRequiredFieldEmptyException)e.getCause();
-            assertEquals(AnnotatedMockBeanFull.class, csve.getBeanClass());
-            assertEquals(2, csve.getLineNumber());
-            assertNull(csve.getDestinationField());
-        }
+        auxiliaryTestColumnMissing(fin, strat);
     }
     
     @Test
-    public void testCase88() throws FileNotFoundException {
+    public void testCustomConverterRequiredEmptyInput() throws FileNotFoundException {
         HeaderColumnNameMappingStrategy<AnnotatedMockBeanCustom> strat =
                 new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanCustom.class);
@@ -802,6 +937,84 @@ public class AnnotationTest {
             assertTrue(e.getCause() instanceof CsvBeanIntrospectionException);
             CsvBeanIntrospectionException csve = (CsvBeanIntrospectionException)e.getCause();
             assertEquals("map", csve.getField().getName());
+        }
+    }
+
+    @Test
+    public void testCaptureByNameInvalidRegex() {
+        try {
+            MappingStrategy<InvalidCapture> strat = new HeaderColumnNameMappingStrategy<>();
+            strat.setType(InvalidCapture.class);
+            fail("Exception should have been thrown.");
+        }
+        catch(CsvBadConverterException csve) {
+            assertEquals(BeanFieldSingleValue.class, csve.getConverterClass());
+            assertNotNull(csve.getCause());
+        }
+    }
+
+    @Test
+    public void testCaptureByPositionInvalidRegex() {
+        try {
+            MappingStrategy<InvalidCapture> strat = new ColumnPositionMappingStrategy<>();
+            strat.setType(InvalidCapture.class);
+            fail("Exception should have been thrown.");
+        }
+        catch(CsvBadConverterException csve) {
+            assertEquals(BeanFieldSingleValue.class, csve.getConverterClass());
+            assertNotNull(csve.getCause());
+        }
+    }
+
+    @Test
+    public void testCaptureByNameRegexWithoutCaptureGroup() {
+        try {
+            MappingStrategy<NoCaptureGroup> strat = new HeaderColumnNameMappingStrategy<>();
+            strat.setType(NoCaptureGroup.class);
+            fail("Exception should have been thrown.");
+        }
+        catch(CsvBadConverterException csve) {
+            assertEquals(BeanFieldSingleValue.class, csve.getConverterClass());
+            assertNull(csve.getCause());
+        }
+    }
+
+    @Test
+    public void testCaptureByPositionRegexWithoutCaptureGroup() {
+        try {
+            MappingStrategy<NoCaptureGroup> strat = new ColumnPositionMappingStrategy<>();
+            strat.setType(NoCaptureGroup.class);
+            fail("Exception should have been thrown.");
+        }
+        catch(CsvBadConverterException csve) {
+            assertEquals(BeanFieldSingleValue.class, csve.getConverterClass());
+            assertNull(csve.getCause());
+        }
+    }
+
+    @Test
+    public void testFormatByNameWriteInvalidFormatString() {
+        try {
+            MappingStrategy<InvalidFormatString> strat = new HeaderColumnNameMappingStrategy<>();
+            strat.setType(InvalidFormatString.class);
+            fail("Exception should have been thrown.");
+        }
+        catch(CsvBadConverterException csve) {
+            assertEquals(BeanFieldSingleValue.class, csve.getConverterClass());
+            assertNotNull(csve.getCause());
+        }
+    }
+
+    @Test
+    public void testFormatByPositionWriteInvalidFormatString() {
+        try {
+            MappingStrategy<InvalidFormatString> strat = new ColumnPositionMappingStrategy<>();
+            strat.setType(InvalidFormatString.class);
+            fail("Exception should have been thrown.");
+        }
+        catch(CsvBadConverterException csve) {
+            assertEquals(BeanFieldSingleValue.class, csve.getConverterClass());
+            assertNotNull(csve.getCause());
         }
     }
 }

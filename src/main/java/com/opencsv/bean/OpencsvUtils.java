@@ -17,14 +17,18 @@ package com.opencsv.bean;
 
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
+import com.opencsv.ICSVParser;
+import com.opencsv.exceptions.CsvBadConverterException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.lang.reflect.Field;
-import java.util.Locale;
-import java.util.SortedSet;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 
@@ -134,4 +138,117 @@ public final class OpencsvUtils {
         }
     }
 
+    /**
+     * Compiles a regular expression into a {@link java.util.regex.Pattern},
+     * throwing an exception that is proper in the context of opencsv if the
+     * regular expression is not valid, or if it does not have at least one
+     * capturing group.
+     *
+     * @param regex The regular expression to be compiled. May be {@code null}
+     *              or an empty string, in which case {@code null} is returned.
+     *              Must have at least one capturing group if not {@code null}
+     *              or empty.
+     * @param regexFlags Flags for compiling the regular expression, as in
+     *                   {@link java.util.regex.Pattern#compile(String, int)}.
+     * @param callingClass The class from which this method is being called.
+     *                     Used for generating helpful exceptions.
+     * @param errorLocale  The locale to be used for error messages. If
+     *                     {@code null}, the default locale is used.
+     * @return A compiled pattern, or {@code null} if the input was null or
+     * empty
+     * @throws CsvBadConverterException If the regular expression is not empty
+     * but invalid or valid but does not have at least one capturing group
+     * @since 4.3
+     */
+    public static Pattern compilePatternAtLeastOneGroup(String regex, int regexFlags, Class<?> callingClass, Locale errorLocale)
+            throws CsvBadConverterException {
+        Pattern tempPattern = compilePattern(regex, regexFlags, callingClass, errorLocale);
+        errorLocale = errorLocale == null ? Locale.getDefault() : errorLocale;
+
+        // Verify that the pattern has at least one capture group. This does
+        // not appear to be possible without matching a string first.
+        if(tempPattern != null) {
+            Matcher m = tempPattern.matcher(StringUtils.EMPTY);
+            if(m.groupCount() < 1) {
+                throw new CsvBadConverterException(callingClass,
+                        String.format(ResourceBundle.getBundle(
+                                ICSVParser.DEFAULT_BUNDLE_NAME,
+                                errorLocale).getString("regex.without.capture.group"), regex));
+            }
+        }
+
+        return tempPattern;
+    }
+
+    /**
+     * Compiles a regular expression into a {@link java.util.regex.Pattern},
+     * throwing an exception that is proper in the context of opencsv if the
+     * regular expression is not valid.
+     * This method may be used by custom converters if they are required to
+     * compile regular expressions that are unknown at compile time.
+     *
+     * @param regex The regular expression to be compiled. May be {@code null}
+     *              or an empty string, in which case {@code null} is returned.
+     * @param regexFlags Flags for compiling the regular expression, as in
+     *                   {@link java.util.regex.Pattern#compile(String, int)}.
+     * @param callingClass The class from which this method is being called.
+     *                     Used for generating helpful exceptions.
+     * @param errorLocale  The locale to be used for error messages. If
+     *                     {@code null}, the default locale is used.
+     * @return A compiled pattern, or {@code null} if the input was null or
+     * empty
+     * @throws CsvBadConverterException If the regular expression is not empty
+     * but invalid
+     * @since 4.3
+     */
+    public static Pattern compilePattern(String regex, int regexFlags, Class<?> callingClass, Locale errorLocale)
+            throws CsvBadConverterException {
+        Pattern tempPattern = null;
+        errorLocale = errorLocale == null ? Locale.getDefault() : errorLocale;
+
+        // Set up the regular expression for extraction of the value to be
+        // converted
+        if(StringUtils.isNotEmpty(regex)) {
+            try {
+                tempPattern = Pattern.compile(regex, regexFlags);
+            }
+            catch(PatternSyntaxException e) {
+                CsvBadConverterException csve = new CsvBadConverterException(
+                        callingClass,
+                        String.format(ResourceBundle.getBundle(
+                                ICSVParser.DEFAULT_BUNDLE_NAME,
+                                errorLocale).getString("invalid.regex"), regex));
+                csve.initCause(e);
+                throw csve;
+            }
+        }
+        return tempPattern;
+    }
+
+    /**
+     * Verifies that the given format string works with one string parameter.
+     *
+     * @param format A format string for {@link java.lang.String#format(String, Object...)}
+     * @param callingClass The class from which this method is being called.
+     *                     Used for generating helpful exceptions.
+     * @param errorLocale  The locale to be used for error messages. If
+     *                     {@code null}, the default locale is used.
+     */
+    public static void verifyFormatString(String format, Class<?> callingClass, Locale errorLocale) {
+        errorLocale = errorLocale == null ? Locale.getDefault() : errorLocale;
+        try {
+            if(StringUtils.isNotEmpty(format)) {
+                String.format(format, StringUtils.SPACE);
+            }
+        }
+        catch(IllegalFormatException e) {
+            CsvBadConverterException csve = new CsvBadConverterException(
+                    callingClass,
+                    String.format(ResourceBundle.getBundle(
+                            ICSVParser.DEFAULT_BUNDLE_NAME,
+                            errorLocale).getString("invalid.format.string"), format));
+            csve.initCause(e);
+            throw csve;
+        }
+    }
 }

@@ -66,7 +66,8 @@ public class JoinTest {
      * <ul><li>Reading with a header name mapping strategy</li>
      * <li>Reading with a regular expression that matches more than one
      * identically named headers</li>
-     * <li>Map does not already exist</li></ul>
+     * <li>Map does not already exist</li>
+     * <li>Capture by name without a matching regular expression</li></ul>
      * 
      * @throws IOException Never
      */
@@ -271,8 +272,8 @@ public class JoinTest {
         assertEquals(4, map.keySet().size());
         assertEquals("10", map.get(0).toArray(new String[1])[0]);
         assertEquals("15. Dez 1978", map.get(1).toArray(new String[1])[0]);
-        assertEquals("20", map.get(2).toArray(new String[1])[0]);
-        assertEquals("30", map.get(3).toArray(new String[1])[0]);
+        assertEquals("|20|", map.get(2).toArray(new String[1])[0]);
+        assertEquals("|30|", map.get(3).toArray(new String[1])[0]);
         
         bean = beans.get(1);
         assertNotNull(bean);
@@ -281,8 +282,8 @@ public class JoinTest {
         assertEquals(4, map.keySet().size());
         assertEquals("11", map.get(0).toArray(new String[1])[0]);
         assertEquals("16. Dez 1978", map.get(1).toArray(new String[1])[0]);
-        assertEquals("21", map.get(2).toArray(new String[1])[0]);
-        assertEquals("31", map.get(3).toArray(new String[1])[0]);
+        assertEquals("|21|", map.get(2).toArray(new String[1])[0]);
+        assertEquals("|31|", map.get(3).toArray(new String[1])[0]);
         
         bean = beans.get(2);
         assertNotNull(bean);
@@ -291,8 +292,8 @@ public class JoinTest {
         assertEquals(4, map.keySet().size());
         assertEquals("12", map.get(0).toArray(new String[1])[0]);
         assertEquals("17. Dez 1978", map.get(1).toArray(new String[1])[0]);
-        assertEquals("22", map.get(2).toArray(new String[1])[0]);
-        assertEquals("32", map.get(3).toArray(new String[1])[0]);
+        assertEquals("|22|", map.get(2).toArray(new String[1])[0]);
+        assertEquals("|32|", map.get(3).toArray(new String[1])[0]);
     }
     
     @Test
@@ -326,7 +327,8 @@ public class JoinTest {
      * Tests a position definition with exactly one column index.
      * <p>Also incidentally tests:</p>
      * <ul><li>Reading with a column position mapping strategy</li>
-     * <li>Map already exists</li></ul>
+     * <li>Map already exists</li>
+     * <li>Capture by position without a matching regular expression</li></ul>
      * 
      * @throws IOException Never
      */
@@ -558,7 +560,8 @@ public class JoinTest {
      * properly.
      * <p>Also incidentally tests:</p>
      * <ul><li>Bean member variable lacks an assignment method</li>
-     * <li>Explicit map type</li></ul>
+     * <li>Explicit map type</li>
+     * <li>Capture by position with a matching regular expression</li></ul>
      * 
      * @throws IOException Never
      */
@@ -603,7 +606,14 @@ public class JoinTest {
         assertEquals(1, values.size());
         assertTrue(values.contains(32));
     }
-    
+
+    /**
+     * Tests conversion of a primitive with a specified locale using header
+     * name-based mapping.
+     * <p>Also incidentally tests:
+     * <ul><li>Capture by name with a matching regular expression</li></ul></p>
+     * @throws IOException Never
+     */
     @Test
     public void testReadConversionLocalePrimitiveHeaderMapping() throws IOException {
         List<GoodJoinByNameAnnotations> beans = new CsvToBeanBuilder(new FileReader("src/test/resources/testinputjoinbynamegood.csv"))
@@ -819,8 +829,12 @@ public class JoinTest {
      * <li>Too many values for a multivalued field</li>
      * <li>No value for an optional field (null)</li>
      * <li>No value for an optional field (empty map)</li>
+     * <li>No value for an optional field (existing entries with {@code null}
+     * as their value)</li>
      * <li>Writing multiple multivalued beans</li>
-     * <li>Subsequent bean has different headers than first bean</li></ul>
+     * <li>Subsequent bean has different headers than first bean</li>
+     * <li>Writing with a format string using header name mapping</li>
+     * <li>Writing with a format string an empty inputs</li></ul>
      * 
      * @throws CsvException Never
      */
@@ -881,10 +895,7 @@ public class JoinTest {
         map3 = new ArrayListValuedHashMap<>();
         map3.put("test", "string3");
         bean.setMap3(map3);
-        map4 = new ArrayListValuedHashMap<>();
-        map4.put("conversion", 10003);
-        map4.put("conversion", 20004);
-        bean.setMap4(map4);
+        bean.setMap4(null); // map4 missing, but optional
         beanList.add(bean);
         
         bean = new GoodJoinByNameAnnotations();
@@ -900,7 +911,10 @@ public class JoinTest {
         map3 = new ArrayListValuedHashMap<>();
         map3.put("test", "string4");
         bean.setMap3(map3);
-        bean.setMap4(null); // map4 missing, but optional
+        map4 = new ArrayListValuedHashMap<>(); // map4 is full of nulls
+        map4.put("conversion", null);
+        map4.put("conversion", null);
+        bean.setMap4(map4);
         beanList.add(bean);
         
         bean = new GoodJoinByNameAnnotations();
@@ -924,9 +938,9 @@ public class JoinTest {
         btc.write(beanList);
         assertTrue(Pattern.matches(
                 "\"conversion\",\"conversion\",\"date1\",\"date2\",\"index\",\"index\",\"index\"\n"
-                + "\"10.000\",\"20.000\",\"15. Jan\\.? 1978\",\"07. Feb\\.? 2018\",\"1\",\"2\",\"3\"\n"
-                + "\"10.001\",\"20.002\",\"16. Jan\\.? 1978\",\"08. Feb\\.? 2018\",\"4\",\"5\",\"\"\n"
-                + "\"10.003\",\"20.004\",\"17. Jan\\.? 1978\",\"09. Feb\\.? 2018\",\"6\",\"7\",\"8\"\n"
+                + "\"x10.000\",\"x20.000\",\"15. Jan\\.? 1978\",\"07. Feb\\.? 2018\",\"1\",\"2\",\"3\"\n"
+                + "\"x10.001\",\"x20.002\",\"16. Jan\\.? 1978\",\"08. Feb\\.? 2018\",\"4\",\"5\",\"\"\n"
+                + "\"\",\"\",\"17. Jan\\.? 1978\",\"09. Feb\\.? 2018\",\"6\",\"7\",\"8\"\n"
                 + "\"\",\"\",\"18. Jan\\.? 1978\",\"10. Feb\\.? 2018\",\"10\",\"11\",\"12\"\n"
                 + "\"\",\"\",\"19. Jan\\.? 1978\",\"11. Feb\\.? 2018\",\"13\",\"14\",\"15\"\n",
                 w.toString()));
@@ -940,7 +954,8 @@ public class JoinTest {
      * <li>More values for a position than one</li>
      * <li>Writing empty optional positions</li>
      * <li>Using a column position in a bean field that would not be read by
-     * that bean field</li></ul>
+     * that bean field</li>
+     * <li>Writing using a format string using column position mapping</li></ul>
      * 
      * @throws CsvException Never
      */
@@ -1005,8 +1020,8 @@ public class JoinTest {
         StatefulBeanToCsv<GoodJoinByPositionAnnotationsForWriting> btc = new StatefulBeanToCsvBuilder<GoodJoinByPositionAnnotationsForWriting>(w).build();
         btc.write(beanList);
         assertTrue(Pattern.matches(
-                "\"10\",\"15\\. Jan\\.? 1978\",\"\",\"\",\"string4\",\"string5\",\"string6\",\"string7\",\"string8\",\"string9\",\"string10\",\"1\\.111\",\"string12\",\"string13\",\"\",\"string15\",\"06\\. Mä?rz? 2018\"\n"
-                + "\"12\",\"16\\. Jan\\.? 1978\",\"\",\"\",\"string42\",\"string52\",\"string62\",\"string72\",\"string82\",\"string92\",\"string102\",\"1\\.112\",\"string122\",\"string132\",\"\",\"string152\",\"07\\. Mä?rz? 2018\"\n",
+                "\"\\?10\\?\",\"15\\. Jan\\.? 1978\",\"\",\"\",\"string4\",\"string5\",\"string6\",\"string7\",\"string8\",\"string9\",\"string10\",\"1\\.111\",\"string12\",\"string13\",\"\",\"string15\",\"06\\. Mä?rz? 2018\"\n"
+                + "\"\\?12\\?\",\"16\\. Jan\\.? 1978\",\"\",\"\",\"string42\",\"string52\",\"string62\",\"string72\",\"string82\",\"string92\",\"string102\",\"1\\.112\",\"string122\",\"string132\",\"\",\"string152\",\"07\\. Mä?rz? 2018\"\n",
                 w.toString()));
     }
     
@@ -1319,6 +1334,84 @@ public class JoinTest {
         }
         catch(CsvBadConverterException csve) {
             assertEquals(BadCollectionConverter.class, csve.getConverterClass());
+        }
+    }
+
+    @Test
+    public void testCaptureByNameInvalidRegex() {
+        try {
+            MappingStrategy<InvalidCapture> strat = new HeaderColumnNameMappingStrategy<>();
+            strat.setType(InvalidCapture.class);
+            fail("Exception should have been thrown.");
+        }
+        catch(CsvBadConverterException csve) {
+            assertEquals(BeanFieldSingleValue.class, csve.getConverterClass());
+            assertNotNull(csve.getCause());
+        }
+    }
+
+    @Test
+    public void testCaptureByPositionInvalidRegex() {
+        try {
+            MappingStrategy<InvalidCapture> strat = new ColumnPositionMappingStrategy<>();
+            strat.setType(InvalidCapture.class);
+            fail("Exception should have been thrown.");
+        }
+        catch(CsvBadConverterException csve) {
+            assertEquals(BeanFieldSingleValue.class, csve.getConverterClass());
+            assertNotNull(csve.getCause());
+        }
+    }
+
+    @Test
+    public void testCaptureByNameRegexWithoutCaptureGroup() {
+        try {
+            MappingStrategy<NoCaptureGroup> strat = new HeaderColumnNameMappingStrategy<>();
+            strat.setType(NoCaptureGroup.class);
+            fail("Exception should have been thrown.");
+        }
+        catch(CsvBadConverterException csve) {
+            assertEquals(BeanFieldSingleValue.class, csve.getConverterClass());
+            assertNull(csve.getCause());
+        }
+    }
+
+    @Test
+    public void testCaptureByPositionRegexWithoutCaptureGroup() {
+        try {
+            MappingStrategy<NoCaptureGroup> strat = new ColumnPositionMappingStrategy<>();
+            strat.setType(NoCaptureGroup.class);
+            fail("Exception should have been thrown.");
+        }
+        catch(CsvBadConverterException csve) {
+            assertEquals(BeanFieldSingleValue.class, csve.getConverterClass());
+            assertNull(csve.getCause());
+        }
+    }
+
+    @Test
+    public void testFormatByNameWriteInvalidFormatString() {
+        try {
+            MappingStrategy<InvalidFormatString> strat = new HeaderColumnNameMappingStrategy<>();
+            strat.setType(InvalidFormatString.class);
+            fail("Exception should have been thrown.");
+        }
+        catch(CsvBadConverterException csve) {
+            assertEquals(BeanFieldSingleValue.class, csve.getConverterClass());
+            assertNotNull(csve.getCause());
+        }
+    }
+
+    @Test
+    public void testFormatByPositionWriteInvalidFormatString() {
+        try {
+            MappingStrategy<InvalidFormatString> strat = new ColumnPositionMappingStrategy<>();
+            strat.setType(InvalidFormatString.class);
+            fail("Exception should have been thrown.");
+        }
+        catch(CsvBadConverterException csve) {
+            assertEquals(BeanFieldSingleValue.class, csve.getConverterClass());
+            assertNotNull(csve.getCause());
         }
     }
 }

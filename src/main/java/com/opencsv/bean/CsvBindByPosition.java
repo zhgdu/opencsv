@@ -16,6 +16,7 @@
 package com.opencsv.bean;
 
 import java.lang.annotation.*;
+import java.util.regex.Matcher;
 
 /**
  * Specifies a binding between a column number of the CSV input and a field in
@@ -65,7 +66,7 @@ public @interface CsvBindByPosition {
      * <li>All time data types supported by {@link com.opencsv.bean.CsvDate}</li></ul>
      * <p>The locale must be in a format accepted by
      * {@link java.util.Locale#forLanguageTag(java.lang.String)}</p>
-     * <p>Caution must be exercized with the default locale, for the default
+     * <p>Caution must be exercised with the default locale, for the default
      * locale for numerical types does not mean the locale of the running
      * program, such as en-US or de-DE, but rather <em>no</em> locale. Numbers
      * will be parsed more or less the way the Java compiler would parse them.
@@ -77,4 +78,59 @@ public @interface CsvBindByPosition {
      * @return The locale selected. The default is indicated by an empty string.
      */
     String locale() default "";
+
+    /**
+     * If this is anything but an empty string, it will be used as a regular
+     * expression to extract part of the input before conversion to the bean
+     * field.
+     * <p>An empty string behaves as if the regular expression {@code ^(.*)$}
+     * had been specified.</p>
+     * <p>The regular expression will be compiled and every field of input will
+     * be passed through it, naturally after the input has been normalized
+     * (quotations and escape characters removed). The first capture group will
+     * be extracted, and that string will be passed on to the appropriate
+     * conversion routine for the bean field in question.</p>
+     * <p>This makes it possible to easily convert input fields with forms like
+     * {@code Grade: 94.2} into {@code 94.2}, which can then be converted to a
+     * floating point bean field, all without writing a custom converter.</p>
+     * <p>The regular expression is applied to the entire string in question
+     * (i.e. with {@link Matcher#matches()}), instead of just the beginning of
+     * the string ({@link Matcher#lookingAt()}) or anywhere in the string
+     * ({@link Matcher#find()}). If it fails to match, the input string is
+     * passed unchanged to the appropriate conversion routine for the bean
+     * field. The reason for this is two-fold:</p>
+     * <ol><li>The matching may occur against an empty string. If the field is
+     * not required, this is legitimate, but it's likely the regular expression
+     * is not written to accommodate this possibility, and it may indeed not be
+     * at all desirable to.</li>
+     * <li>If there is an error in either the regular expression or the input
+     * that causes the match to fail, there is a good likelihood that the
+     * subsequent conversion will fail with a
+     * {@link com.opencsv.exceptions.CsvDataTypeMismatchException} if the
+     * input is not being converted into a simple string.</li></ol>
+     * <p>This is the inverse operation of {@link #format()}.</p>
+     *
+     * @return A regular expression, the first capture group of which will be
+     * used for conversion to the bean field
+     * @since 4.3
+     */
+    String capture() default "";
+
+    /**
+     * If this is anything but an empty string, it will be used as a format
+     * string for {@link java.lang.String#format(String, Object...)} on
+     * writing.
+     * <p>An empty string behaves as if the format string {@code "%s"} had been
+     * specified.</p>
+     * <p>The format string, if it is not empty, should contain one and only
+     * one {@code %s}, which will be replaced by the string value of the bean
+     * field after conversion. If, however, the bean field is empty, then the
+     * output will be empty as well, as opposed to passing an empty string to
+     * this format string and using that as the output.</p>
+     * <p>This is the inverse operation of {@link #capture()}.</p>
+     *
+     * @return A format string for writing fields
+     * @since 4.3
+     */
+    String format() default "";
 }

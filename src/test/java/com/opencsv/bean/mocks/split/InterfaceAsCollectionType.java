@@ -13,25 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.opencsv.bean.mocks;
+package com.opencsv.bean.mocks.split;
 
-import com.opencsv.bean.CsvBindAndSplitByName;
-import java.util.List;
+import com.opencsv.bean.CsvBindAndSplitByPosition;
+import java.util.Set;
 
 /**
  *
  * @author Andrew Rucker Jones
  */
-public class WrongElementType {
+public class InterfaceAsCollectionType {
     
-    @CsvBindAndSplitByName(elementType = String.class)
-    private List<Integer> l;
+    @CsvBindAndSplitByPosition(elementType = Integer.class, collectionType = Set.class, position = 0)
+    private Set<Integer> s;
 
-    public List<Integer> getL() {
-        return l;
+    public Set<Integer> getS() {
+        return s;
     }
 
-    public void setL(List<Integer> l) {
-        this.l = l;
+    public void setS(Set<Integer> s) {
+        this.s = s;
     }
 }

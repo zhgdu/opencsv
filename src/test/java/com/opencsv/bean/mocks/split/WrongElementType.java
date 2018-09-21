@@ -13,25 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.opencsv.bean.mocks;
+package com.opencsv.bean.mocks.split;
 
-import com.opencsv.bean.CsvBindAndSplitByPosition;
-import java.util.concurrent.TransferQueue;
+import com.opencsv.bean.CsvBindAndSplitByName;
+import java.util.List;
 
 /**
  *
  * @author Andrew Rucker Jones
  */
-public class UnknownCollectionType {
+public class WrongElementType {
     
-    @CsvBindAndSplitByPosition(elementType = Integer.class, position = 0)
-    private TransferQueue<Integer> transferQueue;
+    @CsvBindAndSplitByName(elementType = String.class)
+    private List<Integer> l;
 
-    public TransferQueue<Integer> getTransferQueue() {
-        return transferQueue;
+    public List<Integer> getL() {
+        return l;
     }
 
-    public void setTransferQueue(TransferQueue<Integer> transferQueue) {
-        this.transferQueue = transferQueue;
+    public void setL(List<Integer> l) {
+        this.l = l;
     }
 }
