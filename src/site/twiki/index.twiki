@@ -62,7 +62,7 @@ the bean fields with the opencsv annotations, then do this:
    <verbatim>
      // List<MyBean> beans comes from somewhere earlier in your code.
      Writer writer = new FileWriter("yourfile.csv");
-     StatefulBeanToCsvBuilder beanToCsv = StatefulBeanToCsvBuilder(writer).build();
+     StatefulBeanToCsv beanToCsv = StatefulBeanToCsvBuilder(writer).build();
      beanToCsv.write(beans);
      writer.close();
    </verbatim>
@@ -956,7 +956,7 @@ named because there used to be a BeanToCsv. Thankfully, no more.
    <verbatim>
      // List<MyBean> beans comes from somewhere earlier in your code.
      Writer writer = new FileWriter("yourfile.csv");
-     StatefulBeanToCsvBuilder beanToCsv = StatefulBeanToCsvBuilder(writer).build();
+     StatefulBeanToCsv beanToCsv = StatefulBeanToCsvBuilder(writer).build();
      beanToCsv.write(beans);
      writer.close();
    </verbatim>
@@ -991,8 +991,8 @@ to name for header name-based mappings. You can change this order, if you must.
       HeaderColumnNameMappingStrategy<MyBean> strategy = new HeaderColumnNameMappingStrategy<>();
       strategy.setType(MyBean.class);
       strategy.setColumnOrderOnWrite(new MyComparator());
-      StatefulBeanToCsvBuilder beanToCsv = StatefulBeanToCsvBuilder(writer)
-         withMappingStrategy(strategy)
+      StatefulBeanToCsv beanToCsv = StatefulBeanToCsvBuilder(writer)
+         .withMappingStrategy(strategy)
          .build();
       beanToCsv.write(beans);
       writer.close();
