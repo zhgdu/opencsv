@@ -10,11 +10,11 @@ import java.io.Reader;
  * @since 4.2
  */
 public class CSVReaderHeaderAwareBuilder extends CSVReaderBuilder {
+
     /**
-     * Constructor for CSVReaderHeaderAware.
+     * Constructor for CSVReaderHeaderAwareBuilder.
      *
      * @param reader The reader to an underlying CSV source.
-     * @since 4.2
      */
     public CSVReaderHeaderAwareBuilder(Reader reader) {
         super(reader);
