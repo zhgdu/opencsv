@@ -78,7 +78,7 @@ public class BeanFieldSplit<T> extends AbstractBeanField<T> {
                     String.format(
                             ResourceBundle.getBundle(
                                     ICSVParser.DEFAULT_BUNDLE_NAME,
-                                    errorLocale).getString("invalid.collection.type"),
+                                    this.errorLocale).getString("invalid.collection.type"),
                             field.getType().toString()));
         }
         
@@ -126,7 +126,7 @@ public class BeanFieldSplit<T> extends AbstractBeanField<T> {
                         String.format(
                                 ResourceBundle.getBundle(
                                         ICSVParser.DEFAULT_BUNDLE_NAME,
-                                        errorLocale).getString("invalid.collection.type"),
+                                        this.errorLocale).getString("invalid.collection.type"),
                                 collectionType.toString()));
             }
         }
@@ -139,7 +139,7 @@ public class BeanFieldSplit<T> extends AbstractBeanField<T> {
                     String.format(
                             ResourceBundle.getBundle(
                                     ICSVParser.DEFAULT_BUNDLE_NAME,
-                                    errorLocale).getString("unassignable.collection.type"),
+                                    this.errorLocale).getString("unassignable.collection.type"),
                             collectionType.getName(), field.getType().getName()));
         }
     }

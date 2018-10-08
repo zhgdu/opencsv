@@ -84,7 +84,7 @@ public class ConverterNumber extends AbstractCsvConverter {
                     ConverterNumber.class,
                     String.format(ResourceBundle.getBundle(
                             ICSVParser.DEFAULT_BUNDLE_NAME,
-                            errorLocale)
+                            this.errorLocale)
                             .getString("invalid.number.pattern"),
                             formatString));
             csve.initCause(e);
