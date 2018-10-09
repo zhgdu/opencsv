@@ -203,7 +203,7 @@ public class CSVParserBuilder {
      * Sets the locale for all error messages.
      * 
      * @param errorLocale Locale for error messages
-     * @return this
+     * @return {@code this}
      * @since 4.0
      */
     public CSVParserBuilder withErrorLocale(Locale errorLocale) {

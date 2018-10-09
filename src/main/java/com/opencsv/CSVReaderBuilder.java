@@ -161,8 +161,8 @@ public class CSVReaderBuilder {
     }
 
     /**
-     * Creates a new icsvParser if the class does't already hold one.
-     * @return - the injected ICSVParser or a default parser.
+     * Creates a new {@link ICSVParser} if the class does't already hold one.
+     * @return The injected {@link ICSVParser} or a default parser.
      */
     protected ICSVParser getOrCreateCsvParser() {
         return ObjectUtils.defaultIfNull(icsvParser,
@@ -190,7 +190,7 @@ public class CSVReaderBuilder {
     }
 
     /**
-     * @return The flag indicating whtether the reader should be verified before each read.
+     * @return The flag indicating whether the reader should be verified before each read.
      */
     public boolean isVerifyReader() {
         return verifyReader;
