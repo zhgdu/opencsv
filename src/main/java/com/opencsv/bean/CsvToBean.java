@@ -353,15 +353,19 @@ public class CsvToBean<T> implements Iterable<T> {
             if(accumulateThread != null) {
                 accumulateThread.setMustStop(true);
             }
-            throw new RuntimeException(String.format(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("parsing.error"),
-                    lineProcessed, Arrays.toString(line)), executor.getTerminalException());
+            if(executor.getTerminalException() instanceof CsvException) {
+                CsvException csve = (CsvException)executor.getTerminalException();
+                throw new RuntimeException(String.format(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("parsing.error.linenumber"),
+                        csve.getLineNumber()), csve);
+            }
+            throw new RuntimeException(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("parsing.error"), executor.getTerminalException());
         } catch (Exception e) {
             // Exception during parsing. Always unrecoverable.
             executor.shutdownNow();
             if(accumulateThread != null) {
                 accumulateThread.setMustStop(true);
             }
-            throw new RuntimeException(String.format(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("parsing.error"),
+            throw new RuntimeException(String.format(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("parsing.error.full"),
                     lineProcessed, Arrays.toString(line)), e);
         }
         
