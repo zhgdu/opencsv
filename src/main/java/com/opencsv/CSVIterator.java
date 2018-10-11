@@ -64,7 +64,9 @@ public class CSVIterator implements Iterator<String[]> {
       try {
          nextLine = reader.readNext();
       } catch (IOException e) {
-         throw new NoSuchElementException();
+         NoSuchElementException nse = new NoSuchElementException(e.getLocalizedMessage());
+         nse.initCause(e);
+         throw nse;
       }
       return temp;
    }
