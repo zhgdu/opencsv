@@ -20,11 +20,11 @@ import com.opencsv.stream.reader.LineReader;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.BufferedReader;
-import java.io.Closeable;
-import java.io.IOException;
-import java.io.Reader;
+import javax.activation.UnsupportedDataTypeException;
+import java.io.*;
+import java.nio.charset.CharacterCodingException;
 import java.util.*;
+import java.util.zip.ZipException;
 
 /**
  * A very simple CSV reader released under a commercial-friendly license.
@@ -44,6 +44,11 @@ public class CSVReader implements Closeable, Iterable<String[]> {
      * Less than one means no limit.
      */
     public static final int DEFAULT_MULTILINE_LIMIT = 0;
+
+    private static final List<Class<? extends IOException>> PASSTHROUGH_EXCEPTIONS =
+            Arrays.asList(CharacterCodingException.class, CharConversionException.class,
+                    UnsupportedDataTypeException.class, UnsupportedEncodingException.class,
+                    UTFDataFormatException.class, ZipException.class, FileNotFoundException.class);
 
     public static final int READ_AHEAD_LIMIT = Character.SIZE / Byte.SIZE;
     private static final int MAX_WIDTH = 100;
@@ -443,9 +448,22 @@ public class CSVReader implements Closeable, Iterable<String[]> {
 
     /**
      * Checks to see if the file is closed.
+     * Certain IOExceptions will be passed out as they are indicative of a real problem not that the file
+     * has already been closed.  These excpetions are:
+     *
+     * CharacterCodingException
+     * CharConversionException
+     * FileNotFoundException
+     * UnsupportedDataTypeException
+     * UnsupportedEncodingException
+     * UTFDataFormatException
+     * ZipException
+     *
      * @return True if the reader can no longer be read from.
+     * @throws IOException - if verified reader is true certain IOExceptions will still be passed out
+     * as they are indicative of a problem not end of file.
      */
-    protected boolean isClosed() {
+    protected boolean isClosed() throws IOException {
         if (!verifyReader) {
             return false;
         }
@@ -455,6 +473,10 @@ public class CSVReader implements Closeable, Iterable<String[]> {
             br.reset(); // resets stream position, possible because its buffered
             return nextByte == -1; // read() returns -1 at end of stream
         } catch (IOException e) {
+            if (PASSTHROUGH_EXCEPTIONS.contains(e.getClass())) {
+                throw e;
+            }
+
             return true;
         }
     }
