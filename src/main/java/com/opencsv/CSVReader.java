@@ -20,7 +20,6 @@ import com.opencsv.stream.reader.LineReader;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import javax.activation.UnsupportedDataTypeException;
 import java.io.*;
 import java.nio.charset.CharacterCodingException;
 import java.util.*;
@@ -47,8 +46,8 @@ public class CSVReader implements Closeable, Iterable<String[]> {
 
     private static final List<Class<? extends IOException>> PASSTHROUGH_EXCEPTIONS =
             Arrays.asList(CharacterCodingException.class, CharConversionException.class,
-                    UnsupportedDataTypeException.class, UnsupportedEncodingException.class,
-                    UTFDataFormatException.class, ZipException.class, FileNotFoundException.class);
+                    UnsupportedEncodingException.class, UTFDataFormatException.class,
+                    ZipException.class, FileNotFoundException.class);
 
     public static final int READ_AHEAD_LIMIT = Character.SIZE / Byte.SIZE;
     private static final int MAX_WIDTH = 100;
@@ -454,7 +453,6 @@ public class CSVReader implements Closeable, Iterable<String[]> {
      * CharacterCodingException
      * CharConversionException
      * FileNotFoundException
-     * UnsupportedDataTypeException
      * UnsupportedEncodingException
      * UTFDataFormatException
      * ZipException

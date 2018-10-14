@@ -3,7 +3,6 @@ package com.opencsv
 import spock.lang.Specification
 import spock.lang.Unroll
 
-import javax.activation.UnsupportedDataTypeException
 import java.nio.channels.FileLockInterruptionException
 import java.nio.charset.CharacterCodingException
 import java.util.zip.ZipException
@@ -37,7 +36,6 @@ class CSVReaderSpec extends Specification {
         exceptionClass                      | will
         CharacterCodingException.class      | "will not"
         CharConversionException.class       | "will not"
-        UnsupportedDataTypeException.class  | "will not"
         UnsupportedEncodingException.class  | "will not"
         UTFDataFormatException.class        | "will not"
         ZipException.class                  | "will not"
