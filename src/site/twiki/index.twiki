@@ -890,7 +890,7 @@ can map to a bean based on the field positions in your CSV file:
 Please note, if you do not use annotations, opencsv uses introspection to access
 member variables, so your objects will have to be honest-to-God beans.
 
----++++Skipping and filtering
+---++++Skipping, filtering and verifying
 With some input it can be helpful to skip the first few lines. opencsv provides
 for this need with CsvToBeanBuilder.withSkipLines(), which ultimately is used on
 the appropriate constructor for CSVReader, if you would prefer to do everything
@@ -916,8 +916,13 @@ beans, implement CsvToBeanFilter and pass your implementation to
 CsvToBeanBuilder.withFilter(), or equivalently if you're not using the builders,
 to the appropriate parse() method from CsvToBean or even setFilter().
 
-Yes, filtering would be much nicer with Java 8 streams, but in order to serve a
-wide developer base, we won't be using Java 8 for many years to come.
+Verifying is slightly different still. With verifying, a complete finished bean
+is checked for desirability and consistency. By implementing BeanFilter and
+passing it to CsvToBeanBuilder.withVerifier(), each bean will be vetted before
+being returned to the calling code. Beans can be silently filtered if they are
+simply undesirable data sets, or if the data are inconsistent and this is
+considered an error for the surrounding logic, CsvConstraintViolationException
+may be thrown.
 
 ---++Writing
 Less often used, but just as comfortable as reading CSV files is writing them.
@@ -1032,8 +1037,8 @@ the pieces fit together for reading:
    1. If you wish, you may provide a parser (anything implementing ICSVParser).
    1. The Reader can be wrapped in a CSVReader, which is also given the parser, if you have used your own. Otherwise, opencsv creates its own parser and even its own CSVReader. If you are reading into an array of strings, this is where the trail ends.
    1. For those reading into beans, a MappingStrategy is the next step.
-   1. If you want filtering, you can create a CsvToBeanFilter.
-   1. The MappingStrategy and the Reader or CSVReader and optionally the CsvToBeanFilter are passed to a CsvToBean, which uses them to parse input and populate beans.
+   1. If you want filtering, you can create a CsvToBeanFilter or a BeanVerifier.
+   1. The MappingStrategy and the Reader or CSVReader and optionally the CsvToBeanFilter or BeanVerifier are passed to a CsvToBean, which uses them to parse input and populate beans.
    1. If you have any custom converters, they are called for each bean field as CsvToBean is populating the bean fields.
 
 For writing it's a little simpler:

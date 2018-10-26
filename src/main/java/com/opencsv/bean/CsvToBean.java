@@ -94,6 +94,12 @@ public class CsvToBean<T> implements Iterable<T> {
     private Locale errorLocale = Locale.getDefault();
 
     /**
+     * All verifiers that should be run on beans after creation but before
+     * returning them to the caller.
+     */
+    private List<BeanVerifier<T>> verifiers = Collections.<BeanVerifier<T>>emptyList();
+
+    /**
      * Default constructor.
      */
     public CsvToBean() {
@@ -288,7 +294,7 @@ public class CsvToBean<T> implements Iterable<T> {
         while (null != (line = csvReader.readNext())) {
             lineProcessed = csvReader.getLinesRead();
             executor.execute(new ProcessCsvLine<>(
-                    lineProcessed, mappingStrategy, filter, line,
+                    lineProcessed, mappingStrategy, filter, verifiers, line,
                     resultantBeansQueue, thrownExceptionsQueue,
                     throwExceptions));
         }
@@ -453,6 +459,17 @@ public class CsvToBean<T> implements Iterable<T> {
             mappingStrategy.setErrorLocale(this.errorLocale);
         }
     }
+
+    /**
+     * Sets the list of verifiers to be run on all beans after creation.
+     *
+     * @param verifiers A list of verifiers. May be {@code null}, in which
+     *                  case, no verifiers are run.
+     * @since 4.4
+     */
+    public void setVerifiers(List<BeanVerifier<T>> verifiers) {
+        this.verifiers = ObjectUtils.defaultIfNull(verifiers, Collections.<BeanVerifier<T>>emptyList());
+    }
     
     private void prepareToReadInput() throws IllegalStateException {
         // First verify that the user hasn't failed to give us the information
@@ -518,8 +535,8 @@ public class CsvToBean<T> implements Iterable<T> {
                 lineProcessed = csvReader.getLinesRead();
                 // Create a bean
                 ProcessCsvLine<T> proc = new ProcessCsvLine<>(
-                        lineProcessed, mappingStrategy, filter, line,
-                        resultantBeansQueue, thrownExceptionsQueue,
+                        lineProcessed, mappingStrategy, filter, verifiers,
+                        line, resultantBeansQueue, thrownExceptionsQueue,
                         throwExceptions);
                 proc.run();
 

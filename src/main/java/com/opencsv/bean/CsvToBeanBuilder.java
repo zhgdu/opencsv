@@ -20,6 +20,8 @@ import com.opencsv.enums.CSVReaderNullFieldIndicator;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.io.Reader;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -104,6 +106,9 @@ public class CsvToBeanBuilder<T> {
    
    /** @see com.opencsv.bean.CsvToBean#errorLocale */
    private Locale errorLocale = Locale.getDefault();
+
+   /** @see com.opencsv.bean.CsvToBean#verifiers */
+   private final List<BeanVerifier<T>> verifiers = new LinkedList<>();
    
    /** This constructor must never be called, because Reader must be set. */
    private CsvToBeanBuilder() {
@@ -149,6 +154,7 @@ public class CsvToBeanBuilder<T> {
         bean.setThrowExceptions(throwExceptions);
         bean.setOrderedResults(orderedResults);
         if(filter != null) { bean.setFilter(filter); }
+        bean.setVerifiers(verifiers);
         
         // Now find the mapping strategy.
         if(mappingStrategy == null) {
@@ -222,7 +228,7 @@ public class CsvToBeanBuilder<T> {
     /**
      * @see CsvToBean#setMappingStrategy(com.opencsv.bean.MappingStrategy)
      * @param mappingStrategy Please see the "See Also" section
-     * @return Please see the "See Also" section
+     * @return {@code this}
      */
     public CsvToBeanBuilder<T> withMappingStrategy(MappingStrategy<T> mappingStrategy) {
         this.mappingStrategy = mappingStrategy;
@@ -232,7 +238,7 @@ public class CsvToBeanBuilder<T> {
     /**
      * @see CsvToBean#setFilter(com.opencsv.bean.CsvToBeanFilter)
      * @param filter Please see the "See Also" section
-     * @return Please see the "See Also" section
+     * @return {@code this}
      */
     public CsvToBeanBuilder<T> withFilter(CsvToBeanFilter filter) {
         this.filter = filter;
@@ -242,7 +248,7 @@ public class CsvToBeanBuilder<T> {
     /**
      * @see CsvToBean#setThrowExceptions(boolean)
      * @param throwExceptions Please see the "See Also" section
-     * @return Please see the "See Also" section
+     * @return {@code this}
      */
     public CsvToBeanBuilder<T> withThrowExceptions(boolean throwExceptions) {
         this.throwExceptions = throwExceptions;
@@ -252,7 +258,7 @@ public class CsvToBeanBuilder<T> {
     /**
      * @see CSVParser#CSVParser(char, char, char, boolean, boolean, boolean, CSVReaderNullFieldIndicator)
      * @param indicator Please see the "See Also" section
-     * @return Please see the "See Also" section
+     * @return {@code this}
      */
     public CsvToBeanBuilder<T> withFieldAsNull(CSVReaderNullFieldIndicator indicator) {
         this.nullFieldIndicator = indicator;
@@ -262,7 +268,7 @@ public class CsvToBeanBuilder<T> {
     /**
      * @see CSVReader#CSVReader(java.io.Reader, char, char, char, int, boolean, boolean, boolean)
      * @param keepCR Please see the "See Also" section
-     * @return Please see the "See Also" section
+     * @return {@code this}
      */
     public CsvToBeanBuilder<T> withKeepCarriageReturn(boolean keepCR) {
         this.keepCR = keepCR;
@@ -272,7 +278,7 @@ public class CsvToBeanBuilder<T> {
     /**
      * @see CSVReaderBuilder#withVerifyReader(boolean) 
      * @param verifyReader Please see the "See Also" section
-     * @return Please see the "See Also" section
+     * @return {@code this}
      */
     public CsvToBeanBuilder<T> withVerifyReader(boolean verifyReader) {
         this.verifyReader = verifyReader;
@@ -282,7 +288,7 @@ public class CsvToBeanBuilder<T> {
     /**
      * @see CSVReaderBuilder#withSkipLines(int) 
      * @param skipLines Please see the "See Also" section
-     * @return Please see the "See Also" section
+     * @return {@code this}
      */
     public CsvToBeanBuilder<T> withSkipLines(
          final int skipLines) {
@@ -293,7 +299,7 @@ public class CsvToBeanBuilder<T> {
     /**
      * @see CSVParser#CSVParser(char)
      * @param separator Please see the "See Also" section
-     * @return Please see the "See Also" section
+     * @return {@code this}
      */
     public CsvToBeanBuilder<T> withSeparator(char separator) {
         this.separator = separator;
@@ -303,7 +309,7 @@ public class CsvToBeanBuilder<T> {
     /**
      * @see CSVParser#CSVParser(char, char)
      * @param quoteChar Please see the "See Also" section
-     * @return Please see the "See Also" section
+     * @return {@code this}
      */
     public CsvToBeanBuilder<T> withQuoteChar(char quoteChar) {
         this.quoteChar = quoteChar;
@@ -313,7 +319,7 @@ public class CsvToBeanBuilder<T> {
     /**
      * @see CSVParser#CSVParser(char, char, char)
      * @param escapeChar Please see the "See Also" section
-     * @return Please see the "See Also" section
+     * @return {@code this}
      */
     public CsvToBeanBuilder<T> withEscapeChar(char escapeChar) {
         this.escapeChar = escapeChar;
@@ -323,7 +329,7 @@ public class CsvToBeanBuilder<T> {
     /**
      * @see CSVParser#CSVParser(char, char, char, boolean)
      * @param strictQuotes Please see the "See Also" section
-     * @return Please see the "See Also" section
+     * @return {@code this}
      */
     public CsvToBeanBuilder<T> withStrictQuotes(boolean strictQuotes) {
         this.strictQuotes = strictQuotes;
@@ -333,7 +339,7 @@ public class CsvToBeanBuilder<T> {
     /**
      * @see CSVParser#CSVParser(char, char, char, boolean, boolean)
      * @param ignoreLeadingWhiteSpace Please see the "See Also" section
-     * @return Please see the "See Also" section
+     * @return {@code this}
      */
     public CsvToBeanBuilder<T> withIgnoreLeadingWhiteSpace(boolean ignoreLeadingWhiteSpace) {
         this.ignoreLeadingWhiteSpace = ignoreLeadingWhiteSpace;
@@ -343,7 +349,7 @@ public class CsvToBeanBuilder<T> {
     /**
      * @see CSVParser#CSVParser(char, char, char, boolean, boolean, boolean)
      * @param ignoreQuotations Please see the "See Also" section
-     * @return Please see the "See Also" section
+     * @return {@code this}
      */
     public CsvToBeanBuilder<T> withIgnoreQuotations(boolean ignoreQuotations) {
         this.ignoreQuotations = ignoreQuotations;
@@ -355,7 +361,7 @@ public class CsvToBeanBuilder<T> {
      * Ignored if {@link #withMappingStrategy(com.opencsv.bean.MappingStrategy)}
      * is called.
      * @param type Class of the destination bean
-     * @return this
+     * @return {@code this}
      * @see HeaderColumnNameMappingStrategy#setType(java.lang.Class)
      * @see ColumnPositionMappingStrategy#setType(java.lang.Class)
      */
@@ -370,7 +376,7 @@ public class CsvToBeanBuilder<T> {
      * 
      * @param multilineLimit No more than this number of lines is allowed in a
      *   single input record. The default is {@link CSVReader#DEFAULT_MULTILINE_LIMIT}.
-     * @return this
+     * @return {@code this}
      * @see CSVReader#setMultilineLimit(int)
      */
     public CsvToBeanBuilder<T> withMultilineLimit(int multilineLimit) {
@@ -382,7 +388,7 @@ public class CsvToBeanBuilder<T> {
      * Sets whether the resulting beans must be ordered as in the input.
      * 
      * @param orderedResults Whether to order the results or not
-     * @return this
+     * @return {@code this}
      * @see CsvToBean#setOrderedResults(boolean) 
      * @since 4.0
      */
@@ -395,12 +401,31 @@ public class CsvToBeanBuilder<T> {
      * Sets the locale for all error messages.
      * 
      * @param errorLocale Locale for error messages
-     * @return this
+     * @return {@code this}
      * @see CsvToBean#setErrorLocale(java.util.Locale)
      * @since 4.0
      */
     public CsvToBeanBuilder<T> withErrorLocale(Locale errorLocale) {
         this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
+        return this;
+    }
+
+    /**
+     * Adds a {@link BeanVerifier} to the list of verifiers to run on all
+     * beans created.
+     * This method may be called as many times as desired. All added verifiers
+     * will be run on every bean. No guarantee is made as to the order in which
+     * the verifiers are run.
+     *
+     * @param verifier A new verifier that is to process all beans after
+     *                 creation. {@code null} is permissible but has no effect.
+     * @return {@code this}
+     * @since 4.4
+     */
+    public CsvToBeanBuilder<T> withVerifier(BeanVerifier<T> verifier) {
+        if(verifier != null) {
+            verifiers.add(verifier);
+        }
         return this;
     }
 }

@@ -60,6 +60,8 @@ package com.opencsv.bean;
  * }
  * }
  * </pre>
+ *
+ * @see BeanVerifier
  */
 public interface CsvToBeanFilter {
 

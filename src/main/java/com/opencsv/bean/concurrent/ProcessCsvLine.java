@@ -15,6 +15,7 @@
  */
 package com.opencsv.bean.concurrent;
 
+import com.opencsv.bean.BeanVerifier;
 import com.opencsv.bean.CsvToBeanFilter;
 import com.opencsv.bean.MappingStrategy;
 import com.opencsv.bean.OpencsvUtils;
@@ -23,8 +24,13 @@ import com.opencsv.exceptions.CsvConstraintViolationException;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+import org.apache.commons.lang3.ObjectUtils;
+
 import java.beans.IntrospectionException;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collections;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.concurrent.BlockingQueue;
 
 /**
@@ -38,6 +44,7 @@ public class ProcessCsvLine<T> implements Runnable {
     private final long lineNumber;
     private final MappingStrategy<T> mapper;
     private final CsvToBeanFilter filter;
+    private final List<BeanVerifier<T>> verifiers;
     private final String[] line;
     private final BlockingQueue<OrderedObject<T>> resultantBeanQueue;
     private final BlockingQueue<OrderedObject<CsvException>> thrownExceptionsQueue;
@@ -49,6 +56,7 @@ public class ProcessCsvLine<T> implements Runnable {
      * @param mapper The mapping strategy to be used
      * @param filter A filter to remove beans from the running, if necessary.
      *   May be null.
+     * @param verifiers The list of verifiers to run on beans after creation
      * @param line The line of input to be transformed into a bean
      * @param resultantBeanQueue A queue in which to place the bean created
      * @param thrownExceptionsQueue A queue in which to place a thrown
@@ -58,12 +66,14 @@ public class ProcessCsvLine<T> implements Runnable {
      */
     public ProcessCsvLine(
             long lineNumber, MappingStrategy<T> mapper, CsvToBeanFilter filter,
-            String[] line, BlockingQueue<OrderedObject<T>> resultantBeanQueue,
+            List<BeanVerifier<T>> verifiers, String[] line,
+            BlockingQueue<OrderedObject<T>> resultantBeanQueue,
             BlockingQueue<OrderedObject<CsvException>> thrownExceptionsQueue,
             boolean throwExceptions) {
         this.lineNumber = lineNumber;
         this.mapper = mapper;
         this.filter = filter;
+        this.verifiers = ObjectUtils.defaultIfNull(verifiers, Collections.<BeanVerifier<T>>emptyList());
         this.line = line;
         this.resultantBeanQueue = resultantBeanQueue;
         this.thrownExceptionsQueue = thrownExceptionsQueue;
@@ -75,9 +85,16 @@ public class ProcessCsvLine<T> implements Runnable {
         try {
             if (filter == null || filter.allowLine(line)) {
                 T obj = processLine();
-                OpencsvUtils.queueRefuseToAcceptDefeat(
-                        resultantBeanQueue,
-                        new OrderedObject<>(lineNumber, obj));
+                ListIterator<BeanVerifier<T>> verifierList = verifiers.listIterator();
+                boolean keep = true;
+                while(keep && verifierList.hasNext()) {
+                    keep = verifierList.next().verifyBean(obj);
+                }
+                if (keep) {
+                    OpencsvUtils.queueRefuseToAcceptDefeat(
+                            resultantBeanQueue,
+                            new OrderedObject<>(lineNumber, obj));
+                }
             }
         } catch (CsvException e) {
             e.setLineNumber(lineNumber);

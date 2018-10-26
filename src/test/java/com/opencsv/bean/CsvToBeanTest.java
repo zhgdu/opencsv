@@ -2,7 +2,10 @@ package com.opencsv.bean;
 
 import com.opencsv.*;
 import com.opencsv.bean.mocks.*;
+import com.opencsv.bean.verifier.PositiveEvensOnly;
+import com.opencsv.bean.verifier.PositiveOddsOnly;
 import com.opencsv.enums.CSVReaderNullFieldIndicator;
+import com.opencsv.exceptions.CsvConstraintViolationException;
 import com.opencsv.exceptions.CsvException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import org.apache.commons.lang3.StringUtils;
@@ -14,7 +17,6 @@ import org.junit.Test;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.StringReader;
-import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -28,6 +30,9 @@ public class CsvToBeanTest {
     private static final String TEST_STRING_WITHOUT_MANDATORY_FIELD = "name,orderNumber,num\n" +
             "kyle,abc123456,123\n" +
             "jimmy,def098765,";
+
+    private static final String GOOD_NUMBERS = "number\n0\n1\n2\n3\n4\n";
+    private static final String BAD_NUMBERS = "number\n0\n1\n2\n-5\n3\n4\n";
 
     private static Locale systemLocale;
 
@@ -282,7 +287,6 @@ public class CsvToBeanTest {
         MappingStrategy<AnnotatedMockBeanFull> map = new HeaderColumnNameMappingStrategy<>();
         map.setType(AnnotatedMockBeanFull.class);
         StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
-        Date now = new Date();
         String dateString = "19780115T063209";
         sb.append("BYTE1,BYTE2,BYTE3,DATE1\n");
         sb.append("1,2,3," + dateString + "\n");
@@ -321,5 +325,100 @@ public class CsvToBeanTest {
         assertEquals(5, exception2.getLineNumber());
     }
 
+    /**
+     * Tests use of a single bean verifier.
+     * <p>Also incidentally tests:</p>
+     * <ul><li>Adding {@code null} as a verifier before adding other
+     * verifiers.</li>
+     * <li>A verifier that discards beans.</li>
+     * <li>A verifier that verifies beans.</li></ul>
+     */
+    @Test
+    public void testSingleVerifier() {
+        List<SingleNumber> beans = new CsvToBeanBuilder<SingleNumber>(new StringReader(GOOD_NUMBERS))
+                .withType(SingleNumber.class)
+                .withVerifier(null)
+                .withVerifier(new PositiveEvensOnly())
+                .withOrderedResults(true)
+                .build().parse();
+        assertNotNull(beans);
+        assertEquals(3, beans.size());
+        assertEquals(0, beans.get(0).getNumber());
+        assertEquals(2, beans.get(1).getNumber());
+        assertEquals(4, beans.get(2).getNumber());
+    }
 
+    /**
+     * Tests that multiple verifiers work together.
+     * <p>Also incidentally tests:</p>
+     * <ul><li>Adding {@code null} as a verifier after other verifiers.</li></ul>
+     */
+    @Test
+    public void testMultipleVerifiers() {
+        List<SingleNumber> beans = new CsvToBeanBuilder<SingleNumber>(new StringReader(GOOD_NUMBERS))
+                .withType(SingleNumber.class)
+                .withVerifier(new PositiveEvensOnly())
+                .withVerifier(new PositiveOddsOnly())
+                .withVerifier(null)
+                .build().parse();
+        assertNotNull(beans);
+        assertTrue(beans.isEmpty());
+    }
+
+    @Test
+    public void testNullVerifierClearsList() {
+        CsvToBean<SingleNumber> csvToBean = new CsvToBeanBuilder<SingleNumber>(new StringReader(GOOD_NUMBERS))
+                .withType(SingleNumber.class)
+                .withVerifier(new PositiveEvensOnly())
+                .withVerifier(new PositiveOddsOnly())
+                .withOrderedResults(true)
+                .build();
+        csvToBean.setVerifiers(null);
+        List<SingleNumber> beans = csvToBean.parse();
+        assertNotNull(beans);
+        assertEquals(5, beans.size());
+        assertEquals(0, beans.get(0).getNumber());
+        assertEquals(1, beans.get(1).getNumber());
+        assertEquals(2, beans.get(2).getNumber());
+        assertEquals(3, beans.get(3).getNumber());
+        assertEquals(4, beans.get(4).getNumber());
+    }
+
+    @Test
+    public void testVerifierThrowsExceptionCollected() {
+        CsvToBean<SingleNumber> csvToBean = new CsvToBeanBuilder<SingleNumber>(new StringReader(BAD_NUMBERS))
+                .withType(SingleNumber.class)
+                .withVerifier(new PositiveOddsOnly())
+                .withThrowExceptions(false)
+                .withOrderedResults(true)
+                .build();
+        List<SingleNumber> beans = csvToBean.parse();
+        List<CsvException> exceptions = csvToBean.getCapturedExceptions();
+        assertNotNull(beans);
+        assertEquals(2, beans.size());
+        assertEquals(1, beans.get(0).getNumber());
+        assertEquals(3, beans.get(1).getNumber());
+        assertNotNull(exceptions);
+        assertEquals(1, exceptions.size());
+        assertTrue(exceptions.get(0) instanceof CsvConstraintViolationException);
+        CsvConstraintViolationException csve = (CsvConstraintViolationException) exceptions.get(0);
+        assertEquals(5, csve.getLineNumber());
+    }
+
+    @Test
+    public void testVerifierThrowsExceptionRethrown() {
+        try {
+            new CsvToBeanBuilder<SingleNumber>(new StringReader(BAD_NUMBERS))
+                    .withType(SingleNumber.class)
+                    .withVerifier(new PositiveOddsOnly())
+                    .withThrowExceptions(false)
+                    .withOrderedResults(true)
+                    .build().parse();
+        } catch (RuntimeException re) {
+            Throwable e = re.getCause();
+            assertTrue(e instanceof CsvConstraintViolationException);
+            CsvConstraintViolationException csve = (CsvConstraintViolationException) e;
+            assertEquals(4, csve.getLineNumber());
+        }
+    }
 }
