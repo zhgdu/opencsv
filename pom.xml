@@ -183,10 +183,10 @@
                     <artifactId>maven-site-plugin</artifactId>
                     <version>${maven.site.version}</version>
                     <dependencies>
-                        <dependency>
-                            <groupId>org.apache.maven.doxia</groupId>
-                            <artifactId>doxia-module-twiki</artifactId>
-                            <version>1.8</version>
+                        <dependency><!-- add Asciidoctor Doxia Parser Module -->
+                            <groupId>org.asciidoctor</groupId>
+                            <artifactId>asciidoctor-maven-plugin</artifactId>
+                            <version>1.5.7.1</version>
                         </dependency>
                     </dependencies>
                 </plugin>

@@ -1,0 +1,15 @@
+== Features
+
+Opencsv supports all the basic CSV-type things you're likely to want to do:
+
+   * Arbitrary numbers of values per line.
+   * Ignoring commas in quoted elements.
+   * Handling quoted entries with embedded carriage returns (i.e. entries that span multiple lines).
+   * Configurable separator and quote characters (or use sensible defaults).
+
+All of these things can be done reading and writing, using a manifest of malleable methodologies:
+
+   * To and from an array of strings.
+   * To and from annotated beans.
+   * From a database
+   * Read all the entries at once, or use an Iterator-style model

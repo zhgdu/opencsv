@@ -1,0 +1,52 @@
+== Frequently Asked Questions
+
+=== Where can I get it?
+
+Source and binaries are available from http://sourceforge.net/projects/opencsv/[SourceForge]
+
+=== Can I use opencsv in my commercial applications?
+
+Yes. opencsv is available under a commercial-friendly Apache 2.0 license.
+You are free to include it in your commericial applications without any fee or
+charge, and you are free to modify it to suit your circumstances. To find out
+more details of the license, read the
+http://www.apache.org/licenses/LICENSE-2.0[Apache 2.0 license agreement]
+
+=== Can I get the source? More example code?
+
+You can view the source from the
+http://sourceforge.net/p/opencsv/source/ci/master/tree/[opencsv source section].
+The source section also gives you the URL to the git repository so you can
+download source code. There is also a sample addressbook CSV reader in the
+/examples directory. And for extra marks, there's a JUnit test suite in the
+/test directory.
+
+=== How can I use it in my Maven projects?
+
+Add a dependency element to your pom:
+[source, xml]
+----
+  <dependency>
+     <groupId>com.opencsv</groupId>
+     <artifactId>opencsv</artifactId>
+     <version>4.4</version>
+  </dependency>
+----
+
+=== Who maintains opencsv?
+
+   * opencsv was developed in a couple of hours by Glen Smith but has since passed the torch and moved on to other projects. You can read his http://blogs.bytecode.com.au/glen[blog] for more info and contact details.
+   * Scott Conway - co-maintainer of project.  Commits too numerous to mention here.
+   * Andrew Rucker Jones - co-maintainer of project. Expanded on the annotation work done by Tom Squires and put some extra polish on the documentation.
+   * Sean Sullivan contributed work and was maintainer for a time.
+   * Kyle Miller contributed the bean binding work.
+   * Tom Squires has expanded on the bean work done by Kyle Miller to add annotations.
+   * Maciek Opala contributed alot of his time modernizing opencsv.  He moved the repository to git and fixed several issues.
+   * J.C. Romanda contributed several fixes.
+
+=== Reporting issues
+
+You can report issues on the
+http://sourceforge.net/projects/opencsv/support[support page] at Sourceforge.
+Please post a sample file that demonstrates your issue.  For bonus marks, post a
+patch too. :-)
