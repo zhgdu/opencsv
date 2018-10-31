@@ -19,18 +19,17 @@ package com.opencsv.bean;
 import com.opencsv.CSVReader;
 import com.opencsv.bean.mocks.MockBean;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.beans.IntrospectionException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
 import java.util.Locale;
-import org.junit.After;
 
 import static org.junit.Assert.*;
-import org.junit.BeforeClass;
 
 public class HeaderColumnNameMappingStrategyTest {
 

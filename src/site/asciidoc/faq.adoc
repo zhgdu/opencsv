@@ -44,9 +44,14 @@ Add a dependency element to your pom:
    * Maciek Opala contributed alot of his time modernizing opencsv.  He moved the repository to git and fixed several issues.
    * J.C. Romanda contributed several fixes.
 
-=== Reporting issues
+=== How do I report issues?
 
 You can report issues on the
 http://sourceforge.net/projects/opencsv/support[support page] at Sourceforge.
 Please post a sample file that demonstrates your issue.  For bonus marks, post a
 patch too. :-)
+
+=== What are the "gotchas"?
+
+We maintain a separate page of issues/questions/resolutions on our https://sourceforge.net/p/opencsv/wiki/FAQ/[sourceforge wiki]
+to enable us to make changes without a release.

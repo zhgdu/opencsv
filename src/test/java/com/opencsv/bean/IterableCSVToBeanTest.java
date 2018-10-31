@@ -5,11 +5,12 @@ import com.opencsv.bean.mocks.AnnotatedMockBeanForIterator;
 import com.opencsv.bean.mocks.MinimalCsvBindByNameBeanForWriting;
 import com.opencsv.bean.mocks.MockBean;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+import org.junit.After;
 import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import java.beans.IntrospectionException;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.StringReader;
@@ -17,10 +18,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.NoSuchElementException;
-import org.junit.After;
 
 import static org.junit.Assert.*;
-import org.junit.BeforeClass;
 
 public class IterableCSVToBeanTest {
 
