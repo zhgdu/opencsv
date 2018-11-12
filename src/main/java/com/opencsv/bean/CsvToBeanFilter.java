@@ -34,7 +34,7 @@ package com.opencsv.bean;
  *
  * 	private final MappingStrategy strategy;
  *
- * 	public NonProductionFilter(MappingStrategy strategy) {
+ * 	public StateFilter(MappingStrategy strategy) {
  * 		this.strategy = strategy;
  * 	}
  *
