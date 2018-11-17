@@ -26,6 +26,8 @@ public class CsvException extends Exception {
 
     private long lineNumber;
 
+    private String[] line;
+
     /**
      * Default constructor, in case no parameters are required.
      */
@@ -59,6 +61,26 @@ public class CsvException extends Exception {
      */
     public void setLineNumber(long lineNumber) {
         this.lineNumber = lineNumber;
+    }
+
+    /**
+     * @return The line that caused the error if reading and the data are
+     * available. Is always {@code null} on errors during writing, and may
+     * also be {@code null} or empty on certain errors that occur during
+     * reading.
+     * @since 4.4
+     */
+    public String[] getLine() {
+        return line;
+    }
+
+    /**
+     * @param line The line that caused the error on reading. May be
+     * {@code null}.
+     * @since 4.4
+     */
+    public void setLine(String[] line) {
+        this.line = line;
     }
 
 }

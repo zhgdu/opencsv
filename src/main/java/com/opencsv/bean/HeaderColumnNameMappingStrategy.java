@@ -87,11 +87,13 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
             }
             String missingRequiredFields = StringUtils.join(requiredHeaderNames, ", ");
             String allHeaders = StringUtils.join(header, ',');
-            throw new CsvRequiredFieldEmptyException(type, requiredFields,
+            CsvRequiredFieldEmptyException e = new CsvRequiredFieldEmptyException(type, requiredFields,
                     String.format(
                             ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
                                     .getString("header.required.field.absent"),
                             missingRequiredFields, allHeaders));
+            e.setLine(header);
+            throw e;
         }
     }
     

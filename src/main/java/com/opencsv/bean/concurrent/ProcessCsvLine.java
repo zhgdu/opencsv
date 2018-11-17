@@ -98,6 +98,7 @@ public class ProcessCsvLine<T> implements Runnable {
             }
         } catch (CsvException e) {
             e.setLineNumber(lineNumber);
+            e.setLine(line);
             if (throwExceptions) {
                 throw new RuntimeException(e);
             }

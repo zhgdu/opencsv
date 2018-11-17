@@ -278,6 +278,7 @@ public class NumberTest {
         assertEquals("\u20BE \u20BE \u20BE 1.2 \u20BE \u20BE \u20BE", csve.getSourceObject());
         assertEquals(Byte.class, csve.getDestinationClass());
         assertEquals(2, csve.getLineNumber());
+        assertNotNull(csve.getLine());
         assertNotNull(csve.getCause());
     }
 

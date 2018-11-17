@@ -683,6 +683,7 @@ public class JoinTest {
             assertEquals(1, csve.getDestinationFields().size());
             assertEquals("map1", csve.getDestinationFields().get(0).getName());
             assertEquals(1, csve.getLineNumber());
+            assertNotNull(csve.getLine());
         }
     }
     
@@ -706,6 +707,7 @@ public class JoinTest {
             assertEquals(GoodJoinByNameAnnotations.class, csve.getBeanClass());
             assertEquals("map2", csve.getDestinationField().getName());
             assertEquals(2, csve.getLineNumber());
+            assertNotNull(csve.getLine());
         }
     }
     
@@ -729,6 +731,7 @@ public class JoinTest {
             assertEquals(GoodJoinByNameAnnotations.class, csve.getBeanClass());
             assertEquals("map2", csve.getDestinationField().getName());
             assertEquals(-1, csve.getLineNumber());
+            assertNotNull(csve.getLine());
         }
     }
     
@@ -753,6 +756,7 @@ public class JoinTest {
             assertEquals(GoodJoinByPositionAnnotations.class, csve.getBeanClass());
             assertEquals("map2", csve.getDestinationField().getName());
             assertEquals(1, csve.getLineNumber());
+            assertNotNull(csve.getLine());
         }
     }
     
@@ -794,7 +798,7 @@ public class JoinTest {
     
     /**
      * Tests what happens when a required field is missing in a column position
-     * mapping strategy.
+     * mapping strategy on writing.
      * 
      * @throws CsvException Never
      */

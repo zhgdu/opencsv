@@ -321,8 +321,10 @@ public class CsvToBeanTest {
         assertEquals(2, c.getCapturedExceptions().size());
         CsvException exception1 = c.getCapturedExceptions().get(0);
         assertEquals(4, exception1.getLineNumber());
+        assertNotNull(exception1.getLine());
         CsvException exception2 = c.getCapturedExceptions().get(1);
         assertEquals(5, exception2.getLineNumber());
+        assertNotNull(exception2.getLine());
     }
 
     /**
@@ -403,6 +405,7 @@ public class CsvToBeanTest {
         assertTrue(exceptions.get(0) instanceof CsvConstraintViolationException);
         CsvConstraintViolationException csve = (CsvConstraintViolationException) exceptions.get(0);
         assertEquals(5, csve.getLineNumber());
+        assertNotNull(csve.getLine());
     }
 
     @Test
@@ -419,6 +422,7 @@ public class CsvToBeanTest {
             assertTrue(e instanceof CsvConstraintViolationException);
             CsvConstraintViolationException csve = (CsvConstraintViolationException) e;
             assertEquals(4, csve.getLineNumber());
+            assertNotNull(csve.getLine());
         }
     }
 }

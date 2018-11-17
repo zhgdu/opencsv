@@ -22,10 +22,10 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Field;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
+
 import org.junit.Test;
+
+import static org.junit.Assert.*;
 
 public class CsvDataTypeMismatchExceptionTest {
     private static final String TEST_MESSAGE = "some test message";
@@ -45,9 +45,11 @@ public class CsvDataTypeMismatchExceptionTest {
         Field field = bean.getClass().getDeclaredFields()[0];
         CsvDataTypeMismatchException orig = new CsvDataTypeMismatchException(field, bean.getClass(), TEST_MESSAGE);
         orig.setLineNumber(Long.MAX_VALUE);
+        orig.setLine(new String[]{"abc", "def"});
         assertNotNull(orig.getDestinationClass());
         assertNotNull(orig.getSourceObject());
         assertEquals(Long.MAX_VALUE, orig.getLineNumber());
+        assertArrayEquals(new String[]{"abc", "def"}, orig.getLine());
         assertNotNull(orig.getLocalizedMessage());
         
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -60,5 +62,6 @@ public class CsvDataTypeMismatchExceptionTest {
         assertNull(deserialized.getSourceObject());
         assertEquals(orig.getLocalizedMessage(), deserialized.getLocalizedMessage());
         assertEquals(orig.getLineNumber(), deserialized.getLineNumber());
+        assertArrayEquals(orig.getLine(), deserialized.getLine());
     }
 }

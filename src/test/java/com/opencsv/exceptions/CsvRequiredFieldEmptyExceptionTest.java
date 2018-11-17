@@ -43,6 +43,7 @@ public class CsvRequiredFieldEmptyExceptionTest {
         assertNull(e1.getCause());
         assertNull(e1.getMessage());
         assertEquals(-1, e1.getLineNumber());
+        assertNull(e1.getLine());
 
         String err = "Test";
         e1 = new CsvRequiredFieldEmptyException(err);
@@ -51,6 +52,7 @@ public class CsvRequiredFieldEmptyExceptionTest {
         assertNull(e1.getCause());
         assertEquals(err, e1.getMessage());
         assertEquals(-1, e1.getLineNumber());
+        assertNull(e1.getLine());
         
     }
     
@@ -60,9 +62,11 @@ public class CsvRequiredFieldEmptyExceptionTest {
         Field field = bean.getClass().getDeclaredFields()[0];
         CsvRequiredFieldEmptyException orig = new CsvRequiredFieldEmptyException(bean.getClass(), field, TEST_MESSAGE);
         orig.setLineNumber(Long.MAX_VALUE);
+        orig.setLine(new String[]{"abc", "def"});
         assertNotNull(orig.getBeanClass());
         assertNotNull(orig.getDestinationField());
         assertEquals(Long.MAX_VALUE, orig.getLineNumber());
+        assertArrayEquals(new String[]{"abc", "def"}, orig.getLine());
         assertNotNull(orig.getLocalizedMessage());
         
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -75,5 +79,6 @@ public class CsvRequiredFieldEmptyExceptionTest {
         assertNull(deserialized.getDestinationField());
         assertEquals(orig.getLocalizedMessage(), deserialized.getLocalizedMessage());
         assertEquals(orig.getLineNumber(), deserialized.getLineNumber());
+        assertArrayEquals(orig.getLine(), deserialized.getLine());
     }
 }

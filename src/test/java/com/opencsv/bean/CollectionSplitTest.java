@@ -319,6 +319,7 @@ public class CollectionSplitTest {
         assertTrue(csve instanceof CsvDataTypeMismatchException);
         CsvDataTypeMismatchException dtme = (CsvDataTypeMismatchException) csve;
         assertEquals(1, dtme.getLineNumber());
+        assertNotNull(dtme.getLine());
         assertEquals(Currency.class, dtme.getDestinationClass());
         assertEquals(input, dtme.getSourceObject());
     }
@@ -513,6 +514,7 @@ public class CollectionSplitTest {
         CsvRequiredFieldEmptyException rfee = (CsvRequiredFieldEmptyException) csve;
         assertEquals(AnnotatedMockBeanCollectionSplitByColumn.class, rfee.getBeanClass());
         assertEquals(1, rfee.getLineNumber());
+        assertNotNull(rfee.getLine());
     }
     
     @Test
