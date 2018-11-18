@@ -31,11 +31,15 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
      * to field names.
      */
     private boolean columnsExplicitlySet = false;
-    
-    /** The map from column position to {@link BeanField}. */
+
+    /**
+     * The map from column position to {@link BeanField}.
+     */
     private FieldMapByPosition<T> fieldMap;
 
-    /** Holds a {@link java.util.Comparator} to sort columns on writing. */
+    /**
+     * Holds a {@link java.util.Comparator} to sort columns on writing.
+     */
     private Comparator<Integer> writeOrder;
 
     /**
@@ -47,8 +51,9 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
     /**
      * Default constructor.
      */
-    public ColumnPositionMappingStrategy() {}
-    
+    public ColumnPositionMappingStrategy() {
+    }
+
     /**
      * There is no header per se for this mapping strategy, but this method
      * checks the first line to determine how many fields are present and
@@ -58,12 +63,12 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
     @Override
     public void captureHeader(CSVReader reader) throws IOException {
         // Validation
-        if(type == null) {
+        if (type == null) {
             throw new IllegalStateException(ResourceBundle
                     .getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
                     .getString("type.unset"));
         }
-        
+
         String[] firstLine = reader.peek();
         fieldMap.setMaxIndex(firstLine.length - 1);
         if (!columnsExplicitlySet) {
@@ -79,22 +84,22 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
             }
         }
     }
-    
+
     /**
      * @return {@inheritDoc} For this mapping strategy, it's simply
-     *   {@code index} wrapped as an {@link java.lang.Integer}.
+     * {@code index} wrapped as an {@link java.lang.Integer}.
      */
     // The rest of the Javadoc is inherited
     @Override
     protected Object chooseMultivaluedFieldIndexFromHeaderIndex(int index) {
         return Integer.valueOf(index);
     }
-    
+
     @Override
     public BeanField<T> findField(int col) {
         // If we have a mapping for changing the order of the columns on
         // writing, be sure to use it.
-        if(columnIndexForWriting != null) {
+        if (columnIndexForWriting != null) {
             return col < columnIndexForWriting.length ? fieldMap.get(columnIndexForWriting[col]) : null;
         }
         return fieldMap.get(col);
@@ -104,6 +109,7 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
      * This method returns an empty array.
      * The column position mapping strategy assumes that there is no header, and
      * thus it also does not write one, accordingly.
+     *
      * @return An empty array
      */
     // The rest of the Javadoc is inherited
@@ -113,7 +119,9 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
         columnIndexForWriting = new Integer[h.length];
 
         // Once we support Java 8, this might be nicer with Arrays.parallelSetAll().
-        for(int i = 0; i < columnIndexForWriting.length; i++) columnIndexForWriting[i] = i;
+        for (int i = 0; i < columnIndexForWriting.length; i++) {
+            columnIndexForWriting[i] = i;
+        }
 
         // Create the mapping for input column index to output column index.
         Arrays.sort(columnIndexForWriting, writeOrder);
@@ -148,10 +156,9 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
      * @param columnMapping Column names to be mapped.
      */
     public void setColumnMapping(String... columnMapping) {
-        if(columnMapping != null) {
+        if (columnMapping != null) {
             headerIndex.initializeHeaderIndex(columnMapping);
-        }
-        else {
+        } else {
             headerIndex.clear();
         }
         columnsExplicitlySet = true;
@@ -177,9 +184,9 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
                 bean.setRequired(required);
                 fieldMap.put(annotation.position(), bean);
             }
-            
+
             // Then check for a collection
-            else if(field.isAnnotationPresent(CsvBindAndSplitByPosition.class)) {
+            else if (field.isAnnotationPresent(CsvBindAndSplitByPosition.class)) {
                 CsvBindAndSplitByPosition annotation = field.getAnnotation(CsvBindAndSplitByPosition.class);
                 required = annotation.required();
                 fieldLocale = annotation.locale();
@@ -196,9 +203,9 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
                         field, required, errorLocale, converter, splitOn,
                         writeDelimiter, collectionType, capture, format));
             }
-            
+
             // Then check for a multi-column annotation
-            else if(field.isAnnotationPresent(CsvBindAndJoinByPosition.class)) {
+            else if (field.isAnnotationPresent(CsvBindAndJoinByPosition.class)) {
                 CsvBindAndJoinByPosition annotation = field.getAnnotation(CsvBindAndJoinByPosition.class);
                 required = annotation.required();
                 fieldLocale = annotation.locale();
@@ -230,25 +237,25 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
 
     @Override
     public void verifyLineLength(int numberOfFields) throws CsvRequiredFieldEmptyException {
-        if(!headerIndex.isEmpty()) {
+        if (!headerIndex.isEmpty()) {
             BeanField f;
             StringBuilder sb = null;
-            for(int i = numberOfFields; i <= headerIndex.findMaxIndex(); i++) {
+            for (int i = numberOfFields; i <= headerIndex.findMaxIndex(); i++) {
                 f = findField(i);
-                if(f != null && f.isRequired()) {
-                    if(sb == null) {
+                if (f != null && f.isRequired()) {
+                    if (sb == null) {
                         sb = new StringBuilder(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("multiple.required.field.empty"));
                     }
                     sb.append(' ');
                     sb.append(f.getField().getName());
                 }
             }
-            if(sb != null) {
+            if (sb != null) {
                 throw new CsvRequiredFieldEmptyException(type, sb.toString());
             }
         }
     }
-    
+
     private List<Field> loadFields(Class<? extends T> cls) {
         List<Field> fields = new LinkedList<>();
         for (Field field : FieldUtils.getAllFields(cls)) {
@@ -262,7 +269,7 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
         setAnnotationDriven(!fields.isEmpty());
         return fields;
     }
-    
+
     /**
      * Returns the column position for the given column number.
      * Yes, they're the same thing. For this mapping strategy, it's a simple
@@ -273,9 +280,11 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
     public String findHeader(int col) {
         return Integer.toString(col);
     }
-    
+
     @Override
-    protected FieldMap<String, Integer, ? extends ComplexFieldMapEntry<String, Integer, T>, T> getFieldMap() {return fieldMap;}
+    protected FieldMap<String, Integer, ? extends ComplexFieldMapEntry<String, Integer, T>, T> getFieldMap() {
+        return fieldMap;
+    }
 
     /**
      * Sets the {@link java.util.Comparator} to be used to sort columns when
@@ -284,12 +293,12 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
      * reading data from a CSV source is not defined.
      *
      * @param writeOrder The {@link java.util.Comparator} to use. May be
-     *   {@code null}, in which case the natural ordering is used.
+     *                   {@code null}, in which case the natural ordering is used.
      * @since 4.3
      */
     public void setColumnOrderOnWrite(Comparator<Integer> writeOrder) {
         this.writeOrder = writeOrder;
-        if(fieldMap != null) {
+        if (fieldMap != null) {
             fieldMap.setColumnOrderOnWrite(this.writeOrder);
         }
     }

@@ -15,9 +15,10 @@
  */
 package com.opencsv.bean;
 
+import org.apache.commons.collections4.MultiValuedMap;
+
 import java.lang.reflect.Field;
 import java.util.Locale;
-import org.apache.commons.collections4.MultiValuedMap;
 
 /**
  * Implements a {@link BeanFieldJoin} with a {@link java.lang.String} for an
@@ -29,7 +30,22 @@ import org.apache.commons.collections4.MultiValuedMap;
  * @since 4.2
  */
 public class BeanFieldJoinStringIndex<T> extends BeanFieldJoin<T, String> {
-    
+
+    /**
+     * Creates a new instance.
+     *
+     * @param field       The bean field this object represents
+     * @param required    Whether or not a value is always required for this field
+     * @param errorLocale The locale to use for error messages
+     * @param converter   The converter to be used for performing the data
+     *                    conversion on reading or writing
+     * @param mapType     The type of the
+     *                    {@link org.apache.commons.collections4.MultiValuedMap} that should be
+     *                    instantiated for the bean field being populated
+     * @param capture     See {@link CsvBindAndJoinByName#capture()}
+     * @param format      The format string used for packaging values to be written.
+     *                    If {@code null} or empty, it is ignored.
+     */
     public BeanFieldJoinStringIndex(
             Field field, boolean required, Locale errorLocale,
             CsvConverter converter, Class<? extends MultiValuedMap> mapType,

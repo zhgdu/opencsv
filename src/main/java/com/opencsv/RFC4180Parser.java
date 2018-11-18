@@ -3,7 +3,6 @@ package com.opencsv;
 import com.opencsv.enums.CSVReaderNullFieldIndicator;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -31,7 +30,7 @@ import java.util.regex.Pattern;
  * @since 3.9
  */
 
-public class RFC4180Parser implements ICSVParser {
+public class RFC4180Parser extends AbstractCSVParser {
 
     /**
      * This is needed by the split command in case the separator character is a regex special character.
@@ -39,30 +38,14 @@ public class RFC4180Parser implements ICSVParser {
     private static final Pattern SPECIAL_REGEX_CHARS = Pattern.compile("[{}()\\[\\].+*?^$\\\\|]");
 
     /**
-     * This is the character that the RFC4180Parser will treat as the separator.
-     */
-    private final char separator;
-
-    /**
      * Separator character as String (used for split command).
      */
     private final String separatorAsString;
 
     /**
-     * This is the character that the RFC4180Parser will treat as the quotation character.
+     * Quotation character as String (used for split command).
      */
-    private final char quotechar;
     private final String quoteCharString;
-
-    /**
-     * This is the fields that the parser will automatically return null.
-     */
-    private final CSVReaderNullFieldIndicator nullFieldIndicator;
-
-    /**
-     * This is what was from a previous read of a multi-lined csv record.
-     */
-    private String pending;
 
     /**
      * Default constructor for the RFC4180Parser.  Uses values from the ICSVParser.
@@ -79,52 +62,13 @@ public class RFC4180Parser implements ICSVParser {
      * @param nullFieldIndicator Indicate what should be considered null
      */
     RFC4180Parser(char quoteChar, char separator, CSVReaderNullFieldIndicator nullFieldIndicator) {
-        this.quotechar = quoteChar;
-        this.quoteCharString = Character.toString(quoteChar);
-        this.separator = separator;
+        super(separator, quoteChar, nullFieldIndicator);
         this.separatorAsString = SPECIAL_REGEX_CHARS.matcher(Character.toString(separator)).replaceAll("\\\\$0");
-        this.nullFieldIndicator = nullFieldIndicator;
+        this.quoteCharString = Character.toString(quoteChar);
     }
 
     @Override
-    public char getSeparator() {
-        return separator;
-    }
-
-    @Override
-    public char getQuotechar() {
-        return quotechar;
-    }
-
-    @Override
-    public boolean isPending() {
-        return pending != null;
-    }
-
-    @Override
-    public String[] parseLineMulti(String nextLine) throws IOException {
-        return parseLine(nextLine, true);
-    }
-
-    @Override
-    public String[] parseLine(String nextLine) throws IOException {
-        return parseLine(nextLine, false);
-    }
-
-    @Override
-    public String parseToLine(String[] values, boolean applyQuotesToAll) {
-        StringBuilder builder = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
-
-        for (int i = 0; i < values.length; i++) {
-            builder.append(convertToCsvValue(values[i], applyQuotesToAll));
-            if (i < values.length - 1) {
-                builder.append(getSeparator());
-            }
-        }
-        return builder.toString();
-    }
-
-    private String convertToCsvValue(String value, boolean applyQuotesToAll) {
+    protected String convertToCsvValue(String value, boolean applyQuotesToAll) {
         String testValue = (value == null && !nullFieldIndicator.equals(CSVReaderNullFieldIndicator.NEITHER)) ? "" : value;
         StringBuilder builder = new StringBuilder(testValue == null ? MAX_SIZE_FOR_EMPTY_FIELD : (testValue.length() * 2));
         boolean containsQuoteChar = testValue != null && testValue.contains(Character.toString(getQuotechar()));
@@ -143,14 +87,6 @@ public class RFC4180Parser implements ICSVParser {
         }
 
         return builder.toString();
-    }
-
-    private boolean isSurroundWithQuotes(String value, boolean containsQuoteChar) {
-        if (value == null) {
-            return nullFieldIndicator.equals(CSVReaderNullFieldIndicator.EMPTY_QUOTES);
-        }
-
-        return containsQuoteChar || value.contains(Character.toString(getSeparator())) || value.contains(NEWLINE);
     }
 
     /**

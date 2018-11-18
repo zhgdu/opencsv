@@ -38,6 +38,7 @@ import java.util.*;
  */
 public class ConverterDate extends AbstractCsvConverter {
 
+    private static final String CSVDATE_NOT_DATE = "csvdate.not.date";
     /**
      * The formatter for all inputs to and from date representations.
      * <em>It is absolutely critical that access to this member variable is always
@@ -115,7 +116,7 @@ public class ConverterDate extends AbstractCsvConverter {
         }
         else {
             throw new CsvDataTypeMismatchException(value, fieldType,
-                    ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("csvdate.not.date"));
+                    ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString(CSVDATE_NOT_DATE));
         }
         
         return o;
@@ -193,7 +194,7 @@ public class ConverterDate extends AbstractCsvConverter {
             }
             else {
                 throw new CsvDataTypeMismatchException(value, fieldType,
-                        ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("csvdate.not.date"));
+                        ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString(CSVDATE_NOT_DATE));
             }
             String s;
             synchronized (sdf) {
@@ -229,7 +230,7 @@ public class ConverterDate extends AbstractCsvConverter {
             o = convertCalendar(value, fieldType);
         } else {
             throw new CsvDataTypeMismatchException(value, fieldType,
-                    ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("csvdate.not.date"));
+                    ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString(CSVDATE_NOT_DATE));
         }
         
         return o;

@@ -41,17 +41,9 @@ import java.util.ResourceBundle;
  * @author Glen Smith
  * @author Rainer Pruy
  */
-public class CSVParser implements ICSVParser {
+public class CSVParser extends AbstractCSVParser {
 
     private static final int BEGINING_OF_LINE = 3;
-    /**
-     * This is the character that the CSVParser will treat as the separator.
-     */
-    private final char separator;
-    /**
-     * This is the character that the CSVParser will treat as the quotation character.
-     */
-    private final char quotechar;
     /**
      * This is the character that the CSVParser will treat as the escape character.
      */
@@ -68,8 +60,6 @@ public class CSVParser implements ICSVParser {
      * Skip over quotation characters when parsing.
      */
     private final boolean ignoreQuotations;
-    private final CSVReaderNullFieldIndicator nullFieldIndicator;
-    private String pending;
     private int tokensOnLastCompleteLine = -1;
     private boolean inField = false;
     
@@ -206,6 +196,7 @@ public class CSVParser implements ICSVParser {
      */
     CSVParser(char separator, char quotechar, char escape, boolean strictQuotes, boolean ignoreLeadingWhiteSpace,
               boolean ignoreQuotations, CSVReaderNullFieldIndicator nullFieldIndicator, Locale errorLocale) {
+        super(separator, quotechar, nullFieldIndicator);
         this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
         if (anyCharactersAreTheSame(separator, quotechar, escape)) {
             throw new UnsupportedOperationException(ResourceBundle.getBundle(DEFAULT_BUNDLE_NAME, this.errorLocale).getString("special.characters.must.differ"));
@@ -213,29 +204,10 @@ public class CSVParser implements ICSVParser {
         if (separator == NULL_CHARACTER) {
             throw new UnsupportedOperationException(ResourceBundle.getBundle(DEFAULT_BUNDLE_NAME, this.errorLocale).getString("define.separator"));
         }
-        this.separator = separator;
-        this.quotechar = quotechar;
         this.escape = escape;
         this.strictQuotes = strictQuotes;
         this.ignoreLeadingWhiteSpace = ignoreLeadingWhiteSpace;
         this.ignoreQuotations = ignoreQuotations;
-        this.nullFieldIndicator = nullFieldIndicator;
-    }
-
-    /**
-     * @return The default separator for this parser.
-     */
-    @Override
-    public char getSeparator() {
-        return separator;
-    }
-
-    /**
-     * @return The default quotation character for this parser.
-     */
-    @Override
-    public char getQuotechar() {
-        return quotechar;
     }
 
     /**
@@ -290,54 +262,8 @@ public class CSVParser implements ICSVParser {
         return c1 != NULL_CHARACTER && c1 == c2;
     }
 
-    /**
-     * @return True if something was left over from last call(s)
-     */
     @Override
-    public boolean isPending() {
-        return pending != null;
-    }
-
-    /**
-     * Parses an incoming String and returns an array of elements.
-     * This method is used when the data spans multiple lines.
-     *
-     * @param nextLine Current line to be processed
-     * @return The comma-tokenized list of elements, or null if nextLine is null
-     * @throws IOException If bad things happen during the read
-     */
-    @Override
-    public String[] parseLineMulti(String nextLine) throws IOException {
-        return parseLine(nextLine, true);
-    }
-
-    /**
-     * Parses an incoming String and returns an array of elements.
-     * This method is used when all data is contained in a single line.
-     *
-     * @param nextLine Line to be parsed.
-     * @return The list of elements, or null if nextLine is null
-     * @throws IOException If bad things happen during the read
-     */
-    @Override
-    public String[] parseLine(String nextLine) throws IOException {
-        return parseLine(nextLine, false);
-    }
-
-    @Override
-    public String parseToLine(String[] values, boolean applyQuotesToAll) {
-        StringBuilder builder = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
-
-        for (int i = 0; i < values.length; i++) {
-            builder.append(convertToCsvValue(values[i], applyQuotesToAll));
-            if (i < values.length - 1) {
-                builder.append(getSeparator());
-            }
-        }
-        return builder.toString();
-    }
-
-    private String convertToCsvValue(String value, boolean applyQuotestoAll) {
+    protected String convertToCsvValue(String value, boolean applyQuotestoAll) {
         String testValue = (value == null && !nullFieldIndicator.equals(CSVReaderNullFieldIndicator.NEITHER)) ? "" : value;
         StringBuilder builder = new StringBuilder(testValue == null ? MAX_SIZE_FOR_EMPTY_FIELD : (testValue.length() * 2));
         boolean containsQuoteChar = testValue != null && testValue.contains(Character.toString(getQuotechar()));
@@ -361,22 +287,7 @@ public class CSVParser implements ICSVParser {
         return builder.toString();
     }
 
-    private boolean isSurroundWithQuotes(String value, boolean containsQuoteChar) {
-        if (value == null) {
-            return nullFieldIndicator.equals(CSVReaderNullFieldIndicator.EMPTY_QUOTES);
-        }
-
-        return containsQuoteChar || value.contains(Character.toString(getSeparator())) || value.contains(NEWLINE);
-    }
-
-    /**
-     * Parses an incoming String and returns an array of elements.
-     *
-     * @param nextLine The string to parse
-     * @param multi Does it take multiple lines to form a single record.
-     * @return The list of elements, or null if nextLine is null
-     * @throws IOException If bad things happen during the read
-     */
+    @Override
     protected String[] parseLine(String nextLine, boolean multi) throws IOException {
 
         if (!multi && pending != null) {
@@ -572,16 +483,6 @@ public class CSVParser implements ICSVParser {
                 && isCharacterEscapable(nextLine.charAt(i + 1));
     }
 
-    @Override
-    public CSVReaderNullFieldIndicator nullFieldIndicator() {
-        return nullFieldIndicator;
-    }
-    
-    @Override
-    public String getPendingText() {
-        return StringUtils.defaultString(pending);
-    }
-    
     @Override
     public void setErrorLocale(Locale errorLocale) {
         this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
