@@ -1,11 +1,13 @@
 package com.opencsv;
 
 import com.opencsv.enums.CSVReaderNullFieldIndicator;
+import com.opencsv.exceptions.CsvMultilineLimitBrokeException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.Locale;
 
@@ -778,5 +780,65 @@ public class CSVParserTest {
     public void parseToLineApplyQuotesToAllIsTrue() throws Exception {
         String items[] = {"This", " is", " a", " test."};
         assertEquals("\"This\",\" is\",\" a\",\" test.\"", csvParser.parseToLine(items, true));
+    }
+
+    @Test
+    public void testMultilineLimiteBrokeErrorDetail1() throws IOException {
+        csvParser = new CSVParser();
+
+        try {
+            CSVReaderBuilder csvReaderBuilder = new CSVReaderBuilder(new FileReader("src/test/resources/testmultilinelimitebroke1.csv"));
+
+            CSVReader reader = csvReaderBuilder.withMultilineLimit(10).build();
+            while (true) {
+                if (reader.readNext() == null) {
+                    break;
+                }
+            }
+
+        } catch (CsvMultilineLimitBrokeException e) {
+            assertTrue(e.getMessage().contains("row:"));
+            assertTrue(e.getMessage().contains("context:"));
+        }
+    }
+
+    @Test
+    public void testMultilineLimiteBrokeErrorDetail2() throws IOException {
+        csvParser = new CSVParser();
+
+        try {
+            CSVReaderBuilder csvReaderBuilder = new CSVReaderBuilder(new FileReader("src/test/resources/testmultilinelimitebroke2.csv"));
+
+            CSVReader reader = csvReaderBuilder.withMultilineLimit(10).build();
+            while (true) {
+                if (reader.readNext() == null) {
+                    break;
+                }
+            }
+
+        } catch (CsvMultilineLimitBrokeException e) {
+            assertTrue(e.getMessage().contains("row:"));
+            assertTrue(e.getMessage().contains("context:"));
+        }
+    }
+
+    @Test
+    public void testMultilineLimiteBrokeErrorDetail3() throws IOException {
+        csvParser = new CSVParser();
+
+        try {
+            CSVReaderBuilder csvReaderBuilder = new CSVReaderBuilder(new FileReader("src/test/resources/testmultilinelimitebroke3.csv"));
+
+            CSVReader reader = csvReaderBuilder.withMultilineLimit(10).build();
+            while (true) {
+                if (reader.readNext() == null) {
+                    break;
+                }
+            }
+
+        } catch (CsvMultilineLimitBrokeException e) {
+            assertTrue(e.getMessage().contains("row:"));
+            assertTrue(e.getMessage().contains("context:"));
+        }
     }
 }
