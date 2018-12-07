@@ -16,7 +16,7 @@ package com.opencsv;
  limitations under the License.
  */
 
-import com.opencsv.exceptions.CsvMultilineLimitBrokeException;
+import com.opencsv.exceptions.CsvMultilineLimitBrokenException;
 import com.opencsv.stream.reader.LineReader;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -358,7 +358,7 @@ public class CSVReader implements Closeable, Iterable<String[]> {
 
                 // get current row records Read +1
                 long row = this.recordsRead + 1L;
-                throw new CsvMultilineLimitBrokeException(String.format(errorLocale, ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("multiline.limit.broken"), multilineLimit ,row, parser.getPendingText()));
+                throw new CsvMultilineLimitBrokenException(String.format(errorLocale, ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("multiline.limit.broken"), multilineLimit, row, parser.getPendingText()), row, parser.getPendingText(), multilineLimit);
             }
             String[] r = parser.parseLineMulti(nextLine);
             if (r.length > 0) {

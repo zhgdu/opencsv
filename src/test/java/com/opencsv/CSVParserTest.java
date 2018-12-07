@@ -1,7 +1,7 @@
 package com.opencsv;
 
 import com.opencsv.enums.CSVReaderNullFieldIndicator;
-import com.opencsv.exceptions.CsvMultilineLimitBrokeException;
+import com.opencsv.exceptions.CsvMultilineLimitBrokenException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -782,61 +782,88 @@ public class CSVParserTest {
         assertEquals("\"This\",\" is\",\" a\",\" test.\"", csvParser.parseToLine(items, true));
     }
 
+    /**
+     * Test to check if we have a good detail in the error message when there is a quote that wasn't close - (begin of the field)
+     * check if is set the attributes of the CsvMultilineLimitBrokenException
+     * @throws IOException
+     */
     @Test
-    public void testMultilineLimiteBrokeErrorDetail1() throws IOException {
+    public void testMultilineLimiteBrokeErrorDetailWithQuoteBegin() throws IOException {
         csvParser = new CSVParser();
 
+        int multilineLimit = 10;
         try {
             CSVReaderBuilder csvReaderBuilder = new CSVReaderBuilder(new FileReader("src/test/resources/testmultilinelimitebroke1.csv"));
 
-            CSVReader reader = csvReaderBuilder.withMultilineLimit(10).build();
+            CSVReader reader = csvReaderBuilder.withMultilineLimit(multilineLimit).build();
             while (true) {
                 if (reader.readNext() == null) {
                     break;
                 }
             }
-
-        } catch (CsvMultilineLimitBrokeException e) {
+            fail("Should have thrown exception");
+        } catch (CsvMultilineLimitBrokenException e) {
+            assertEquals(e.getRow(),11L);
+            assertTrue(e.getContext().startsWith("xaxax\"axa,sasasasas,babaababab,121212,6581"));
+            assertEquals(e.getMultilineLimit(),multilineLimit);
             assertTrue(e.getMessage().contains("row"));
             assertTrue(e.getMessage().contains("Context:"));
         }
     }
 
+    /**
+     * Test to check if we have a good detail in the error message when there is a quote that wasn't close - (middle of the field)
+     * check if is set the attributes of the CsvMultilineLimitBrokenException
+     * @throws IOException
+     */
     @Test
-    public void testMultilineLimiteBrokeErrorDetail2() throws IOException {
+    public void testMultilineLimiteBrokeErrorDetailWithQuoteMiddle() throws IOException {
         csvParser = new CSVParser();
+        int multilineLimit = 10;
 
         try {
             CSVReaderBuilder csvReaderBuilder = new CSVReaderBuilder(new FileReader("src/test/resources/testmultilinelimitebroke2.csv"));
 
-            CSVReader reader = csvReaderBuilder.withMultilineLimit(10).build();
+            CSVReader reader = csvReaderBuilder.withMultilineLimit(multilineLimit).build();
             while (true) {
                 if (reader.readNext() == null) {
                     break;
                 }
             }
+            fail("Should have thrown exception");
+        } catch (CsvMultilineLimitBrokenException e) {
 
-        } catch (CsvMultilineLimitBrokeException e) {
+            assertEquals(e.getRow(),18L);
+            assertTrue(e.getContext().startsWith("xaxaxxaxaxxaxaxxaxaxxaxaxxaxa\"xxaxaxxaxaxxaxaxxaxa"));
+            assertEquals(e.getMultilineLimit(),multilineLimit);
             assertTrue(e.getMessage().contains("row"));
             assertTrue(e.getMessage().contains("Context:"));
         }
     }
 
+    /**
+     * Test to check if we have a good detail in the error message when there is a quote that wasn't close - (end of the field)
+     * check if is set the attributes of the CsvMultilineLimitBrokenException
+     * @throws IOException
+     */
     @Test
-    public void testMultilineLimiteBrokeErrorDetail3() throws IOException {
+    public void testMultilineLimiteBrokeErrorDetailWithQuoteEnd() throws IOException {
         csvParser = new CSVParser();
-
+        int multilineLimit = 10;
         try {
             CSVReaderBuilder csvReaderBuilder = new CSVReaderBuilder(new FileReader("src/test/resources/testmultilinelimitebroke3.csv"));
 
-            CSVReader reader = csvReaderBuilder.withMultilineLimit(10).build();
+            CSVReader reader = csvReaderBuilder.withMultilineLimit(multilineLimit).build();
             while (true) {
                 if (reader.readNext() == null) {
                     break;
                 }
             }
-
-        } catch (CsvMultilineLimitBrokeException e) {
+            fail("Should have thrown exception");
+        } catch (CsvMultilineLimitBrokenException e) {
+            assertEquals(e.getRow(),18L);
+            assertTrue(e.getContext().startsWith("xaxaxxaxaxxaxaxxaxaxxaxaxxaxaxxaxaxxaxaxxaxaxxaxaxxaxaxxaxaxxaxaxx\"axax,sasasasas"));
+            assertEquals(e.getMultilineLimit(),multilineLimit);
             assertTrue(e.getMessage().contains("row"));
             assertTrue(e.getMessage().contains("Context:"));
         }

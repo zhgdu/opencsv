@@ -18,18 +18,38 @@ package com.opencsv.exceptions;
 import java.io.IOException;
 
 /**
- * Execeptions when you break the lime limit of the multiline field
+ * Exceptions when you break the lime limit of the multiline field
  * @author Edgar Silva
  */
-public class CsvMultilineLimitBrokeException extends IOException {
+public class CsvMultilineLimitBrokenException extends IOException {
     private static final long serialVersionUID = 1L;
+    private long row;
+    private String context;
+    private  int multilineLimit;
+
+    public int getMultilineLimit() {
+        return multilineLimit;
+    }
+
+    public long getRow() {
+        return row;
+    }
+
+    public String getContext() {
+        return context;
+    }
 
     /** Nullary constructor. Does nothing. */
-    public CsvMultilineLimitBrokeException() {}
+    public CsvMultilineLimitBrokenException() {}
 
     /**
      * Constructor with a message.
      * @param message A human-readable error message
      */
-    public CsvMultilineLimitBrokeException(String message) {super(message);}
+    public CsvMultilineLimitBrokenException(String message,long row, String context, int multilineLimit) {
+        super(message);
+        this.row = row;
+        this.context = context;
+        this.multilineLimit = multilineLimit;
+    }
 }
