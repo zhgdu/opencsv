@@ -797,8 +797,8 @@ public class CSVParserTest {
             }
 
         } catch (CsvMultilineLimitBrokeException e) {
-            assertTrue(e.getMessage().contains("row:"));
-            assertTrue(e.getMessage().contains("context:"));
+            assertTrue(e.getMessage().contains("row"));
+            assertTrue(e.getMessage().contains("Context:"));
         }
     }
 
@@ -817,8 +817,8 @@ public class CSVParserTest {
             }
 
         } catch (CsvMultilineLimitBrokeException e) {
-            assertTrue(e.getMessage().contains("row:"));
-            assertTrue(e.getMessage().contains("context:"));
+            assertTrue(e.getMessage().contains("row"));
+            assertTrue(e.getMessage().contains("Context:"));
         }
     }
 
@@ -837,8 +837,8 @@ public class CSVParserTest {
             }
 
         } catch (CsvMultilineLimitBrokeException e) {
-            assertTrue(e.getMessage().contains("row:"));
-            assertTrue(e.getMessage().contains("context:"));
+            assertTrue(e.getMessage().contains("row"));
+            assertTrue(e.getMessage().contains("Context:"));
         }
     }
 }
