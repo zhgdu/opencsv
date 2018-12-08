@@ -37,6 +37,10 @@ public class HeaderColumnNameMappingStrategyTest {
          "kyle,abc123456,123\n" +
          "jimmy,def098765,456";
 
+    private static final String TEST_EMPTY_STRING = "name,orderNumber,num\n" +
+            "kyle,   ,123\n" +
+            "jimmy,,456";
+
    private static final String TEST_QUOTED_STRING = "\"name\",\"orderNumber\",\"num\"\n" +
          "\"kyle\",\"abc123456\",\"123\"\n" +
          "\"jimmy\",\"def098765\",\"456\"";
@@ -107,6 +111,22 @@ public class HeaderColumnNameMappingStrategyTest {
       assertEquals("abc123456", bean.getOrderNumber());
       assertEquals(123, bean.getNum());
    }
+
+    @Test
+    public void testParseWithEmptyField() {
+        List<MockBean> list = createTestParseResult(TEST_EMPTY_STRING);
+        assertNotNull(list);
+        assertTrue(list.size() == 2);
+        MockBean bean = list.get(0);
+        assertEquals("kyle", bean.getName());
+        assertEquals("   ", bean.getOrderNumber());
+        assertEquals(123, bean.getNum());
+        bean = list.get(1);
+        assertEquals("jimmy", bean.getName());
+        assertNotNull(bean.getOrderNumber());
+        assertEquals("", bean.getOrderNumber());
+        assertEquals(456, bean.getNum());
+    }
 
    @Test
    public void testQuotedString() {

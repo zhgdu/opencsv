@@ -3,7 +3,6 @@ package com.opencsv.bean;
 import com.opencsv.CSVReader;
 import org.junit.Test;
 
-import java.io.InputStreamReader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -11,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class CsvToBeanFilterTest {
 
@@ -19,6 +19,12 @@ public class CsvToBeanFilterTest {
                "hello world,production,3228\n" +
                "calc age,beta,74\n" +
                "wash dishes,alpha,3";
+
+   private static final String TEST_EMPTY_STRING =
+           "FEATURE_NAME,STATE,USER_COUNT\n" +
+                   "hello world,    ,3228\n" +
+                   "calc age,,74\n" +
+                   "wash dishes,    ,3";
 
    private CSVReader createReader() {
       StringReader reader = new StringReader(TEST_STRING);
@@ -40,7 +46,7 @@ public class CsvToBeanFilterTest {
       @CsvBindByName(column = "FEATURE_NAME")
       private String name;
 
-      @CsvBindByName
+      @CsvBindByName(required = true)
       private String state;
 
       public void setName(String name) {
@@ -90,6 +96,19 @@ public class CsvToBeanFilterTest {
       assertEquals("The first item has the wrong state.", "beta", list.get(0).getState());
       assertEquals("The second item has the wrong name.", "wash dishes", list.get(1).getName());
       assertEquals("The second item has the wrong state.", "alpha", list.get(1).getState());
+   }
+
+   @Test
+   public void testColumnNameTranslationWithLineFilteringAndEmptyState() {
+      CsvToBean csvToBean = new CsvToBean();
+      StringReader stringReader = new StringReader(TEST_EMPTY_STRING);
+      CSVReader reader = new CSVReader(stringReader);
+      MappingStrategy strategy = CreateMappingStrategy();
+      CsvToBeanFilter filter = new NonProductionFilter(strategy);
+      List<Feature> list = csvToBean.parse(strategy, reader);
+      assertEquals("    ", list.get(0).getState());
+      assertTrue(list.get(1).getState().isEmpty());
+      assertEquals("    ", list.get(2).getState());
    }
 
    @Test
