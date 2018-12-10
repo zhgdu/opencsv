@@ -803,11 +803,19 @@ public class CSVParserTest {
             }
             fail("Should have thrown exception");
         } catch (CsvMultilineLimitBrokenException e) {
+
+            String contextLabel = "Context: ";
+            int contextPosition = e.getMessage().indexOf("Context:");
+
             assertEquals(e.getRow(),11L);
             assertTrue(e.getContext().startsWith("xaxax\"axa,sasasasas,babaababab,121212,6581"));
             assertEquals(e.getMultilineLimit(),multilineLimit);
             assertTrue(e.getMessage().contains("row"));
-            assertTrue(e.getMessage().contains("Context:"));
+            assertTrue(e.getMessage().contains(contextLabel));
+
+            // checking the size of the context in the error message
+            assertTrue(e.getMessage().substring(contextPosition).length()==CSVReader.CONTEXT_EXCEPTION_MESSAGE_SIZE+contextLabel.length());
+
         }
     }
 
@@ -833,11 +841,18 @@ public class CSVParserTest {
             fail("Should have thrown exception");
         } catch (CsvMultilineLimitBrokenException e) {
 
+            String contextLabel = "Context: ";
+            int contextPosition = e.getMessage().indexOf("Context:");
+
             assertEquals(e.getRow(),18L);
             assertTrue(e.getContext().startsWith("xaxaxxaxaxxaxaxxaxaxxaxaxxaxa\"xxaxaxxaxaxxaxaxxaxa"));
             assertEquals(e.getMultilineLimit(),multilineLimit);
             assertTrue(e.getMessage().contains("row"));
-            assertTrue(e.getMessage().contains("Context:"));
+            assertTrue(e.getMessage().contains(contextLabel));
+
+            // checking the size of the context in the error message
+            assertTrue(e.getMessage().substring(contextPosition).length()==CSVReader.CONTEXT_EXCEPTION_MESSAGE_SIZE+contextLabel.length());
+
         }
     }
 
@@ -861,11 +876,19 @@ public class CSVParserTest {
             }
             fail("Should have thrown exception");
         } catch (CsvMultilineLimitBrokenException e) {
+
+            String contextLabel = "Context: ";
+            int contextPosition = e.getMessage().indexOf("Context:");
+
             assertEquals(e.getRow(),18L);
             assertTrue(e.getContext().startsWith("xaxaxxaxaxxaxaxxaxaxxaxaxxaxaxxaxaxxaxaxxaxaxxaxaxxaxaxxaxaxxaxaxx\"axax,sasasasas"));
             assertEquals(e.getMultilineLimit(),multilineLimit);
             assertTrue(e.getMessage().contains("row"));
-            assertTrue(e.getMessage().contains("Context:"));
+            assertTrue(e.getMessage().contains(contextLabel));
+
+            // checking the size of the context in the error message
+            assertTrue(e.getMessage().substring(contextPosition).length()==CSVReader.CONTEXT_EXCEPTION_MESSAGE_SIZE+contextLabel.length());
+
         }
     }
 }

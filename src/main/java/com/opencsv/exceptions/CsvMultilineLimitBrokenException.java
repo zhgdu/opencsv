@@ -25,7 +25,7 @@ public class CsvMultilineLimitBrokenException extends IOException {
     private static final long serialVersionUID = 1L;
     private long row;
     private String context;
-    private  int multilineLimit;
+    private int multilineLimit;
 
     public int getMultilineLimit() {
         return multilineLimit;

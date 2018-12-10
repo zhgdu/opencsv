@@ -35,6 +35,8 @@ public class CSVReader implements Closeable, Iterable<String[]> {
 
     public static final boolean DEFAULT_KEEP_CR = false;
     public static final boolean DEFAULT_VERIFY_READER = true;
+    // context size in the exception message
+    public  static final int CONTEXT_EXCEPTION_MESSAGE_SIZE = 100;
 
     /** The default line to start reading. */
     public static final int DEFAULT_SKIP_LINES = 0;
@@ -358,7 +360,18 @@ public class CSVReader implements Closeable, Iterable<String[]> {
 
                 // get current row records Read +1
                 long row = this.recordsRead + 1L;
-                throw new CsvMultilineLimitBrokenException(String.format(errorLocale, ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("multiline.limit.broken"), multilineLimit, row, parser.getPendingText()), row, parser.getPendingText(), multilineLimit);
+
+                String context = parser.getPendingText();
+
+                // just to avoid out of index
+                // to get the whole context use CsvMultilineLimitBrokenException::getContext()
+                if(context.length()> CONTEXT_EXCEPTION_MESSAGE_SIZE){
+                     context = context.substring(0, CONTEXT_EXCEPTION_MESSAGE_SIZE);
+                }
+
+                String messageFormat = ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("multiline.limit.broken");
+                String message = String.format(errorLocale, messageFormat, multilineLimit, row, context);
+                throw new CsvMultilineLimitBrokenException(message, row, parser.getPendingText(), multilineLimit);
             }
             String[] r = parser.parseLineMulti(nextLine);
             if (r.length > 0) {
