@@ -814,7 +814,8 @@ public class CSVParserTest {
             assertTrue(e.getMessage().contains(contextLabel));
 
             // checking the size of the context in the error message
-            assertTrue(e.getMessage().substring(contextPosition).length()==CSVReader.CONTEXT_EXCEPTION_MESSAGE_SIZE+contextLabel.length());
+            assertTrue(e.getMessage().substring(contextPosition).length()==CSVReader.CONTEXT_MULTILINE_EXCEPTION_MESSAGE_SIZE
+                    +contextLabel.length());
 
         }
     }
@@ -851,7 +852,8 @@ public class CSVParserTest {
             assertTrue(e.getMessage().contains(contextLabel));
 
             // checking the size of the context in the error message
-            assertTrue(e.getMessage().substring(contextPosition).length()==CSVReader.CONTEXT_EXCEPTION_MESSAGE_SIZE+contextLabel.length());
+            assertTrue(e.getMessage().substring(contextPosition).length()==CSVReader.CONTEXT_MULTILINE_EXCEPTION_MESSAGE_SIZE
+                    +contextLabel.length());
 
         }
     }
@@ -887,7 +889,8 @@ public class CSVParserTest {
             assertTrue(e.getMessage().contains(contextLabel));
 
             // checking the size of the context in the error message
-            assertTrue(e.getMessage().substring(contextPosition).length()==CSVReader.CONTEXT_EXCEPTION_MESSAGE_SIZE+contextLabel.length());
+            assertTrue(e.getMessage().substring(contextPosition).length()==CSVReader.CONTEXT_MULTILINE_EXCEPTION_MESSAGE_SIZE
+                    +contextLabel.length());
 
         }
     }
