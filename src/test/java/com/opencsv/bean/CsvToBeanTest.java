@@ -16,6 +16,7 @@ import org.junit.Test;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.Reader;
 import java.io.StringReader;
 import java.util.List;
 import java.util.Locale;
@@ -152,7 +153,7 @@ public class CsvToBeanTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void throwIllegalStateWhenReaderNotProvidedInBuilder() {
-        new CsvToBeanBuilder<>(null)
+        new CsvToBeanBuilder<AnnotatedMockBeanFull>((Reader) null)
                 .withType(AnnotatedMockBeanFull.class)
                 .build();
     }
@@ -183,6 +184,17 @@ public class CsvToBeanTest {
     public void testMinimumBuilder() {
         List<MinimalCsvBindByPositionBeanForWriting> result =
                 new CsvToBeanBuilder<MinimalCsvBindByPositionBeanForWriting>(new StringReader("1,2,3\n4,5,6"))
+                        .withType(MinimalCsvBindByPositionBeanForWriting.class)
+                        .build()
+                        .parse();
+        assertEquals(2, result.size());
+    }
+
+    @Test
+    public void testMinimumBuilderWithCSVReader() {
+        CSVReaderBuilder readerBuilder = new CSVReaderBuilder(new StringReader("1,2,3\n4,5,6"));
+        List<MinimalCsvBindByPositionBeanForWriting> result =
+                new CsvToBeanBuilder<MinimalCsvBindByPositionBeanForWriting>(readerBuilder.build())
                         .withType(MinimalCsvBindByPositionBeanForWriting.class)
                         .build()
                         .parse();
@@ -226,6 +238,55 @@ public class CsvToBeanTest {
                         .withType(AnnotatedMockBeanFull.class)
                         .withVerifyReader(false)
                         .withMultilineLimit(Integer.MAX_VALUE)
+                        .build();
+        List<CsvException> capturedExceptions = csvtb.getCapturedExceptions();
+        assertNotNull(capturedExceptions);
+        assertEquals(0, capturedExceptions.size());
+        List<AnnotatedMockBeanFull> result = csvtb.parse();
+
+        // Three lines, one filtered, one throws an exception
+        assertEquals(1, result.size());
+        assertEquals(1, csvtb.getCapturedExceptions().size());
+        AnnotatedMockBeanFull bean = result.get(0);
+        assertEquals("\ttest string of everything!", bean.getStringClass());
+        assertTrue(bean.getBoolWrapped());
+        assertFalse(bean.isBoolPrimitive());
+        assertTrue(bean.getByteWrappedDefaultLocale() == 1);
+        // Nothing else really matters
+    }
+
+    @Test
+    public void testMaximumBuilderWithCSVReader() throws FileNotFoundException {
+        HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> map = new HeaderColumnNameMappingStrategy<>();
+        map.setType(AnnotatedMockBeanFull.class);
+
+        CSVParserBuilder cpb = new CSVParserBuilder();
+        CSVParser csvParser = cpb.withEscapeChar('?')
+                .withFieldAsNull(CSVReaderNullFieldIndicator.NEITHER)
+                .withIgnoreLeadingWhiteSpace(false)
+                .withIgnoreQuotations(true)
+                .withQuoteChar('!')
+                .withSeparator('#')
+                .withStrictQuotes(false)
+                .build();
+
+        CSVReaderBuilder crb = new CSVReaderBuilder(new FileReader("src/test/resources/testinputmaximumbuilder.csv"));
+        CSVReader csvReader = crb.withCSVParser(csvParser)
+                .withSkipLines(1)
+                .withKeepCarriageReturn(false)
+                .withVerifyReader(false)
+                .withMultilineLimit(Integer.MAX_VALUE)
+                .build();
+
+        // Yeah, some of these are the default values, but I'm having trouble concocting
+        // a CSV file screwy enough to meet the requirements posed by not using
+        // defaults for everything.
+        CsvToBean csvtb =
+                new CsvToBeanBuilder<AnnotatedMockBeanFull>(csvReader)
+                        .withFilter(new BegToBeFiltered())
+                        .withMappingStrategy(map)
+                        .withThrowExceptions(false)
+                        .withType(AnnotatedMockBeanFull.class)
                         .build();
         List<CsvException> capturedExceptions = csvtb.getCapturedExceptions();
         assertNotNull(capturedExceptions);

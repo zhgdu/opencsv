@@ -58,6 +58,11 @@ public class CsvToBeanBuilder<T> {
     * @see CsvToBean#csvReader
     */
    private final Reader reader;
+
+    /**
+     * Allow the user to pass in a prebuilt/custom CSVReader
+     */
+    private final CSVReader csvReader;
    
    /** @see CsvToBean#filter */
    private CsvToBeanFilter filter = null;
@@ -130,8 +135,25 @@ public class CsvToBeanBuilder<T> {
                    .getString("reader.null"));
        }
        this.reader = reader;
+       this.csvReader = null;
    }
-    
+
+    /**
+     * Constructor with the one parameter that is most definitely mandatory, and
+     * always will be.
+     *
+     * @param csvReader The CSVReader that is the source of data for the CSV import
+     */
+    public CsvToBeanBuilder(CSVReader csvReader) {
+        if (csvReader == null) {
+            throw new IllegalArgumentException(ResourceBundle
+                    .getBundle(ICSVParser.DEFAULT_BUNDLE_NAME) // Must be default locale, because we don't have anything else yet
+                    .getString("reader.null"));
+        }
+        this.reader = null;
+        this.csvReader = csvReader;
+    }
+
     /**
      * Builds the {@link CsvToBean} out of the provided information.
      * @return A valid {@link CsvToBean}
@@ -147,9 +169,14 @@ public class CsvToBeanBuilder<T> {
         
         // Build Parser and Reader
         CsvToBean<T> bean = new CsvToBean<>();
-        CSVParser parser = buildParser();
-        bean.setCsvReader(buildReader(parser));
-        
+
+        if (csvReader != null) {
+            bean.setCsvReader(csvReader);
+        } else {
+            CSVParser parser = buildParser();
+            bean.setCsvReader(buildReader(parser));
+        }
+
         // Set variables in CsvToBean itself
         bean.setThrowExceptions(throwExceptions);
         bean.setOrderedResults(orderedResults);
