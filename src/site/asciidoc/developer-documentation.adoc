@@ -43,7 +43,7 @@ the bean fields with the opencsv annotations, then do this:
 ----
      // List<MyBean> beans comes from somewhere earlier in your code.
      Writer writer = new FileWriter("yourfile.csv");
-     StatefulBeanToCsv beanToCsv = StatefulBeanToCsvBuilder(writer).build();
+     StatefulBeanToCsv beanToCsv = new StatefulBeanToCsvBuilder(writer).build();
      beanToCsv.write(beans);
      writer.close();
 ----
@@ -1002,7 +1002,7 @@ named because there used to be a BeanToCsv. Thankfully, no more.
 ----
      // List<MyBean> beans comes from somewhere earlier in your code.
      Writer writer = new FileWriter("yourfile.csv");
-     StatefulBeanToCsv beanToCsv = StatefulBeanToCsvBuilder(writer).build();
+     StatefulBeanToCsv beanToCsv = new StatefulBeanToCsvBuilder(writer).build();
      beanToCsv.write(beans);
      writer.close();
 ----
