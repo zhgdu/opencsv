@@ -389,4 +389,61 @@ class RFC4180ParserSpec extends Specification {
         "This"      | " is"               | " a"    | " test." | "\"This\",\" is\",\" a\",\" test.\""
         "This line" | " has \"a\" quote " | "in"    | "it"     | "\"This line\",\" has \"\"a\"\" quote \",\"in\",\"it\""
     }
+
+    def 'bug 193 - Multiline not working if the last character is a quote character'() {
+        given:
+        List<String[]> lines = new ArrayList<String[]>()
+
+        lines.add(["a", "\"b\"\"x\nc\"", "d"])          // works
+        lines.add(["a", "\"b\"\"\nc\"", "d"])   // breaks
+
+        when:
+        StringWriter stringWriter = new StringWriter(128)
+
+        CSVWriter csvWriter = new CSVWriter(stringWriter)
+        for (String[] strings : lines) {
+            csvWriter.writeNext(strings)
+        }
+        csvWriter.close()
+
+        StringReader stringReader = new StringReader(stringWriter.toString())
+
+        RFC4180ParserBuilder parserBuilder = new RFC4180ParserBuilder()
+        CSVReader csvReader = new CSVReaderBuilder(stringReader).withCSVParser(parserBuilder.build()).build()
+
+        List<String[]> readLines = csvReader.readAll()
+
+        csvReader.close()
+
+        then:
+        lines == readLines
+    }
+
+    def 'Should we throw an error if there are quotes inside an unquoted data field'() {
+        given:
+        List<String[]> lines = new ArrayList<String[]>()
+
+        lines.add(["a", "b\"\"x\nc", "d"])     // works but there are quotes inside unquoted field
+
+        when:
+        StringWriter stringWriter = new StringWriter(128)
+
+        CSVWriter csvWriter = new CSVWriter(stringWriter)
+        for (String[] strings : lines) {
+            csvWriter.writeNext(strings)
+        }
+        csvWriter.close()
+
+        StringReader stringReader = new StringReader(stringWriter.toString())
+
+        RFC4180ParserBuilder parserBuilder = new RFC4180ParserBuilder()
+        CSVReader csvReader = new CSVReaderBuilder(stringReader).withCSVParser(parserBuilder.build()).build()
+
+        List<String[]> readLines = csvReader.readAll()
+
+        csvReader.close()
+
+        then:
+        lines == readLines
+    }
 }

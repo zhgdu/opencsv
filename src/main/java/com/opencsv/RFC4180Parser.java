@@ -181,7 +181,11 @@ public class RFC4180Parser extends AbstractCSVParser {
 
     private boolean lastElementStartedWithQuoteButDidNotEndInOne(List<String> elements) {
         String lastElement = elements.get(elements.size() - 1);
-        return startsButDoesNotEndWithQuote(lastElement) || hasOnlyOneQuote(lastElement);
+        return startsButDoesNotEndWithQuote(lastElement) || hasOnlyOneQuote(lastElement) || hasOddQuotes(lastElement);
+    }
+
+    private boolean hasOddQuotes(String lastElement) {
+        return StringUtils.countMatches(lastElement, quotechar) % 2 != 0;
     }
 
     private boolean hasOnlyOneQuote(String lastElement) {
