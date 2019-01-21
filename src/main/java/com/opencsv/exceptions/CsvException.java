@@ -15,6 +15,8 @@
  */
 package com.opencsv.exceptions;
 
+import org.apache.commons.lang3.ArrayUtils;
+
 /**
  * This is the base class for all exceptions for opencsv.
  *
@@ -71,7 +73,7 @@ public class CsvException extends Exception {
      * @since 4.4
      */
     public String[] getLine() {
-        return line;
+        return ArrayUtils.clone(line);
     }
 
     /**
@@ -80,7 +82,7 @@ public class CsvException extends Exception {
      * @since 4.4
      */
     public void setLine(String[] line) {
-        this.line = line;
+        this.line = ArrayUtils.clone(line);
     }
 
 }

@@ -18,6 +18,7 @@ package com.opencsv.bean.comparator;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Comparator;
 
 /**
@@ -26,7 +27,8 @@ import java.util.Comparator;
  * Anything not included in the array is placed after anything in the array and
  * is then sorted according to its natural order.
  *
- * @param T The type to be sorted
+ * T is the type to be sorted
+ *
  * @since 4.3
  */
 public class LiteralComparator<T extends Comparable> implements Comparator<T>, Serializable {
@@ -34,7 +36,11 @@ public class LiteralComparator<T extends Comparable> implements Comparator<T>, S
     private final T[] predefinedOrder;
 
     public LiteralComparator(T[] predefinedOrder) {
-        this.predefinedOrder = predefinedOrder;
+        if (predefinedOrder == null) {
+            this.predefinedOrder = null;
+        } else {
+            this.predefinedOrder = Arrays.copyOf(predefinedOrder, predefinedOrder.length);
+        }
     }
 
     @Override
