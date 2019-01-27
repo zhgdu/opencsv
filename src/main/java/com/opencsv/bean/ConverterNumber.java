@@ -46,6 +46,7 @@ public class ConverterNumber extends AbstractCsvConverter {
      *                 converting locale-specific data types
      * @param errorLocale The locale to use for error messages
      * @param formatString The string to use for formatting the number.
+     * @throws CsvBadConverterException If data cannot be converted to proper type (i.e. having letters in a number column)
      * @see com.opencsv.bean.CsvNumber#value()
      */
     public ConverterNumber(Class<?> type, String locale, Locale errorLocale, String formatString)

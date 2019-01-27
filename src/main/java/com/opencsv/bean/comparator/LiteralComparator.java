@@ -35,6 +35,11 @@ public class LiteralComparator<T extends Comparable> implements Comparator<T>, S
     private static final long serialVersionUID = 1L;
     private final T[] predefinedOrder;
 
+    /**
+     * Constructor
+     *
+     * @param predefinedOrder objects that define the order of comparison.
+     */
     public LiteralComparator(T[] predefinedOrder) {
         if (predefinedOrder == null) {
             this.predefinedOrder = null;

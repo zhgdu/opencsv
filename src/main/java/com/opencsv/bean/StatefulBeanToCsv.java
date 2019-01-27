@@ -82,7 +82,7 @@ public class StatefulBeanToCsv<T> {
     }
     
     /**
-     * The only constructor that should be used.
+     * Constructor used when supplying a Writer instead of a CsvWriter class.
      * It is defined as package protected to ensure that {@link StatefulBeanToCsvBuilder} is always used.
      * 
      * @param escapechar The escape character to use when writing a CSV file
@@ -109,6 +109,16 @@ public class StatefulBeanToCsv<T> {
         this.applyQuotesToAll = applyQuotesToAll;
     }
 
+    /**
+     * Constructor used to allow building of a StatefulBeanToCsv with a user supplied ICSVWriter class.
+     *
+     * @param mappingStrategy  The mapping strategy to use when writing a CSV file
+     * @param throwExceptions  Whether or not exceptions should be thrown while
+     *                         writing the CSV file. If not, they are collected and can be retrieved
+     *                         via {@link #getCapturedExceptions() }.
+     * @param applyQuotesToAll Whether all output fields should be quoted
+     * @param csvWriter        An user supplied ICSVWriter for writing beans to csv
+     */
     public StatefulBeanToCsv(MappingStrategy<T> mappingStrategy, boolean throwExceptions, boolean applyQuotesToAll, ICSVWriter csvWriter) {
         this.mappingStrategy = mappingStrategy;
         this.throwExceptions = throwExceptions;

@@ -14,4 +14,5 @@
     <suppress files="." checks="NewlineAtEndOfFile"/>
     <suppress files="." checks="RegexpSingleline"/>
     <suppress files="." checks="VisibilityModifierCheck"/>
+    <suppress files="." checks="MultipleVariableDeclarations"/>
 </suppressions>
