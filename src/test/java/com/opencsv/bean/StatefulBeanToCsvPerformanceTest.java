@@ -1,5 +1,6 @@
 package com.opencsv.bean;
 
+import com.opencsv.*;
 import com.opencsv.bean.mocks.AnnotatedMockBeanFull;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
@@ -18,6 +19,7 @@ import java.util.Locale;
 import static org.junit.Assert.assertEquals;
 
 public class StatefulBeanToCsvPerformanceTest {
+    private static final String SEPARATOR_LINE = "===============================================================================";
     private static Locale systemLocale;
 
     @BeforeClass
@@ -46,14 +48,122 @@ public class StatefulBeanToCsvPerformanceTest {
     @Test
     public void testPerformance()
             throws IOException, CsvDataTypeMismatchException,
-            CsvRequiredFieldEmptyException {
-        System.out.println("The following are performance data. Please keep an eye on them as you develop.");
+            CsvRequiredFieldEmptyException, InterruptedException {
+        performanceWithDefaultWriter(100, false);
+        performanceWithRFC4180Parser(100, false);
+
         int numBeans = 10000;
+        System.out.println("The following are performance data. Please keep an eye on them as you develop.");
+
+        System.gc();
+        Thread.sleep(2000);
+
+        performanceWithDefaultWriter(numBeans, true);
+
+        System.gc();
+        Thread.sleep(2000);
+
+        performanceWithRFC4180Parser(numBeans, true);
+    }
+
+    private void performanceWithRFC4180Parser(int numBeans, boolean displayData) throws IOException, CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
         List<AnnotatedMockBeanFull> beanList = new ArrayList<>(numBeans);
         ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> pair = createTwoGoodBeans();
         for (int i = 0; i < numBeans / 2; i++) {
             beanList.add(pair.left);
             beanList.add(pair.right);
+        }
+
+        RFC4180ParserBuilder parserBuilder = new RFC4180ParserBuilder();
+
+        if (displayData) {
+            System.out.println(SEPARATOR_LINE);
+            System.out.println("     StatefulBeanToCsv with CSVParserWriter and RFC4180Parser.");
+            System.out.println(SEPARATOR_LINE);
+        }
+
+        // Writing, ordered
+        Writer writer = new StringWriter();
+        CSVWriterBuilder writerBuilder = new CSVWriterBuilder(writer);
+        ICSVWriter csvWriter = writerBuilder.withParser(parserBuilder.build()).build();
+
+        HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat = new HeaderColumnNameMappingStrategy<>();
+        strat.setType(AnnotatedMockBeanFull.class);
+        StatefulBeanToCsv<AnnotatedMockBeanFull> btcsv = new StatefulBeanToCsvBuilder<AnnotatedMockBeanFull>(csvWriter)
+                .withMappingStrategy((MappingStrategy) strat).build();
+        StopWatch watch = StopWatch.createStarted();
+        btcsv.write(beanList);
+        watch.stop();
+        if (displayData) {
+            System.out.println("Time taken to write " + numBeans + " beans, ordered: " + watch.toString());
+        }
+
+        // Writing, unordered
+        writer = new StringWriter();
+        writerBuilder = new CSVWriterBuilder(writer);
+        csvWriter = writerBuilder.withParser(parserBuilder.build()).build();
+
+        strat = new HeaderColumnNameMappingStrategy<>();
+        strat.setType(AnnotatedMockBeanFull.class);
+        btcsv = new StatefulBeanToCsvBuilder<AnnotatedMockBeanFull>(csvWriter)
+                .withMappingStrategy((MappingStrategy) strat)
+                .withOrderedResults(false)
+                .build();
+        watch = StopWatch.createStarted();
+        btcsv.write(beanList);
+        watch.stop();
+        if (displayData) {
+            System.out.println("Time taken to write " + numBeans + " beans, unordered: " + watch.toString());
+        }
+
+        // Reading, ordered
+        Reader reader = new StringReader(writer.toString());
+        CSVReaderBuilder readerBuilder = new CSVReaderBuilder(reader);
+        CSVReader csvReader = readerBuilder.withCSVParser(parserBuilder.build()).build();
+
+        CsvToBean<AnnotatedMockBeanFull> csvtb = new CsvToBeanBuilder<AnnotatedMockBeanFull>(csvReader)
+                .withType(AnnotatedMockBeanFull.class)
+                .withMappingStrategy((MappingStrategy) strat).build();
+        watch = StopWatch.createStarted();
+        List<AnnotatedMockBeanFull> beans = csvtb.parse();
+        watch.stop();
+        assertEquals(numBeans, beans.size());
+        if (displayData) {
+            System.out.println("Time taken to read " + numBeans + " beans, ordered: " + watch.toString());
+        }
+
+        // Reading, ordered
+        reader = new StringReader(writer.toString());
+        readerBuilder = new CSVReaderBuilder(reader);
+        csvReader = readerBuilder.withCSVParser(parserBuilder.build()).build();
+
+        csvtb = new CsvToBeanBuilder<AnnotatedMockBeanFull>(csvReader)
+                .withType(AnnotatedMockBeanFull.class)
+                .withOrderedResults(false)
+                .withMappingStrategy((MappingStrategy) strat).build();
+        watch = StopWatch.createStarted();
+        beans = csvtb.parse();
+        watch.stop();
+        assertEquals(numBeans, beans.size());
+        if (displayData) {
+            System.out.println("Time taken to read " + numBeans + " beans, unordered: " + watch.toString());
+        }
+    }
+
+    private void performanceWithDefaultWriter(int numBeans, boolean displayData) throws IOException, CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
+
+        List<AnnotatedMockBeanFull> beanList = new ArrayList<>(numBeans);
+        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> pair = createTwoGoodBeans();
+
+        for (int i = 0; i < numBeans / 2; i++) {
+            beanList.add(pair.left);
+            beanList.add(pair.right);
+        }
+
+        if (displayData) {
+            System.out.println(SEPARATOR_LINE);
+            System.out.println("     StatefulBeanToCsv with default reader and writer.");
+            System.out.println(SEPARATOR_LINE);
         }
 
         // Writing, ordered
@@ -65,7 +175,9 @@ public class StatefulBeanToCsvPerformanceTest {
         StopWatch watch = StopWatch.createStarted();
         btcsv.write(beanList);
         watch.stop();
-        System.out.println("Time taken to write " + numBeans + " beans, ordered: " + watch.toString());
+        if (displayData) {
+            System.out.println("Time taken to write " + numBeans + " beans, ordered: " + watch.toString());
+        }
 
         // Writing, unordered
         writer = new StringWriter();
@@ -78,7 +190,9 @@ public class StatefulBeanToCsvPerformanceTest {
         watch = StopWatch.createStarted();
         btcsv.write(beanList);
         watch.stop();
-        System.out.println("Time taken to write " + numBeans + " beans, unordered: " + watch.toString());
+        if (displayData) {
+            System.out.println("Time taken to write " + numBeans + " beans, unordered: " + watch.toString());
+        }
 
         // Reading, ordered
         Reader reader = new StringReader(writer.toString());
@@ -89,7 +203,9 @@ public class StatefulBeanToCsvPerformanceTest {
         List<AnnotatedMockBeanFull> beans = csvtb.parse();
         watch.stop();
         assertEquals(numBeans, beans.size());
-        System.out.println("Time taken to read " + numBeans + " beans, ordered: " + watch.toString());
+        if (displayData) {
+            System.out.println("Time taken to read " + numBeans + " beans, ordered: " + watch.toString());
+        }
 
         // Reading, ordered
         reader = new StringReader(writer.toString());
@@ -101,7 +217,9 @@ public class StatefulBeanToCsvPerformanceTest {
         beans = csvtb.parse();
         watch.stop();
         assertEquals(numBeans, beans.size());
-        System.out.println("Time taken to read " + numBeans + " beans, unordered: " + watch.toString());
+        if (displayData) {
+            System.out.println("Time taken to read " + numBeans + " beans, unordered: " + watch.toString());
+        }
     }
 
 }
