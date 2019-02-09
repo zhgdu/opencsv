@@ -1,11 +1,13 @@
 package com.opencsv;
 
 import com.opencsv.enums.CSVReaderNullFieldIndicator;
+import com.opencsv.exceptions.CsvMultilineLimitBrokenException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.Locale;
 
@@ -778,5 +780,118 @@ public class CSVParserTest {
     public void parseToLineApplyQuotesToAllIsTrue() throws Exception {
         String items[] = {"This", " is", " a", " test."};
         assertEquals("\"This\",\" is\",\" a\",\" test.\"", csvParser.parseToLine(items, true));
+    }
+
+    /**
+     * Test to check if we have a good detail in the error message when there is a quote that wasn't close - (begin of the field)
+     * check if is set the attributes of the CsvMultilineLimitBrokenException
+     * @throws IOException
+     */
+    @Test
+    public void testMultilineLimiteBrokeErrorDetailWithQuoteBegin() throws IOException {
+        csvParser = new CSVParser();
+
+        int multilineLimit = 10;
+        try {
+            CSVReaderBuilder csvReaderBuilder = new CSVReaderBuilder(new FileReader("src/test/resources/testmultilinelimitebroke1.csv"));
+
+            CSVReader reader = csvReaderBuilder.withMultilineLimit(multilineLimit).build();
+            while (true) {
+                if (reader.readNext() == null) {
+                    break;
+                }
+            }
+            fail("Should have thrown exception");
+        } catch (CsvMultilineLimitBrokenException e) {
+
+            String contextLabel = "Context: ";
+            int contextPosition = e.getMessage().indexOf("Context:");
+
+            assertEquals(e.getRow(),11L);
+            assertTrue(e.getContext().startsWith("xaxax\"axa,sasasasas,babaababab,121212,6581"));
+            assertEquals(e.getMultilineLimit(),multilineLimit);
+            assertTrue(e.getMessage().contains("row"));
+            assertTrue(e.getMessage().contains(contextLabel));
+
+            // checking the size of the context in the error message
+            assertTrue(e.getMessage().substring(contextPosition).length()==CSVReader.CONTEXT_MULTILINE_EXCEPTION_MESSAGE_SIZE
+                    +contextLabel.length());
+
+        }
+    }
+
+    /**
+     * Test to check if we have a good detail in the error message when there is a quote that wasn't close - (middle of the field)
+     * check if is set the attributes of the CsvMultilineLimitBrokenException
+     * @throws IOException
+     */
+    @Test
+    public void testMultilineLimiteBrokeErrorDetailWithQuoteMiddle() throws IOException {
+        csvParser = new CSVParser();
+        int multilineLimit = 10;
+
+        try {
+            CSVReaderBuilder csvReaderBuilder = new CSVReaderBuilder(new FileReader("src/test/resources/testmultilinelimitebroke2.csv"));
+
+            CSVReader reader = csvReaderBuilder.withMultilineLimit(multilineLimit).build();
+            while (true) {
+                if (reader.readNext() == null) {
+                    break;
+                }
+            }
+            fail("Should have thrown exception");
+        } catch (CsvMultilineLimitBrokenException e) {
+
+            String contextLabel = "Context: ";
+            int contextPosition = e.getMessage().indexOf("Context:");
+
+            assertEquals(e.getRow(),18L);
+            assertTrue(e.getContext().startsWith("xaxaxxaxaxxaxaxxaxaxxaxaxxaxa\"xxaxaxxaxaxxaxaxxaxa"));
+            assertEquals(e.getMultilineLimit(),multilineLimit);
+            assertTrue(e.getMessage().contains("row"));
+            assertTrue(e.getMessage().contains(contextLabel));
+
+            // checking the size of the context in the error message
+            assertTrue(e.getMessage().substring(contextPosition).length()==CSVReader.CONTEXT_MULTILINE_EXCEPTION_MESSAGE_SIZE
+                    +contextLabel.length());
+
+        }
+    }
+
+    /**
+     * Test to check if we have a good detail in the error message when there is a quote that wasn't close - (end of the field)
+     * check if is set the attributes of the CsvMultilineLimitBrokenException
+     * @throws IOException
+     */
+    @Test
+    public void testMultilineLimiteBrokeErrorDetailWithQuoteEnd() throws IOException {
+        csvParser = new CSVParser();
+        int multilineLimit = 10;
+        try {
+            CSVReaderBuilder csvReaderBuilder = new CSVReaderBuilder(new FileReader("src/test/resources/testmultilinelimitebroke3.csv"));
+
+            CSVReader reader = csvReaderBuilder.withMultilineLimit(multilineLimit).build();
+            while (true) {
+                if (reader.readNext() == null) {
+                    break;
+                }
+            }
+            fail("Should have thrown exception");
+        } catch (CsvMultilineLimitBrokenException e) {
+
+            String contextLabel = "Context: ";
+            int contextPosition = e.getMessage().indexOf("Context:");
+
+            assertEquals(e.getRow(),18L);
+            assertTrue(e.getContext().startsWith("xaxaxxaxaxxaxaxxaxaxxaxaxxaxaxxaxaxxaxaxxaxaxxaxaxxaxaxxaxaxxaxaxx\"axax,sasasasas"));
+            assertEquals(e.getMultilineLimit(),multilineLimit);
+            assertTrue(e.getMessage().contains("row"));
+            assertTrue(e.getMessage().contains(contextLabel));
+
+            // checking the size of the context in the error message
+            assertTrue(e.getMessage().substring(contextPosition).length()==CSVReader.CONTEXT_MULTILINE_EXCEPTION_MESSAGE_SIZE
+                    +contextLabel.length());
+
+        }
     }
 }

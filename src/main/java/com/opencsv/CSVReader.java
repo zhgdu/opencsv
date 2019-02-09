@@ -16,6 +16,7 @@ package com.opencsv;
  limitations under the License.
  */
 
+import com.opencsv.exceptions.CsvMultilineLimitBrokenException;
 import com.opencsv.stream.reader.LineReader;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -34,6 +35,8 @@ public class CSVReader implements Closeable, Iterable<String[]> {
 
     public static final boolean DEFAULT_KEEP_CR = false;
     public static final boolean DEFAULT_VERIFY_READER = true;
+    // context size in the exception message
+    static final int CONTEXT_MULTILINE_EXCEPTION_MESSAGE_SIZE = 100;
 
     /** The default line to start reading. */
     public static final int DEFAULT_SKIP_LINES = 0;
@@ -354,7 +357,21 @@ public class CSVReader implements Closeable, Iterable<String[]> {
                 return validateResult(result);
             }
             if (multilineLimit > 0 && linesInThisRecord > multilineLimit) {
-                throw new IOException(String.format(errorLocale, ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("multiline.limit.broken"), multilineLimit));
+
+                // get current row records Read +1
+                long row = this.recordsRead + 1L;
+
+                String context = parser.getPendingText();
+
+                // just to avoid out of index
+                // to get the whole context use CsvMultilineLimitBrokenException::getContext()
+                if(context.length()> CONTEXT_MULTILINE_EXCEPTION_MESSAGE_SIZE){
+                     context = context.substring(0, CONTEXT_MULTILINE_EXCEPTION_MESSAGE_SIZE);
+                }
+
+                String messageFormat = ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("multiline.limit.broken");
+                String message = String.format(errorLocale, messageFormat, multilineLimit, row, context);
+                throw new CsvMultilineLimitBrokenException(message, row, parser.getPendingText(), multilineLimit);
             }
             String[] r = parser.parseLineMulti(nextLine);
             if (r.length > 0) {
