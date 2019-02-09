@@ -27,24 +27,38 @@ public class CsvMultilineLimitBrokenException extends IOException {
     private String context;
     private int multilineLimit;
 
+    /**
+     * @return the multiline limit set during construction of the exception.
+     */
     public int getMultilineLimit() {
         return multilineLimit;
     }
 
+    /**
+     * @return the row number set during construction of the exception.
+     */
     public long getRow() {
         return row;
     }
 
+    /**
+     * @return context set during construction of the exception.
+     */
     public String getContext() {
         return context;
     }
 
     /** Nullary constructor. Does nothing. */
-    public CsvMultilineLimitBrokenException() {}
+    public CsvMultilineLimitBrokenException() {
+        super();
+    }
 
     /**
      * Constructor with a message.
-     * @param message A human-readable error message
+     * @param message A human-readable error message.
+     * @param row row number where error occurred.
+     * @param context line (or part of line) that caused the error.
+     * @param multilineLimit multiline limit that was set.
      */
     public CsvMultilineLimitBrokenException(String message,long row, String context, int multilineLimit) {
         super(message);

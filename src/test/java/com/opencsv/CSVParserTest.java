@@ -788,7 +788,7 @@ public class CSVParserTest {
      * @throws IOException
      */
     @Test
-    public void testMultilineLimiteBrokeErrorDetailWithQuoteBegin() throws IOException {
+    public void testMultilineLimitBrokeErrorDetailWithQuoteBegin() throws IOException {
         csvParser = new CSVParser();
 
         int multilineLimit = 10;
@@ -826,7 +826,7 @@ public class CSVParserTest {
      * @throws IOException
      */
     @Test
-    public void testMultilineLimiteBrokeErrorDetailWithQuoteMiddle() throws IOException {
+    public void testMultilineLimitBrokeErrorDetailWithQuoteMiddle() throws IOException {
         csvParser = new CSVParser();
         int multilineLimit = 10;
 
@@ -864,7 +864,7 @@ public class CSVParserTest {
      * @throws IOException
      */
     @Test
-    public void testMultilineLimiteBrokeErrorDetailWithQuoteEnd() throws IOException {
+    public void testMultilineLimitBrokeErrorDetailWithQuoteEnd() throws IOException {
         csvParser = new CSVParser();
         int multilineLimit = 10;
         try {
