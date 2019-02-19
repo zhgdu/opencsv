@@ -16,6 +16,7 @@ package com.opencsv;
  limitations under the License.
  */
 
+import com.opencsv.exceptions.CsvMalformedLineException;
 import com.opencsv.exceptions.CsvMultilineLimitBrokenException;
 import com.opencsv.stream.reader.LineReader;
 import org.apache.commons.lang3.ObjectUtils;
@@ -345,14 +346,15 @@ public class CSVReader implements Closeable, Iterable<String[]> {
 
         String[] result = null;
         int linesInThisRecord = 0;
+        long lastSuccessfulLineRead = linesRead;
         do {
             String nextLine = getNextLine();
             linesInThisRecord++;
             if (!hasNext) {
                 if (parser.isPending()) {
-                    throw new IOException(String.format(
+                    throw new CsvMalformedLineException(String.format(
                             ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("unterminated.quote"),
-                            StringUtils.abbreviate(parser.getPendingText(), MAX_WIDTH)));
+                            StringUtils.abbreviate(parser.getPendingText(), MAX_WIDTH)), lastSuccessfulLineRead + 1, parser.getPendingText());
                 }
                 return validateResult(result);
             }

@@ -24,6 +24,7 @@ import com.opencsv.bean.concurrent.IntolerantThreadPoolExecutor;
 import com.opencsv.bean.concurrent.OrderedObject;
 import com.opencsv.bean.concurrent.ProcessCsvLine;
 import com.opencsv.exceptions.CsvException;
+import com.opencsv.exceptions.CsvMalformedLineException;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -366,6 +367,14 @@ public class CsvToBean<T> implements Iterable<T> {
                         csve.getLineNumber(), StringUtils.join(csve.getLine(), ',')), csve);
             }
             throw new RuntimeException(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("parsing.error"), executor.getTerminalException());
+        } catch (CsvMalformedLineException cmle) {
+            // Exception during parsing. Always unrecoverable.
+            executor.shutdownNow();
+            if (accumulateThread != null) {
+                accumulateThread.setMustStop(true);
+            }
+            throw new RuntimeException(String.format(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("parsing.error.full"),
+                    cmle.getLineNumber(), cmle.getContext()), cmle);
         } catch (Exception e) {
             // Exception during parsing. Always unrecoverable.
             executor.shutdownNow();

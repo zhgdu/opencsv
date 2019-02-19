@@ -495,4 +495,31 @@ public class CsvToBeanTest {
                         .build()
                         .parse();
     }
+
+    @Test
+    public void testBug194() {
+        String testString = "name,id,orderNumber\n" +
+                "1,\"foo\", 3\n" +
+                "1,\"a \" string with a quote in the middle\", 3\n" +
+                "1,\"bar\", 3";
+
+        String expectedString = "Error parsing CSV line: 3, values: a \" string with a quote in the middle, 3\n" +
+                "1,bar, 3\n";
+        StringReader stringReader = new StringReader(testString);
+        MappingStrategy<MockBean> map = new HeaderColumnNameMappingStrategy<>();
+
+        CsvToBean<MockBean> csvToBean = new CsvToBeanBuilder(stringReader)
+                .withType(MockBean.class)
+                .withIgnoreLeadingWhiteSpace(true)
+                .withQuoteChar('"')
+                .withSeparator(',')
+                .withThrowExceptions(false)
+                .build();
+
+        try {
+            List<MockBean> rows = csvToBean.parse();
+        } catch (Exception e) {
+            assertEquals(expectedString, e.getMessage());
+        }
+    }
 }
