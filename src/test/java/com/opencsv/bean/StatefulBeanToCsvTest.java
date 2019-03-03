@@ -187,6 +187,29 @@ public class StatefulBeanToCsvTest {
         btcsv.write(beanList);
         assertTrue(Pattern.matches(GOOD_DATA_1 + "\n" + GOOD_DATA_2 + "\n", writer.toString()));
     }
+
+    /**
+     * Test of writing multiple beans with iterator.
+     * <p>Also incidentally tests:
+     * <ul><li>Writing empty values with a format string</li></ul></p>
+     *
+     * @throws IOException  Never
+     * @throws CsvException Never
+     */
+    @Test
+    public void writeMultipleBeansOrderedWithIterator() throws IOException, CsvException {
+        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
+        List<AnnotatedMockBeanFull> beanList = new ArrayList<>();
+        beanList.add(beans.left);
+        beanList.add(beans.right);
+        StringWriter writer = new StringWriter();
+        StatefulBeanToCsv btcsv = new StatefulBeanToCsvBuilder(writer)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
+                .withSeparator(';')
+                .build();
+        btcsv.write(beanList.iterator(), AnnotatedMockBeanFull.class);
+        assertTrue(Pattern.matches(GOOD_DATA_1 + "\n" + GOOD_DATA_2 + "\n", writer.toString()));
+    }
         
     /**
      * Test of writing multiple beans at once when order doesn't matter.
@@ -209,6 +232,30 @@ public class StatefulBeanToCsvTest {
         String r = writer.toString();
         assertTrue(Pattern.matches(GOOD_DATA_1 + "\n" + GOOD_DATA_2 + "\n", r) || Pattern.matches(GOOD_DATA_2 + "\n" + GOOD_DATA_1 + "\n", r));
     }
+
+    /**
+     * Test of writing multiple beans at once when order doesn't matter using the iterator.
+     *
+     * @throws IOException  Never
+     * @throws CsvException Never
+     */
+    @Test
+    public void writeMultipleBeansUnorderedWithIterator() throws IOException, CsvException {
+        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
+        List<AnnotatedMockBeanFull> beanList = new ArrayList<>();
+        beanList.add(beans.left);
+        beanList.add(beans.right);
+        StringWriter writer = new StringWriter();
+        StatefulBeanToCsv btcsv = new StatefulBeanToCsvBuilder(writer)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
+                .withSeparator(';')
+                .withOrderedResults(false)
+                .build();
+        btcsv.write(beanList.iterator(), AnnotatedMockBeanFull.class);
+        String r = writer.toString();
+        assertTrue(Pattern.matches(GOOD_DATA_1 + "\n" + GOOD_DATA_2 + "\n", r) || Pattern.matches(GOOD_DATA_2 + "\n" + GOOD_DATA_1 + "\n", r));
+    }
+
         
     /**
      * Test of writing a mixture of single beans and multiple beans.
@@ -227,6 +274,29 @@ public class StatefulBeanToCsvTest {
                 .withLineEnd("arj\n")
                 .build();
         btcsv.write(beanList);
+        btcsv.write(beans.left);
+        assertTrue(Pattern.matches(GOOD_DATA_1 + "arj\n" + GOOD_DATA_2 + "arj\n" + GOOD_DATA_1 + "arj\n", writer.toString()));
+    }
+
+    /**
+     * Test of writing a mixture of single beans and multiple beans using the iterator
+     *
+     * @throws IOException  Never
+     * @throws CsvException Never
+     */
+    @Test
+    public void writeMixedSingleMultipleBeansWithIterator() throws IOException, CsvException {
+        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
+        List<AnnotatedMockBeanFull> beanList = new ArrayList<>();
+        beanList.add(beans.left);
+        beanList.add(beans.right);
+        StringWriter writer = new StringWriter();
+        StatefulBeanToCsv btcsv = new StatefulBeanToCsvBuilder(writer)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
+                .withSeparator(';')
+                .withLineEnd("arj\n")
+                .build();
+        btcsv.write(beanList.iterator(), AnnotatedMockBeanFull.class);
         btcsv.write(beans.left);
         assertTrue(Pattern.matches(GOOD_DATA_1 + "arj\n" + GOOD_DATA_2 + "arj\n" + GOOD_DATA_1 + "arj\n", writer.toString()));
     }
@@ -497,7 +567,7 @@ public class StatefulBeanToCsvTest {
         assertEquals(beans.left.getClass().getDeclaredField("requiredWithCustom"),
                 rfe.getDestinationField());
     }
-        
+
     /**
      * Writing a bad bean at the beginning of a long list to trigger shutting
      * down the ExecutorService.
@@ -520,8 +590,40 @@ public class StatefulBeanToCsvTest {
         for(int i = 0; i < 999; i++) {beanList.add(beans.right);}
         try {
             sbtcsv.write(beanList);
+        } catch(CsvRequiredFieldEmptyException rfe) {
+            assertEquals(1L, rfe.getLineNumber());
+            assertEquals(AnnotatedMockBeanCustom.class, rfe.getBeanClass());
+            assertEquals(beans.left.getClass().getDeclaredField("requiredWithCustom"),
+                    rfe.getDestinationField());
         }
-        catch(CsvRequiredFieldEmptyException rfe) {
+    }
+
+    /**
+     * Writing a bad bean at the beginning of a long list to trigger shutting
+     * down the ExecutorService.  using the iterator write method
+     *
+     * @throws IOException          Never
+     * @throws CsvException         Never
+     * @throws NoSuchFieldException Never
+     */
+    @Test
+    public void writeManyWithIteratorFirstBeanIsBad() throws IOException, CsvException, NoSuchFieldException {
+        ImmutablePair<AnnotatedMockBeanCustom, AnnotatedMockBeanCustom> beans = createTwoGoodCustomBeans();
+        StringWriter writer = new StringWriter();
+        StatefulBeanToCsv sbtcsv = new StatefulBeanToCsvBuilder(writer)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
+                .withThrowExceptions(true)
+                .build();
+        assertTrue(sbtcsv.isThrowExceptions());
+        beans.left.setRequiredWithCustom(null); // required
+        List<AnnotatedMockBeanCustom> beanList = new ArrayList<>(1000);
+        beanList.add(beans.left);
+        for (int i = 0; i < 999; i++) {
+            beanList.add(beans.right);
+        }
+        try {
+            sbtcsv.write(beanList.iterator(), AnnotatedMockBeanCustom.class);
+        } catch (CsvRequiredFieldEmptyException rfe) {
             assertEquals(1L, rfe.getLineNumber());
             assertEquals(AnnotatedMockBeanCustom.class, rfe.getBeanClass());
             assertEquals(beans.left.getClass().getDeclaredField("requiredWithCustom"),
@@ -561,6 +663,43 @@ public class StatefulBeanToCsvTest {
         assertEquals(beans.left.getClass().getDeclaredField("requiredWithCustom"),
                 rfe.getDestinationField());
     }
+
+    /**
+     * Writing a bad bean when exceptions are not thrown and the results are
+     * unordered.  uses Iterator
+     *
+     * @throws IOException          Never
+     * @throws CsvException         Never
+     * @throws NoSuchFieldException Never
+     */
+    @Test
+    public void writeWithIteratorBadBeanUnorderedCaptureExceptions() throws IOException, CsvException, NoSuchFieldException {
+        ImmutablePair<AnnotatedMockBeanCustom, AnnotatedMockBeanCustom> beans = createTwoGoodCustomBeans();
+        StringWriter writer = new StringWriter();
+        StatefulBeanToCsv sbtcsv = new StatefulBeanToCsvBuilder(writer)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
+                .withThrowExceptions(false)
+                .withOrderedResults(false)
+                .build();
+        beans.left.setRequiredWithCustom(null); // required
+        List<AnnotatedMockBeanCustom> beanList = new ArrayList<>(10);
+        beanList.add(beans.left);
+        for (int i = 0; i < 9; i++) {
+            beanList.add(beans.right);
+        }
+        sbtcsv.write(beanList.iterator(), AnnotatedMockBeanCustom.class);
+        List<CsvException> exceptionList = sbtcsv.getCapturedExceptions();
+        assertNotNull(exceptionList);
+        assertEquals(1, exceptionList.size());
+        CsvException csve = exceptionList.get(0);
+        assertTrue(csve instanceof CsvRequiredFieldEmptyException);
+        CsvRequiredFieldEmptyException rfe = (CsvRequiredFieldEmptyException) csve;
+        assertEquals(1L, rfe.getLineNumber());
+        assertEquals(AnnotatedMockBeanCustom.class, rfe.getBeanClass());
+        assertEquals(beans.left.getClass().getDeclaredField("requiredWithCustom"),
+                rfe.getDestinationField());
+    }
+
         
     /**
      * Writing a required date field that is null.
@@ -732,6 +871,34 @@ public class StatefulBeanToCsvTest {
                 HEADER_NAME_FULL_CUSTOM + "\n" + GOOD_DATA_NAME_CUSTOM_2 + "\n" + GOOD_DATA_NAME_CUSTOM_1 + "\n" + GOOD_DATA_NAME_CUSTOM_2 + "\n",
                 writer.toString());
     }
+
+    /**
+     * Test of good data with custom converters and a header name mapping
+     * strategy. Uses Iterator
+     * Incidentally test writing a mixture of single and multiple beans with
+     * custom converters.
+     *
+     * @throws IOException  Never
+     * @throws CsvException Never
+     */
+    @Test
+    public void writeCustomByNameWithIterator() throws IOException, CsvException {
+        ImmutablePair<AnnotatedMockBeanCustom, AnnotatedMockBeanCustom> beans = createTwoGoodCustomBeans();
+        StringWriter writer = new StringWriter();
+        HeaderColumnNameMappingStrategy strat = new HeaderColumnNameMappingStrategy();
+        strat.setType(AnnotatedMockBeanCustom.class);
+        StatefulBeanToCsv btcsv = new StatefulBeanToCsvBuilder(writer)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
+                .withSeparator(';')
+                .withMappingStrategy(strat)
+                .build();
+        btcsv.write(beans.right);
+        btcsv.write(Arrays.asList(beans.left, beans.right).iterator(), AnnotatedMockBeanCustom.class);
+        assertEquals(
+                HEADER_NAME_FULL_CUSTOM + "\n" + GOOD_DATA_NAME_CUSTOM_2 + "\n" + GOOD_DATA_NAME_CUSTOM_1 + "\n" + GOOD_DATA_NAME_CUSTOM_2 + "\n",
+                writer.toString());
+    }
+
     
     /**
      * Tests writing an empty field annotated with the custom converter

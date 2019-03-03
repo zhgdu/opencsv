@@ -30,10 +30,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.concurrent.*;
 
 /**
@@ -162,6 +159,29 @@ public class StatefulBeanToCsv<T> {
         }
         headerWritten = true;
     }
+
+    /**
+     * @param beanClass
+     * @throws CsvRequiredFieldEmptyException
+     */
+    private void beforeFirstWrite(Class beanClass) throws CsvRequiredFieldEmptyException {
+
+        // Determine mapping strategy
+        if (mappingStrategy == null) {
+            mappingStrategy = OpencsvUtils.<T>determineMappingStrategy(beanClass, errorLocale);
+        }
+
+        // Build CSVWriter
+        csvwriter = new CSVWriter(writer, separator, quotechar, escapechar, lineEnd);
+
+        // Write the header
+        // NOTE: Assumes generateHeader(T) can handle a null parameter value despite what the JavaDoc says.
+        String[] header = mappingStrategy.generateHeader(null);
+        if (header.length > 0) {
+            csvwriter.writeNext(header, this.applyQuotesToAll);
+        }
+        headerWritten = true;
+    }
     
     /**
      * Writes a bean out to the {@link java.io.Writer} provided to the
@@ -265,29 +285,33 @@ public class StatefulBeanToCsv<T> {
     }
     
     private void submitAllLines(List<T> beans) throws InterruptedException {
-        for(T bean : beans) {
-            if(bean != null) {
-                executor.execute(new ProcessCsvBean<T>(
-                        ++lineNumber, mappingStrategy, bean,
-                        resultantLineQueue, thrownExceptionsQueue,
-                        throwExceptions));
+        submitAllLines(beans.iterator());
+    }
+
+    private void submitAllLines(Iterator<T> beans) throws InterruptedException {
+        while (beans.hasNext()) {
+            T bean = beans.next();
+            if (bean != null) {
+                executor.execute(new ProcessCsvBean<T>(++lineNumber, mappingStrategy, bean, resultantLineQueue,
+                        thrownExceptionsQueue, throwExceptions));
             }
         }
+        ;
 
         // Normal termination
         executor.shutdown();
         executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS); // Wait indefinitely
-        if(accumulateThread != null) {
+        if (accumulateThread != null) {
             accumulateThread.setMustStop(true);
             accumulateThread.join();
         }
 
         // There's one more possibility: The very last bean caused a problem.
-        if(executor.getTerminalException() != null) {
+        if (executor.getTerminalException() != null) {
             // Trigger first catch clause
             throw new RejectedExecutionException();
-        }
-    }
+		}
+	}
     
     private void writeResultsOfParallelProcessingToFile() {
         // Prepare results. Checking for these maps to be != null makes the
@@ -336,14 +360,13 @@ public class StatefulBeanToCsv<T> {
             if(!headerWritten) {
                 beforeFirstWrite(beans.get(0));
             }
-            
+
             prepareForParallelProcessing();
 
             // Process the beans
             try {
                 submitAllLines(beans);
-            }
-            catch(RejectedExecutionException e) {
+            } catch(RejectedExecutionException e) {
                 // An exception in one of the bean writing threads prompted the
                 // executor service to shutdown before we were done.
                 if(accumulateThread != null) {
@@ -376,6 +399,70 @@ public class StatefulBeanToCsv<T> {
 
             writeResultsOfParallelProcessingToFile();
         }
+    }
+
+    /**
+     * Writes a stream of beans out to the {@link java.io.Writer} provided to the
+     * constructor.
+     *
+     * @param beans A stream of beans to be written to a CSV destination
+     * @throws CsvDataTypeMismatchException   If a field of the beans is annotated improperly or an unsupported
+     *                                        data type is supposed to be written
+     * @throws CsvRequiredFieldEmptyException If a field is marked as required, but the source is null
+     */
+    public void write(Iterator<T> beans, Class beanClass) throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
+        if (!beans.hasNext()) {
+            return;
+        }
+
+        // Write header
+        if (!headerWritten) {
+            beforeFirstWrite(beanClass);
+        }
+
+        prepareForParallelProcessing();
+
+        // Process the beans
+        try {
+            submitAllLines(beans);
+        } catch (RejectedExecutionException e) {
+            // An exception in one of the bean writing threads prompted the
+            // executor service to shutdown before we were done.
+            if (accumulateThread != null) {
+                accumulateThread.setMustStop(true);
+            }
+            if (executor.getTerminalException() instanceof RuntimeException) {
+                RuntimeException re = (RuntimeException) executor.getTerminalException();
+                throw re;
+            }
+            if (executor.getTerminalException() instanceof CsvDataTypeMismatchException) {
+                CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) executor.getTerminalException();
+                throw csve;
+            }
+            if (executor.getTerminalException() instanceof CsvRequiredFieldEmptyException) {
+                CsvRequiredFieldEmptyException csve = (CsvRequiredFieldEmptyException) executor
+                        .getTerminalException();
+                throw csve;
+            }
+            throw new RuntimeException(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
+                    .getString("error.writing.beans"), executor.getTerminalException());
+        } catch (Exception e) {
+            // Exception during parsing. Always unrecoverable.
+            // I can't find a way to create this condition in the current
+            // code, but we must have a catch-all clause.
+            executor.shutdownNow();
+            if (accumulateThread != null) {
+                accumulateThread.setMustStop(true);
+            }
+            if (executor.getTerminalException() instanceof RuntimeException) {
+                RuntimeException re = (RuntimeException) executor.getTerminalException();
+                throw re;
+            }
+            throw new RuntimeException(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
+                    .getString("error.writing.beans"), e);
+        }
+
+        writeResultsOfParallelProcessingToFile();
     }
     
     /**
