@@ -41,7 +41,7 @@ import java.util.concurrent.*;
  * <p>This class implements multi-threading on writing more than one bean, so
  * there should be no need to use it across threads in an application. As such,
  * it is not thread-safe.</p>
- * 
+ *
  * @param <T> Type of the bean to be written
  * @author Andrew Rucker Jones
  * @see OpencsvUtils#determineMappingStrategy(java.lang.Class, java.util.Locale)
@@ -49,9 +49,11 @@ import java.util.concurrent.*;
  */
 public class StatefulBeanToCsv<T> {
     private static final char NO_CHARACTER = '\0';
-    /** The beans being written are counted in the order they are written. */
+    /**
+     * The beans being written are counted in the order they are written.
+     */
     private int lineNumber = 0;
-    
+
     private final char separator;
     private final char quotechar;
     private final char escapechar;
@@ -71,32 +73,34 @@ public class StatefulBeanToCsv<T> {
     private ConcurrentNavigableMap<Long, CsvException> thrownExceptionsMap = null;
     private Locale errorLocale = Locale.getDefault();
     private boolean applyQuotesToAll;
-    
-    /** The nullary constructor should never be used. */
+
+    /**
+     * The nullary constructor should never be used.
+     */
     private StatefulBeanToCsv() {
         throw new IllegalStateException(String.format(
                 ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME).getString("nullary.constructor.not.allowed"),
                 getClass().getName()));
     }
-    
+
     /**
      * Constructor used when supplying a Writer instead of a CsvWriter class.
      * It is defined as package protected to ensure that {@link StatefulBeanToCsvBuilder} is always used.
-     * 
-     * @param escapechar The escape character to use when writing a CSV file
-     * @param lineEnd The line ending to use when writing a CSV file
-     * @param mappingStrategy The mapping strategy to use when writing a CSV file
-     * @param quotechar The quote character to use when writing a CSV file
-     * @param separator The field separator to use when writing a CSV file
-     * @param throwExceptions Whether or not exceptions should be thrown while
-     *   writing the CSV file. If not, they are collected and can be retrieved
-     *   via {@link #getCapturedExceptions() }.
-     * @param writer A {@link java.io.Writer} for writing the beans as a CSV to
+     *
+     * @param escapechar       The escape character to use when writing a CSV file
+     * @param lineEnd          The line ending to use when writing a CSV file
+     * @param mappingStrategy  The mapping strategy to use when writing a CSV file
+     * @param quotechar        The quote character to use when writing a CSV file
+     * @param separator        The field separator to use when writing a CSV file
+     * @param throwExceptions  Whether or not exceptions should be thrown while
+     *                         writing the CSV file. If not, they are collected and can be retrieved
+     *                         via {@link #getCapturedExceptions() }.
+     * @param writer           A {@link java.io.Writer} for writing the beans as a CSV to
      * @param applyQuotesToAll Whether all output fields should be quoted
      */
     StatefulBeanToCsv(char escapechar, String lineEnd,
-            MappingStrategy<T> mappingStrategy, char quotechar, char separator,
-            boolean throwExceptions, Writer writer, boolean applyQuotesToAll) {
+                      MappingStrategy<T> mappingStrategy, char quotechar, char separator,
+                      boolean throwExceptions, Writer writer, boolean applyQuotesToAll) {
         this.escapechar = escapechar;
         this.lineEnd = lineEnd;
         this.mappingStrategy = mappingStrategy;
@@ -133,21 +137,22 @@ public class StatefulBeanToCsv<T> {
     /**
      * Custodial tasks that must be performed before beans are written to a CSV
      * destination for the first time.
+     *
      * @param bean Any bean to be written. Used to determine the mapping
-     *   strategy automatically. The bean itself is not written to the output by
-     *   this method.
+     *             strategy automatically. The bean itself is not written to the output by
+     *             this method.
      * @throws CsvRequiredFieldEmptyException If a required header is missing
-     *   while attempting to write. Since every other header is hard-wired
-     *   through the bean fields and their associated annotations, this can only
-     *   happen with multi-valued fields.
+     *                                        while attempting to write. Since every other header is hard-wired
+     *                                        through the bean fields and their associated annotations, this can only
+     *                                        happen with multi-valued fields.
      */
     private void beforeFirstWrite(T bean) throws CsvRequiredFieldEmptyException {
-        
+
         // Determine mapping strategy
-        if(mappingStrategy == null) {
-            mappingStrategy = OpencsvUtils.<T>determineMappingStrategy((Class<T>)bean.getClass(), errorLocale);
+        if (mappingStrategy == null) {
+            mappingStrategy = OpencsvUtils.<T>determineMappingStrategy((Class<T>) bean.getClass(), errorLocale);
         }
-        
+
         // Build CSVWriter
         if (csvwriter == null) {
             csvwriter = new CSVWriter(writer, separator, quotechar, escapechar, lineEnd);
@@ -155,55 +160,33 @@ public class StatefulBeanToCsv<T> {
 
         // Write the header
         String[] header = mappingStrategy.generateHeader(bean);
-        if(header.length > 0) {
+        if (header.length > 0) {
             csvwriter.writeNext(header, applyQuotesToAll);
         }
         headerWritten = true;
     }
 
-    /**
-     * @param beanClass
-     * @throws CsvRequiredFieldEmptyException
-     */
-    private void beforeFirstWrite(Class beanClass) throws CsvRequiredFieldEmptyException {
 
-        // Determine mapping strategy
-        if (mappingStrategy == null) {
-            mappingStrategy = OpencsvUtils.<T>determineMappingStrategy(beanClass, errorLocale);
-        }
-
-        // Build CSVWriter
-        csvwriter = new CSVWriter(writer, separator, quotechar, escapechar, lineEnd);
-
-        // Write the header
-        // NOTE: Assumes generateHeader(T) can handle a null parameter value despite what the JavaDoc says.
-        String[] header = mappingStrategy.generateHeader(null);
-        if (header.length > 0) {
-            csvwriter.writeNext(header, this.applyQuotesToAll);
-        }
-        headerWritten = true;
-    }
-    
     /**
      * Writes a bean out to the {@link java.io.Writer} provided to the
      * constructor.
-     * 
+     *
      * @param bean A bean to be written to a CSV destination
-     * @throws CsvDataTypeMismatchException If a field of the bean is
-     *   annotated improperly or an unsupported data type is supposed to be
-     *   written
+     * @throws CsvDataTypeMismatchException   If a field of the bean is
+     *                                        annotated improperly or an unsupported data type is supposed to be
+     *                                        written
      * @throws CsvRequiredFieldEmptyException If a field is marked as required,
-     *   but the source is null
+     *                                        but the source is null
      */
     public void write(T bean) throws CsvDataTypeMismatchException,
             CsvRequiredFieldEmptyException {
-        
+
         // Write header
-        if(bean != null) {
-            if(!headerWritten) {
+        if (bean != null) {
+            if (!headerWritten) {
                 beforeFirstWrite(bean);
             }
-            
+
             // Process the bean
             resultantLineQueue = new ArrayBlockingQueue<>(1);
             thrownExceptionsQueue = new ArrayBlockingQueue<>(1);
@@ -212,42 +195,40 @@ public class StatefulBeanToCsv<T> {
                     thrownExceptionsQueue, throwExceptions);
             try {
                 proc.run();
-            }
-            catch(RuntimeException re) {
-                if(re.getCause() != null) {
-                    if(re.getCause() instanceof CsvRuntimeException) {
+            } catch (RuntimeException re) {
+                if (re.getCause() != null) {
+                    if (re.getCause() instanceof CsvRuntimeException) {
                         // Can't currently happen, but who knows what might be
                         // in the future? I'm certain we wouldn't want to wrap
                         // these in another RuntimeException.
                         throw (CsvRuntimeException) re.getCause();
                     }
-                    if(re.getCause() instanceof CsvDataTypeMismatchException) {
+                    if (re.getCause() instanceof CsvDataTypeMismatchException) {
                         throw (CsvDataTypeMismatchException) re.getCause();
                     }
-                    if(re.getCause() instanceof CsvRequiredFieldEmptyException) {
+                    if (re.getCause() instanceof CsvRequiredFieldEmptyException) {
                         throw (CsvRequiredFieldEmptyException) re.getCause();
                     }
                 }
                 throw re;
             }
-            
+
             // Write out the result
-            if(!thrownExceptionsQueue.isEmpty()) {
+            if (!thrownExceptionsQueue.isEmpty()) {
                 OrderedObject<CsvException> o = thrownExceptionsQueue.poll();
-                if(o != null && o.getElement() != null) {
+                if (o != null && o.getElement() != null) {
                     capturedExceptions.add(o.getElement());
                 }
-            }
-            else {
+            } else {
                 // No exception, so there really must always be a string
                 OrderedObject<String[]> result = resultantLineQueue.poll();
-                if(result != null && result.getElement() != null) {
+                if (result != null && result.getElement() != null) {
                     csvwriter.writeNext(result.getElement(), applyQuotesToAll);
                 }
             }
         }
     }
-    
+
     /**
      * Prepare for parallel processing.
      * <p>The structure is:
@@ -273,7 +254,7 @@ public class StatefulBeanToCsv<T> {
         // used to indicate ordering or not so as to guard against the unlikely
         // problem that someone sets orderedResults right in the middle of
         // processing.
-        if(orderedResults) {
+        if (orderedResults) {
             resultantBeansMap = new ConcurrentSkipListMap<>();
             thrownExceptionsMap = new ConcurrentSkipListMap<>();
 
@@ -284,10 +265,6 @@ public class StatefulBeanToCsv<T> {
             accumulateThread.start();
         }
     }
-    
-    private void submitAllLines(List<T> beans) throws InterruptedException {
-        submitAllLines(beans.iterator());
-    }
 
     private void submitAllLines(Iterator<T> beans) throws InterruptedException {
         while (beans.hasNext()) {
@@ -297,7 +274,6 @@ public class StatefulBeanToCsv<T> {
                         thrownExceptionsQueue, throwExceptions));
             }
         }
-        ;
 
         // Normal termination
         executor.shutdown();
@@ -311,94 +287,51 @@ public class StatefulBeanToCsv<T> {
         if (executor.getTerminalException() != null) {
             // Trigger first catch clause
             throw new RejectedExecutionException();
-		}
-	}
-    
+        }
+    }
+
     private void writeResultsOfParallelProcessingToFile() {
         // Prepare results. Checking for these maps to be != null makes the
         // compiler feel better than checking that the accumulator is not null.
-        if(thrownExceptionsMap != null && resultantBeansMap != null) {
+        if (thrownExceptionsMap != null && resultantBeansMap != null) {
             capturedExceptions = new ArrayList<>(thrownExceptionsMap.values());
-            for(String[] oneLine : resultantBeansMap.values()) {
+            for (String[] oneLine : resultantBeansMap.values()) {
                 csvwriter.writeNext(oneLine, applyQuotesToAll);
             }
-        }
-        else {
+        } else {
             capturedExceptions = new ArrayList<>(thrownExceptionsQueue.size());
             OrderedObject<CsvException> oocsve;
-            while(!thrownExceptionsQueue.isEmpty()) {
+            while (!thrownExceptionsQueue.isEmpty()) {
                 oocsve = thrownExceptionsQueue.poll();
-                if(oocsve != null && oocsve.getElement() != null) {
+                if (oocsve != null && oocsve.getElement() != null) {
                     capturedExceptions.add(oocsve.getElement());
                 }
             }
             OrderedObject<String[]> ooresult;
-            while(!resultantLineQueue.isEmpty()) {
+            while (!resultantLineQueue.isEmpty()) {
                 try {
                     ooresult = resultantLineQueue.take();
                     csvwriter.writeNext(ooresult.getElement(), applyQuotesToAll);
-                }
-                catch(InterruptedException e) {/* We'll get it during the next loop through. */}
+                } catch (InterruptedException e) {/* We'll get it during the next loop through. */}
             }
         }
     }
-    
+
     /**
      * Writes a list of beans out to the {@link java.io.Writer} provided to the
      * constructor.
-     * 
+     *
      * @param beans A list of beans to be written to a CSV destination
-     * @throws CsvDataTypeMismatchException If a field of the beans is
-     *   annotated improperly or an unsupported data type is supposed to be
-     *   written
+     * @throws CsvDataTypeMismatchException   If a field of the beans is
+     *                                        annotated improperly or an unsupported data type is supposed to be
+     *                                        written
      * @throws CsvRequiredFieldEmptyException If a field is marked as required,
-     *   but the source is null
+     *                                        but the source is null
      */
     public void write(List<T> beans) throws CsvDataTypeMismatchException,
             CsvRequiredFieldEmptyException {
-        if(CollectionUtils.isNotEmpty(beans)) {
-            // Write header
-            if(!headerWritten) {
-                beforeFirstWrite(beans.get(0));
-            }
-
-            prepareForParallelProcessing();
-
-            // Process the beans
-            try {
-                submitAllLines(beans);
-            } catch(RejectedExecutionException e) {
-                // An exception in one of the bean writing threads prompted the
-                // executor service to shutdown before we were done.
-                if(accumulateThread != null) {
-                    accumulateThread.setMustStop(true);
-                }
-                if(executor.getTerminalException() instanceof RuntimeException) {
-                    throw (RuntimeException) executor.getTerminalException();
-                }
-                if(executor.getTerminalException() instanceof CsvDataTypeMismatchException) {
-                    throw (CsvDataTypeMismatchException) executor.getTerminalException();
-                }
-                if(executor.getTerminalException() instanceof CsvRequiredFieldEmptyException) {
-                    throw (CsvRequiredFieldEmptyException) executor.getTerminalException();
-                }
-                throw new RuntimeException(
-                        ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("error.writing.beans"), executor.getTerminalException());
-            } catch (Exception e) {
-                // Exception during parsing. Always unrecoverable.
-                // I can't find a way to create this condition in the current
-                // code, but we must have a catch-all clause.
-                executor.shutdownNow();
-                if(accumulateThread != null) {
-                    accumulateThread.setMustStop(true);
-                }
-                if(executor.getTerminalException() instanceof RuntimeException) {
-                    throw (RuntimeException) executor.getTerminalException();
-                }
-                throw new RuntimeException(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("error.writing.beans"), e);
-            }
-
-            writeResultsOfParallelProcessingToFile();
+        if (CollectionUtils.isNotEmpty(beans)) {
+            write(beans.iterator());
         }
     }
 
@@ -414,7 +347,7 @@ public class StatefulBeanToCsv<T> {
     public void write(Iterator<T> iBeans) throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
 
         PeekingIterator<T> beans = new PeekingIterator<>(iBeans);
-        Class beanClass = beans.peek().getClass();
+        T firstBean = beans.peek();
 
         if (!beans.hasNext()) {
             return;
@@ -422,7 +355,7 @@ public class StatefulBeanToCsv<T> {
 
         // Write header
         if (!headerWritten) {
-            beforeFirstWrite(beanClass);
+            beforeFirstWrite(firstBean);
         }
 
         prepareForParallelProcessing();
@@ -437,17 +370,14 @@ public class StatefulBeanToCsv<T> {
                 accumulateThread.setMustStop(true);
             }
             if (executor.getTerminalException() instanceof RuntimeException) {
-                RuntimeException re = (RuntimeException) executor.getTerminalException();
-                throw re;
+                throw (RuntimeException) executor.getTerminalException();
             }
             if (executor.getTerminalException() instanceof CsvDataTypeMismatchException) {
-                CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) executor.getTerminalException();
-                throw csve;
+                throw (CsvDataTypeMismatchException) executor.getTerminalException();
             }
             if (executor.getTerminalException() instanceof CsvRequiredFieldEmptyException) {
-                CsvRequiredFieldEmptyException csve = (CsvRequiredFieldEmptyException) executor
+                throw (CsvRequiredFieldEmptyException) executor
                         .getTerminalException();
-                throw csve;
             }
             throw new RuntimeException(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
                     .getString("error.writing.beans"), executor.getTerminalException());
@@ -460,8 +390,7 @@ public class StatefulBeanToCsv<T> {
                 accumulateThread.setMustStop(true);
             }
             if (executor.getTerminalException() instanceof RuntimeException) {
-                RuntimeException re = (RuntimeException) executor.getTerminalException();
-                throw re;
+                throw (RuntimeException) executor.getTerminalException();
             }
             throw new RuntimeException(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
                     .getString("error.writing.beans"), e);
@@ -469,7 +398,7 @@ public class StatefulBeanToCsv<T> {
 
         writeResultsOfParallelProcessingToFile();
     }
-    
+
     /**
      * Sets whether or not results must be written in the same order in which
      * they appear in the list of beans provided as input.
@@ -478,8 +407,9 @@ public class StatefulBeanToCsv<T> {
      * {@code orderedResults} to {@code false}. The lack of ordering then also
      * applies to any captured exceptions, if you have chosen not to have
      * exceptions thrown.
+     *
      * @param orderedResults Whether or not the lines written are in the same
-     *   order they appeared in the input
+     *                       order they appeared in the input
      * @since 4.0
      */
     public void setOrderedResults(boolean orderedResults) {
@@ -488,7 +418,7 @@ public class StatefulBeanToCsv<T> {
 
     /**
      * @return Whether or not exceptions are thrown. If they are not thrown,
-     *   they are captured and returned later via {@link #getCapturedExceptions()}.
+     * they are captured and returned later via {@link #getCapturedExceptions()}.
      */
     public boolean isThrowExceptions() {
         return throwExceptions;
@@ -503,19 +433,21 @@ public class StatefulBeanToCsv<T> {
      * multiple times with no intervening call to this method will not clear the
      * list of captured exceptions, but rather add to it if further exceptions
      * are thrown.</p>
+     *
      * @return A list of exceptions that would have been thrown during any and
-     *   all read operations since the last call to this method
+     * all read operations since the last call to this method
      */
     public List<CsvException> getCapturedExceptions() {
         List<CsvException> intermediate = capturedExceptions;
         capturedExceptions = new ArrayList<>();
         return intermediate;
     }
-    
+
     /**
      * Sets the locale for all error messages.
+     *
      * @param errorLocale Locale for error messages. If null, the default locale
-     *   is used.
+     *                    is used.
      * @since 4.0
      */
     public void setErrorLocale(Locale errorLocale) {
