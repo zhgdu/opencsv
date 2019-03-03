@@ -27,6 +27,7 @@ import com.opencsv.exceptions.CsvException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import com.opencsv.exceptions.CsvRuntimeException;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.iterators.PeekingIterator;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.io.Writer;
@@ -405,12 +406,16 @@ public class StatefulBeanToCsv<T> {
      * Writes a stream of beans out to the {@link java.io.Writer} provided to the
      * constructor.
      *
-     * @param beans A stream of beans to be written to a CSV destination
+     * @param iBeans A stream of beans to be written to a CSV destination
      * @throws CsvDataTypeMismatchException   If a field of the beans is annotated improperly or an unsupported
      *                                        data type is supposed to be written
      * @throws CsvRequiredFieldEmptyException If a field is marked as required, but the source is null
      */
-    public void write(Iterator<T> beans, Class beanClass) throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
+    public void write(Iterator<T> iBeans) throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
+
+        PeekingIterator<T> beans = new PeekingIterator<>(iBeans);
+        Class beanClass = beans.peek().getClass();
+
         if (!beans.hasNext()) {
             return;
         }

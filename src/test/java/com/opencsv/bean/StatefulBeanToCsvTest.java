@@ -207,7 +207,7 @@ public class StatefulBeanToCsvTest {
                 .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
                 .withSeparator(';')
                 .build();
-        btcsv.write(beanList.iterator(), AnnotatedMockBeanFull.class);
+        btcsv.write(beanList.iterator());
         assertTrue(Pattern.matches(GOOD_DATA_1 + "\n" + GOOD_DATA_2 + "\n", writer.toString()));
     }
         
@@ -251,7 +251,7 @@ public class StatefulBeanToCsvTest {
                 .withSeparator(';')
                 .withOrderedResults(false)
                 .build();
-        btcsv.write(beanList.iterator(), AnnotatedMockBeanFull.class);
+        btcsv.write(beanList.iterator());
         String r = writer.toString();
         assertTrue(Pattern.matches(GOOD_DATA_1 + "\n" + GOOD_DATA_2 + "\n", r) || Pattern.matches(GOOD_DATA_2 + "\n" + GOOD_DATA_1 + "\n", r));
     }
@@ -296,7 +296,7 @@ public class StatefulBeanToCsvTest {
                 .withSeparator(';')
                 .withLineEnd("arj\n")
                 .build();
-        btcsv.write(beanList.iterator(), AnnotatedMockBeanFull.class);
+        btcsv.write(beanList.iterator());
         btcsv.write(beans.left);
         assertTrue(Pattern.matches(GOOD_DATA_1 + "arj\n" + GOOD_DATA_2 + "arj\n" + GOOD_DATA_1 + "arj\n", writer.toString()));
     }
@@ -622,7 +622,7 @@ public class StatefulBeanToCsvTest {
             beanList.add(beans.right);
         }
         try {
-            sbtcsv.write(beanList.iterator(), AnnotatedMockBeanCustom.class);
+            sbtcsv.write(beanList.iterator());
         } catch (CsvRequiredFieldEmptyException rfe) {
             assertEquals(1L, rfe.getLineNumber());
             assertEquals(AnnotatedMockBeanCustom.class, rfe.getBeanClass());
@@ -687,7 +687,7 @@ public class StatefulBeanToCsvTest {
         for (int i = 0; i < 9; i++) {
             beanList.add(beans.right);
         }
-        sbtcsv.write(beanList.iterator(), AnnotatedMockBeanCustom.class);
+        sbtcsv.write(beanList.iterator());
         List<CsvException> exceptionList = sbtcsv.getCapturedExceptions();
         assertNotNull(exceptionList);
         assertEquals(1, exceptionList.size());
@@ -893,7 +893,7 @@ public class StatefulBeanToCsvTest {
                 .withMappingStrategy(strat)
                 .build();
         btcsv.write(beans.right);
-        btcsv.write(Arrays.asList(beans.left, beans.right).iterator(), AnnotatedMockBeanCustom.class);
+        btcsv.write(Arrays.asList(beans.left, beans.right).iterator());
         assertEquals(
                 HEADER_NAME_FULL_CUSTOM + "\n" + GOOD_DATA_NAME_CUSTOM_2 + "\n" + GOOD_DATA_NAME_CUSTOM_1 + "\n" + GOOD_DATA_NAME_CUSTOM_2 + "\n",
                 writer.toString());
