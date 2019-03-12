@@ -175,6 +175,7 @@ The most powerful mechanism opencsv has for reading and writing CSV files involv
 defining beans that the fields of the CSV file can be mapped to and from, and
 annotating the fields of these beans so opencsv can do the rest. In brief, these
 annotations are:
+
    * CsvBindByName: Maps a bean field to a field in the CSV file based on the name of the header for that field in the CSV input.
    * CsvBindByPosition: Maps a bean field to a field in the CSV file based on the numerical position of the field in the CSV input.
    * CsvBindAndSplitByName: Maps a Collection-based bean field to a field in the CSV file based on the name of the header for that field in the CSV input.
@@ -187,6 +188,7 @@ annotations are:
    * CsvCustomBindByPosition: The same as CsvBindByPosition, but must provide its own data conversion class.
 
 As you can infer, there are two strategies for annotating beans, depending on your input:
+
    * Annotating by header name
    * Annotating by column position
 
