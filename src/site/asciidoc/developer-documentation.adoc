@@ -971,6 +971,7 @@ And believe me, a lot of work went into making writing CSV files as comfortable
 as possible for you, our users.
 
 There are three methods of writing CSV data:
+
    * Writing from an array of strings
    * Writing from a list of beans
    * Writing from an SQL ResultSet
