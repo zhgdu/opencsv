@@ -131,7 +131,7 @@ public class CsvToBeanTest {
             csvtb.parse();
             fail("IllegalStateException should have been thrown.");
         } catch (IllegalStateException e) {
-            assertNotEquals(englishErrorMessage, e.getLocalizedMessage());
+            assertNotSame(englishErrorMessage, e.getLocalizedMessage());
         }
     }
 
@@ -176,7 +176,7 @@ public class CsvToBeanTest {
                     .build();
             fail("IllegalStateException should have been thrown.");
         } catch (IllegalStateException e) {
-            assertNotEquals(englishErrorMessage, e.getLocalizedMessage());
+            assertNotSame(englishErrorMessage, e.getLocalizedMessage());
         }
     }
 

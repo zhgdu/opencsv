@@ -62,7 +62,7 @@ public class CSVIteratorTest {
             fail("UnsupportedOperationException should have been thrown by read-only iterator.");
         }
         catch(UnsupportedOperationException e) {
-            assertNotEquals(englishErrorMessage, e.getLocalizedMessage());
+            assertNotSame(englishErrorMessage, e.getLocalizedMessage());
         }
     }
 

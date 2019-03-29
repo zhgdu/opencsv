@@ -88,7 +88,7 @@ public class HeaderColumnNameMappingStrategyTest {
            fail("An IllegalStateException should have been thrown since the header has not yet been read.");
        }
        catch(IllegalStateException e) {
-           assertNotEquals(englishErrorMessage, e.getLocalizedMessage());
+           assertNotSame(englishErrorMessage, e.getLocalizedMessage());
        }
    }
 

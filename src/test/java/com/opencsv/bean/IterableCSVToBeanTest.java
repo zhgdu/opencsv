@@ -148,7 +148,7 @@ public class IterableCSVToBeanTest {
             iterator.remove();
             fail("Removing from an IterableCsvToBean should not be supported.");
         } catch (UnsupportedOperationException e) {
-            assertNotEquals(englishErrorMessage, e.getLocalizedMessage());
+            assertNotSame(englishErrorMessage, e.getLocalizedMessage());
             // Good
         }
     }

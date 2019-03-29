@@ -585,7 +585,7 @@ public class CSVReaderTest {
         catch(RuntimeException re) {
             assertNotNull(re.getCause());
             assertTrue(re.getCause() instanceof IOException);
-            assertNotEquals(englishErrorMessage, re.getCause().getLocalizedMessage());
+            assertNotSame(englishErrorMessage, re.getCause().getLocalizedMessage());
         }
     }
 
@@ -749,6 +749,6 @@ public class CSVReaderTest {
         assertArrayEquals(peeked, csvr.peek());
         assertArrayEquals(peeked, csvr.peek());
         assertArrayEquals(peeked, csvr.readNext());
-        assertNotEquals(peeked[1], csvr.readNext()[1]);
+        assertNotSame(peeked[1], csvr.readNext()[1]);
     }
 }

@@ -209,7 +209,7 @@ public class ColumnPositionMappingStrategyTest {
       }
       catch(RuntimeException e) {
           assertEquals(IllegalStateException.class, e.getCause().getClass());
-          assertNotEquals(englishErrorMessage, e.getCause().getLocalizedMessage());
+          assertNotSame(englishErrorMessage, e.getCause().getLocalizedMessage());
       }
    }
 }

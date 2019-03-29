@@ -527,7 +527,7 @@ public class AnnotationTest {
         strat.setType(AnnotatedMockBeanFull.class);
         strat.setErrorLocale(Locale.GERMAN); // In this test, setType(), then setErrorLocale()
         fin = new FileReader("src/test/resources/testinputcase11.csv");
-        assertNotEquals(englishErrorMessage, auxiliaryTestMismatchingType(strat, fin, 2));
+        assertNotSame(englishErrorMessage, auxiliaryTestMismatchingType(strat, fin, 2));
     }
 
     @Test
@@ -543,7 +543,7 @@ public class AnnotationTest {
         strat.setErrorLocale(Locale.GERMAN); // In this test, setErrorLocale(), then setType()
         strat.setType(AnnotatedMockBeanFull.class);
         fin = new FileReader("src/test/resources/testinputcase55.csv");
-        assertNotEquals(englishErrorMessage, auxiliaryTestMismatchingType(strat, fin, 1));
+        assertNotSame(englishErrorMessage, auxiliaryTestMismatchingType(strat, fin, 1));
     }
 
     private String auxiliaryTestMismatchingType(MappingStrategy strat, Reader fin, long expectedLineNumber) {

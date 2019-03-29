@@ -7,3 +7,6 @@ deploy
 .DS_Store
 *.iml
 nbactions.xml
+.classpath
+.project
+.settings/

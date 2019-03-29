@@ -820,7 +820,7 @@ public class StatefulBeanToCsvTest {
         assertEquals(1L, dtm.getLineNumber());
         assertTrue(dtm.getSourceObject() instanceof BindCustomToWrongDataType);
         assertEquals(String.class, dtm.getDestinationClass());
-        assertNotEquals(englishErrorMessage, dtm.getLocalizedMessage());
+        assertNotSame(englishErrorMessage, dtm.getLocalizedMessage());
     }
         
     /**
@@ -962,7 +962,7 @@ public class StatefulBeanToCsvTest {
         catch(CsvDataTypeMismatchException csve) {
             assertNotNull(csve.getCause());
             assertTrue(csve.getCause() instanceof ClassCastException);
-            assertNotEquals(csve.getLocalizedMessage(), englishErrorMessage);
+            assertNotSame(csve.getLocalizedMessage(), englishErrorMessage);
         }
     }
 

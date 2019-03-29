@@ -10,7 +10,7 @@ import java.util.Locale;
 import org.junit.After;
 
 import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -118,7 +118,7 @@ public class ResultSetColumnNameHelperServiceTest {
             fail("UnsupportedOperationException should have been thrown.");
         }
         catch(UnsupportedOperationException e) {
-            assertNotEquals(englishErrorMessage, e.getLocalizedMessage());
+            assertNotSame(englishErrorMessage, e.getLocalizedMessage());
         }
     }
 

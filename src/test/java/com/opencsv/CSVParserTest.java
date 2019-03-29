@@ -591,7 +591,7 @@ public class CSVParserTest {
             fail("UnsupportedOperationException should have been thrown.");
         }
         catch(UnsupportedOperationException e) {
-            assertNotEquals(englishErrorMessage, e.getLocalizedMessage());
+            assertNotSame(englishErrorMessage, e.getLocalizedMessage());
         }
     }
 
