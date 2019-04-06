@@ -958,7 +958,7 @@ CsvToBeanBuilder.withFilter(), or equivalently if you're not using the builders,
 to the appropriate parse() method from CsvToBean or even setFilter().
 
 Verifying is slightly different still. With verifying, a complete finished bean
-is checked for desirability and consistency. By implementing BeanFilter and
+is checked for desirability and consistency. By implementing BeanVerifier and
 passing it to CsvToBeanBuilder.withVerifier(), each bean will be vetted before
 being returned to the calling code. Beans can be silently filtered if they are
 simply undesirable data sets, or if the data are inconsistent and this is
