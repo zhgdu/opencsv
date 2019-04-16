@@ -18,7 +18,7 @@ package com.opencsv.exceptions;
 import java.io.IOException;
 
 /**
- * Exceptions that is thrown when the CSVReader cannot process a line.
+ * Exception that is thrown when the {@link com.opencsv.CSVReader} cannot process a line.
  */
 public class CsvMalformedLineException extends IOException {
     private static final long serialVersionUID = 1L;
@@ -26,14 +26,14 @@ public class CsvMalformedLineException extends IOException {
     private String context;
 
     /**
-     * @return the row number set during construction of the exception.
+     * @return The row number set during construction of the exception
      */
     public long getLineNumber() {
         return lineNumber;
     }
 
     /**
-     * @return context set during construction of the exception.
+     * @return Context set during construction of the exception
      */
     public String getContext() {
         return context;
@@ -49,9 +49,9 @@ public class CsvMalformedLineException extends IOException {
     /**
      * Constructor with a message.
      *
-     * @param message    A human-readable error message.
-     * @param lineNumber line number where error occurred.
-     * @param context    line (or part of line) that caused the error.
+     * @param message    A human-readable error message
+     * @param lineNumber Line number where error occurred
+     * @param context    Line (or part of the line) that caused the error
      */
     public CsvMalformedLineException(String message, long lineNumber, String context) {
         super(message);

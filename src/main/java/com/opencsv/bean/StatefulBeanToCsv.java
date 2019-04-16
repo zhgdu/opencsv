@@ -94,7 +94,7 @@ public class StatefulBeanToCsv<T> {
      * @param separator        The field separator to use when writing a CSV file
      * @param throwExceptions  Whether or not exceptions should be thrown while
      *                         writing the CSV file. If not, they are collected and can be retrieved
-     *                         via {@link #getCapturedExceptions() }.
+     *                         via {@link #getCapturedExceptions()}.
      * @param writer           A {@link java.io.Writer} for writing the beans as a CSV to
      * @param applyQuotesToAll Whether all output fields should be quoted
      */
@@ -112,14 +112,15 @@ public class StatefulBeanToCsv<T> {
     }
 
     /**
-     * Constructor used to allow building of a StatefulBeanToCsv with a user supplied ICSVWriter class.
+     * Constructor used to allow building of a {@link com.opencsv.bean.StatefulBeanToCsv}
+     * with a user-supplied {@link com.opencsv.ICSVWriter} class.
      *
      * @param mappingStrategy  The mapping strategy to use when writing a CSV file
      * @param throwExceptions  Whether or not exceptions should be thrown while
      *                         writing the CSV file. If not, they are collected and can be retrieved
-     *                         via {@link #getCapturedExceptions() }.
+     *                         via {@link #getCapturedExceptions()}.
      * @param applyQuotesToAll Whether all output fields should be quoted
-     * @param csvWriter        An user supplied ICSVWriter for writing beans to csv
+     * @param csvWriter        An user-supplied {@link com.opencsv.ICSVWriter} for writing beans to a CSV output
      */
     public StatefulBeanToCsv(MappingStrategy<T> mappingStrategy, boolean throwExceptions, boolean applyQuotesToAll, ICSVWriter csvWriter) {
         this.mappingStrategy = mappingStrategy;
@@ -339,7 +340,7 @@ public class StatefulBeanToCsv<T> {
      * Writes a stream of beans out to the {@link java.io.Writer} provided to the
      * constructor.
      *
-     * @param iBeans A stream of beans to be written to a CSV destination
+     * @param iBeans An iterator of beans to be written to a CSV destination
      * @throws CsvDataTypeMismatchException   If a field of the beans is annotated improperly or an unsupported
      *                                        data type is supposed to be written
      * @throws CsvRequiredFieldEmptyException If a field is marked as required, but the source is null

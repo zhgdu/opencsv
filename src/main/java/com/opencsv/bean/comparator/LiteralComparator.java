@@ -27,7 +27,7 @@ import java.util.Comparator;
  * Anything not included in the array is placed after anything in the array and
  * is then sorted according to its natural order.
  *
- * T is the type to be sorted
+ * @param <T> The type to be sorted
  *
  * @since 4.3
  */
@@ -36,9 +36,9 @@ public class LiteralComparator<T extends Comparable> implements Comparator<T>, S
     private final T[] predefinedOrder;
 
     /**
-     * Constructor
+     * Constructor.
      *
-     * @param predefinedOrder objects that define the order of comparison.
+     * @param predefinedOrder Objects that define the order of comparison
      */
     public LiteralComparator(T[] predefinedOrder) {
         if (predefinedOrder == null) {

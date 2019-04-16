@@ -18,7 +18,7 @@ package com.opencsv.exceptions;
 import java.io.IOException;
 
 /**
- * Exceptions when you break the lime limit of the multiline field
+ * Exception when you break the line limit of a multiline field.
  * @author Edgar Silva
  */
 public class CsvMultilineLimitBrokenException extends IOException {
@@ -28,21 +28,21 @@ public class CsvMultilineLimitBrokenException extends IOException {
     private int multilineLimit;
 
     /**
-     * @return the multiline limit set during construction of the exception.
+     * @return The multiline limit set during construction of the exception
      */
     public int getMultilineLimit() {
         return multilineLimit;
     }
 
     /**
-     * @return the row number set during construction of the exception.
+     * @return The row number set during construction of the exception
      */
     public long getRow() {
         return row;
     }
 
     /**
-     * @return context set during construction of the exception.
+     * @return Context set during construction of the exception
      */
     public String getContext() {
         return context;
@@ -55,10 +55,10 @@ public class CsvMultilineLimitBrokenException extends IOException {
 
     /**
      * Constructor with a message.
-     * @param message A human-readable error message.
-     * @param row row number where error occurred.
-     * @param context line (or part of line) that caused the error.
-     * @param multilineLimit multiline limit that was set.
+     * @param message A human-readable error message
+     * @param row Row number where error occurred
+     * @param context Line (or part of the line) that caused the error
+     * @param multilineLimit Multiline limit that was set
      */
     public CsvMultilineLimitBrokenException(String message,long row, String context, int multilineLimit) {
         super(message);

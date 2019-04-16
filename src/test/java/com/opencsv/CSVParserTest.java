@@ -783,8 +783,9 @@ public class CSVParserTest {
     }
 
     /**
-     * Test to check if we have a good detail in the error message when there is a quote that wasn't close - (begin of the field)
-     * check if is set the attributes of the CsvMultilineLimitBrokenException
+     * Test to check if we have a good detail in the error message when there
+     * is a quote that wasn't closed (beginning of the field).
+     * Check if the attributes of the CsvMultilineLimitBrokenException are set.
      * @throws IOException
      */
     @Test
@@ -821,8 +822,9 @@ public class CSVParserTest {
     }
 
     /**
-     * Test to check if we have a good detail in the error message when there is a quote that wasn't close - (middle of the field)
-     * check if is set the attributes of the CsvMultilineLimitBrokenException
+     * Test to check if we have a good detail in the error message when there
+     * is a quote that wasn't closed (middle of the field).
+     * Check if the attributes of the CsvMultilineLimitBrokenException are set.
      * @throws IOException
      */
     @Test
@@ -859,8 +861,9 @@ public class CSVParserTest {
     }
 
     /**
-     * Test to check if we have a good detail in the error message when there is a quote that wasn't close - (end of the field)
-     * check if is set the attributes of the CsvMultilineLimitBrokenException
+     * Test to check if we have a good detail in the error message when there
+     * is a quote that wasn't closed (end of the field).
+     * Check if the attributes of the CsvMultilineLimitBrokenException are set.
      * @throws IOException
      */
     @Test

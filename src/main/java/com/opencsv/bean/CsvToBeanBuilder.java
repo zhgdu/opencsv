@@ -60,7 +60,7 @@ public class CsvToBeanBuilder<T> {
    private final Reader reader;
 
     /**
-     * Allow the user to pass in a prebuilt/custom CSVReader
+     * Allow the user to pass in a prebuilt/custom {@link com.opencsv.CSVReader}.
      */
     private final CSVReader csvReader;
    

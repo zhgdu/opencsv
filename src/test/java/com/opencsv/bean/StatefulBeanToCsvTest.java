@@ -279,7 +279,7 @@ public class StatefulBeanToCsvTest {
     }
 
     /**
-     * Test of writing a mixture of single beans and multiple beans using the iterator
+     * Test of writing a mixture of single beans and multiple beans using the iterator.
      *
      * @throws IOException  Never
      * @throws CsvException Never
@@ -599,8 +599,8 @@ public class StatefulBeanToCsvTest {
     }
 
     /**
-     * Writing a bad bean at the beginning of a long list to trigger shutting
-     * down the ExecutorService.  using the iterator write method
+     * Writing a bad bean using the iterator write method at the
+     * beginning of a long list to trigger shutting down the ExecutorService.
      *
      * @throws IOException          Never
      * @throws CsvException         Never
@@ -665,8 +665,8 @@ public class StatefulBeanToCsvTest {
     }
 
     /**
-     * Writing a bad bean when exceptions are not thrown and the results are
-     * unordered.  uses Iterator
+     * Writing a bad bean using the iterator when exceptions are not thrown and
+     * the results are unordered.
      *
      * @throws IOException          Never
      * @throws CsvException         Never
@@ -873,10 +873,8 @@ public class StatefulBeanToCsvTest {
     }
 
     /**
-     * Test of good data with custom converters and a header name mapping
-     * strategy. Uses Iterator
-     * Incidentally test writing a mixture of single and multiple beans with
-     * custom converters.
+     * Test of good data with custom converters, a header name mapping strategy,
+     * and an iterator.
      *
      * @throws IOException  Never
      * @throws CsvException Never
