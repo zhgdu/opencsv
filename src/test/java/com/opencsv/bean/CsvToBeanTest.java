@@ -487,15 +487,6 @@ public class CsvToBeanTest {
         }
     }
 
-    @Test(expected = RuntimeException.class)
-    public void throwRuntimeExceptionIfNoData() {
-        List<MinimalCsvBindByPositionBeanForWriting> result =
-                new CsvToBeanBuilder<MinimalCsvBindByPositionBeanForWriting>(new StringReader(""))
-                        .withType(MinimalCsvBindByPositionBeanForWriting.class)
-                        .build()
-                        .parse();
-    }
-
     @Test
     public void testBug194() {
         String testString = "name,id,orderNumber\n" +

@@ -116,6 +116,17 @@ public class ColumnPositionMappingStrategyTest {
    }
 
    @Test
+   public void testParseEmptyInput() {
+      String[] columns = new String[]{"name", "orderNumber", "id", "num"};
+      strat.setColumnMapping(columns);
+
+      CsvToBean<MockBean> csv = new CsvToBean<>();
+      List<MockBean> list = csv.parse(strat, new StringReader(""));
+      assertNotNull(list);
+      assertTrue(list.isEmpty());
+   }
+
+   @Test
    public void testGetColumnMapping() {
       String[] columnMapping = strat.getColumnMapping();
       assertNotNull(columnMapping);
