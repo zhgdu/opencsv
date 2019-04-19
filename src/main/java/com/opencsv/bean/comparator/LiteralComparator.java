@@ -15,11 +15,16 @@
  */
 package com.opencsv.bean.comparator;
 
-import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.collections4.comparators.ComparableComparator;
+import org.apache.commons.collections4.comparators.ComparatorChain;
+import org.apache.commons.collections4.comparators.FixedOrderComparator;
+import org.apache.commons.collections4.comparators.NullComparator;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.List;
 
 /**
  * This {@link java.util.Comparator} takes an array of literals that define an
@@ -31,9 +36,10 @@ import java.util.Comparator;
  *
  * @since 4.3
  */
-public class LiteralComparator<T extends Comparable> implements Comparator<T>, Serializable {
+// TODO: For 5.0, this should be deprecated in favor of using the comparators from Commons Collections directly.
+public class LiteralComparator<T extends Comparable<T>> implements Comparator<T>, Serializable {
     private static final long serialVersionUID = 1L;
-    private final T[] predefinedOrder;
+    private Comparator<T> c;
 
     /**
      * Constructor.
@@ -41,41 +47,17 @@ public class LiteralComparator<T extends Comparable> implements Comparator<T>, S
      * @param predefinedOrder Objects that define the order of comparison
      */
     public LiteralComparator(T[] predefinedOrder) {
-        if (predefinedOrder == null) {
-            this.predefinedOrder = null;
-        } else {
-            this.predefinedOrder = Arrays.copyOf(predefinedOrder, predefinedOrder.length);
-        }
+        List<T> predefinedList = predefinedOrder == null ? Collections.<T>emptyList() : Arrays.<T>asList(predefinedOrder);
+        FixedOrderComparator<T> fixedComparator = new FixedOrderComparator<>(predefinedList);
+        fixedComparator.setUnknownObjectBehavior(FixedOrderComparator.UnknownObjectBehavior.AFTER);
+        c = new ComparatorChain<>(Arrays.<Comparator<T>>asList(
+                fixedComparator,
+                new NullComparator<T>(false),
+                new ComparableComparator<T>()));
     }
 
     @Override
     public int compare(T o1, T o2) {
-        int indexO1 = ArrayUtils.indexOf(predefinedOrder, o1);
-        int indexO2 = ArrayUtils.indexOf(predefinedOrder, o2);
-        if(indexO1 != ArrayUtils.INDEX_NOT_FOUND) {
-            if(indexO2 == ArrayUtils.INDEX_NOT_FOUND) {
-                return -1;
-            }
-            else {
-                return Integer.compare(indexO1, indexO2);
-            }
-        }
-        else {
-            if(indexO2 == ArrayUtils.INDEX_NOT_FOUND) {
-                if(o1 != null) {
-                    if(o2 != null) {
-                        return o1.compareTo(o2);
-                    }
-                    return 1;
-                }
-                else {
-                    if(o2 != null) {
-                        return -1;
-                    }
-                    return 0;
-                }
-            }
-            return 1;
-        }
+        return c.compare(o1, o2);
     }
 }

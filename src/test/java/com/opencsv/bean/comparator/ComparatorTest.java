@@ -26,7 +26,7 @@ public class ComparatorTest {
     @Test
     public void testComparatorNull() {
         String[] array = new String[]{"abc", null, "bcd", "cde", "def", "xyz", "wxy"};
-        Arrays.sort(array, new LiteralComparator<>(null));
+        Arrays.sort(array, new LiteralComparator<String>(null));
         assertArrayEquals(new String[]{null, "abc", "bcd", "cde", "def", "wxy", "xyz"}, array);
     }
 
