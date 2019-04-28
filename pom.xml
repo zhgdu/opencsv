@@ -15,11 +15,11 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.surefire.version>2.22.0</maven.surefire.version>
+        <maven.surefire.version>2.22.1</maven.surefire.version>
         <maven.site.version>3.7.1</maven.site.version>
-        <jacoco.version>0.8.2</jacoco.version>
-        <maven.javadoc.version>3.0.1</maven.javadoc.version>
-        <maven-assembly-plugin.version>3.1.0</maven-assembly-plugin.version>
+        <jacoco.version>0.8.3</jacoco.version>
+        <maven.javadoc.version>3.1.0</maven.javadoc.version>
+        <maven-assembly-plugin.version>3.1.1</maven-assembly-plugin.version>
         <!-- groovy-all 2.5 is a pom only release, will need to research what to use going forward. -->
         <groovy-all.version>2.4.16</groovy-all.version>
         <commons-lang3.version>3.8.1</commons-lang3.version>
