@@ -4,7 +4,7 @@
     <groupId>com.opencsv</groupId>
     <artifactId>opencsv</artifactId>
     <packaging>jar</packaging>
-    <version>4.7-SNAPSHOT</version>
+    <version>5.0-SNAPSHOT</version>
     <name>opencsv</name>
     <description>A simple library for reading and writing CSV in Java</description>
     <url>http://opencsv.sf.net</url>
@@ -22,9 +22,8 @@
         <maven-assembly-plugin.version>3.1.1</maven-assembly-plugin.version>
         <!-- groovy-all 2.5 is a pom only release, will need to research what to use going forward. -->
         <groovy-all.version>2.4.16</groovy-all.version>
-        <commons-lang3.version>3.8.1</commons-lang3.version>
-        <!-- Version 4.2 of commons collections 4 needed until we move to java 8 -->
-        <commons-collections4.version>4.2</commons-collections4.version>
+        <commons-lang3.version>3.9</commons-lang3.version>
+        <commons-collections4.version>4.3</commons-collections4.version>
        	<argLine>-Dfile.encoding=UTF-8</argLine>
     </properties>
 
@@ -259,8 +258,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.0</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>1.8</source>
+                    <target>1.8</target>
                     <useIncrementalCompilation>true</useIncrementalCompilation>
                     <fork>true</fork>
                     <meminitial>256m</meminitial>
@@ -298,6 +297,7 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>${maven.javadoc.version}</version>
                 <configuration>
+                    <doclint>none</doclint>
                     <!--<javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>-->
                 </configuration>
                 <executions>
@@ -349,7 +349,7 @@
                         <configuration>
                             <rules>
                                 <requireJavaVersion>
-                                    <version>[1.7,1.8)</version>
+                                    <version>[1.8,9)</version>
                                 </requireJavaVersion>
                                 <dependencyConvergence/>
                                 <banDuplicatePomDependencyVersions/>
@@ -547,6 +547,9 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>${maven.javadoc.version}</version>
+                <configuration>
+                    <doclint>none</doclint>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
