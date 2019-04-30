@@ -969,7 +969,7 @@ public class StatefulBeanToCsvTest {
         ColumnPositionMappingStrategy<AnnotatedMockBeanFull> strat = new ColumnPositionMappingStrategy<>();
         strat.setType(AnnotatedMockBeanFull.class);
         strat.setColumnMapping();
-        strat.setColumnOrderOnWrite(new ReverseInteger());
+        strat.setColumnOrderOnWrite(Comparator.reverseOrder());
         ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv btcsv = new StatefulBeanToCsvBuilder(writer)
@@ -984,7 +984,7 @@ public class StatefulBeanToCsvTest {
     @Test
     public void writeDifferentOrderPositionTypeLast() throws IOException, CsvException {
         ColumnPositionMappingStrategy<AnnotatedMockBeanFull> strat = new ColumnPositionMappingStrategy<>();
-        strat.setColumnOrderOnWrite(new ReverseInteger());
+        strat.setColumnOrderOnWrite(Comparator.reverseOrder());
         strat.setType(AnnotatedMockBeanFull.class);
         ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
         StringWriter writer = new StringWriter();
@@ -1059,20 +1059,6 @@ public class StatefulBeanToCsvTest {
                 .build();
         btcsv.write(beans.left);
         assertTrue(Pattern.matches(HEADER_NAME_FULL + "\n" + GOOD_DATA_NAME_1 + "\n", writer.toString()));
-    }
-
-    // Will be unnecessary once we support Java 8
-    private class ReverseInteger implements Comparator<Integer> {
-        @Override
-        public int compare(Integer o1, Integer o2) {
-            if(o1 < o2) {
-                return 1;
-            }
-            if(o2 < o1) {
-                return -1;
-            }
-            return 0;
-        }
     }
 
     private class SFirstCollator implements Comparator<String> {

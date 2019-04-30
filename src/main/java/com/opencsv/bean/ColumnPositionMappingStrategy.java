@@ -12,6 +12,8 @@ import org.apache.commons.lang3.reflect.FieldUtils;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Allows for the mapping of columns with their positions. Using this strategy
@@ -118,11 +120,7 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
     public String[] generateHeader(T bean) throws CsvRequiredFieldEmptyException {
         String[] h = super.generateHeader(bean);
         columnIndexForWriting = new Integer[h.length];
-
-        // Once we support Java 8, this might be nicer with Arrays.parallelSetAll().
-        for (int i = 0; i < columnIndexForWriting.length; i++) {
-            columnIndexForWriting[i] = i;
-        }
+        Arrays.parallelSetAll(columnIndexForWriting, i -> i);
 
         // Create the mapping for input column index to output column index.
         Arrays.sort(columnIndexForWriting, writeOrder);
@@ -258,15 +256,12 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
     }
 
     private List<Field> loadFields(Class<? extends T> cls) {
-        List<Field> fields = new LinkedList<>();
-        for (Field field : FieldUtils.getAllFields(cls)) {
-            if (field.isAnnotationPresent(CsvBindByPosition.class)
-                    || field.isAnnotationPresent(CsvCustomBindByPosition.class)
-                    || field.isAnnotationPresent(CsvBindAndJoinByPosition.class)
-                    || field.isAnnotationPresent(CsvBindAndSplitByPosition.class)) {
-                fields.add(field);
-            }
-        }
+        List<Field> fields = Stream.of(FieldUtils.getAllFields(cls)).filter(
+                f -> f.isAnnotationPresent(CsvBindByPosition.class)
+                || f.isAnnotationPresent(CsvCustomBindByPosition.class)
+                || f.isAnnotationPresent(CsvBindAndJoinByPosition.class)
+                || f.isAnnotationPresent(CsvBindAndSplitByPosition.class))
+                .collect(Collectors.toList());
         setAnnotationDriven(!fields.isEmpty());
         return fields;
     }

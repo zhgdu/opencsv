@@ -296,9 +296,7 @@ public class StatefulBeanToCsv<T> {
         // compiler feel better than checking that the accumulator is not null.
         if (thrownExceptionsMap != null && resultantBeansMap != null) {
             capturedExceptions = new ArrayList<>(thrownExceptionsMap.values());
-            for (String[] oneLine : resultantBeansMap.values()) {
-                csvwriter.writeNext(oneLine, applyQuotesToAll);
-            }
+            resultantBeansMap.values().forEach(l -> csvwriter.writeNext(l, applyQuotesToAll));
         } else {
             capturedExceptions = new ArrayList<>(thrownExceptionsQueue.size());
             OrderedObject<CsvException> oocsve;

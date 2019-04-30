@@ -20,17 +20,16 @@ import com.opencsv.exceptions.CsvBadConverterException;
 import com.opencsv.exceptions.CsvBeanIntrospectionException;
 import com.opencsv.exceptions.CsvConstraintViolationException;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
-
-import java.lang.reflect.Field;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import org.apache.commons.collections4.Bag;
 import org.apache.commons.collections4.SortedBag;
 import org.apache.commons.collections4.bag.HashBag;
 import org.apache.commons.collections4.bag.TreeBag;
 import org.apache.commons.lang3.StringUtils;
+
+import java.lang.reflect.Field;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * This class concerns itself with handling collection-valued bean fields.
@@ -206,7 +205,7 @@ public class BeanFieldSplit<T> extends AbstractBeanField<T> {
                 }
                 i++;
             }
-            retval = StringUtils.join(convertedValue, writeDelimiter);
+            retval = StringUtils.join(convertedValue, writeDelimiter); // String.join() make null into "null"
         }
         return retval;
     }

@@ -20,6 +20,9 @@ import com.opencsv.CSVReaderBuilder;
 import com.opencsv.ICSVParser;
 import com.opencsv.exceptions.CsvBadConverterException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.reflect.FieldUtils;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.lang.reflect.Field;
@@ -28,9 +31,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.reflect.FieldUtils;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * This class is meant to be a collection of general purpose static methods
@@ -64,16 +66,11 @@ public final class OpencsvUtils {
     public static <T> MappingStrategy<T> determineMappingStrategy(Class<? extends T> type, Locale errorLocale) {
         // Check for annotations
         Field[] fields = FieldUtils.getAllFields(type);
-        boolean positionAnnotationsPresent = false;
-        for(Field field : fields) {
-            if(field.isAnnotationPresent(CsvBindByPosition.class)
-                    || field.isAnnotationPresent(CsvBindAndSplitByPosition.class)
-                    || field.isAnnotationPresent(CsvBindAndJoinByPosition.class)
-                    || field.isAnnotationPresent(CsvCustomBindByPosition.class)) {
-                positionAnnotationsPresent = true;
-                break;
-            }
-        }
+        boolean positionAnnotationsPresent = Stream.of(fields).parallel().anyMatch(
+                f -> f.isAnnotationPresent(CsvBindByPosition.class)
+                || f.isAnnotationPresent(CsvBindAndSplitByPosition.class)
+                || f.isAnnotationPresent(CsvBindAndJoinByPosition.class)
+                || f.isAnnotationPresent(CsvCustomBindByPosition.class));
 
         // Set the mapping strategy according to what we've found.
         MappingStrategy<T> mappingStrategy;
@@ -91,13 +88,11 @@ public final class OpencsvUtils {
             // Ugly hack, but I have to get the field names into the stupid
             // strategy somehow.
             if(!ms.isAnnotationDriven()) {
-                SortedSet<String> sortedFields = new TreeSet<>();
-                for(Field f : fields) {
-                    if(!f.isSynthetic()) { // Otherwise JaCoCo breaks tests
-                        sortedFields.add(f.getName());
-                    }
-                }
-                String header = StringUtils.join(sortedFields, ',').concat("\n");
+                String header = Stream.of(fields)
+                        .filter(f -> !f.isSynthetic())
+                        .map(f -> f.getName())
+                        .sorted()
+                        .collect(Collectors.joining(",", StringUtils.EMPTY, "\n"));
                 try {
                     CSVReader csvr = new CSVReaderBuilder(new StringReader(header))
                             .withErrorLocale(errorLocale).build();

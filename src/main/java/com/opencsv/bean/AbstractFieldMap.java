@@ -18,7 +18,6 @@ package com.opencsv.bean;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Locale;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -67,12 +66,13 @@ abstract public class AbstractFieldMap<I, K, C extends ComplexFieldMapEntry<I, K
     @Override
     public BeanField<T> get(final K key) {
         BeanField<T> f = simpleMap.get(key);
-        final ListIterator<C> iterator = complexMapList.listIterator();
-        while(f == null && iterator.hasNext()) {
-            final ComplexFieldMapEntry<I,K,T> r = iterator.next();
-            if(r.contains(key)) {
-                f = r.getBeanField();
-            }
+        if(f == null) {
+            f = complexMapList.parallelStream()
+                    .filter(r -> r.contains(key))
+                    .map(r -> r.getBeanField())
+                    .findAny().orElse(null);
+            // Would love to do .orElse(simpleMap.get(key)) and shorten this,
+            // but that changes the order of precedence.
         }
         return f;
     }
@@ -86,17 +86,13 @@ abstract public class AbstractFieldMap<I, K, C extends ComplexFieldMapEntry<I, K
     public Collection<BeanField<T>> values() {
         final List<BeanField<T>> l = new ArrayList<>(simpleMap.size() + complexMapList.size());
         l.addAll(simpleMap.values());
-        for(ComplexFieldMapEntry<I,K,T> r : complexMapList) {
-            l.add(r.getBeanField());
-        }
+        complexMapList.forEach(r -> l.add(r.getBeanField()));
         return l;
     }
     
     @Override
     public void setErrorLocale(final Locale errorLocale) {
         this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
-        for(ComplexFieldMapEntry e : complexMapList) {
-            e.setErrorLocale(this.errorLocale);
-        }
+        complexMapList.forEach(e -> e.setErrorLocale(this.errorLocale));
     }
 }

@@ -123,6 +123,7 @@ abstract public class AbstractBeanField<T> implements BeanField<T> {
     public AbstractBeanField(Field field, boolean required, Locale errorLocale, CsvConverter converter) {
         this.field = field;
         this.required = required;
+        // Once we support Java 9, we can replace ObjectUtils.defaultIfNull() with Objects.requireNonNullElse()
         this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
         this.converter = converter;
     }

@@ -18,14 +18,12 @@ package com.opencsv.bean;
 import com.opencsv.ICSVParser;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import org.apache.commons.collections4.MultiValuedMap;
-import org.apache.commons.collections4.Transformer;
 import org.apache.commons.collections4.iterators.LazyIteratorChain;
 import org.apache.commons.collections4.iterators.TransformIterator;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.TextStringBuilder;
 
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * This class maintains a mapping from column position out of a CSV file to bean
@@ -106,16 +104,14 @@ public class FieldMapByPosition<T> extends AbstractFieldMap<String, Integer, Pos
         
         // Report headers that should have been present
         if(!missingRequiredHeaders.isEmpty()) {
-            TextStringBuilder sb = new TextStringBuilder();
-            for(Field f : missingRequiredHeaders) {
-                sb.appendSeparator(' '); sb.append(f.getName());
-            }
             String errorMessage = String.format(
                     ResourceBundle
                             .getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
                             .getString("header.required.field.absent"),
-                    sb.toString(),
-                    StringUtils.join(headers, ' '));
+                    missingRequiredHeaders.stream()
+                            .map(f -> f.getName())
+                            .collect(Collectors.joining(" ")),
+                    String.join(" ", headers));
             throw new CsvRequiredFieldEmptyException(bean.getClass(), missingRequiredHeaders, errorMessage);
         }
         
@@ -147,9 +143,7 @@ public class FieldMapByPosition<T> extends AbstractFieldMap<String, Integer, Pos
         this.maxIndex = maxIndex;
         
         // Attenuate all ranges that end past the last index down to the last index
-        for(PositionToBeanField p : complexMapList) {
-            p.attenuateRanges(maxIndex);
-        }
+        complexMapList.forEach(p -> p.attenuateRanges(maxIndex));
     }
 
     @Override
@@ -164,12 +158,7 @@ public class FieldMapByPosition<T> extends AbstractFieldMap<String, Integer, Pos
                 if(count == complexMapList.size()+1) {
                     return new TransformIterator<Map.Entry<Integer, BeanField<T>>, FieldMapByPositionEntry<T>>(
                             simpleMap.entrySet().iterator(),
-                            new Transformer<Map.Entry<Integer, BeanField<T>>, FieldMapByPositionEntry<T>>() {
-                                @Override
-                                public FieldMapByPositionEntry<T> transform(Map.Entry<Integer, BeanField<T>> input) {
-                                    return new FieldMapByPositionEntry<T>(input.getKey(), input.getValue());
-                                }
-                            });
+                            input -> new FieldMapByPositionEntry<T>(input.getKey(), input.getValue()));
                 }
                 return null;
             }

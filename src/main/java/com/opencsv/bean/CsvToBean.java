@@ -26,7 +26,6 @@ import com.opencsv.bean.concurrent.ProcessCsvLine;
 import com.opencsv.exceptions.CsvException;
 import com.opencsv.exceptions.CsvMalformedLineException;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -364,7 +363,7 @@ public class CsvToBean<T> implements Iterable<T> {
             if(executor.getTerminalException() instanceof CsvException) {
                 CsvException csve = (CsvException)executor.getTerminalException();
                 throw new RuntimeException(String.format(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("parsing.error.linenumber"),
-                        csve.getLineNumber(), StringUtils.join(csve.getLine(), ',')), csve);
+                        csve.getLineNumber(), String.join(",", csve.getLine())), csve);
             }
             throw new RuntimeException(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("parsing.error"), executor.getTerminalException());
         } catch (CsvMalformedLineException cmle) {

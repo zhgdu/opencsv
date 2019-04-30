@@ -18,10 +18,10 @@ package com.opencsv.bean;
 import com.opencsv.ICSVParser;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import org.apache.commons.collections4.MultiValuedMap;
-import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * This class maintains a mapping from header names out of a CSV file to bean
@@ -65,19 +65,14 @@ public class FieldMapByName<T> extends AbstractFieldMap<String, String, RegexToB
     public List<FieldMapByNameEntry<T>> determineMissingRequiredHeaders(final String[] headersPresent) {
         
         // Start with collections of all required headers
-        final List<String> requiredStringList = new LinkedList<>();
-        for(Map.Entry<String, BeanField<T>> entry : simpleMap.entrySet()) {
-            if(entry.getValue().isRequired()) {
-                requiredStringList.add(entry.getKey());
-            }
-        }
-        final List<ComplexFieldMapEntry<String, String, T>> requiredRegexList = new LinkedList<>();
-        for(ComplexFieldMapEntry<String, String, T> r : complexMapList) {
-            if(r.getBeanField().isRequired()) {
-                requiredRegexList.add(r);
-            }
-        }
-        
+        final List<String> requiredStringList = simpleMap.entrySet().stream()
+                .filter(e -> e.getValue().isRequired())
+                .map(e -> e.getKey())
+                .collect(Collectors.toCollection(LinkedList::new));
+        final List<ComplexFieldMapEntry<String, String, T>> requiredRegexList = complexMapList.stream()
+                .filter(r -> r.getBeanField().isRequired())
+                .collect(Collectors.toList());
+
         // Now remove the ones we found
         for(String h : headersPresent) {
             if(!requiredStringList.remove(h.toUpperCase())) {
@@ -134,12 +129,10 @@ public class FieldMapByName<T> extends AbstractFieldMap<String, String, RegexToB
             @SuppressWarnings("unchecked")
             final MultiValuedMap<String,T> m = (MultiValuedMap<String,T>) r.getBeanField().getFieldValue(bean);
             if(m != null && !m.isEmpty()) {
-                for(Map.Entry<String,T> entry : m.entries()) {
-                    String key = entry.getKey();
-                    if(r.contains(key)) {
-                        headerList.add(key);
-                    }
-                }
+                headerList.addAll(m.entries().stream()
+                        .map(e -> e.getKey())
+                        .filter(k -> r.contains(k))
+                        .collect(Collectors.toList()));
             }
             else {
                 if(r.getBeanField().isRequired()) {
@@ -150,16 +143,14 @@ public class FieldMapByName<T> extends AbstractFieldMap<String, String, RegexToB
         
         // Report headers that should have been present
         if(!missingRequiredHeaders.isEmpty()) {
-            StringBuilder sb = new StringBuilder();
-            for(Field f : missingRequiredHeaders) {
-                sb.append(f.getName()); sb.append(' ');
-            }
             String errorMessage = String.format(
                     ResourceBundle
                             .getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
                             .getString("header.required.field.absent"),
-                    sb.toString(),
-                    StringUtils.join(headerList, ' '));
+                    missingRequiredHeaders.stream()
+                            .map(f -> f.getName())
+                            .collect(Collectors.joining(" ")),
+                    String.join(" ", headerList));
             throw new CsvRequiredFieldEmptyException(bean.getClass(), missingRequiredHeaders, errorMessage);
         }
         

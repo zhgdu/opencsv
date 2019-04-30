@@ -4,6 +4,8 @@ import com.opencsv.enums.CSVReaderNullFieldIndicator;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * The purpose of the AbstractCSVParser is to consolidate the duplicate code amongst the
@@ -71,15 +73,9 @@ public abstract class AbstractCSVParser implements ICSVParser {
 
     @Override
     public String parseToLine(String[] values, boolean applyQuotesToAll) {
-        StringBuilder builder = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
-
-        for (int i = 0; i < values.length; i++) {
-            builder.append(convertToCsvValue(values[i], applyQuotesToAll));
-            if (i < values.length - 1) {
-                builder.append(getSeparator());
-            }
-        }
-        return builder.toString();
+        return Stream.of(values)
+                .map(v -> convertToCsvValue(v, applyQuotesToAll))
+                .collect(Collectors.joining(Character.toString(getSeparator())));
     }
 
     /**

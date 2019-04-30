@@ -24,6 +24,8 @@ import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Helper class for processing JDBC ResultSet objects allowing the user to
@@ -74,12 +76,7 @@ public class ResultSetColumnNameHelperService extends ResultSetHelperService imp
     }
 
     private boolean hasInvalidValue(String[] strings) {
-        for (String s : strings) {
-            if (StringUtils.isBlank(s)) {
-                return true;
-            }
-        }
-        return false;
+        return Stream.of(strings).anyMatch(s -> StringUtils.isBlank(s));
     }
 
     /**
@@ -166,10 +163,9 @@ public class ResultSetColumnNameHelperService extends ResultSetHelperService imp
     }
 
     private String[] getColumnValueSubset(String[] realColumnValues) {
-        List<String> valueList = new ArrayList<>(realColumnValues.length);
-        for (String columnName : columnNames) {
-            valueList.add(realColumnValues[columnNamePositionMap.get(columnName)]);
-        }
-        return valueList.toArray(new String[columnNames.length]);
+        return Stream.of(columnNames)
+                .map(c -> realColumnValues[columnNamePositionMap.get(c)])
+                .collect(Collectors.toList())
+                .toArray(new String[columnNames.length]);
     }
 }

@@ -17,11 +17,12 @@ package com.opencsv.bean.customconverter;
 
 import com.opencsv.bean.AbstractBeanField;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.ResourceBundle;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * This class takes a string and splits it on whitespace into a list of strings.
@@ -79,7 +80,7 @@ public class ConvertSplitOnWhitespace<T> extends AbstractBeanField<T> {
         try {
             if(value != null) {
                 @SuppressWarnings("unchecked") List<String> values = (List<String>) value;
-                result = StringUtils.join(values, ' ');
+                result = String.join(" ", values);
             }
         }
         catch(ClassCastException e) {

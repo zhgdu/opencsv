@@ -13,6 +13,8 @@ import org.apache.commons.lang3.reflect.FieldUtils;
 import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /*
  * Copyright 2007 Kyle Miller.
@@ -85,8 +87,8 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
                 }
                 requiredFields.add(fme.getField().getField());
             }
-            String missingRequiredFields = StringUtils.join(requiredHeaderNames, ", ");
-            String allHeaders = StringUtils.join(header, ',');
+            String missingRequiredFields = String.join(", ", requiredHeaderNames);
+            String allHeaders = String.join(",", header);
             CsvRequiredFieldEmptyException e = new CsvRequiredFieldEmptyException(type, requiredFields,
                     String.format(
                             ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
@@ -226,15 +228,12 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
     }
 
     private List<Field> loadFields(Class<? extends T> cls) {
-        List<Field> fields = new LinkedList<>();
-        for (Field field : FieldUtils.getAllFields(cls)) {
-            if (field.isAnnotationPresent(CsvBindByName.class)
-                    || field.isAnnotationPresent(CsvCustomBindByName.class)
-                    || field.isAnnotationPresent(CsvBindAndSplitByName.class)
-                    || field.isAnnotationPresent(CsvBindAndJoinByName.class)) {
-                fields.add(field);
-            }
-        }
+        List<Field> fields = Stream.of(FieldUtils.getAllFields(cls)).filter(
+                f -> f.isAnnotationPresent(CsvBindByName.class)
+                || f.isAnnotationPresent(CsvCustomBindByName.class)
+                || f.isAnnotationPresent(CsvBindAndSplitByName.class)
+                || f.isAnnotationPresent(CsvBindAndJoinByName.class))
+                .collect(Collectors.toCollection(LinkedList::new));
         setAnnotationDriven(!fields.isEmpty());
         return fields;
     }

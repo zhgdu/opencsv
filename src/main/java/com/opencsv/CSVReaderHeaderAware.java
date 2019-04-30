@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.stream.Collectors;
 
 /**
  * Handy reader when there's insufficient motivation to use the bean binding but
@@ -109,13 +110,9 @@ public class CSVReaderHeaderAware extends CSVReader {
                             .getString("header.data.mismatch.with.line.number"),
                     getRecordsRead()));
         }
-        Map<String, String> mappedLine = new HashMap<>();
-        for (Map.Entry<String, Integer> entry : headerIndex.entrySet()) {
-            if (entry.getValue() < strings.length) {
-                mappedLine.put(entry.getKey(), strings[entry.getValue()]);
-            }
-        }
-        return mappedLine;
+        return headerIndex.entrySet().stream()
+                .filter(e -> e.getValue() < strings.length)
+                .collect(Collectors.toMap(e -> e.getKey(), e -> strings[e.getValue()]));
     }
 
     private void initializeHeader() throws IOException {

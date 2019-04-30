@@ -27,6 +27,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * This class collects as many generally useful parts of the implementation
@@ -268,14 +270,8 @@ abstract public class AbstractMappingStrategy<I, K, C extends ComplexFieldMapEnt
      */
     @Deprecated
     protected Map<String, PropertyDescriptor> loadDescriptorMap() throws IntrospectionException {
-        Map<String, PropertyDescriptor> map = new HashMap<>();
-
-        PropertyDescriptor[] descriptors = loadDescriptors(getType());
-        for (PropertyDescriptor descriptor : descriptors) {
-            map.put(descriptor.getName().toUpperCase(), descriptor);
-        }
-
-        return map;
+        return Stream.of(loadDescriptors(getType()))
+                .collect(Collectors.toMap(t -> t.getName().toUpperCase(), t -> t));
     }
 
     private PropertyDescriptor[] loadDescriptors(Class<? extends T> cls) throws IntrospectionException {
@@ -417,9 +413,7 @@ abstract public class AbstractMappingStrategy<I, K, C extends ComplexFieldMapEnt
         // them all.
         if(getFieldMap() != null) {
             getFieldMap().setErrorLocale(this.errorLocale);
-            for(BeanField<T> f : getFieldMap().values()) {
-                f.setErrorLocale(this.errorLocale);
-            }
+            getFieldMap().values().forEach(f -> f.setErrorLocale(this.errorLocale));
         }
     }
     

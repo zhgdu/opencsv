@@ -171,15 +171,7 @@ public class PositionToBeanField<T> extends AbstractFieldMapEntry<String, Intege
     
     @Override
     public boolean contains(Integer key) {
-        boolean foundRange = false;
-        ListIterator<Range<Integer>> rangeIterator = ranges.listIterator();
-        while(rangeIterator.hasNext() && !foundRange) {
-            final Range<Integer> range = rangeIterator.next();
-            if(range.contains(key)) {
-                foundRange = true;
-            }
-        }
-        return foundRange;
+        return ranges.parallelStream().anyMatch(range -> range.contains(key));
     }
 
     @Override
