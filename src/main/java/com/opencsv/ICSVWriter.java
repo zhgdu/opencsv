@@ -69,7 +69,9 @@ public interface ICSVWriter extends Closeable, Flushable {
      *                         to be applied to values which contain the separator, escape,
      *                         quote, or new line characters.
      */
-    void writeAll(List<String[]> allLines, boolean applyQuotesToAll);
+    default void writeAll(List<String[]> allLines, boolean applyQuotesToAll) {
+        writeAll((Iterable<String[]>) allLines, applyQuotesToAll);
+    }
 
     /**
      * Writes iterable to a CSV file. The list is assumed to be a String[]
@@ -77,7 +79,7 @@ public interface ICSVWriter extends Closeable, Flushable {
      * @param allLines an Iterable of String[], with each String[] representing a line of
      *                 the file.
      */
-    void writeAll(Iterable<String[]> allLines);
+    default void writeAll(Iterable<String[]> allLines) {writeAll(allLines, true);}
 
     /**
      * Writes the entire list to a CSV file.
@@ -86,7 +88,9 @@ public interface ICSVWriter extends Closeable, Flushable {
      * @param allLines A List of String[] with each String[] representing a line of
      *                 the file.
      */
-    void writeAll(List<String[]> allLines);
+    default void writeAll(List<String[]> allLines) {
+        writeAll((Iterable<String[]>) allLines);
+    }
 
     /**
      * Writes the entire ResultSet to a CSV file.
@@ -100,7 +104,9 @@ public interface ICSVWriter extends Closeable, Flushable {
      * @throws java.io.IOException   Thrown by ResultSetHelper.getColumnValues()
      * @throws java.sql.SQLException Thrown by ResultSetHelper.getColumnValues()
      */
-    int writeAll(ResultSet rs, boolean includeColumnNames) throws SQLException, IOException;
+    default int writeAll(ResultSet rs, boolean includeColumnNames) throws SQLException, IOException {
+        return writeAll(rs, includeColumnNames, false, true);
+    }
 
     /**
      * Writes the entire ResultSet to a CSV file.
@@ -115,7 +121,9 @@ public interface ICSVWriter extends Closeable, Flushable {
      * @throws java.io.IOException   Thrown by ResultSetHelper.getColumnValues()
      * @throws java.sql.SQLException Thrown by ResultSetHelper.getColumnValues()
      */
-    int writeAll(ResultSet rs, boolean includeColumnNames, boolean trim) throws SQLException, IOException;
+    default int writeAll(ResultSet rs, boolean includeColumnNames, boolean trim) throws SQLException, IOException {
+        return writeAll(rs, includeColumnNames, trim, true);
+    }
 
     /**
      * Writes the entire ResultSet to a CSV file.
@@ -150,7 +158,9 @@ public interface ICSVWriter extends Closeable, Flushable {
      * @param nextLine A string array with each comma-separated element as a separate
      *                 entry.
      */
-    void writeNext(String[] nextLine);
+    default void writeNext(String[] nextLine) {
+        writeNext(nextLine, true);
+    }
 
     /**
      * Flushes the buffer and checks to see if the there has been an error in the printstream.
@@ -170,5 +180,11 @@ public interface ICSVWriter extends Closeable, Flushable {
     /**
      * Flushes the writer without throwing any exceptions.
      */
-    void flushQuietly();
+    default void flushQuietly() {
+        try {
+            flush();
+        } catch (IOException e) {
+            // catch exception and ignore.
+        }
+    }
 }
