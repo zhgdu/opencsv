@@ -9,10 +9,6 @@
     <description>A simple library for reading and writing CSV in Java</description>
     <url>http://opencsv.sf.net</url>
 
-    <prerequisites>
-        <maven>3.0.5</maven>
-    </prerequisites>
-
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.surefire.version>2.22.1</maven.surefire.version>
@@ -351,6 +347,9 @@
                                 <requireJavaVersion>
                                     <version>[1.8,9)</version>
                                 </requireJavaVersion>
+				<requireMavenVersion>
+                                    <version>[3.0.5,)</version>
+				</requireMavenVersion>
                                 <dependencyConvergence/>
                                 <banDuplicatePomDependencyVersions/>
                             </rules>
