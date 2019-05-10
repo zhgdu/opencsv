@@ -18,6 +18,7 @@ package integrationTest.issue3402853;
 
 import com.opencsv.CSVReader;
 import com.opencsv.bean.CsvToBean;
+import com.opencsv.bean.CsvToBeanBuilder;
 import com.opencsv.bean.HeaderColumnNameMappingStrategy;
 import org.junit.Test;
 
@@ -36,8 +37,10 @@ public class HeaderColumnNameMappingStrategyUserTest {
       CSVReader reader = new CSVReader(new FileReader(USER_FILE));
       HeaderColumnNameMappingStrategy<MockUserBean> strat = new HeaderColumnNameMappingStrategy<>();
       strat.setType(MockUserBean.class);
-      CsvToBean<MockUserBean> csv = new CsvToBean<>();
-      return csv.parse(strat, reader);
+      CsvToBean<MockUserBean> csv = new CsvToBeanBuilder<MockUserBean>(reader)
+              .withMappingStrategy(strat)
+              .build();
+      return csv.parse();
    }
 
    @Test

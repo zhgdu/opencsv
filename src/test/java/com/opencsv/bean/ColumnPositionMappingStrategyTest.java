@@ -19,6 +19,8 @@ package com.opencsv.bean;
 import com.opencsv.CSVReader;
 import com.opencsv.bean.mocks.MockBean;
 import java.io.IOException;
+
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -53,30 +55,6 @@ public class ColumnPositionMappingStrategyTest {
    }
 
    @Test
-   public void getColumnIndexBeforeMappingSetReturnsNull() {
-      assertNull(strat.getColumnIndex("name"));
-   }
-
-   @Test
-   public void getColumnIndexEmptyMappingReturnsNull() {
-      strat.setColumnMapping((String)null);
-      assertNull(strat.getColumnIndex("name"));
-   }
-
-   @Test
-   public void getColumnIndex() {
-      assertNull(strat.getColumnIndex("name"));
-      String[] columns = new String[]{"name", "orderNumber", "id"};
-      strat.setColumnMapping(columns);
-
-      assertEquals(0, strat.getColumnIndex("name").intValue());
-      assertEquals(1, strat.getColumnIndex("orderNumber").intValue());
-      assertEquals(2, strat.getColumnIndex("id").intValue());
-
-      assertNull(strat.getColumnIndex("name not mapped"));
-   }
-
-   @Test
    public void testParse() {
       String s = "" +
             "kyle,123456,emp123,1\n" +
@@ -84,10 +62,12 @@ public class ColumnPositionMappingStrategyTest {
 
       strat.setColumnMapping("name", "orderNumber", "id", "num");
 
-      CsvToBean<MockBean> csv = new CsvToBean<>();
-      List<MockBean> list = csv.parse(strat, new StringReader(s));
+      CsvToBean<MockBean> csv = new CsvToBeanBuilder<MockBean>(new StringReader(s))
+              .withMappingStrategy(strat)
+              .build();
+      List<MockBean> list = csv.parse();
       assertNotNull(list);
-      assertTrue(list.size() == 2);
+      assertEquals(2, list.size());
       MockBean bean = list.get(0);
       assertEquals("kyle", bean.getName());
       assertEquals("123456", bean.getOrderNumber());
@@ -104,10 +84,12 @@ public class ColumnPositionMappingStrategyTest {
       String[] columns = new String[]{"name", "orderNumber", "id", "num"};
       strat.setColumnMapping(columns);
 
-      CsvToBean<MockBean> csv = new CsvToBean<>();
-      List<MockBean> list = csv.parse(strat, new StringReader(s));
+      CsvToBean<MockBean> csv = new CsvToBeanBuilder<MockBean>(new StringReader(s))
+              .withMappingStrategy(strat)
+              .build();
+      List<MockBean> list = csv.parse();
       assertNotNull(list);
-      assertTrue(list.size() == 2);
+      assertEquals(2, list.size());
       MockBean bean = list.get(0);
       assertEquals("kyle  ", bean.getName());
       assertEquals("123456  ", bean.getOrderNumber());
@@ -120,8 +102,10 @@ public class ColumnPositionMappingStrategyTest {
       String[] columns = new String[]{"name", "orderNumber", "id", "num"};
       strat.setColumnMapping(columns);
 
-      CsvToBean<MockBean> csv = new CsvToBean<>();
-      List<MockBean> list = csv.parse(strat, new StringReader(""));
+      CsvToBean<MockBean> csv = new CsvToBeanBuilder<MockBean>(new StringReader(StringUtils.EMPTY))
+              .withMappingStrategy(strat)
+              .build();
+      List<MockBean> list = csv.parse();
       assertNotNull(list);
       assertTrue(list.isEmpty());
    }
@@ -148,9 +132,9 @@ public class ColumnPositionMappingStrategyTest {
       strat.setColumnMapping("name", null, "id");
 
       assertEquals("name", strat.getColumnName(0));
-      assertEquals(null, strat.getColumnName(1));
+      assertNull(strat.getColumnName(1));
       assertEquals("id", strat.getColumnName(2));
-      assertEquals(null, strat.getColumnName(3));
+      assertNull(strat.getColumnName(3));
    }
 
    @Test
@@ -161,7 +145,7 @@ public class ColumnPositionMappingStrategyTest {
 
       assertEquals(3, mapping.length);
       assertEquals("name", mapping[0]);
-      assertEquals(null, mapping[1]);
+      assertNull(mapping[1]);
       assertEquals("id", mapping[2]);
    }
 
@@ -169,8 +153,8 @@ public class ColumnPositionMappingStrategyTest {
    public void getColumnNamesWhenNullArray() {
       strat.setColumnMapping((String[]) null);
 
-      assertEquals(null, strat.getColumnName(0));
-      assertEquals(null, strat.getColumnName(1));
+      assertNull(strat.getColumnName(0));
+      assertNull(strat.getColumnName(1));
       assertArrayEquals(new String[0], strat.getColumnMapping());
    }
 
@@ -179,8 +163,8 @@ public class ColumnPositionMappingStrategyTest {
       String[] columns = {null};
       strat.setColumnMapping(columns);
 
-      assertEquals(null, strat.getColumnName(0));
-      assertEquals(null, strat.getColumnName(1));
+      assertNull(strat.getColumnName(0));
+      assertNull(strat.getColumnName(1));
       assertArrayEquals(columns, strat.getColumnMapping());
    }
 
@@ -188,19 +172,17 @@ public class ColumnPositionMappingStrategyTest {
    public void getColumnNamesWhenEmptyMapping() {
       strat.setColumnMapping();
 
-      assertEquals(null, strat.getColumnName(0));
+      assertNull(strat.getColumnName(0));
       assertArrayEquals(new String[0], strat.getColumnMapping());
    }
    
    @Test
    public void throwsIllegalStateExceptionIfTypeNotSet() {
-      ColumnPositionMappingStrategy<MockBean> s = new ColumnPositionMappingStrategy<>();
-      StringReader reader = new StringReader("doesnt,matter\nat,all");
-      CSVReader csvReader = new CSVReader(reader);
-      CsvToBean csvtb = new CsvToBean();
       String englishErrorMessage = null;
       try {
-          csvtb.parse(s, csvReader);
+          new CsvToBeanBuilder<MockBean>(new StringReader("doesnt,matter\nat,all"))
+                  .withMappingStrategy(new ColumnPositionMappingStrategy<>())
+                  .build().parse();
           fail("RuntimeException with inner IllegalStateException should have been thrown.");
       }
       catch(RuntimeException e) {
@@ -209,13 +191,11 @@ public class ColumnPositionMappingStrategyTest {
       }
       
       // Now with a different locale
-      s = new ColumnPositionMappingStrategy<>();
-      s.setErrorLocale(Locale.GERMAN);
-      reader = new StringReader("doesnt,matter\nat,all");
-      csvReader = new CSVReader(reader);
-      csvtb = new CsvToBean();
       try {
-          csvtb.parse(s, csvReader);
+         new CsvToBeanBuilder<MockBean>(new StringReader("doesnt,matter\nat,all"))
+                 .withMappingStrategy(new ColumnPositionMappingStrategy<>())
+                 .withErrorLocale(Locale.GERMAN)
+                 .build().parse();
           fail("RuntimeException with inner IllegalStateException should have been thrown.");
       }
       catch(RuntimeException e) {

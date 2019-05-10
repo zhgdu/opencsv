@@ -51,7 +51,7 @@ import java.util.ResourceBundle;
 public class CsvToBeanBuilder<T> {
     
    /** @see CsvToBean#mappingStrategy */
-   private MappingStrategy<T> mappingStrategy = null;
+   private MappingStrategy<? extends T> mappingStrategy = null;
    
    /**
     * A CSVReader will be built out of this {@link java.io.Reader}.
@@ -157,7 +157,7 @@ public class CsvToBeanBuilder<T> {
     /**
      * Builds the {@link CsvToBean} out of the provided information.
      * @return A valid {@link CsvToBean}
-     * @throws IllegalStateException If a necesary parameter was not specified.
+     * @throws IllegalStateException If a necessary parameter was not specified.
      *   Currently this means that both the mapping strategy and the bean type
      *   are not set, so it is impossible to determine a mapping strategy.
      */
@@ -257,7 +257,7 @@ public class CsvToBeanBuilder<T> {
      * @param mappingStrategy Please see the "See Also" section
      * @return {@code this}
      */
-    public CsvToBeanBuilder<T> withMappingStrategy(MappingStrategy<T> mappingStrategy) {
+    public CsvToBeanBuilder<T> withMappingStrategy(MappingStrategy<? extends T> mappingStrategy) {
         this.mappingStrategy = mappingStrategy;
         return this;
     }

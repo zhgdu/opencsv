@@ -220,7 +220,7 @@ public class ConverterDate extends AbstractCsvConverter {
     private <U> U convertCommon(Object value, Class<U> fieldType)
             throws CsvDataTypeMismatchException {
         U o;
-        Class conversionClass = (fieldType == String.class)?value.getClass():fieldType;
+        Class<?> conversionClass = (fieldType == String.class)?value.getClass():fieldType;
         
         // Send to the proper sub-method
         if (Date.class.isAssignableFrom(conversionClass)) {

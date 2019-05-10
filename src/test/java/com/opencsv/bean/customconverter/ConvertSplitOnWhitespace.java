@@ -30,11 +30,7 @@ import java.util.ResourceBundle;
  * @param <T> Type of the bean to be manipulated
  * 
  * @author Andrew Rucker Jones
- * @since 3.8
- * @deprecated Use {@link com.opencsv.bean.CsvBindAndSplitByName} or
- *   {@link com.opencsv.bean.CsvBindAndSplitByPosition} instead
  */
-@Deprecated
 public class ConvertSplitOnWhitespace<T> extends AbstractBeanField<T> {
 
     /**

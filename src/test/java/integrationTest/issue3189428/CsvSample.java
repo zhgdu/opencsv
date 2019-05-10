@@ -1,12 +1,10 @@
 package integrationTest.issue3189428;
 
 
-import com.opencsv.CSVReader;
-import com.opencsv.CSVWriter;
-import com.opencsv.ICSVParser;
-import com.opencsv.ICSVWriter;
+import com.opencsv.*;
 import com.opencsv.bean.ColumnPositionMappingStrategy;
 import com.opencsv.bean.CsvToBean;
+import com.opencsv.bean.CsvToBeanBuilder;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -93,14 +91,19 @@ public class CsvSample {
     */
    protected void testMappingStrategyRead(String originalCommentText)
            throws FileNotFoundException {
-      ColumnPositionMappingStrategy mappingStrategy = new ColumnPositionMappingStrategy();
+      ColumnPositionMappingStrategy<MyBean> mappingStrategy = new ColumnPositionMappingStrategy<>();
       mappingStrategy.setType(MyBean.class);
       String[] columns = new String[]{"name", "value", "amount1", "currency", "comments"}; // the fields to bind to in your JavaBean
       mappingStrategy.setColumnMapping(columns);
 
-      CsvToBean csv = new CsvToBean();
-      CSVReader reader = new CSVReader(new FileReader(filePath), ICSVParser.DEFAULT_SEPARATOR, ICSVParser.DEFAULT_QUOTE_CHARACTER, ICSVParser.DEFAULT_ESCAPE_CHARACTER, 0, false, false);
-      List<MyBean> list = csv.parse(mappingStrategy, reader);
+      CSVReader reader = new CSVReaderBuilder(new FileReader(filePath))
+              .build();
+      CsvToBean<MyBean> csv = new CsvToBeanBuilder<MyBean>(reader)
+              .withMappingStrategy(mappingStrategy)
+              .withStrictQuotes(false)
+              .withIgnoreLeadingWhiteSpace(false)
+              .build();
+      List<MyBean> list = csv.parse();
 
       if (list.size() != 3) {
          System.out.println("Error - list size is wrong.");

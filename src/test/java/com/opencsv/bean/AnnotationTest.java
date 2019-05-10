@@ -223,11 +223,12 @@ public class AnnotationTest {
         testGoodData(strat, fin, false);
     }
 
-    private static List<AnnotatedMockBeanFull> testGoodData(MappingStrategy strat, Reader fin, boolean ordered) {
-        CSVReader read = new CSVReader(fin, ';');
-        CsvToBean<AnnotatedMockBeanFull> ctb = new CsvToBean<>();
-        ctb.setOrderedResults(ordered);
-        List<AnnotatedMockBeanFull> beanList = ctb.parse(strat, read);
+    private static List<AnnotatedMockBeanFull> testGoodData(MappingStrategy<? extends AnnotatedMockBeanFull> strat, Reader fin, boolean ordered) {
+        List<AnnotatedMockBeanFull> beanList = new CsvToBeanBuilder<AnnotatedMockBeanFull>(fin)
+                .withSeparator(';')
+                .withOrderedResults(ordered)
+                .withMappingStrategy(strat)
+                .build().parse();
         assertEquals(2, beanList.size());
         if(ordered) {
             AnnotatedMockBeanFull bean = beanList.get(0);
@@ -382,10 +383,11 @@ public class AnnotationTest {
         testGoodDataCustom(strat, fin);
     }
 
-    private void testGoodDataCustom(MappingStrategy strat, Reader fin) {
-        CSVReader read = new CSVReader(fin, ';');
-        CsvToBean ctb = new CsvToBean();
-        List<AnnotatedMockBeanCustom> beanList = ctb.parse(strat, read);
+    private void testGoodDataCustom(MappingStrategy<AnnotatedMockBeanCustom> strat, Reader fin) {
+        List<AnnotatedMockBeanCustom> beanList = new CsvToBeanBuilder<AnnotatedMockBeanCustom>(fin)
+                .withMappingStrategy(strat)
+                .withSeparator(';')
+                .build().parse();
 
         AnnotatedMockBeanCustom bean = beanList.get(0);
         assertTrue(bean.getBoolWrapped());
@@ -497,11 +499,13 @@ public class AnnotationTest {
         auxiliaryTestMissingData(strat, fin, 1);
     }
 
-    private void auxiliaryTestMissingData(MappingStrategy strat, Reader fin, long expectedLineNumber) {
-        CSVReader read = new CSVReader(fin, ';');
-        CsvToBean ctb = new CsvToBean();
+    private void auxiliaryTestMissingData(MappingStrategy<AnnotatedMockBeanFull> strat, Reader fin, long expectedLineNumber) {
+        CsvToBean<AnnotatedMockBeanFull> ctb = new CsvToBeanBuilder<AnnotatedMockBeanFull>(fin)
+                .withSeparator(';')
+                .withMappingStrategy(strat)
+                .build();
         try {
-            ctb.parse(strat, read);
+            ctb.parse();
             fail("The parse should have thrown an Exception.");
         } catch (RuntimeException e) {
             assertTrue(e.getCause() instanceof CsvRequiredFieldEmptyException);
@@ -546,12 +550,14 @@ public class AnnotationTest {
         assertNotSame(englishErrorMessage, auxiliaryTestMismatchingType(strat, fin, 1));
     }
 
-    private String auxiliaryTestMismatchingType(MappingStrategy strat, Reader fin, long expectedLineNumber) {
-        CSVReader read = new CSVReader(fin, ';');
-        CsvToBean ctb = new CsvToBean();
+    private String auxiliaryTestMismatchingType(MappingStrategy<AnnotatedMockBeanFull> strat, Reader fin, long expectedLineNumber) {
+        CsvToBean<AnnotatedMockBeanFull> ctb = new CsvToBeanBuilder<AnnotatedMockBeanFull>(fin)
+                .withMappingStrategy(strat)
+                .withSeparator(';')
+                .build();
         String errorMessage = null;
         try {
-            ctb.parse(strat, read);
+            ctb.parse();
             fail("The parse should have thrown an Exception.");
         } catch (RuntimeException e) {
             assertTrue(e.getCause() instanceof CsvDataTypeMismatchException);
@@ -587,9 +593,9 @@ public class AnnotationTest {
     }
 
     private void auxiliaryTestUnbindableField(MappingStrategy strat, CSVReader read, long expectedLineNumber) {
-        CsvToBean ctb = new CsvToBean();
+        CsvToBean ctb = new CsvToBeanBuilder(read).withMappingStrategy(strat).build();
         try {
-            ctb.parse(strat, read);
+            ctb.parse();
             fail("The parse should have thrown an Exception.");
         } catch (RuntimeException e) {
             assertTrue(e.getCause() instanceof CsvDataTypeMismatchException);
@@ -626,17 +632,19 @@ public class AnnotationTest {
 
     @Test
     public void testRequiredDateEmptyInput() throws IOException {
-        HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat =
-                new HeaderColumnNameMappingStrategy<>();
-        strat.setType(AnnotatedMockBeanFull.class);
-        CsvToBean ctb = new CsvToBean();
         for(String fn : Arrays.asList(
                 "src/test/resources/testinputcase78null.csv",
                 "src/test/resources/testinputcase78blank.csv")) {
+            HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat =
+                    new HeaderColumnNameMappingStrategy<>();
+            strat.setType(AnnotatedMockBeanFull.class);
             Reader fin = new FileReader(fn);
-            CSVReader read = new CSVReader(fin, ';');
+            CsvToBean<AnnotatedMockBeanFull> ctb = new CsvToBeanBuilder<AnnotatedMockBeanFull>(fin)
+                    .withSeparator(';')
+                    .withMappingStrategy(strat)
+                    .build();
             try {
-                ctb.parse(strat, read);
+                ctb.parse();
                 fail("Expected parse to throw exception. Input filename: " + fn);
             } catch (RuntimeException e) {
                 assertTrue("Input filename: " + fn,
@@ -652,11 +660,13 @@ public class AnnotationTest {
         }
     }
 
-    private void auxiliaryTestUnparseableDates(final Reader fin, final MappingStrategy<?> strat) {
-        CSVReader read = new CSVReader(fin, ';');
-        CsvToBean ctb = new CsvToBean();
+    private void auxiliaryTestUnparseableDates(final Reader fin, final MappingStrategy<AnnotatedMockBeanFull> strat) {
+        CsvToBean<AnnotatedMockBeanFull> ctb = new CsvToBeanBuilder<AnnotatedMockBeanFull>(fin)
+                .withSeparator(';')
+                .withMappingStrategy(strat)
+                .build();
         try {
-            ctb.parse(strat, read);
+            ctb.parse();
             fail("Expected parse to throw exception.");
         } catch (RuntimeException e) {
             assertTrue(e.getCause() instanceof CsvDataTypeMismatchException);
@@ -684,10 +694,12 @@ public class AnnotationTest {
                 new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanFull.class);
         Reader fin = new FileReader("src/test/resources/testinputcase81.csv");
-        CSVReader read = new CSVReader(fin, ';');
-        CsvToBean ctb = new CsvToBean();
+        CsvToBean<AnnotatedMockBeanFull> ctb = new CsvToBeanBuilder<AnnotatedMockBeanFull>(fin)
+                .withSeparator(';')
+                .withMappingStrategy(strat)
+                .build();
         try {
-            ctb.parse(strat, read);
+            ctb.parse();
             fail("Expected parse to throw exception.");
         } catch (RuntimeException e) {
             assertTrue(e.getCause() instanceof CsvDataTypeMismatchException);
@@ -715,8 +727,11 @@ public class AnnotationTest {
                 new HeaderColumnNameMappingStrategy<>();
         strat.setType(DateAnnotationOnNondate.class);
         CSVReader read = new CSVReader(new StringReader("isnotdate\n19780115T063209"));
-        CsvToBean ctb = new CsvToBean();
-        ctb.parse(strat, read, false);
+        CsvToBean<DateAnnotationOnNondate> ctb = new CsvToBeanBuilder<DateAnnotationOnNondate>(read)
+                .withMappingStrategy(strat)
+                .withThrowExceptions(false)
+                .build();
+        ctb.parse();
         List<CsvException> exlist = ctb.getCapturedExceptions();
         assertEquals(1, exlist.size());
         assertTrue(exlist.get(0) instanceof CsvDataTypeMismatchException);
@@ -730,13 +745,15 @@ public class AnnotationTest {
 
     @Test
     public void testDateAnnotationOnNondate() {
-        CsvToBean ctb = new CsvToBean();
         HeaderColumnNameMappingStrategy<DateAnnotationOnNondate> strat =
                 new HeaderColumnNameMappingStrategy<>();
         strat.setType(DateAnnotationOnNondate.class);
         CSVReader read = new CSVReader(new StringReader("isnotdate\n19780115T063209"));
+        CsvToBean<DateAnnotationOnNondate> ctb = new CsvToBeanBuilder<DateAnnotationOnNondate>(read)
+                .withMappingStrategy(strat)
+                .build();
         try {
-            ctb.parse(strat, read);
+            ctb.parse();
             fail("Expected parse to throw exception.");
         } catch (RuntimeException e) {
             assertTrue(e.getCause() instanceof CsvDataTypeMismatchException);
@@ -767,11 +784,13 @@ public class AnnotationTest {
         auxiliaryTestWrongComplexType(strat, fin, 1);
     }
 
-    private void auxiliaryTestWrongComplexType(MappingStrategy strat, Reader fin, long expectedLineNumber) {
-        CSVReader read = new CSVReader(fin, ';');
-        CsvToBean ctb = new CsvToBean();
+    private void auxiliaryTestWrongComplexType(MappingStrategy<AnnotatedMockBeanCustom> strat, Reader fin, long expectedLineNumber) {
+        CsvToBean<AnnotatedMockBeanCustom> ctb = new CsvToBeanBuilder<AnnotatedMockBeanCustom>(fin)
+                .withMappingStrategy(strat)
+                .withSeparator(';')
+                .build();
         try {
-            ctb.parse(strat, read);
+            ctb.parse();
             fail("Expected parse to throw exception.");
         } catch (RuntimeException e) {
             assertTrue(e.getCause() instanceof CsvDataTypeMismatchException);
@@ -785,11 +804,13 @@ public class AnnotationTest {
         }
     }
 
-    private void auxiliaryTestCustomMismatch(Reader fin, MappingStrategy<?> strat, int lineNumber) {
-        CSVReader read = new CSVReader(fin, ';');
-        CsvToBean ctb = new CsvToBean();
+    private void auxiliaryTestCustomMismatch(Reader fin, MappingStrategy<AnnotatedMockBeanCustom> strat, int lineNumber) {
+        CsvToBean<AnnotatedMockBeanCustom> ctb = new CsvToBeanBuilder<AnnotatedMockBeanCustom>(fin)
+                .withMappingStrategy(strat)
+                .withSeparator(';')
+                .build();
         try {
-            ctb.parse(strat, read);
+            ctb.parse();
             fail("Expected parse to throw exception.");
         } catch (RuntimeException e) {
             assertTrue(e.getCause() instanceof CsvDataTypeMismatchException);
@@ -866,10 +887,12 @@ public class AnnotationTest {
                 new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanFull.class);
         FileReader fin = new FileReader("src/test/resources/testinputcase84.csv");
-        CSVReader read = new CSVReader(fin, ';');
-        CsvToBean<AnnotatedMockBeanFull> ctb = new CsvToBean<>();
+        CsvToBean<AnnotatedMockBeanFull> ctb = new CsvToBeanBuilder<AnnotatedMockBeanFull>(fin)
+                .withSeparator(';')
+                .withMappingStrategy(strat)
+                .build();
         try {
-            ctb.parse(strat, read);
+            ctb.parse();
             fail("RuntimeException with inner exception CsvRequiredFieldEmpty should have been thrown because a required column is completely missing.");
         }
         catch(RuntimeException e) {
@@ -883,10 +906,12 @@ public class AnnotationTest {
     }
 
     private void auxiliaryTestColumnMissing(final Reader fin, final MappingStrategy<AnnotatedMockBeanFull> strat) {
-        CSVReader read = new CSVReader(fin, ';');
-        CsvToBean<AnnotatedMockBeanFull> ctb = new CsvToBean<>();
+        CsvToBean<AnnotatedMockBeanFull> ctb = new CsvToBeanBuilder<AnnotatedMockBeanFull>(fin)
+                .withSeparator(';')
+                .withMappingStrategy(strat)
+                .build();
         try {
-            ctb.parse(strat, read);
+            ctb.parse();
             fail("RuntimeException with inner exception CsvRequiredFieldEmpty should have been thrown because a required column is completely missing.");
         }
         catch(RuntimeException e) {
@@ -923,10 +948,12 @@ public class AnnotationTest {
                 new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanCustom.class);
         FileReader fin = new FileReader("src/test/resources/testinputcase88.csv");
-        CSVReader read = new CSVReader(fin, ';');
-        CsvToBean<AnnotatedMockBeanFull> ctb = new CsvToBean<>();
+        CsvToBean<AnnotatedMockBeanCustom> ctb = new CsvToBeanBuilder<AnnotatedMockBeanCustom>(fin)
+                .withSeparator(';')
+                .withMappingStrategy(strat)
+                .build();
         try {
-            ctb.parse((MappingStrategy)strat, read);
+            ctb.parse();
             fail("Exception should have been thrown for missing required value.");
         }
         catch(RuntimeException e) {

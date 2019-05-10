@@ -39,7 +39,7 @@ public class StatefulBeanToCsvPerformanceTest {
 
     private ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> createTwoGoodBeans()
             throws IOException {
-        List<AnnotatedMockBeanFull> beans = new CsvToBeanBuilder(
+        List<AnnotatedMockBeanFull> beans = new CsvToBeanBuilder<AnnotatedMockBeanFull>(
                 new FileReader("src/test/resources/testinputwriteposfullgood.csv"))
                 .withType(AnnotatedMockBeanFull.class).withSeparator(';').build().parse();
         return new ImmutablePair<>(beans.get(0), beans.get(1));
@@ -90,7 +90,7 @@ public class StatefulBeanToCsvPerformanceTest {
         HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat = new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanFull.class);
         StatefulBeanToCsv<AnnotatedMockBeanFull> btcsv = new StatefulBeanToCsvBuilder<AnnotatedMockBeanFull>(csvWriter)
-                .withMappingStrategy((MappingStrategy) strat).build();
+                .withMappingStrategy(strat).build();
         StopWatch watch = StopWatch.createStarted();
         btcsv.write(beanList);
         watch.stop();
@@ -106,7 +106,7 @@ public class StatefulBeanToCsvPerformanceTest {
         strat = new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanFull.class);
         btcsv = new StatefulBeanToCsvBuilder<AnnotatedMockBeanFull>(csvWriter)
-                .withMappingStrategy((MappingStrategy) strat)
+                .withMappingStrategy(strat)
                 .withOrderedResults(false)
                 .build();
         watch = StopWatch.createStarted();
@@ -123,7 +123,7 @@ public class StatefulBeanToCsvPerformanceTest {
 
         CsvToBean<AnnotatedMockBeanFull> csvtb = new CsvToBeanBuilder<AnnotatedMockBeanFull>(csvReader)
                 .withType(AnnotatedMockBeanFull.class)
-                .withMappingStrategy((MappingStrategy) strat).build();
+                .withMappingStrategy(strat).build();
         watch = StopWatch.createStarted();
         List<AnnotatedMockBeanFull> beans = csvtb.parse();
         watch.stop();
@@ -140,7 +140,7 @@ public class StatefulBeanToCsvPerformanceTest {
         csvtb = new CsvToBeanBuilder<AnnotatedMockBeanFull>(csvReader)
                 .withType(AnnotatedMockBeanFull.class)
                 .withOrderedResults(false)
-                .withMappingStrategy((MappingStrategy) strat).build();
+                .withMappingStrategy(strat).build();
         watch = StopWatch.createStarted();
         beans = csvtb.parse();
         watch.stop();
@@ -171,7 +171,7 @@ public class StatefulBeanToCsvPerformanceTest {
         HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat = new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanFull.class);
         StatefulBeanToCsv<AnnotatedMockBeanFull> btcsv = new StatefulBeanToCsvBuilder<AnnotatedMockBeanFull>(writer)
-                .withMappingStrategy((MappingStrategy) strat).build();
+                .withMappingStrategy(strat).build();
         StopWatch watch = StopWatch.createStarted();
         btcsv.write(beanList);
         watch.stop();
@@ -184,7 +184,7 @@ public class StatefulBeanToCsvPerformanceTest {
         strat = new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanFull.class);
         btcsv = new StatefulBeanToCsvBuilder<AnnotatedMockBeanFull>(writer)
-                .withMappingStrategy((MappingStrategy) strat)
+                .withMappingStrategy(strat)
                 .withOrderedResults(false)
                 .build();
         watch = StopWatch.createStarted();
@@ -198,7 +198,7 @@ public class StatefulBeanToCsvPerformanceTest {
         Reader reader = new StringReader(writer.toString());
         CsvToBean<AnnotatedMockBeanFull> csvtb = new CsvToBeanBuilder<AnnotatedMockBeanFull>(reader)
                 .withType(AnnotatedMockBeanFull.class)
-                .withMappingStrategy((MappingStrategy) strat).build();
+                .withMappingStrategy(strat).build();
         watch = StopWatch.createStarted();
         List<AnnotatedMockBeanFull> beans = csvtb.parse();
         watch.stop();
@@ -212,7 +212,7 @@ public class StatefulBeanToCsvPerformanceTest {
         csvtb = new CsvToBeanBuilder<AnnotatedMockBeanFull>(reader)
                 .withType(AnnotatedMockBeanFull.class)
                 .withOrderedResults(false)
-                .withMappingStrategy((MappingStrategy) strat).build();
+                .withMappingStrategy(strat).build();
         watch = StopWatch.createStarted();
         beans = csvtb.parse();
         watch.stop();

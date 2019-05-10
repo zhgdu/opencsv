@@ -40,7 +40,7 @@ import java.util.concurrent.BlockingQueue;
  */
 public class ProcessCsvLine<T> implements Runnable {
     private final long lineNumber;
-    private final MappingStrategy<T> mapper;
+    private final MappingStrategy<? extends T> mapper;
     private final CsvToBeanFilter filter;
     private final List<BeanVerifier<T>> verifiers;
     private final String[] line;
@@ -63,7 +63,7 @@ public class ProcessCsvLine<T> implements Runnable {
      *   processing, or suppressed and saved for later processing
      */
     public ProcessCsvLine(
-            long lineNumber, MappingStrategy<T> mapper, CsvToBeanFilter filter,
+            long lineNumber, MappingStrategy<? extends T> mapper, CsvToBeanFilter filter,
             List<BeanVerifier<T>> verifiers, String[] line,
             BlockingQueue<OrderedObject<T>> resultantBeanQueue,
             BlockingQueue<OrderedObject<CsvException>> thrownExceptionsQueue,

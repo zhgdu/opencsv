@@ -1,5 +1,8 @@
 package com.opencsv.bean;
 
+import org.apache.commons.lang3.reflect.FieldUtils;
+
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -64,15 +67,19 @@ public class HeaderColumnNameTranslateMappingStrategy<T> extends HeaderColumnNam
         for (Map.Entry<String, String> entry : columnMapping.entrySet()) {
             this.columnMapping.put(entry.getKey().toUpperCase(), entry.getValue());
         }
+        if(getType() != null) {
+            loadFieldMap();
+        }
     }
 
-    /**
-     * This mapping strategy is not compatible with annotations.
-     *
-     * @return {@code false}
-     */
     @Override
-    public boolean isAnnotationDriven() {
-        return false;
+    protected void loadFieldMap() {
+        fieldMap = new FieldMapByName<>(errorLocale);
+        fieldMap.setColumnOrderOnWrite(writeOrder);
+        for(Field field : FieldUtils.getAllFields(getType())) {
+            CsvConverter converter = determineConverter(field, field.getType(), null, null);
+            fieldMap.put(field.getName().toUpperCase(), new BeanFieldSingleValue<>(
+                    field, false, errorLocale, converter, null, null));
+        }
     }
 }

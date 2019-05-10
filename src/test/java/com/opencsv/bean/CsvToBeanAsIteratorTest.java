@@ -58,14 +58,13 @@ public class CsvToBeanAsIteratorTest {
         
         @Override
         public boolean allowLine(String[] line) {
-            int index = strategy.getColumnIndex("num");
-            return Integer.parseInt(line[index].trim()) > 200;
+            return Integer.parseInt(line[2].trim()) > 200;
         }
     }
 
     @Test(expected = RuntimeException.class)
     public void throwRuntimeExceptionWhenExceptionIsThrown() {
-        CsvToBean bean = new CsvToBean();
+        CsvToBean<Object> bean = new CsvToBean<>();
         bean.setMappingStrategy(new ErrorHeaderMappingStrategy());
         bean.setCsvReader(createReader());
         for (Object o : bean) {
@@ -74,7 +73,7 @@ public class CsvToBeanAsIteratorTest {
 
     @Test(expected = RuntimeException.class)
     public void throwRuntimeExceptionLineWhenExceptionIsThrown() {
-        CsvToBean bean = new CsvToBean();
+        CsvToBean<Object> bean = new CsvToBean<>();
         bean.setMappingStrategy(new ErrorLineMappingStrategy());
         bean.setCsvReader(createReader());
         for (Object o : bean) {
@@ -164,7 +163,7 @@ public class CsvToBeanAsIteratorTest {
 
     @Test(expected = IllegalStateException.class)
     public void throwIllegalStateWhenOnlyMapperIsSpecifiedToParseWithoutArguments() {
-        CsvToBean csvtb = new CsvToBean();
+        CsvToBean<AnnotatedMockBeanFull> csvtb = new CsvToBean<>();
         HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat = new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanFull.class);
         csvtb.setMappingStrategy(strat);
@@ -176,7 +175,7 @@ public class CsvToBeanAsIteratorTest {
         HeaderColumnNameMappingStrategy<MockBean> strategy;
         strategy = new HeaderColumnNameMappingStrategy<>();
         strategy.setType(MockBean.class);
-        CsvToBean bean = new CsvToBeanBuilder(new StringReader(TEST_STRING))
+        CsvToBean<MockBean> bean = new CsvToBeanBuilder<MockBean>(new StringReader(TEST_STRING))
                 .withMappingStrategy(strategy)
                 .withFilter(new FilterSmallNumbers(strategy))
                 .build();
@@ -197,7 +196,7 @@ public class CsvToBeanAsIteratorTest {
         HeaderColumnNameMappingStrategy<MinimalCsvBindByNameBeanForWriting> minimalStrategy = new HeaderColumnNameMappingStrategy<>();
         minimalStrategy.setType(MinimalCsvBindByNameBeanForWriting.class);
         StringReader reader = new StringReader("finda,findb,c\n1,2,3\n4,5,6");
-        Iterator<MinimalCsvBindByNameBeanForWriting> iterator = new CsvToBeanBuilder(reader)
+        Iterator<MinimalCsvBindByNameBeanForWriting> iterator = new CsvToBeanBuilder<MinimalCsvBindByNameBeanForWriting>(reader)
                 .withMappingStrategy(minimalStrategy)
                 .build()
                 .iterator();
@@ -223,7 +222,7 @@ public class CsvToBeanAsIteratorTest {
                 = new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanForIterator.class);
         Reader fin = new StringReader("a\n1;2\n3,4");
-        Iterator<AnnotatedMockBeanForIterator> iterator = new CsvToBeanBuilder(fin)
+        Iterator<AnnotatedMockBeanForIterator> iterator = new CsvToBeanBuilder<AnnotatedMockBeanForIterator>(fin)
                 .withMappingStrategy(strat)
                 .withSeparator(';')
                 .build()
@@ -242,7 +241,7 @@ public class CsvToBeanAsIteratorTest {
                 = new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanForIterator.class);
         Reader fin = new StringReader("a;b\n1;2\n3");
-        Iterator<AnnotatedMockBeanForIterator> iterator = new CsvToBeanBuilder(fin)
+        Iterator<AnnotatedMockBeanForIterator> iterator = new CsvToBeanBuilder<AnnotatedMockBeanForIterator>(fin)
                 .withMappingStrategy(strat)
                 .withSeparator(';')
                 .build()
@@ -263,7 +262,7 @@ public class CsvToBeanAsIteratorTest {
                 = new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanForIterator.class);
         Reader fin = new StringReader("a;b\n1;2\n3");
-        CsvToBean<AnnotatedMockBeanForIterator> csvtb = new CsvToBeanBuilder(fin)
+        CsvToBean<AnnotatedMockBeanForIterator> csvtb = new CsvToBeanBuilder<AnnotatedMockBeanForIterator>(fin)
                 .withMappingStrategy(strat)
                 .withSeparator(';')
                 .withThrowExceptions(false)

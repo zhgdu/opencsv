@@ -52,8 +52,8 @@ public class LiteralComparator<T extends Comparable<T>> implements Comparator<T>
         fixedComparator.setUnknownObjectBehavior(FixedOrderComparator.UnknownObjectBehavior.AFTER);
         c = new ComparatorChain<>(Arrays.<Comparator<T>>asList(
                 fixedComparator,
-                new NullComparator<T>(false),
-                new ComparableComparator<T>()));
+                new NullComparator<>(false),
+                new ComparableComparator<>()));
     }
 
     @Override

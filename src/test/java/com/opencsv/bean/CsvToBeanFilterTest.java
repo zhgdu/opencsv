@@ -31,7 +31,7 @@ public class CsvToBeanFilterTest {
       return new CSVReader(reader);
    }
 
-   private MappingStrategy CreateMappingStrategy() {
+   private MappingStrategy<Feature> createMappingStrategy() {
       HeaderColumnNameTranslateMappingStrategy<Feature> strategy = new HeaderColumnNameTranslateMappingStrategy<>();
       Map<String, String> columnMap = new HashMap<>();
       columnMap.put("FEATURE_NAME", "name");
@@ -68,29 +68,21 @@ public class CsvToBeanFilterTest {
 
    private class NonProductionFilter implements CsvToBeanFilter {
 
-      private final MappingStrategy strategy;
-
-      public NonProductionFilter(MappingStrategy strategy) {
-         this.strategy = strategy;
-      }
-
       @Override
       public boolean allowLine(String[] line) {
-         int index = strategy.getColumnIndex("STATE");
-         String value = line[index];
-         boolean result = !"production".equals(value);
-         return result;
+         String value = line[1];
+         return !"production".equals(value);
       }
 
    }
 
    @Test
    public void testColumnNameTranslationWithLineFiltering() {
-      CsvToBean csvToBean = new CsvToBean();
-      CSVReader reader = createReader();
-      MappingStrategy strategy = CreateMappingStrategy();
-      CsvToBeanFilter filter = new NonProductionFilter(strategy);
-      List<Feature> list = csvToBean.parse(strategy, reader, filter);
+      CsvToBean<Feature> csvToBean = new CsvToBeanBuilder<Feature>(createReader())
+              .withMappingStrategy(createMappingStrategy())
+              .withFilter(new NonProductionFilter())
+              .build();
+      List<Feature> list = csvToBean.parse();
       assertEquals("Parsing resulted in the wrong number of items.", 2, list.size());
       assertEquals("The first item has the wrong name.", "calc age", list.get(0).getName());
       assertEquals("The first item has the wrong state.", "beta", list.get(0).getState());
@@ -100,12 +92,11 @@ public class CsvToBeanFilterTest {
 
    @Test
    public void testColumnNameTranslationWithLineFilteringAndEmptyState() {
-      CsvToBean csvToBean = new CsvToBean();
-      StringReader stringReader = new StringReader(TEST_EMPTY_STRING);
-      CSVReader reader = new CSVReader(stringReader);
-      MappingStrategy strategy = CreateMappingStrategy();
-      CsvToBeanFilter filter = new NonProductionFilter(strategy);
-      List<Feature> list = csvToBean.parse(strategy, reader);
+      CsvToBean<Feature> csvToBean = new CsvToBeanBuilder<Feature>(new StringReader(TEST_EMPTY_STRING))
+              .withMappingStrategy(createMappingStrategy())
+              .withFilter(new NonProductionFilter())
+              .build();
+      List<Feature> list = csvToBean.parse();
       assertEquals("    ", list.get(0).getState());
       assertTrue(list.get(1).getState().isEmpty());
       assertEquals("    ", list.get(2).getState());
@@ -117,7 +108,7 @@ public class CsvToBeanFilterTest {
       strategy.setType(Feature.class);
       List<Feature> list = new CsvToBeanBuilder<Feature>(new StringReader(TEST_STRING))
               .withMappingStrategy(strategy)
-              .withFilter(new NonProductionFilter(strategy))
+              .withFilter(new NonProductionFilter())
               .build().parse();
       assertEquals("Parsing resulted in the wrong number of items.", 2, list.size());
       assertEquals("The first item has the wrong name.", "calc age", list.get(0).getName());
@@ -132,7 +123,7 @@ public class CsvToBeanFilterTest {
       strategy.setType(Feature.class);
       CsvToBean<Feature> ctb = new CsvToBeanBuilder<Feature>(new StringReader(TEST_STRING))
               .withMappingStrategy(strategy)
-              .withFilter(new NonProductionFilter(strategy))
+              .withFilter(new NonProductionFilter())
               .build();
       List<Feature> list = new ArrayList<>(2);
       for(Feature f : ctb) { list.add(f); }

@@ -171,7 +171,7 @@ public class PositionToBeanField<T> extends AbstractFieldMapEntry<String, Intege
     
     @Override
     public boolean contains(Integer key) {
-        return ranges.parallelStream().anyMatch(range -> range.contains(key));
+        return ranges.stream().anyMatch(range -> range.contains(key));
     }
 
     @Override

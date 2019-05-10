@@ -28,7 +28,7 @@ import org.apache.commons.lang3.ObjectUtils;
  * @author Andrew Rucker Jones
  * @since 4.2
  */
-abstract public class AbstractFieldMapEntry<I, K, T> implements ComplexFieldMapEntry<I, K, T> {
+abstract public class AbstractFieldMapEntry<I, K extends Comparable<K>, T> implements ComplexFieldMapEntry<I, K, T> {
     
     /** The {@link BeanField} that is the target of this mapping. */
     protected final BeanField<T> field;

@@ -37,7 +37,7 @@ import java.util.Locale;
  * @author Andrew Rucker Jones
  * @since 4.2
  */
-public interface FieldMap<I, K, C extends ComplexFieldMapEntry<I, K, T>, T> {
+public interface FieldMap<I, K extends Comparable<K>, C extends ComplexFieldMapEntry<I, K, T>, T> {
 
     /**
      * This method generates a header that can be used for writing beans of the

@@ -84,7 +84,7 @@ public class NumberTest {
      * Tests reading a value into a {@link java.lang.Byte}.
      * Also incidentally tests:
      * <ul><li>Conversion with a locale</li></ul>
-     * @throws IOException
+     * @throws IOException If bad things happen
      */
     @Test
     public void testWrappedByte() throws IOException {
@@ -233,7 +233,7 @@ public class NumberTest {
      * Tests formatting of a {@link java.math.BigDecimal}.
      * Also incidentally tests:
      * <ul><li>Mapping with {@link ColumnPositionMappingStrategy}</li></ul>
-     * @throws IOException
+     * @throws IOException If bad things happen
      */
     @Test
     public void testBigDecimal() throws IOException {
@@ -263,7 +263,7 @@ public class NumberTest {
 
     @Test
     public void testUnparsableNumber() throws IOException {
-        CsvToBean csvToBean = new CsvToBeanBuilder<NumberMockHeader>(new FileReader("src/test/resources/testnumberbynameunparsable.csv"))
+        CsvToBean<NumberMockHeader> csvToBean = new CsvToBeanBuilder<NumberMockHeader>(new FileReader("src/test/resources/testnumberbynameunparsable.csv"))
                 .withType(NumberMockHeader.class).withThrowExceptions(false)
                 .withSeparator(';').build();
         List<NumberMockHeader> beans = csvToBean.parse();
@@ -331,7 +331,7 @@ public class NumberTest {
     @Test
     public void testInvalidPattern() {
         try {
-            CsvToBean<NumberInvalidPattern> csvToBean = new CsvToBeanBuilder<NumberInvalidPattern>(new StringReader("number\\n3"))
+            new CsvToBeanBuilder<NumberInvalidPattern>(new StringReader("number\\n3"))
                     .withType(NumberInvalidPattern.class)
                     .build();
             fail("Exception should have been thrown");
@@ -347,7 +347,6 @@ public class NumberTest {
                 .withType(NumberEmptyPattern.class)
                 .build();
         List<NumberEmptyPattern> beans = csvToBean.parse();
-        List<CsvException> exceptions = csvToBean.getCapturedExceptions();
         assertNotNull(beans);
         assertEquals(1, beans.size());
         assertEquals(3L, (long)beans.get(0).getNumber());

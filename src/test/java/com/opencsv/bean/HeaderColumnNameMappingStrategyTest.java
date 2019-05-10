@@ -66,46 +66,16 @@ public class HeaderColumnNameMappingStrategyTest {
 
    private List<MockBean> createTestParseResult(String parseString) {
       strat.setType(MockBean.class);
-      CsvToBean<MockBean> csv = new CsvToBean<>();
-      return csv.parse(strat, new StringReader(parseString));
-   }
-
-   @Test
-   public void getColumnIndexWithoutHeaderThrowsException() {
-       String englishErrorMessage = null;
-       try {
-           strat.getColumnIndex("some index name");
-           fail("An IllegalStateException should have been thrown since the header has not yet been read.");
-       }
-       catch(IllegalStateException e) {
-           englishErrorMessage = e.getLocalizedMessage();
-       }
-       
-       // Now with another locale
-       strat.setErrorLocale(Locale.GERMAN);
-       try {
-           strat.getColumnIndex("some index name");
-           fail("An IllegalStateException should have been thrown since the header has not yet been read.");
-       }
-       catch(IllegalStateException e) {
-           assertNotSame(englishErrorMessage, e.getLocalizedMessage());
-       }
-   }
-
-   @Test
-   public void getColumnIndexAfterParse() {
-      createTestParseResult(TEST_STRING);
-      assertEquals(0, strat.getColumnIndex("name").intValue());
-      assertEquals(1, strat.getColumnIndex("orderNumber").intValue());
-      assertEquals(2, strat.getColumnIndex("num").intValue());
-      assertNull(strat.getColumnIndex("unknown column"));
+      CsvToBean<MockBean> csv = new CsvToBeanBuilder<MockBean>(new StringReader(parseString))
+              .withMappingStrategy(strat).build();
+      return csv.parse();
    }
 
    @Test
    public void testParse() {
       List<MockBean> list = createTestParseResult(TEST_STRING);
       assertNotNull(list);
-      assertTrue(list.size() == 2);
+      assertEquals(2, list.size());
       MockBean bean = list.get(0);
       assertEquals("kyle", bean.getName());
       assertEquals("abc123456", bean.getOrderNumber());
@@ -116,7 +86,7 @@ public class HeaderColumnNameMappingStrategyTest {
     public void testParseWithEmptyField() {
         List<MockBean> list = createTestParseResult(TEST_EMPTY_STRING);
         assertNotNull(list);
-        assertTrue(list.size() == 2);
+        assertEquals(2, list.size());
         MockBean bean = list.get(0);
         assertEquals("kyle", bean.getName());
         assertEquals("   ", bean.getOrderNumber());
@@ -132,7 +102,7 @@ public class HeaderColumnNameMappingStrategyTest {
    public void testQuotedString() {
       List<MockBean> list = createTestParseResult(TEST_QUOTED_STRING);
       assertNotNull(list);
-      assertTrue(list.size() == 2);
+      assertEquals(2, list.size());
       MockBean bean = list.get(0);
       assertEquals("kyle", bean.getName());
       assertEquals("abc123456", bean.getOrderNumber());
@@ -143,7 +113,7 @@ public class HeaderColumnNameMappingStrategyTest {
    public void testParseWithSpacesInHeader() {
       List<MockBean> list = createTestParseResult(TEST_STRING);
       assertNotNull(list);
-      assertTrue(list.size() == 2);
+      assertEquals(2, list.size());
       MockBean bean = list.get(0);
       assertEquals("kyle", bean.getName());
       assertEquals("abc123456", bean.getOrderNumber());
@@ -155,7 +125,6 @@ public class HeaderColumnNameMappingStrategyTest {
       strat = new HeaderColumnNameMappingStrategy<>();
       strat.setType(MockBean.class);
       assertNull(strat.getColumnName(0));
-      assertNull(strat.findDescriptor(0));
 
       StringReader reader = new StringReader(TEST_STRING);
 
@@ -163,8 +132,6 @@ public class HeaderColumnNameMappingStrategyTest {
       strat.captureHeader(csvReader);
 
       assertEquals("name", strat.getColumnName(0));
-      assertEquals(strat.findDescriptor(0), strat.findDescriptor("name"));
-      assertEquals("name", strat.findDescriptor("name").getName());
    }
    
    @Test
@@ -172,9 +139,10 @@ public class HeaderColumnNameMappingStrategyTest {
       strat = new HeaderColumnNameMappingStrategy<>();
       StringReader reader = new StringReader(TEST_STRING);
       CSVReader csvReader = new CSVReader(reader);
-      CsvToBean csvtb = new CsvToBean();
+      CsvToBean<Object> csvtb = new CsvToBeanBuilder<>(csvReader)
+              .withMappingStrategy(strat).build();
       try {
-          csvtb.parse(strat, csvReader);
+          csvtb.parse();
       }
       catch(RuntimeException e) {
           assertEquals(IllegalStateException.class, e.getCause().getClass());

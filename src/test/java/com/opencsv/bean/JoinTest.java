@@ -73,7 +73,7 @@ public class JoinTest {
      */
     @Test
     public void testReadPrimitive() throws IOException {
-        List<GoodJoinByNameAnnotations> beans = new CsvToBeanBuilder(
+        List<GoodJoinByNameAnnotations> beans = new CsvToBeanBuilder<GoodJoinByNameAnnotations>(
                 new FileReader("src/test/resources/testinputjoinbynamegood.csv"))
                 .withType(GoodJoinByNameAnnotations.class).build().parse();
         assertNotNull(beans);
@@ -113,7 +113,7 @@ public class JoinTest {
      */
     @Test
     public void testReadDate() throws IOException {
-        List<GoodJoinByNameAnnotations> beans = new CsvToBeanBuilder(
+        List<GoodJoinByNameAnnotations> beans = new CsvToBeanBuilder<GoodJoinByNameAnnotations>(
                 new FileReader("src/test/resources/testinputjoinbynamegood.csv"))
                 .withType(GoodJoinByNameAnnotations.class).build().parse();
         assertNotNull(beans);
@@ -171,7 +171,7 @@ public class JoinTest {
      */
     @Test
     public void testNamingOverlap() throws IOException {
-        List<NamingOverlap> beans = new CsvToBeanBuilder(new FileReader("src/test/resources/testinputjoinnamingoverlap.csv"))
+        List<NamingOverlap> beans = new CsvToBeanBuilder<NamingOverlap>(new FileReader("src/test/resources/testinputjoinnamingoverlap.csv"))
                 .withType(NamingOverlap.class).build().parse();
         assertNotNull(beans);
         assertEquals(1, beans.size());
@@ -185,7 +185,7 @@ public class JoinTest {
     @Test
     public void testIllegalRegularExpression() {
         try {
-        new CsvToBeanBuilder(new StringReader(StringUtils.EMPTY))
+        new CsvToBeanBuilder<JoinIllegalRegex>(new StringReader(StringUtils.EMPTY))
                 .withType(JoinIllegalRegex.class)
                 .build()
                 .parse();
@@ -207,7 +207,7 @@ public class JoinTest {
      */
     @Test
     public void testNonMatchingRegularExpression() throws IOException {
-        List<GoodJoinByNameAnnotations> beans = new CsvToBeanBuilder(
+        List<GoodJoinByNameAnnotations> beans = new CsvToBeanBuilder<GoodJoinByNameAnnotations>(
                 new FileReader("src/test/resources/testinputjoinbynamegood.csv"))
                 .withType(GoodJoinByNameAnnotations.class).build().parse();
         assertNotNull(beans);
@@ -219,7 +219,7 @@ public class JoinTest {
     @Test
     public void testFieldNotMultiValuedMap() {
         try {
-            new CsvToBeanBuilder(new StringReader(StringUtils.EMPTY))
+            new CsvToBeanBuilder<FieldNotMultiValuedMap>(new StringReader(StringUtils.EMPTY))
                     .withType(FieldNotMultiValuedMap.class).build().parse();
             fail("Exception should have been thrown.");
         }
@@ -241,7 +241,7 @@ public class JoinTest {
      */
     @Test
     public void testDoubleOpenRange() throws IOException {
-        List<DoubleOpenRange> beans = new CsvToBeanBuilder(
+        List<DoubleOpenRange> beans = new CsvToBeanBuilder<DoubleOpenRange>(
                 new FileReader("src/test/resources/testinputopenrange.csv"))
                 .withType(DoubleOpenRange.class).build().parse();
         assertNotNull(beans);
@@ -260,7 +260,7 @@ public class JoinTest {
     
     @Test
     public void testOpenRangeNoLowerBound() throws IOException {
-        List<OpenRangeNoLowerBound> beans = new CsvToBeanBuilder(new FileReader("src/test/resources/testinputjoinbypositiongood.csv"))
+        List<OpenRangeNoLowerBound> beans = new CsvToBeanBuilder<OpenRangeNoLowerBound>(new FileReader("src/test/resources/testinputjoinbypositiongood.csv"))
                 .withType(OpenRangeNoLowerBound.class).build().parse();
         assertNotNull(beans);
         assertEquals(3, beans.size());
@@ -299,7 +299,9 @@ public class JoinTest {
     @Test
     public void testNonNumberRangeExpression() {
         try {
-            new CsvToBeanBuilder(new StringReader(StringUtils.EMPTY)).withType(NonNumberRange.class).build().parse();
+            new CsvToBeanBuilder<NonNumberRange>(new StringReader(StringUtils.EMPTY))
+                    .withType(NonNumberRange.class)
+                    .build().parse();
             fail("Exception should have been thrown.");
         }
         catch(CsvBadConverterException csve) {
@@ -312,7 +314,7 @@ public class JoinTest {
     @Test
     public void testEmptyRangeExpression() {
         try {
-            new CsvToBeanBuilder(new StringReader(StringUtils.EMPTY))
+            new CsvToBeanBuilder<EmptyRange>(new StringReader(StringUtils.EMPTY))
                     .withType(EmptyRange.class).build().parse();
             fail("Exception should have been thrown.");
         }
@@ -334,7 +336,7 @@ public class JoinTest {
      */
     @Test
     public void testRangeWithOnePosition() throws IOException {
-        List<GoodJoinByPositionAnnotations> beans = new CsvToBeanBuilder(
+        List<GoodJoinByPositionAnnotations> beans = new CsvToBeanBuilder<GoodJoinByPositionAnnotations>(
                 new FileReader("src/test/resources/testinputjoinbypositiongood.csv"))
                 .withType(GoodJoinByPositionAnnotations.class).build().parse();
         assertNotNull(beans);
@@ -383,11 +385,13 @@ public class JoinTest {
      */
     @Test
     public void testClosedRange() throws IOException {
-        MappingStrategy mappingStrategy = new ColumnPositionMappingStrategy();
+        MappingStrategy<GoodJoinByPositionAnnotations> mappingStrategy = new ColumnPositionMappingStrategy<>();
         mappingStrategy.setType(GoodJoinByPositionAnnotations.class);
-        CsvToBean<GoodJoinByPositionAnnotations> csvToBean = new CsvToBeanBuilder(
+        CsvToBean<GoodJoinByPositionAnnotations> csvToBean = new CsvToBeanBuilder<GoodJoinByPositionAnnotations>(
                 new FileReader("src/test/resources/testinputjoinbypositiongood.csv"))
-                .withType(GoodJoinByPositionAnnotations.class).withMappingStrategy(mappingStrategy).build();
+                .withType(GoodJoinByPositionAnnotations.class)
+                .withMappingStrategy(mappingStrategy)
+                .build();
         csvToBean.setErrorLocale(Locale.GERMAN);
         List<GoodJoinByPositionAnnotations> beans = csvToBean.parse();
         assertNotNull(beans);
@@ -509,7 +513,7 @@ public class JoinTest {
      */
     @Test
     public void testOpenRangeWithoutUpperBoundry() throws IOException {
-        List<GoodJoinByPositionAnnotations> beans = new CsvToBeanBuilder(
+        List<GoodJoinByPositionAnnotations> beans = new CsvToBeanBuilder<GoodJoinByPositionAnnotations>(
                 new FileReader("src/test/resources/testinputjoinbypositiongood.csv"))
                 .withType(GoodJoinByPositionAnnotations.class).build().parse();
         assertNotNull(beans);
@@ -567,7 +571,7 @@ public class JoinTest {
      */
     @Test
     public void testRangeBackward() throws IOException {
-        List<GoodJoinByPositionAnnotations> beans = new CsvToBeanBuilder(
+        List<GoodJoinByPositionAnnotations> beans = new CsvToBeanBuilder<GoodJoinByPositionAnnotations>(
                 new FileReader("src/test/resources/testinputjoinbypositiongood.csv"))
                 .withType(GoodJoinByPositionAnnotations.class).build().parse();
         assertNotNull(beans);
@@ -616,7 +620,7 @@ public class JoinTest {
      */
     @Test
     public void testReadConversionLocalePrimitiveHeaderMapping() throws IOException {
-        List<GoodJoinByNameAnnotations> beans = new CsvToBeanBuilder(new FileReader("src/test/resources/testinputjoinbynamegood.csv"))
+        List<GoodJoinByNameAnnotations> beans = new CsvToBeanBuilder<GoodJoinByNameAnnotations>(new FileReader("src/test/resources/testinputjoinbynamegood.csv"))
                 .withType(GoodJoinByNameAnnotations.class).build().parse();
         assertNotNull(beans);
         assertEquals(3, beans.size());
@@ -639,7 +643,7 @@ public class JoinTest {
 
     @Test
     public void testReadConversionLocalePrimitivePositionMapping() throws IOException {
-        List<GoodJoinByPositionAnnotations> beans = new CsvToBeanBuilder(new FileReader("src/test/resources/testinputjoinbypositiongood.csv"))
+        List<GoodJoinByPositionAnnotations> beans = new CsvToBeanBuilder<GoodJoinByPositionAnnotations>(new FileReader("src/test/resources/testinputjoinbypositiongood.csv"))
                 .withType(GoodJoinByPositionAnnotations.class).build().parse();
         assertNotNull(beans);
         assertEquals(3, beans.size());
@@ -670,7 +674,7 @@ public class JoinTest {
     @Test
     public void testReadEmptyIndividualRequiredFieldHeaderNameMapping() throws IOException {
         try {
-            new CsvToBeanBuilder(new FileReader("src/test/resources/testinputjoinbypositionrequiredindividualmissing.csv"))
+            new CsvToBeanBuilder<GoodJoinByPositionAnnotations>(new FileReader("src/test/resources/testinputjoinbypositionrequiredindividualmissing.csv"))
                     .withType(GoodJoinByPositionAnnotations.class).build().parse();
             fail("Exception should have been thrown.");
         }
@@ -697,7 +701,7 @@ public class JoinTest {
     @Test
     public void testReadEmptyRegexSingleRequiredFieldHeaderNameMappingValueOnly() throws IOException {
         try {
-            new CsvToBeanBuilder(new FileReader("src/test/resources/testinputjoinbynameonerequiredmissing.csv"))
+            new CsvToBeanBuilder<GoodJoinByNameAnnotations>(new FileReader("src/test/resources/testinputjoinbynameonerequiredmissing.csv"))
                     .withType(GoodJoinByNameAnnotations.class).build().parse();
         }
         catch(RuntimeException e) {
@@ -721,7 +725,7 @@ public class JoinTest {
     @Test
     public void testReadEmptyRegexAllRequiredFieldHeaderNameMapping() throws IOException {
         try {
-            new CsvToBeanBuilder(new FileReader("src/test/resources/testinputjoinbynamerequiredheadermissing.csv"))
+            new CsvToBeanBuilder<GoodJoinByNameAnnotations>(new FileReader("src/test/resources/testinputjoinbynamerequiredheadermissing.csv"))
                     .withType(GoodJoinByNameAnnotations.class).build().parse();
         }
         catch(RuntimeException e) {
@@ -746,7 +750,7 @@ public class JoinTest {
     @Test
     public void testReadEmptyIndividualRequiredFieldColumnPositionMapping() throws IOException {
         try {
-            new CsvToBeanBuilder(new FileReader("src/test/resources/testinputjoinbypositionrequiredmissing.csv"))
+            new CsvToBeanBuilder<GoodJoinByPositionAnnotations>(new FileReader("src/test/resources/testinputjoinbypositionrequiredmissing.csv"))
                     .withType(GoodJoinByPositionAnnotations.class).build().parse();
         }
         catch(RuntimeException e) {
@@ -762,8 +766,9 @@ public class JoinTest {
     
     @Test
     public void testReadEmptyOptionalFieldValueOnly() throws IOException {
-        List<GoodJoinByNameAnnotations> beans = new CsvToBeanBuilder(new FileReader("src/test/resources/testinputjoinbynameoptionalvaluemissing.csv"))
-                .withType(GoodJoinByNameAnnotations.class).build().parse();
+        List<GoodJoinByNameAnnotations> beans = new CsvToBeanBuilder<GoodJoinByNameAnnotations>(new FileReader("src/test/resources/testinputjoinbynameoptionalvaluemissing.csv"))
+                .withType(GoodJoinByNameAnnotations.class)
+                .build().parse();
         assertNotNull(beans);
         assertEquals(1, beans.size());
         GoodJoinByNameAnnotations bean = beans.get(0);
@@ -774,8 +779,9 @@ public class JoinTest {
     
     @Test
     public void testReadEmptyOptionalFieldHeader() throws IOException {
-        List<GoodJoinByNameAnnotations> beans = new CsvToBeanBuilder(new FileReader("src/test/resources/testinputjoinbynameoptionalheadermissing.csv"))
-                .withType(GoodJoinByNameAnnotations.class).build().parse();
+        List<GoodJoinByNameAnnotations> beans = new CsvToBeanBuilder<GoodJoinByNameAnnotations>(new FileReader("src/test/resources/testinputjoinbynameoptionalheadermissing.csv"))
+                .withType(GoodJoinByNameAnnotations.class)
+                .build().parse();
         assertNotNull(beans);
         assertEquals(1, beans.size());
         GoodJoinByNameAnnotations bean = beans.get(0);
@@ -784,8 +790,9 @@ public class JoinTest {
     
     @Test
     public void testReadEmptyOptionalFieldPosition() throws IOException {
-        List<GoodJoinByPositionAnnotations> beans = new CsvToBeanBuilder(new FileReader("src/test/resources/testinputjoinbypositionoptionalmissing.csv"))
-                .withType(GoodJoinByPositionAnnotations.class).build().parse();
+        List<GoodJoinByPositionAnnotations> beans = new CsvToBeanBuilder<GoodJoinByPositionAnnotations>(new FileReader("src/test/resources/testinputjoinbypositionoptionalmissing.csv"))
+                .withType(GoodJoinByPositionAnnotations.class)
+                .build().parse();
         assertNotNull(beans);
         assertEquals(1, beans.size());
         GoodJoinByPositionAnnotations bean = beans.get(0);
@@ -806,7 +813,7 @@ public class JoinTest {
     public void testWriteEmptyRequiredFieldColumnPositionMapping() throws CsvException {
         GoodJoinByPositionAnnotations bean = new GoodJoinByPositionAnnotations();
         StringWriter w = new StringWriter();
-        StatefulBeanToCsv<GoodJoinByPositionAnnotations> b2csv = new StatefulBeanToCsvBuilder(w).build();
+        StatefulBeanToCsv<GoodJoinByPositionAnnotations> b2csv = new StatefulBeanToCsvBuilder<GoodJoinByPositionAnnotations>(w).build();
         try {
             b2csv.write(bean);
             fail("Exception should have been thrown.");
@@ -1120,7 +1127,7 @@ public class JoinTest {
         bean.setMap2(map2);
         
         StringWriter w = new StringWriter();
-        StatefulBeanToCsv b2csv = new StatefulBeanToCsvBuilder(w).build();
+        StatefulBeanToCsv<GoodJoinByPositionAnnotations> b2csv = new StatefulBeanToCsvBuilder<GoodJoinByPositionAnnotations>(w).build();
         try {
             b2csv.write(bean);
             fail("Exception should have been thrown");
@@ -1134,7 +1141,7 @@ public class JoinTest {
     @Test
     public void testSetterThrowsException() {
         try {
-            new CsvToBeanBuilder(new StringReader("map\nstring"))
+            new CsvToBeanBuilder<SetterThrowsException>(new StringReader("map\nstring"))
                     .withType(SetterThrowsException.class).build().parse();
             fail("Exception should have been thrown");
         }
@@ -1149,7 +1156,7 @@ public class JoinTest {
     @Test
     public void testUnknownMultiValuedMap() {
         try {
-            new CsvToBeanBuilder(new StringReader(StringUtils.EMPTY))
+            new CsvToBeanBuilder<UnknownMultiValuedMapField>(new StringReader(StringUtils.EMPTY))
                     .withType(UnknownMultiValuedMapField.class)
                     .build();
             fail("Exception should have been thrown");
@@ -1162,7 +1169,7 @@ public class JoinTest {
     @Test
     public void testUnassignableMultiValuedMap() {
         try {
-            new CsvToBeanBuilder(new StringReader(StringUtils.EMPTY))
+            new CsvToBeanBuilder<MismatchedMultiValuedMap>(new StringReader(StringUtils.EMPTY))
                     .withType(MismatchedMultiValuedMap.class)
                     .build();
             fail("Exception should have been thrown.");
@@ -1175,7 +1182,7 @@ public class JoinTest {
     @Test
     public void testBeanInstantiationImpossibleIllegalAccess() {
         try {
-            new CsvToBeanBuilder(new StringReader("map\n1"))
+            new CsvToBeanBuilder<InstantiationImpossibleIllegalAccess>(new StringReader("map\n1"))
                     .withType(InstantiationImpossibleIllegalAccess.class)
                     .build().parse();
             fail("Exception should have been thrown.");
@@ -1191,7 +1198,7 @@ public class JoinTest {
     @Test
     public void testNoNullaryConstructor() {
         try {
-            new CsvToBeanBuilder(new StringReader("map\n1"))
+            new CsvToBeanBuilder<NoNullaryConstructor>(new StringReader("map\n1"))
                     .withType(NoNullaryConstructor.class)
                     .build().parse();
             fail("Exception should have been thrown.");
@@ -1207,7 +1214,7 @@ public class JoinTest {
     @Test
     public void testNoNullaryConstructorNoSetter() {
         try {
-            new CsvToBeanBuilder(new StringReader("map\n1"))
+            new CsvToBeanBuilder<NoNullaryConstructorNoSetter>(new StringReader("map\n1"))
                     .withType(NoNullaryConstructorNoSetter.class)
                     .build().parse();
             fail("Exception should have been thrown.");
@@ -1223,8 +1230,9 @@ public class JoinTest {
     @Test
     public void testCustomConverterByNameRead() throws IOException {
         ResourceBundle res = ResourceBundle.getBundle("collectionconverter", Locale.GERMAN);
-        List<IdAndErrorJoinByName> beanList = new CsvToBeanBuilder(new FileReader("src/test/resources/testinputjoincustombyname.csv"))
-                .withType(IdAndErrorJoinByName.class).build().parse();
+        List<IdAndErrorJoinByName> beanList = new CsvToBeanBuilder<IdAndErrorJoinByName>(new FileReader("src/test/resources/testinputjoincustombyname.csv"))
+                .withType(IdAndErrorJoinByName.class)
+                .build().parse();
         assertEquals(2, beanList.size());
 
         // Bean one
@@ -1268,8 +1276,9 @@ public class JoinTest {
     @Test
     public void testCustomConverterByPositionRead() throws IOException {
         ResourceBundle res = ResourceBundle.getBundle("collectionconverter");
-        List<IdAndErrorJoinByPosition> beanList = new CsvToBeanBuilder(new FileReader("src/test/resources/testinputjoincustombyposition.csv"))
-                .withType(IdAndErrorJoinByPosition.class).build().parse();
+        List<IdAndErrorJoinByPosition> beanList = new CsvToBeanBuilder<IdAndErrorJoinByPosition>(new FileReader("src/test/resources/testinputjoincustombyposition.csv"))
+                .withType(IdAndErrorJoinByPosition.class)
+                .build().parse();
         assertEquals(2, beanList.size());
 
         // Bean one
@@ -1312,8 +1321,9 @@ public class JoinTest {
 
     @Test
     public void testCustomConverterByNameWrite() throws CsvException, IOException {
-        List<IdAndErrorJoinByName> beanList = new CsvToBeanBuilder(new FileReader("src/test/resources/testinputjoincustombyname.csv"))
-                .withType(IdAndErrorJoinByName.class).build().parse();
+        List<IdAndErrorJoinByName> beanList = new CsvToBeanBuilder<IdAndErrorJoinByName>(new FileReader("src/test/resources/testinputjoincustombyname.csv"))
+                .withType(IdAndErrorJoinByName.class)
+                .build().parse();
         StringWriter writer = new StringWriter();
         new StatefulBeanToCsvBuilder<IdAndErrorJoinByName>(writer).build().write(beanList);
         assertEquals("\"ID\",\"ec\",\"ec\",\"ec\"\n\"1\",\"10default.error\",\"11default.error\",\"12default.error\"\n\"2\",\"20default.error\",\"21default.error\",\"22default.error\"\n", writer.toString());
@@ -1321,8 +1331,9 @@ public class JoinTest {
 
     @Test
     public void testCustomConverterByPositionWrite() throws CsvException, IOException {
-        List<IdAndErrorJoinByPosition> beanList = new CsvToBeanBuilder(new FileReader("src/test/resources/testinputjoincustombyposition.csv"))
-                .withType(IdAndErrorJoinByPosition.class).build().parse();
+        List<IdAndErrorJoinByPosition> beanList = new CsvToBeanBuilder<IdAndErrorJoinByPosition>(new FileReader("src/test/resources/testinputjoincustombyposition.csv"))
+                .withType(IdAndErrorJoinByPosition.class)
+                .build().parse();
         StringWriter writer = new StringWriter();
         new StatefulBeanToCsvBuilder<IdAndErrorJoinByPosition>(writer).build().write(beanList);
         assertEquals("\"1\",\"10default.error\",\"11default.error\",\"12default.error\"\n\"2\",\"20default.error\",\"21default.error\",\"22default.error\"\n", writer.toString());
@@ -1332,7 +1343,7 @@ public class JoinTest {
     public void testBadCustomConverter() throws IOException {
         try {
             // Input doesn't matter. The test doesn't get that far.
-            new CsvToBeanBuilder(new FileReader("src/test/resources/testinputjoincustombyname.csv"))
+            new CsvToBeanBuilder<BadJoinConverter>(new FileReader("src/test/resources/testinputjoincustombyname.csv"))
                     .withType(BadJoinConverter.class)
                     .build().parse();
         }

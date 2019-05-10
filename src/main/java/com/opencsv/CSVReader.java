@@ -60,7 +60,7 @@ public class CSVReader implements Closeable, Iterable<String[]> {
     protected BufferedReader br;
     protected LineReader lineReader;
     protected boolean hasNext = true;
-    protected boolean linesSkiped;
+    protected boolean linesSkipped;
     protected boolean keepCR;
     protected boolean verifyReader;
     protected int multilineLimit = DEFAULT_MULTILINE_LIMIT;
@@ -76,178 +76,19 @@ public class CSVReader implements Closeable, Iterable<String[]> {
      * @param reader The reader to an underlying CSV source.
      */
     public CSVReader(Reader reader) {
-        this(reader, ICSVParser.DEFAULT_SEPARATOR,
-                ICSVParser.DEFAULT_QUOTE_CHARACTER,
-                ICSVParser.DEFAULT_ESCAPE_CHARACTER);
-    }
-
-    /**
-     * Constructs CSVReader with supplied separator.
-     *
-     * @param reader    The reader to an underlying CSV source.
-     * @param separator The delimiter to use for separating entries.
-     * @deprecated Please use {@link CSVReaderBuilder} instead.
-     */
-    @Deprecated
-    public CSVReader(Reader reader, char separator) {
-        this(reader, separator, ICSVParser.DEFAULT_QUOTE_CHARACTER,
-                ICSVParser.DEFAULT_ESCAPE_CHARACTER);
-    }
-
-    /**
-     * Constructs CSVReader with supplied separator and quote char.
-     *
-     * @param reader    The reader to an underlying CSV source.
-     * @param separator The delimiter to use for separating entries
-     * @param quotechar The character to use for quoted elements
-     * @deprecated Please use {@link CSVReaderBuilder} instead.
-     */
-    @Deprecated
-    public CSVReader(Reader reader, char separator, char quotechar) {
-        this(reader, separator, quotechar, ICSVParser.DEFAULT_ESCAPE_CHARACTER,
-                DEFAULT_SKIP_LINES, ICSVParser.DEFAULT_STRICT_QUOTES);
-    }
-
-    /**
-     * Constructs CSVReader with supplied separator, quote char, and quote handling
-     * behavior.
-     *
-     * @param reader       The reader to an underlying CSV source.
-     * @param separator    The delimiter to use for separating entries
-     * @param quotechar    The character to use for quoted elements
-     * @param strictQuotes Sets if characters outside the quotes are ignored
-     * @deprecated Please use {@link CSVReaderBuilder} instead.
-     */
-    @Deprecated
-    public CSVReader(Reader reader, char separator, char quotechar, boolean strictQuotes) {
-        this(reader, separator, quotechar, ICSVParser.DEFAULT_ESCAPE_CHARACTER,
-                DEFAULT_SKIP_LINES, strictQuotes);
-    }
-
-    /**
-     * Constructs CSVReader.
-     *
-     * @param reader    The reader to an underlying CSV source.
-     * @param separator The delimiter to use for separating entries
-     * @param quotechar The character to use for quoted elements
-     * @param escape    The character to use for escaping a separator or quote
-     * @deprecated Please use {@link CSVReaderBuilder} instead.
-     */
-    @Deprecated
-    public CSVReader(Reader reader, char separator,
-                     char quotechar, char escape) {
-        this(reader, separator, quotechar, escape, DEFAULT_SKIP_LINES,
-                ICSVParser.DEFAULT_STRICT_QUOTES);
-    }
-
-    /**
-     * Constructs CSVReader.
-     *
-     * @param reader    The reader to an underlying CSV source.
-     * @param separator The delimiter to use for separating entries
-     * @param quotechar The character to use for quoted elements
-     * @param line      The number of lines to skip before reading
-     * @deprecated Please use {@link CSVReaderBuilder} instead.
-     */
-    @Deprecated
-    public CSVReader(Reader reader, char separator, char quotechar, int line) {
-        this(reader, separator, quotechar, ICSVParser.DEFAULT_ESCAPE_CHARACTER,
-                line, ICSVParser.DEFAULT_STRICT_QUOTES);
-    }
-
-    /**
-     * Constructs CSVReader.
-     *
-     * @param reader    The reader to an underlying CSV source.
-     * @param separator The delimiter to use for separating entries
-     * @param quotechar The character to use for quoted elements
-     * @param escape    The character to use for escaping a separator or quote
-     * @param line      The number of lines to skip before reading
-     * @deprecated Please use {@link CSVReaderBuilder} instead.
-     */
-    @Deprecated
-    public CSVReader(Reader reader, char separator, char quotechar, char escape, int line) {
-        this(reader, separator, quotechar, escape, line,
-                ICSVParser.DEFAULT_STRICT_QUOTES);
-    }
-
-    /**
-     * Constructs CSVReader.
-     *
-     * @param reader       The reader to an underlying CSV source.
-     * @param separator    The delimiter to use for separating entries
-     * @param quotechar    The character to use for quoted elements
-     * @param escape       The character to use for escaping a separator or quote
-     * @param line         The number of lines to skip before reading
-     * @param strictQuotes Sets if characters outside the quotes are ignored
-     * @deprecated Please use {@link CSVReaderBuilder} instead.
-     */
-    @Deprecated
-    public CSVReader(Reader reader, char separator, char quotechar, char escape, int line, boolean strictQuotes) {
-        this(reader, separator, quotechar, escape, line, strictQuotes,
-                ICSVParser.DEFAULT_IGNORE_LEADING_WHITESPACE);
-    }
-
-    /**
-     * Constructs CSVReader with all data entered.
-     *
-     * @param reader                  The reader to an underlying CSV source.
-     * @param separator               The delimiter to use for separating entries
-     * @param quotechar               The character to use for quoted elements
-     * @param escape                  The character to use for escaping a separator or quote
-     * @param line                    The number of lines to skip before reading
-     * @param strictQuotes            Sets if characters outside the quotes are ignored
-     * @param ignoreLeadingWhiteSpace If true, parser should ignore white space before a quote in a field
-     * @deprecated Please use {@link CSVReaderBuilder} instead.
-     */
-    @Deprecated
-    public CSVReader(Reader reader, char separator, char quotechar, char escape, int line, boolean strictQuotes, boolean ignoreLeadingWhiteSpace) {
-        this(reader, line,
-                new CSVParser(separator, quotechar, escape, strictQuotes,
-                        ignoreLeadingWhiteSpace,
-                        ICSVParser.DEFAULT_IGNORE_QUOTATIONS,
-                        ICSVParser.DEFAULT_NULL_FIELD_INDICATOR,
-                        Locale.getDefault()));
-    }
-
-    /**
-     * Constructs CSVReader with all data entered.
-     *
-     * @param reader                  The reader to an underlying CSV source.
-     * @param separator               The delimiter to use for separating entries
-     * @param quotechar               The character to use for quoted elements
-     * @param escape                  The character to use for escaping a separator or quote
-     * @param line                    The number of lines to skip before reading
-     * @param strictQuotes            Sets if characters outside the quotes are ignored
-     * @param ignoreLeadingWhiteSpace If true, parser should ignore white space before a quote in a field
-     * @param keepCR                  If true the reader will keep carriage returns, otherwise it will discard them.
-     * @deprecated Please use {@link CSVReaderBuilder} instead.
-     */
-    @Deprecated
-    public CSVReader(Reader reader, char separator, char quotechar, char escape, int line, boolean strictQuotes,
-                     boolean ignoreLeadingWhiteSpace, boolean keepCR) {
-        this(reader, line,
-                new CSVParser(separator, quotechar, escape, strictQuotes,
-                        ignoreLeadingWhiteSpace,
+        this(reader, DEFAULT_SKIP_LINES,
+                new CSVParser(ICSVParser.DEFAULT_SEPARATOR,
+                        ICSVParser.DEFAULT_QUOTE_CHARACTER,
+                        ICSVParser.DEFAULT_ESCAPE_CHARACTER,
+                        ICSVParser.DEFAULT_STRICT_QUOTES,
+                        ICSVParser.DEFAULT_IGNORE_LEADING_WHITESPACE,
                         ICSVParser.DEFAULT_IGNORE_QUOTATIONS,
                         ICSVParser.DEFAULT_NULL_FIELD_INDICATOR,
                         Locale.getDefault()),
-                keepCR, DEFAULT_VERIFY_READER, DEFAULT_MULTILINE_LIMIT,
+                DEFAULT_KEEP_CR,
+                DEFAULT_VERIFY_READER,
+                DEFAULT_MULTILINE_LIMIT,
                 Locale.getDefault());
-    }
-
-    /**
-     * Constructs CSVReader with supplied CSVParser.
-     *
-     * @param reader     The reader to an underlying CSV source.
-     * @param line       The number of lines to skip before reading
-     * @param icsvParser The parser to use to parse input
-     * @deprecated Please use {@link CSVReaderBuilder} instead.
-     */
-    @Deprecated
-    public CSVReader(Reader reader, int line, ICSVParser icsvParser) {
-        this(reader, line, icsvParser, DEFAULT_KEEP_CR, DEFAULT_VERIFY_READER,
-                DEFAULT_MULTILINE_LIMIT, Locale.getDefault());
     }
 
     /**
@@ -426,12 +267,12 @@ public class CSVReader implements Closeable, Iterable<String[]> {
             return null;
         }
 
-        if (!this.linesSkiped) {
+        if (!this.linesSkipped) {
             for (int i = 0; i < skipLines; i++) {
                 lineReader.readLine();
                 linesRead++;
             }
-            this.linesSkiped = true;
+            this.linesSkipped = true;
         }
         String nextLine = lineReader.readLine();
         if (nextLine == null) {
@@ -449,19 +290,6 @@ public class CSVReader implements Closeable, Iterable<String[]> {
      */
     public int getMultilineLimit() {
         return multilineLimit;
-    }
-
-    /**
-     * Sets the maximum number of lines allowed in a multiline record.
-     * More than this number in one record results in an IOException.
-     *
-     * @param multilineLimit No more than this number of lines is allowed in a
-     *   single input record. The default is {@link #DEFAULT_MULTILINE_LIMIT}.
-     * @deprecated Please use {@link CSVReaderBuilder#withMultilineLimit(int)} instead.
-     */
-    @Deprecated
-    public void setMultilineLimit(int multilineLimit) {
-        this.multilineLimit = multilineLimit;
     }
 
     /**

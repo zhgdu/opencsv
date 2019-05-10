@@ -5,7 +5,6 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
 
 /**
  * The AbstractCSVWriter was created to prevent duplication of code between the CSVWriter and the

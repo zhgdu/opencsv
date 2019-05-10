@@ -52,34 +52,32 @@ public class CsvToBeanTest {
         Locale.setDefault(systemLocale);
     }
 
-    private CSVReader createReader() {
-        return createReader(TEST_STRING);
-    }
-
-    private CSVReader createReader(String testString) {
-        StringReader reader = new StringReader(testString);
-        return new CSVReader(reader);
-    }
-
+    @SuppressWarnings("unchecked")
     @Test(expected = RuntimeException.class)
     public void throwRuntimeExceptionWhenExceptionIsThrown() {
-        CsvToBean bean = new CsvToBean();
-        bean.parse(new ErrorHeaderMappingStrategy(), createReader());
+        new CsvToBeanBuilder(new StringReader(TEST_STRING))
+                .withMappingStrategy(new ErrorHeaderMappingStrategy())
+                .build().parse();
     }
 
+    @SuppressWarnings("unchecked")
     @Test(expected = RuntimeException.class)
     public void throwRuntimeExceptionLineWhenExceptionIsThrown() {
-        CsvToBean bean = new CsvToBean();
-        bean.parse(new ErrorLineMappingStrategy(), new StringReader(TEST_STRING), false); // Extra arguments for code coverage
+        new CsvToBeanBuilder(new StringReader(TEST_STRING))
+                .withMappingStrategy(new ErrorLineMappingStrategy())
+                .withThrowExceptions(false)
+                .build().parse(); // Extra arguments for code coverage
     }
 
     @Test
     public void parseBeanWithNoAnnotations() {
         HeaderColumnNameMappingStrategy<MockBean> strategy = new HeaderColumnNameMappingStrategy<>();
         strategy.setType(MockBean.class);
-        CsvToBean<MockBean> bean = new CsvToBean<>();
+        List<MockBean> beanList =new CsvToBeanBuilder<MockBean>(new StringReader(TEST_STRING))
+                .withMappingStrategy(strategy)
+                .withFilter(null)
+                .build().parse(); // Extra arguments for code coverage
 
-        List<MockBean> beanList = bean.parse(strategy, new StringReader(TEST_STRING), null); // Extra arguments for code coverage
         assertEquals(2, beanList.size());
         assertTrue(beanList.contains(createMockBean("kyle", "abc123456", 123)));
         assertTrue(beanList.contains(createMockBean("jimmy", "def098765", 456)));
@@ -108,9 +106,12 @@ public class CsvToBeanTest {
         CSVParser parser = parserBuilder.withFieldAsNull(CSVReaderNullFieldIndicator.BOTH).withSeparator(';').build();
         CSVReader csvReader = readerBuilder.withCSVParser(parser).build();
 
-        CsvToBean<Bug133Bean> bean = new CsvToBean<>();
+        List<Bug133Bean> beanList = new CsvToBeanBuilder<Bug133Bean>(csvReader)
+                .withMappingStrategy(strategy)
+                .withFilter(null)
+                .withThrowExceptions(true)
+                .build().parse(); // Extra arguments for code coverage
 
-        List<Bug133Bean> beanList = bean.parse(strategy, csvReader, null, true); // Extra arguments for code coverage
         assertEquals(2, beanList.size());
     }
 
@@ -144,7 +145,7 @@ public class CsvToBeanTest {
 
     @Test(expected = IllegalStateException.class)
     public void throwIllegalStateWhenOnlyMapperIsSpecifiedToParseWithoutArguments() {
-        CsvToBean csvtb = new CsvToBean();
+        CsvToBean<AnnotatedMockBeanFull> csvtb = new CsvToBean<>();
         HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat = new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanFull.class);
         csvtb.setMappingStrategy(strat);
@@ -221,7 +222,7 @@ public class CsvToBeanTest {
         // Yeah, some of these are the default values, but I'm having trouble concocting
         // a CSV file screwy enough to meet the requirements posed by not using
         // defaults for everything.
-        CsvToBean csvtb =
+        CsvToBean<AnnotatedMockBeanFull> csvtb =
                 new CsvToBeanBuilder<AnnotatedMockBeanFull>(new FileReader("src/test/resources/testinputmaximumbuilder.csv"))
                         .withEscapeChar('?')
                         .withFieldAsNull(CSVReaderNullFieldIndicator.NEITHER) //default
@@ -281,7 +282,7 @@ public class CsvToBeanTest {
         // Yeah, some of these are the default values, but I'm having trouble concocting
         // a CSV file screwy enough to meet the requirements posed by not using
         // defaults for everything.
-        CsvToBean csvtb =
+        CsvToBean<AnnotatedMockBeanFull> csvtb =
                 new CsvToBeanBuilder<AnnotatedMockBeanFull>(csvReader)
                         .withFilter(new BegToBeFiltered())
                         .withMappingStrategy(map)
@@ -300,7 +301,7 @@ public class CsvToBeanTest {
         assertEquals("\ttest string of everything!", bean.getStringClass());
         assertTrue(bean.getBoolWrapped());
         assertFalse(bean.isBoolPrimitive());
-        assertTrue(bean.getByteWrappedDefaultLocale() == 1);
+        assertEquals(1, (byte) bean.getByteWrappedDefaultLocale());
         // Nothing else really matters
     }
 
@@ -497,9 +498,8 @@ public class CsvToBeanTest {
         String expectedString = "Error parsing CSV line: 3, values: a \" string with a quote in the middle, 3\n" +
                 "1,bar, 3\n";
         StringReader stringReader = new StringReader(testString);
-        MappingStrategy<MockBean> map = new HeaderColumnNameMappingStrategy<>();
 
-        CsvToBean<MockBean> csvToBean = new CsvToBeanBuilder(stringReader)
+        CsvToBean<MockBean> csvToBean = new CsvToBeanBuilder<MockBean>(stringReader)
                 .withType(MockBean.class)
                 .withIgnoreLeadingWhiteSpace(true)
                 .withQuoteChar('"')
@@ -508,7 +508,7 @@ public class CsvToBeanTest {
                 .build();
 
         try {
-            List<MockBean> rows = csvToBean.parse();
+            csvToBean.parse();
         } catch (Exception e) {
             assertEquals(expectedString, e.getMessage());
         }

@@ -21,11 +21,8 @@ import com.opencsv.exceptions.CsvBadConverterException;
 import com.opencsv.exceptions.CsvConstraintViolationException;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
-import java.beans.IntrospectionException;
 
-import java.beans.PropertyDescriptor;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Locale;
 
 /**
@@ -33,71 +30,12 @@ import java.util.Locale;
  * the CSV file to an actual object.
  * <p>Any implementing class <em>must</em> be thread-safe. Specifically, the
  * following methods must be thread-safe:</p>
- * <ul><li>{@link #createBean()}</li>
- * <li>{@link #findDescriptor(int)}</li>
- * <li>{@link #findField(int)}</li>
- * <li>{@link #findMaxFieldIndex()}</li>
- * <li>{@link #isAnnotationDriven()}</li>
- * <li>{@link #populateNewBean(java.lang.String[])}</li>
- * <li>{@link #populateNewBeanWithIntrospection(java.lang.String[])}</li>
- * <li>{@link #transmuteBean(java.lang.Object)}</li>
- * <li>{@link #verifyLineLength(int)}</li></ul>
+ * <ul><li>{@link #populateNewBean(java.lang.String[])}</li>
+ * <li>{@link #transmuteBean(java.lang.Object)}</li></ul>
  *
  * @param <T> Type of object you are converting the data to.
  */
 public interface MappingStrategy<T> {
-
-    /**
-     * Gets the property descriptor for a given column position.
-     *
-     * @param col The column to find the description for
-     * @return The property descriptor for the column position or null if one
-     * could not be found.
-     * @deprecated Introspection will be replaced with reflection in version 5.0
-     */
-    @Deprecated
-    PropertyDescriptor findDescriptor(int col);
-
-    /**
-     * Gets the field for a given column position.
-     *
-     * @param col The column to find the field for
-     * @return BeanField containing the field for a given column position, or
-     * null if one could not be found
-     * @throws CsvBadConverterException If a custom converter for a field cannot
-     *                                  be initialized
-     * @deprecated Simply don't use this. It is meant for use internal to an
-     *   implementation of this interface
-     */
-    @Deprecated
-    BeanField<T> findField(int col) throws CsvBadConverterException;
-    
-    /**
-     * Finds and returns the highest index in this mapping.
-     * This is especially important for writing, since position-based mapping
-     * can ignore some columns that must be included in the output anyway.
-     * {@link #findField(int) } will return null for these columns, so we need
-     * a way to know when to stop writing new columns.
-     * @return The highest index in the mapping. If there are no columns in the
-     *   mapping, returns -1.
-     * @since 3.9
-     * @deprecated Simply don't use this. It is meant for use internal to an
-     *   implementation of this interface
-     */
-    @Deprecated
-    int findMaxFieldIndex();
-
-    /**
-     * Implementation will return a bean of the type of object you are mapping.
-     *
-     * @return A new instance of the class being mapped.
-     * @throws InstantiationException Thrown on error creating object.
-     * @throws IllegalAccessException Thrown on error creating object.
-     * @deprecated Simply don't use this. It is meant for use internal to an
-     *   implementation of this interface
-     */
-    @Deprecated
-    T createBean() throws InstantiationException, IllegalAccessException;
 
     /**
      * Implementation of this method can grab the header line before parsing
@@ -133,27 +71,13 @@ public interface MappingStrategy<T> {
     String[] generateHeader(T bean) throws CsvRequiredFieldEmptyException;
 
     /**
-     * Gets the column index that corresponds to a specific column name.
-     * <p>If the CSV file doesn't have a header row, this method will always return
-     * null. If the same column name is mapped to more than one column index,
-     * this method returns one of the indices without any guarantee as to which
-     * one.</p>
-     * <p>Inside of opencsv itself this method is only used for testing.</p>
-     *
-     * @param name The column name
-     * @return The column index, or null if the name doesn't exist
-     * @deprecated There is no replacement for this method, since we are not
-     *   aware of a use for it. Let us know if you have a use case.
-     */
-    @Deprecated
-    Integer getColumnIndex(String name);
-    
-    /**
      * Determines whether the mapping strategy is driven by annotations.
      *
      * @return Whether the mapping strategy is driven by annotations
+     * @deprecated This is simply no longer necessary.
      */
-    boolean isAnnotationDriven();
+    @Deprecated
+    default boolean isAnnotationDriven() {return false;}
     
     /**
      * Takes a line of input from a CSV file and creates a bean out of it.
@@ -163,10 +87,6 @@ public interface MappingStrategy<T> {
      * @throws InstantiationException Generally, if some part of the bean cannot
      *   be accessed and used as needed
      * @throws IllegalAccessException Generally, if some part of the bean cannot
-     *   be accessed and used as needed
-     * @throws IntrospectionException Generally, if some part of the bean cannot
-     *   be accessed and used as needed
-     * @throws InvocationTargetException Generally, if some part of the bean cannot
      *   be accessed and used as needed
      * @throws CsvRequiredFieldEmptyException If the input for a field defined
      *   as required is empty
@@ -179,58 +99,9 @@ public interface MappingStrategy<T> {
      */
     T populateNewBean(String[] line)
             throws InstantiationException, IllegalAccessException,
-            IntrospectionException, InvocationTargetException,
             CsvRequiredFieldEmptyException, CsvDataTypeMismatchException,
             CsvConstraintViolationException;
     
-    /**
-     * Takes a line of input from a CSV file and creates a bean out of it.
-     * This method does the same thing as
-     * {@link #populateNewBean(java.lang.String[])}, except that it uses
-     * introspection instead of reflection to preserve backward compatibility
-     * with non-annotated bean usage.
-     * 
-     * @param line A line of input returned from {@link com.opencsv.CSVReader}
-     * @return A bean containing the converted information from the input
-     * @throws InstantiationException Generally, if some part of the bean cannot
-     *   be accessed and used as needed
-     * @throws IllegalAccessException Generally, if some part of the bean cannot
-     *   be accessed and used as needed
-     * @throws IntrospectionException Generally, if some part of the bean cannot
-     *   be accessed and used as needed
-     * @throws InvocationTargetException Generally, if some part of the bean cannot
-     *   be accessed and used as needed
-     * @throws CsvRequiredFieldEmptyException If the input for a field defined
-     *   as required is empty
-     * @deprecated Introspection is slated to be removed in version 5.0. This
-     *   method was added to preserve existing functionality until then.
-     * @since 4.2
-     * @see #populateNewBean(java.lang.String[]) 
-     */
-    @Deprecated
-    T populateNewBeanWithIntrospection(String[] line)
-            throws InstantiationException, IllegalAccessException,
-            IntrospectionException, InvocationTargetException,
-            CsvRequiredFieldEmptyException;
-   
-    /**
-     * Must be called once the length of input for a line/record is known to
-     * verify that the line was complete.
-     * Complete in this context means, no required fields are missing. The issue
-     * here is, as long as a column is present but empty, we can check whether
-     * the field is required and throw an exception if it is not, but if the data
-     * end prematurely, we never have this chance without indication that no more
-     * data are on the way.
-     * Another validation is that the number of fields must match the number of
-     * headers to prevent a data mismatch situation.
-     * 
-     * @param numberOfFields The number of fields present in the line of input
-     * @throws CsvRequiredFieldEmptyException If a required column is missing
-     * @since 4.0
-     */
-    @Deprecated
-    void verifyLineLength(int numberOfFields) throws CsvRequiredFieldEmptyException;
-   
     /**
      * Sets the locale for all error messages.
      * @param errorLocale Locale for error messages. If null, the default locale

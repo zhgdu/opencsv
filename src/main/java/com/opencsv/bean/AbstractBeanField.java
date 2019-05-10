@@ -80,39 +80,6 @@ abstract public class AbstractBeanField<T> implements BeanField<T> {
     }
 
     /**
-     * Constructor for an optional field.
-     * @param field A {@link java.lang.reflect.Field} object.
-     * @deprecated Please always use the constructor with all arguments
-     */
-    @Deprecated
-    public AbstractBeanField(Field field) {
-        this(field, false, Locale.getDefault(), null);
-    }
-
-    /**
-     * @param field A {@link java.lang.reflect.Field} object.
-     * @param required Whether or not this field is required in input
-     * @since 3.10
-     * @deprecated Please always use the constructor with all arguments
-     */
-    @Deprecated
-    public AbstractBeanField(Field field, boolean required) {
-        this(field, required, Locale.getDefault(), null);
-    }
-
-    /**
-     * @param field A {@link java.lang.reflect.Field} object.
-     * @param required Whether or not this field is required in input
-     * @param errorLocale The errorLocale to use for error messages.
-     * @since 4.0
-     * @deprecated Please always use the constructor with all arguments
-     */
-    @Deprecated
-    public AbstractBeanField(Field field, boolean required, Locale errorLocale) {
-        this(field, required, errorLocale, null);
-    }
-
-    /**
      * @param field A {@link java.lang.reflect.Field} object.
      * @param required Whether or not this field is required in input
      * @param errorLocale The errorLocale to use for error messages.

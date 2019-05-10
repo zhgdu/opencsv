@@ -17,7 +17,6 @@ package com.opencsv.bean;
  */
 
 import com.opencsv.CSVReader;
-import com.opencsv.CSVReaderBuilder;
 import com.opencsv.ICSVParser;
 import com.opencsv.bean.concurrent.AccumulateCsvResults;
 import com.opencsv.bean.concurrent.IntolerantThreadPoolExecutor;
@@ -28,7 +27,6 @@ import com.opencsv.exceptions.CsvMalformedLineException;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.io.IOException;
-import java.io.Reader;
 import java.util.*;
 import java.util.concurrent.*;
 
@@ -47,7 +45,7 @@ public class CsvToBean<T> implements Iterable<T> {
     private List<CsvException> capturedExceptions = null;
 
    /** The mapping strategy to be used by this CsvToBean. */
-    private MappingStrategy<T> mappingStrategy;
+    private MappingStrategy<? extends T> mappingStrategy;
 
    /** The reader this class will use to access the data to be read. */
     private CSVReader csvReader;
@@ -106,154 +104,6 @@ public class CsvToBean<T> implements Iterable<T> {
     public CsvToBean() {
     }
 
-    /**
-     * Parse the values from a CSVReader constructed from the Reader passed in.
-     * @param mapper Mapping strategy for the bean.
-     * @param reader Reader used to construct a CSVReader
-     * @return List of Objects.
-     * @deprecated Please use {@link CsvToBeanBuilder} instead.
-     */
-    @Deprecated
-    public List<T> parse(MappingStrategy<T> mapper, Reader reader) {
-        setMappingStrategy(mapper);
-        setCsvReader(new CSVReaderBuilder(reader).withErrorLocale(errorLocale).build());
-        return parse();
-    }
-
-    /**
-     * Parse the values from a CSVReader constructed from the Reader passed in.
-     * @param mapper Mapping strategy for the bean.
-     * @param reader Reader used to construct a CSVReader
-     * @param throwExceptions If false, exceptions internal to opencsv will not
-     *   be thrown, but can be accessed after processing is finished through
-     *   {@link #getCapturedExceptions()}.
-     * @return List of Objects.
-     * @deprecated Please use {@link CsvToBeanBuilder} instead.
-     */
-    @Deprecated
-    public List<T> parse(MappingStrategy<T> mapper, Reader reader, boolean throwExceptions) {
-        setMappingStrategy(mapper);
-        setCsvReader(new CSVReaderBuilder(reader).withErrorLocale(errorLocale).build());
-        this.setThrowExceptions(throwExceptions);
-        return parse();
-    }
-
-    /**
-     * Parse the values from a CSVReader constructed from the Reader passed in.
-     *
-     * @param mapper Mapping strategy for the bean.
-     * @param reader Reader used to construct a CSVReader
-     * @param filter CsvToBeanFilter to apply - null if no filter.
-     * @return List of Objects.
-     * @deprecated Please use {@link CsvToBeanBuilder} instead.
-     */
-    @Deprecated
-    public List<T> parse(MappingStrategy<T> mapper, Reader reader, CsvToBeanFilter filter) {
-        setMappingStrategy(mapper);
-        setCsvReader(new CSVReaderBuilder(reader).withErrorLocale(errorLocale).build());
-        this.setFilter(filter);
-        return parse();
-    }
-
-    /**
-     * Parse the values from a CSVReader constructed from the Reader passed in.
-     * @param mapper Mapping strategy for the bean.
-     * @param reader Reader used to construct a CSVReader
-     * @param filter CsvToBeanFilter to apply - null if no filter.
-     * @param throwExceptions If false, exceptions internal to opencsv will not
-     *   be thrown, but can be accessed after processing is finished through
-     *   {@link #getCapturedExceptions()}.
-     * @return List of Objects.
-     * @deprecated Please use {@link CsvToBeanBuilder} instead.
-     */
-    @Deprecated
-    public List<T> parse(MappingStrategy<T> mapper, Reader reader,
-            CsvToBeanFilter filter, boolean throwExceptions) {
-        setMappingStrategy(mapper);
-        setCsvReader(new CSVReaderBuilder(reader).withErrorLocale(errorLocale).build());
-        this.setFilter(filter);
-        this.setThrowExceptions(throwExceptions);
-        return parse();
-    }
-
-    /**
-     * Parse the values from the CSVReader.
-     * @param mapper Mapping strategy for the bean.
-     * @param csv CSVReader
-     * @return List of Objects.
-     * @deprecated Please use {@link CsvToBeanBuilder} instead.
-     */
-    @Deprecated
-    public List<T> parse(MappingStrategy<T> mapper, CSVReader csv) {
-        setMappingStrategy(mapper);
-        setCsvReader(csv);
-        return parse();
-    }
-
-    /**
-     * Parse the values from the CSVReader.
-     * @param mapper Mapping strategy for the bean.
-     * @param csv CSVReader
-     * @param throwExceptions If false, exceptions internal to opencsv will not
-     *   be thrown, but can be accessed after processing is finished through
-     *   {@link #getCapturedExceptions()}.
-     * @return List of Objects.
-     * @deprecated Please use {@link CsvToBeanBuilder} instead.
-     */
-    @Deprecated
-    public List<T> parse(MappingStrategy<T> mapper, CSVReader csv, boolean throwExceptions) {
-        setMappingStrategy(mapper);
-        setCsvReader(csv);
-        this.setThrowExceptions(throwExceptions);
-        return parse();
-    }
-
-    /**
-     * Parse the values from the CSVReader.
-     * Throws exceptions for bad data and other sorts of problems relating
-     * directly to opencsv, as well as general exceptions from external code
-     * used.
-     *
-     * @param mapper Mapping strategy for the bean.
-     * @param csv CSVReader
-     * @param filter CsvToBeanFilter to apply - null if no filter.
-     * @return List of Objects.
-     * @deprecated Please use {@link CsvToBeanBuilder} instead.
-     */
-    @Deprecated
-    public List<T> parse(MappingStrategy<T> mapper, CSVReader csv,
-            CsvToBeanFilter filter) {
-        setMappingStrategy(mapper);
-        setCsvReader(csv);
-        this.setFilter(filter);
-        return parse();
-    }
-
-    /**
-     * Parse the values from the CSVReader.
-     * Only throws general exceptions from external code used. Problems related
-     * to opencsv and the data provided to it are captured for later processing
-     * by user code and can be accessed through {@link #getCapturedExceptions()}.
-     *
-     * @param mapper Mapping strategy for the bean.
-     * @param csv CSVReader
-     * @param filter CsvToBeanFilter to apply - null if no filter.
-     * @param throwExceptions If false, exceptions internal to opencsv will not
-     *   be thrown, but can be accessed after processing is finished through
-     *   {@link #getCapturedExceptions()}.
-     * @return List of Objects.
-     * @deprecated Please use {@link CsvToBeanBuilder} instead.
-     */
-    @Deprecated
-    public List<T> parse(MappingStrategy<T> mapper, CSVReader csv,
-            CsvToBeanFilter filter, boolean throwExceptions) {
-        setMappingStrategy(mapper);
-        setCsvReader(csv);
-        this.setFilter(filter);
-        this.setThrowExceptions(throwExceptions);
-        return parse();
-    }
-    
     /**
      * Prepare for parallel processing.
      * <p>The structure is:
@@ -405,7 +255,7 @@ public class CsvToBean<T> implements Iterable<T> {
      * Sets the mapping strategy to be used by this bean.
      * @param mappingStrategy Mapping strategy to convert CSV input to a bean
      */
-    public void setMappingStrategy(MappingStrategy<T> mappingStrategy) {
+    public void setMappingStrategy(MappingStrategy<? extends T> mappingStrategy) {
         this.mappingStrategy = mappingStrategy;
     }
 

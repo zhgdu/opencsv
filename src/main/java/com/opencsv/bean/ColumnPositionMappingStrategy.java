@@ -76,7 +76,7 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
         fieldMap.setMaxIndex(firstLine.length - 1);
         if (!columnsExplicitlySet) {
             headerIndex.clear();
-            for (FieldMapByPositionEntry entry : fieldMap) {
+            for (FieldMapByPositionEntry<T> entry : fieldMap) {
                 Field f = entry.getField().getField();
                 if (f.getAnnotation(CsvCustomBindByPosition.class) != null
                         || f.getAnnotation(CsvBindAndSplitByPosition.class) != null
@@ -99,7 +99,7 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
     }
 
     @Override
-    public BeanField<T> findField(int col) {
+    protected BeanField<T> findField(int col) {
         // If we have a mapping for changing the order of the columns on
         // writing, be sure to use it.
         if (columnIndexForWriting != null) {
@@ -120,7 +120,7 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
     public String[] generateHeader(T bean) throws CsvRequiredFieldEmptyException {
         String[] h = super.generateHeader(bean);
         columnIndexForWriting = new Integer[h.length];
-        Arrays.parallelSetAll(columnIndexForWriting, i -> i);
+        Arrays.setAll(columnIndexForWriting, i -> i);
 
         // Create the mapping for input column index to output column index.
         Arrays.sort(columnIndexForWriting, writeOrder);
@@ -161,22 +161,22 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
             headerIndex.clear();
         }
         columnsExplicitlySet = true;
+        if(getType() != null) {
+            loadFieldMap(); // In case setType() was called first.
+        }
     }
 
-    @Override
-    protected void loadFieldMap() throws CsvBadConverterException {
+    private void loadAnnotatedFieldMap(List<Field> fields) {
         boolean required;
-        fieldMap = new FieldMapByPosition<>(errorLocale);
-        fieldMap.setColumnOrderOnWrite(writeOrder);
-
-        for (Field field : loadFields(getType())) {
+        for (Field field : fields) {
             String fieldLocale, capture, format;
 
             // Custom converters always have precedence.
             if (field.isAnnotationPresent(CsvCustomBindByPosition.class)) {
                 CsvCustomBindByPosition annotation = field
                         .getAnnotation(CsvCustomBindByPosition.class);
-                Class<? extends AbstractBeanField> converter = annotation.converter();
+                @SuppressWarnings("unchecked")
+                Class<? extends AbstractBeanField<T>> converter = (Class<? extends AbstractBeanField<T>>)annotation.converter();
                 BeanField<T> bean = instantiateCustomConverter(converter);
                 bean.setField(field);
                 required = annotation.required();
@@ -198,7 +198,7 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
                 format = annotation.format();
 
                 CsvConverter converter = determineConverter(field, elementType, fieldLocale, splitConverter);
-                fieldMap.put(annotation.position(), new BeanFieldSplit<T>(
+                fieldMap.put(annotation.position(), new BeanFieldSplit<>(
                         field, required, errorLocale, converter, splitOn,
                         writeDelimiter, collectionType, capture, format));
             }
@@ -215,7 +215,7 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
                 format = annotation.format();
 
                 CsvConverter converter = determineConverter(field, elementType, fieldLocale, joinConverter);
-                fieldMap.putComplex(annotation.position(), new BeanFieldJoinIntegerIndex<T>(
+                fieldMap.putComplex(annotation.position(), new BeanFieldJoinIntegerIndex<>(
                         field, required, errorLocale, converter, mapType, capture, format));
             }
 
@@ -228,16 +228,47 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
                 format = annotation.format();
                 CsvConverter converter = determineConverter(field, field.getType(), fieldLocale, null);
 
-                fieldMap.put(annotation.position(), new BeanFieldSingleValue<T>(
+                fieldMap.put(annotation.position(), new BeanFieldSingleValue<>(
                         field, required, errorLocale, converter, capture, format));
             }
         }
     }
 
+    private void loadUnadornedFieldMap(List<Field> fields) {
+        for(Field field : fields) {
+            CsvConverter converter = determineConverter(field, field.getType(), null, null);
+            int[] indices = headerIndex.getByName(field.getName());
+            if(indices.length != 0) {
+                fieldMap.put(indices[0], new BeanFieldSingleValue<>(
+                        field, false, errorLocale, converter, null, null));
+            }
+        }
+    }
+
     @Override
-    public void verifyLineLength(int numberOfFields) throws CsvRequiredFieldEmptyException {
+    protected void loadFieldMap() throws CsvBadConverterException {
+        fieldMap = new FieldMapByPosition<>(errorLocale);
+        fieldMap.setColumnOrderOnWrite(writeOrder);
+        Map<Boolean, List<Field>> partitionedFields = Stream.of(FieldUtils.getAllFields(getType()))
+                .filter(f -> !f.isSynthetic())
+                .collect(Collectors.partitioningBy(
+                        f -> f.isAnnotationPresent(CsvBindByPosition.class)
+                                || f.isAnnotationPresent(CsvCustomBindByPosition.class)
+                                || f.isAnnotationPresent(CsvBindAndJoinByPosition.class)
+                                || f.isAnnotationPresent(CsvBindAndSplitByPosition.class)));
+
+        if(!partitionedFields.get(Boolean.TRUE).isEmpty()) {
+            loadAnnotatedFieldMap(partitionedFields.get(Boolean.TRUE));
+        }
+        else {
+            loadUnadornedFieldMap(partitionedFields.get(Boolean.FALSE));
+        }
+    }
+
+    @Override
+    protected void verifyLineLength(int numberOfFields) throws CsvRequiredFieldEmptyException {
         if (!headerIndex.isEmpty()) {
-            BeanField f;
+            BeanField<T> f;
             StringBuilder sb = null;
             for (int i = numberOfFields; i <= headerIndex.findMaxIndex(); i++) {
                 f = findField(i);
@@ -253,17 +284,6 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
                 throw new CsvRequiredFieldEmptyException(type, sb.toString());
             }
         }
-    }
-
-    private List<Field> loadFields(Class<? extends T> cls) {
-        List<Field> fields = Stream.of(FieldUtils.getAllFields(cls)).filter(
-                f -> f.isAnnotationPresent(CsvBindByPosition.class)
-                || f.isAnnotationPresent(CsvCustomBindByPosition.class)
-                || f.isAnnotationPresent(CsvBindAndJoinByPosition.class)
-                || f.isAnnotationPresent(CsvBindAndSplitByPosition.class))
-                .collect(Collectors.toList());
-        setAnnotationDriven(!fields.isEmpty());
-        return fields;
     }
 
     /**

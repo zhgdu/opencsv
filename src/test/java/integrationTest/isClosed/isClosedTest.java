@@ -1,6 +1,8 @@
 package integrationTest.isClosed;
 
+import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -28,7 +30,11 @@ public class isClosedTest {
         }
 
         Reader reader = new StringReader(all.toString());
-        CSVReader csvr = new CSVReader(reader, '\t');
+        CSVReader csvr = new CSVReaderBuilder(reader)
+                .withCSVParser(new CSVParserBuilder()
+                        .withSeparator('\t')
+                        .build())
+                .build();
         List<String[]> rows = csvr.readAll();
         csvr.close();
 

@@ -41,10 +41,11 @@ public class HeaderColumnNameTranslateMappingStrategyTest {
       map.put("foo", "id");
       strat.setColumnMapping(map);
 
-      CsvToBean<MockBean> csv = new CsvToBean<>();
-      List<MockBean> list = csv.parse(strat, new StringReader(s));
+      CsvToBean<MockBean> csv = new CsvToBeanBuilder<MockBean>(new StringReader(s))
+              .withMappingStrategy(strat).build();
+      List<MockBean> list = csv.parse();
       assertNotNull(list);
-      assertTrue(list.size() == 2);
+      assertEquals(2, list.size());
       MockBean bean = list.get(0);
       assertEquals("kyle", bean.getName());
       assertEquals("123456", bean.getOrderNumber());
@@ -64,8 +65,9 @@ public class HeaderColumnNameTranslateMappingStrategyTest {
       map.put("foo", "id");
       strat.setColumnMapping(map);
 
-      CsvToBean<MockBean> csv = new CsvToBean<>();
-      csv.parse(strat, new StringReader(s));
+      CsvToBean<MockBean> csv = new CsvToBeanBuilder<MockBean>(new StringReader(s))
+              .withMappingStrategy(strat).build();
+      csv.parse();
 
       assertEquals("name", strat.getColumnName(0));
       assertEquals("orderNumber", strat.getColumnName(1));
@@ -87,8 +89,9 @@ public class HeaderColumnNameTranslateMappingStrategyTest {
       strat.setColumnMapping(map);
       assertNotNull(strat.getColumnMapping());
 
-      CsvToBean<MockBean> csv = new CsvToBean<>();
-      csv.parse(strat, new StringReader(s));
+      CsvToBean<MockBean> csv = new CsvToBeanBuilder<MockBean>(new StringReader(s))
+              .withMappingStrategy(strat).build();
+      csv.parse();
 
       assertEquals("name", strat.getColumnName(0));
       assertEquals("orderNumber", strat.getColumnName(1));

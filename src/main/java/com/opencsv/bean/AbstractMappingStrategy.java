@@ -16,19 +16,16 @@
 package com.opencsv.bean;
 
 import com.opencsv.ICSVParser;
-import com.opencsv.exceptions.*;
+import com.opencsv.exceptions.CsvBadConverterException;
+import com.opencsv.exceptions.CsvConstraintViolationException;
+import com.opencsv.exceptions.CsvDataTypeMismatchException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.beans.*;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * This class collects as many generally useful parts of the implementation
@@ -40,13 +37,7 @@ import java.util.stream.Stream;
  * @author Andrew Rucker Jones
  * @since 4.2
  */
-abstract public class AbstractMappingStrategy<I, K, C extends ComplexFieldMapEntry<I, K, T>, T> implements MappingStrategy<T> {
-    
-    /**
-     * Given a header name, this map allows one to find the corresponding
-     * property descriptor.
-     */
-    protected Map<String, PropertyDescriptor> descriptorMap = null;
+abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C extends ComplexFieldMapEntry<I, K, T>, T> implements MappingStrategy<T> {
     
     /** This is the class of the bean to be manipulated. */
     protected Class<? extends T> type;
@@ -57,22 +48,9 @@ abstract public class AbstractMappingStrategy<I, K, C extends ComplexFieldMapEnt
      */
     protected final HeaderIndex headerIndex = new HeaderIndex();
     
-    /**
-     * Whether or not annotations were found and should be used for determining
-     * the binding between columns in a CSV source or destination and fields in
-     * a bean.
-     */
-    private boolean annotationDriven;
-    
     /** Locale for error messages. */
     protected Locale errorLocale = Locale.getDefault();
 
-    /**
-     * Maintains a map from classes for bean fields to their associated property
-     * editors.
-     */
-    private final ConcurrentMap<Class<?>, PropertyEditor> editorMap = new ConcurrentHashMap<>();
-    
     /**
      * For {@link BeanField#indexAndSplitMultivaluedField(java.lang.Object, java.lang.Object)}
      * it is necessary to determine which index to pass in.
@@ -98,89 +76,51 @@ abstract public class AbstractMappingStrategy<I, K, C extends ComplexFieldMapEnt
      *                                  custom converter for an annotated field
      */
     abstract protected void loadFieldMap() throws CsvBadConverterException;
+
+    /**
+     * Gets the field for a given column position.
+     *
+     * @param col The column to find the field for
+     * @return BeanField containing the field for a given column position, or
+     * null if one could not be found
+     * @throws CsvBadConverterException If a custom converter for a field cannot
+     *                                  be initialized
+     */
+    abstract protected BeanField<T> findField(int col);
+
+    /**
+     * Must be called once the length of input for a line/record is known to
+     * verify that the line was complete.
+     * Complete in this context means, no required fields are missing. The issue
+     * here is, as long as a column is present but empty, we can check whether
+     * the field is required and throw an exception if it is not, but if the data
+     * end prematurely, we never have this chance without indication that no more
+     * data are on the way.
+     * Another validation is that the number of fields must match the number of
+     * headers to prevent a data mismatch situation.
+     *
+     * @param numberOfFields The number of fields present in the line of input
+     * @throws CsvRequiredFieldEmptyException If a required column is missing
+     * @since 4.0
+     */
+    abstract protected void verifyLineLength(int numberOfFields) throws CsvRequiredFieldEmptyException;
     
     /**
-     * Returns the trimmed value of the string only if the property the string
-     * is describing should be trimmed to be converted to that type.
+     * Implementation will return a bean of the type of object being mapped.
      *
-     * @param s    String describing the value.
-     * @param prop Property descriptor of the value.
-     * @return The string passed in if the property is a string, otherwise it
-     * will return the string with the beginning and end whitespace removed.
-     */
-    protected String checkForTrim(String s, PropertyDescriptor prop) {
-        return s != null && trimmableProperty(prop) ? s.trim() : s;
-    }
-
-    private boolean trimmableProperty(PropertyDescriptor prop) {
-        return !prop.getPropertyType().getName().contains("String");
-    }
-
-    /**
-     * Convert a string value to its Object value.
-     *
-     * @param value String value
-     * @param prop  PropertyDescriptor
-     * @return The object set to {@code value} (i.e. Integer).  Will return
-     *   a {@link java.lang.String} if no PropertyEditor is found.
-     * @throws InstantiationException Thrown on error getting the property
-     * editor from the property descriptor.
-     * @throws IllegalAccessException Thrown on error getting the property
-     * editor from the property descriptor.
-     */
-    protected Object convertValue(String value, PropertyDescriptor prop) throws InstantiationException, IllegalAccessException {
-        PropertyEditor editor = getPropertyEditor(prop);
-        Object obj = value;
-        if (null != editor) {
-            synchronized (editor) {
-                editor.setAsText(value);
-                obj = editor.getValue();
-            }
-        }
-        return obj;
-    }
-
-    /**
+     * @return A new instance of the class being mapped.
+     * @throws InstantiationException Thrown on error creating object.
+     * @throws IllegalAccessException Thrown on error creating object.
      * @throws IllegalStateException If the type of the bean has not been
      *   initialized through {@link #setType(java.lang.Class)}
      */
-    // The rest of the Javadoc is inherited
-    @Override
-    public T createBean() throws InstantiationException, IllegalAccessException, IllegalStateException {
+    protected T createBean() throws InstantiationException, IllegalAccessException, IllegalStateException {
         if(type == null) {
             throw new IllegalStateException(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("type.unset"));
         }
         return type.newInstance();
     }
 
-    @Override
-    @Deprecated
-    public PropertyDescriptor findDescriptor(int col) {
-        
-        BeanField beanField = findField(col);
-        if(beanField != null) {
-            return findDescriptor(beanField.getField().getName());
-        }
-        
-        String columnName = getColumnName(col);
-        if(StringUtils.isNotBlank(columnName)) {
-            return findDescriptor(columnName);
-        }
-        return null;
-    }
-
-    /**
-     * Find the property descriptor for a given column.
-     *
-     * @param name Column name to look up.
-     * @return The property descriptor for the column.
-     * @deprecated Introspection will be replaced with reflection in version 5.0
-     */
-    @Deprecated
-    protected PropertyDescriptor findDescriptor(String name) {
-        return descriptorMap.get(name.toUpperCase().trim());
-    }
-    
     /**
      * Gets the name (or position number) of the header for the given column
      * number.
@@ -191,7 +131,16 @@ abstract public class AbstractMappingStrategy<I, K, C extends ComplexFieldMapEnt
      */
     abstract public String findHeader(int col);
 
-    @Override
+    /**
+     * Finds and returns the highest index in this mapping.
+     * This is especially important for writing, since position-based mapping
+     * can ignore some columns that must be included in the output anyway.
+     * {@link #findField(int) } will return null for these columns, so we need
+     * a way to know when to stop writing new columns.
+     * @return The highest index in the mapping. If there are no columns in the
+     *   mapping, returns -1.
+     * @since 3.9
+     */
     public int findMaxFieldIndex() {
         return headerIndex.findMaxIndex();
     }
@@ -225,61 +174,6 @@ abstract public class AbstractMappingStrategy<I, K, C extends ComplexFieldMapEnt
     }
 
     /**
-     * Returns the PropertyEditor for the given class.
-     * Should be more efficient if used often, because it caches PropertyEditors.
-     *
-     * @param cls The class for which the property editor is desired
-     * @return The PropertyEditor for the given class
-     */
-    protected PropertyEditor getPropertyEditorValue(Class<?> cls) {
-        PropertyEditor editor = editorMap.get(cls);
-
-        if (editor == null) {
-            editor = PropertyEditorManager.findEditor(cls);
-            editorMap.put(cls, editor);
-        }
-
-        return editor;
-    }
-
-    /**
-     * Attempt to find custom property editor on descriptor first, else try the
-     * propery editor manager.
-     *
-     * @param desc PropertyDescriptor.
-     * @return The PropertyEditor for the given PropertyDescriptor.
-     * @throws InstantiationException Thrown when getting the PropertyEditor for the class.
-     * @throws IllegalAccessException Thrown when getting the PropertyEditor for the class.
-     */
-    protected PropertyEditor getPropertyEditor(PropertyDescriptor desc)
-            throws InstantiationException, IllegalAccessException {
-        Class<?> cls = desc.getPropertyEditorClass();
-        if (null != cls) {
-            return (PropertyEditor) cls.newInstance();
-        }
-        return getPropertyEditorValue(desc.getPropertyType());
-    }
-    
-    /**
-     * Builds a map of property descriptors for the bean.
-     *
-     * @return Map of property descriptors
-     * @throws IntrospectionException Thrown on error getting information
-     *                                about the bean.
-     * @deprecated Introspection will be replaced with reflection in version 5.0
-     */
-    @Deprecated
-    protected Map<String, PropertyDescriptor> loadDescriptorMap() throws IntrospectionException {
-        return Stream.of(loadDescriptors(getType()))
-                .collect(Collectors.toMap(t -> t.getName().toUpperCase(), t -> t));
-    }
-
-    private PropertyDescriptor[] loadDescriptors(Class<? extends T> cls) throws IntrospectionException {
-        BeanInfo beanInfo = Introspector.getBeanInfo(cls);
-        return beanInfo.getPropertyDescriptors();
-    }
-
-    /**
      * Get the column name for a given column position.
      *
      * @param col Column position.
@@ -303,46 +197,16 @@ abstract public class AbstractMappingStrategy<I, K, C extends ComplexFieldMapEnt
     @Override
     public T populateNewBean(String[] line)
             throws InstantiationException, IllegalAccessException,
-            IntrospectionException, InvocationTargetException,
             CsvRequiredFieldEmptyException, CsvDataTypeMismatchException,
             CsvConstraintViolationException {
         verifyLineLength(line.length);
         T bean = createBean();
         for (int col = 0; col < line.length; col++) {
-            if (isAnnotationDriven()) {
                 setFieldValue(bean, line[col], col);
-            } else {
-                processProperty(bean, line, col);
-            }
         }
         return bean;
     }
     
-    @Override
-    @Deprecated
-    public T populateNewBeanWithIntrospection(String[] line)
-            throws InstantiationException, IllegalAccessException,
-            IntrospectionException, InvocationTargetException,
-            CsvRequiredFieldEmptyException {
-        verifyLineLength(line.length);
-        T bean = createBean();
-        for (int col = 0; col < line.length; col++) {
-            processProperty(bean, line, col);
-        }
-        return bean;
-    }
-    
-    private void processProperty(T bean, String[] line, int col)
-            throws InstantiationException,
-            IllegalAccessException, InvocationTargetException, CsvBadConverterException {
-        PropertyDescriptor prop = findDescriptor(col);
-        if (null != prop) {
-            String value = checkForTrim(line[col], prop);
-            Object obj = convertValue(value, prop);
-            prop.getWriteMethod().invoke(bean, obj);
-        }
-    }
-
     /**
      * Sets the class type that is being mapped.
      * Also initializes the mapping between column names and bean fields.
@@ -352,20 +216,6 @@ abstract public class AbstractMappingStrategy<I, K, C extends ComplexFieldMapEnt
     public void setType(Class<? extends T> type) throws CsvBadConverterException {
         this.type = type;
         loadFieldMap();
-        try {
-            descriptorMap = loadDescriptorMap();
-        }
-        catch(IntrospectionException e) {
-            // For the record, especially with respect to code coverage, I have
-            // tried to trigger this exception, and I can't. I have read the
-            // source code for Java 8, and I can find no possible way for
-            // IntrospectionException to be thrown by our code.
-            // -Andrew Jones 31.07.2017
-            CsvBeanIntrospectionException csve = new CsvBeanIntrospectionException(
-                    ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("bean.descriptors.uninitialized"));
-            csve.initCause(e);
-            throw csve;
-        }
     }
     
     /**
@@ -375,7 +225,7 @@ abstract public class AbstractMappingStrategy<I, K, C extends ComplexFieldMapEnt
      * @return The custom converter
      * @throws CsvBadConverterException If the class cannot be instantiated
      */
-    protected BeanField<T> instantiateCustomConverter(Class<? extends AbstractBeanField> converter)
+    protected BeanField<T> instantiateCustomConverter(Class<? extends AbstractBeanField<T>> converter)
             throws CsvBadConverterException {
         try {
             BeanField<T> c = converter.newInstance();
@@ -390,20 +240,6 @@ abstract public class AbstractMappingStrategy<I, K, C extends ComplexFieldMapEnt
         }
     }
 
-    @Override
-    public boolean isAnnotationDriven() {
-        return annotationDriven;
-    }
-
-    /**
-     * Sets whether this mapping strategy uses the opencsv annotations or not.
-     *
-     * @param annotationDriven Whether annotations define field mappings
-     */
-    protected void setAnnotationDriven(boolean annotationDriven) {
-        this.annotationDriven = annotationDriven;
-    }
-    
     @Override
     public void setErrorLocale(Locale errorLocale) {
         this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
@@ -446,14 +282,8 @@ abstract public class AbstractMappingStrategy<I, K, C extends ComplexFieldMapEnt
     
     @Override
     public String[] transmuteBean(T bean) throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
-        List<String> transmutedBean;
         int numColumns = findMaxFieldIndex()+1;
-        if(isAnnotationDriven()) {
-            transmutedBean = writeWithReflection(bean, numColumns);
-        }
-        else {
-            transmutedBean = writeWithIntrospection(bean, numColumns);
-        }
+        List<String> transmutedBean = writeWithReflection(bean, numColumns);
         return transmutedBean.toArray(new String[transmutedBean.size()]);
     }
 
@@ -523,32 +353,6 @@ abstract public class AbstractMappingStrategy<I, K, C extends ComplexFieldMapEnt
         return contents;
     }
     
-    private List<String> writeWithIntrospection(T bean, int numColumns) {
-        PropertyDescriptor desc;
-        List<String> contents = new ArrayList<>(numColumns > 0 ? numColumns : 0);
-        for(int i = 0; i < numColumns; i++) {
-            try {
-                desc = findDescriptor(i);
-                Object o = desc != null ? desc.getReadMethod().invoke(bean, (Object[]) null) : null;
-                contents.add(Objects.toString(o, ""));
-            }
-            catch(IllegalAccessException | InvocationTargetException e) {
-                CsvBeanIntrospectionException csve = new CsvBeanIntrospectionException(
-                        bean, null, ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("error.introspecting.beans"));
-                csve.initCause(e);
-                throw csve;
-            }
-        }
-        return contents;
-    }
-
-    @Override
-    @Deprecated
-    public Integer getColumnIndex(String name) {
-        int[] i = headerIndex.getByName(name);
-        return i.length == 0 ? null : i[0];
-    }
-
     /**
      * Given the information provided, determines the appropriate built-in
      * converter to be passed in to the {@link BeanField} being created.

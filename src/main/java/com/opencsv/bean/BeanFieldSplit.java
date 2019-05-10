@@ -215,6 +215,7 @@ public class BeanFieldSplit<T> extends AbstractBeanField<T> {
      * {@link java.util.Collection}.
      */
     // The rest of the Javadoc is inherited
+    @SuppressWarnings("unchecked")
     @Override
     protected boolean isFieldEmptyForWrite(Object value) {
         return super.isFieldEmptyForWrite(value) || ((Collection<Object>)value).isEmpty();

@@ -36,63 +36,8 @@ public class CSVWriter extends AbstractCSVWriter {
     * @param writer The writer to an underlying CSV source.
     */
    public CSVWriter(Writer writer) {
-      this(writer, DEFAULT_SEPARATOR);
+      this(writer, DEFAULT_SEPARATOR, DEFAULT_QUOTE_CHARACTER, DEFAULT_ESCAPE_CHARACTER, DEFAULT_LINE_END);
    }
-
-   /**
-    * Constructs CSVWriter with supplied separator.
-    *
-    * @param writer    The writer to an underlying CSV source.
-    * @param separator The delimiter to use for separating entries.
-    * @deprecated Please use {@link CSVWriter#CSVWriter(java.io.Writer, char, char, char, java.lang.String)} instead.
-    */
-   @Deprecated
-   public CSVWriter(Writer writer, char separator) {
-      this(writer, separator, DEFAULT_QUOTE_CHARACTER);
-   }
-
-   /**
-    * Constructs CSVWriter with supplied separator and quote char.
-    *
-    * @param writer    The writer to an underlying CSV source.
-    * @param separator The delimiter to use for separating entries
-    * @param quotechar The character to use for quoted elements
-    * @deprecated Please use {@link CSVWriter#CSVWriter(java.io.Writer, char, char, char, java.lang.String)} instead.
-    */
-   @Deprecated
-   public CSVWriter(Writer writer, char separator, char quotechar) {
-      this(writer, separator, quotechar, DEFAULT_ESCAPE_CHARACTER);
-   }
-
-   /**
-    * Constructs CSVWriter with supplied separator and quote char.
-    *
-    * @param writer     The writer to an underlying CSV source.
-    * @param separator  The delimiter to use for separating entries
-    * @param quotechar  The character to use for quoted elements
-    * @param escapechar The character to use for escaping quotechars or escapechars
-    * @deprecated Please use {@link CSVWriter#CSVWriter(java.io.Writer, char, char, char, java.lang.String)} instead.
-    */
-   @Deprecated
-   public CSVWriter(Writer writer, char separator, char quotechar, char escapechar) {
-      this(writer, separator, quotechar, escapechar, DEFAULT_LINE_END);
-   }
-
-
-   /**
-    * Constructs CSVWriter with supplied separator and quote char.
-    *
-    * @param writer    The writer to an underlying CSV source.
-    * @param separator The delimiter to use for separating entries
-    * @param quotechar The character to use for quoted elements
-    * @param lineEnd   The line feed terminator to use
-    * @deprecated Please use {@link CSVWriter#CSVWriter(java.io.Writer, char, char, char, java.lang.String)} instead.
-    */
-   @Deprecated
-   public CSVWriter(Writer writer, char separator, char quotechar, String lineEnd) {
-      this(writer, separator, quotechar, DEFAULT_ESCAPE_CHARACTER, lineEnd);
-   }
-
 
    /**
     * Constructs CSVWriter with supplied separator, quote char, escape char and line ending.

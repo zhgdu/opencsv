@@ -15,23 +15,18 @@
  */
 package com.opencsv.bean;
 
-import com.opencsv.CSVReader;
-import com.opencsv.CSVReaderBuilder;
 import com.opencsv.ICSVParser;
 import com.opencsv.exceptions.CsvBadConverterException;
-import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.lang.reflect.Field;
-import java.util.*;
+import java.util.IllegalFormatException;
+import java.util.Locale;
+import java.util.ResourceBundle;
 import java.util.concurrent.BlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -65,51 +60,18 @@ public final class OpencsvUtils {
      */
     public static <T> MappingStrategy<T> determineMappingStrategy(Class<? extends T> type, Locale errorLocale) {
         // Check for annotations
-        Field[] fields = FieldUtils.getAllFields(type);
-        boolean positionAnnotationsPresent = Stream.of(fields).parallel().anyMatch(
+        boolean positionAnnotationsPresent = Stream.of(FieldUtils.getAllFields(type)).anyMatch(
                 f -> f.isAnnotationPresent(CsvBindByPosition.class)
                 || f.isAnnotationPresent(CsvBindAndSplitByPosition.class)
                 || f.isAnnotationPresent(CsvBindAndJoinByPosition.class)
                 || f.isAnnotationPresent(CsvCustomBindByPosition.class));
 
         // Set the mapping strategy according to what we've found.
-        MappingStrategy<T> mappingStrategy;
-        if(positionAnnotationsPresent) {
-            ColumnPositionMappingStrategy<T> ms = new ColumnPositionMappingStrategy<>();
-            ms.setErrorLocale(errorLocale);
-            ms.setType(type);
-            mappingStrategy = ms;
-        }
-        else {
-            HeaderColumnNameMappingStrategy<T> ms = new HeaderColumnNameMappingStrategy<>();
-            ms.setErrorLocale(errorLocale);
-            ms.setType(type);
-            
-            // Ugly hack, but I have to get the field names into the stupid
-            // strategy somehow.
-            if(!ms.isAnnotationDriven()) {
-                String header = Stream.of(fields)
-                        .filter(f -> !f.isSynthetic())
-                        .map(f -> f.getName())
-                        .sorted()
-                        .collect(Collectors.joining(",", StringUtils.EMPTY, "\n"));
-                try {
-                    CSVReader csvr = new CSVReaderBuilder(new StringReader(header))
-                            .withErrorLocale(errorLocale).build();
-                    ms.captureHeader(csvr);
-                    ms.findDescriptor(0);
-                }
-                catch(IOException e) {
-                    // Can't happen. It's a StringReader with a defined string.
-                }
-                catch(CsvRequiredFieldEmptyException e) {
-                    // Can't happen. By definition we have all fields
-                    // represented in the header.
-                }
-            }
-            
-            mappingStrategy = ms;
-        }
+        MappingStrategy<T> mappingStrategy = positionAnnotationsPresent ?
+                new ColumnPositionMappingStrategy<>() :
+                new HeaderColumnNameMappingStrategy<>();
+        mappingStrategy.setErrorLocale(errorLocale);
+        mappingStrategy.setType(type);
         return mappingStrategy;
     }
     

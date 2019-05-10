@@ -18,15 +18,9 @@ import static org.junit.Assert.assertEquals;
  */
 public class Bug63Test {
 
-    private static String[] fields = new String[5];
-    private StringWriter sw;
-    private ICSVWriter csvWriter;
-    private StringReader sr;
-
-
     @Test
     public void mappingStrategyRead() throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
-        String expectedString = "\"contentsID\";\"key\";\"position\";\"text\"\n" +
+        String expectedString = "\"CONTENTSID\";\"KEY\";\"POSITION\";\"TEXT\"\n" +
                 "\"\";\"\";\"1\";\"this is a test for row one\"\n" +
                 "\"\";\"\";\"2\";\"this is a test for row, two\"\n";
 
@@ -46,7 +40,7 @@ public class Bug63Test {
 
         StringWriter writer = new StringWriter();
 
-        StatefulBeanToCsv<Contents> bToC = new StatefulBeanToCsvBuilder(writer)
+        StatefulBeanToCsv<Contents> bToC = new StatefulBeanToCsvBuilder<Contents>(writer)
                 .withQuotechar(ICSVWriter.DEFAULT_QUOTE_CHARACTER)
                 .withSeparator(';')
                 .build();

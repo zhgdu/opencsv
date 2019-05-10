@@ -39,18 +39,24 @@ public class CSVWriterTest {
     *
     * @param args the elements of a line of the cvs file
     * @return a String version
-    * @throws IOException if there are problems writing
     */
    private String invokeWriter(String ... args) {
       StringWriter sw = new StringWriter();
-      ICSVWriter csvw = new CSVWriter(sw, ',', '\'');
+      ICSVWriter csvw = new CSVWriterBuilder(sw)
+              .withSeparator(',')
+              .withQuoteChar('\'')
+              .build();
       csvw.writeNext(args);
       return sw.toString();
    }
 
    private String invokeNoEscapeWriter(String ... args) {
       StringWriter sw = new StringWriter();
-      ICSVWriter csvw = new CSVWriter(sw, ICSVWriter.DEFAULT_SEPARATOR, '\'', ICSVWriter.NO_ESCAPE_CHARACTER);
+      ICSVWriter csvw = new CSVWriterBuilder(sw)
+              .withSeparator(ICSVWriter.DEFAULT_SEPARATOR)
+              .withQuoteChar('\'')
+              .withEscapeChar(ICSVWriter.NO_ESCAPE_CHARACTER)
+              .build();
       csvw.writeNext(args);
       return sw.toString();
    }
@@ -58,7 +64,10 @@ public class CSVWriterTest {
    @Test
    public void correctlyParseNullString() {
       StringWriter sw = new StringWriter();
-      ICSVWriter csvw = new CSVWriter(sw, ',', '\'');
+      ICSVWriter csvw = new CSVWriterBuilder(sw)
+              .withSeparator(',')
+              .withQuoteChar('\'')
+              .build();
       csvw.writeNext(null);
       assertEquals(0, sw.toString().length());
    }
@@ -66,18 +75,19 @@ public class CSVWriterTest {
    @Test
    public void correctlyParserNullObject() {
       StringWriter sw = new StringWriter();
-      ICSVWriter csvw = new CSVWriter(sw, ',', '\'');
+      ICSVWriter csvw = new CSVWriterBuilder(sw)
+              .withSeparator(',')
+              .withQuoteChar('\'')
+              .build();
       csvw.writeNext(null, false);
       assertEquals(0, sw.toString().length());
    }
 
    /**
     * Tests parsing individual lines.
-    *
-    * @throws IOException if the reader fails.
     */
    @Test
-   public void testParseLine() throws IOException {
+   public void testParseLine() {
 
       // test normal case
       String[] normal = {"a", "b", "c"};
@@ -108,14 +118,14 @@ public class CSVWriterTest {
    }
 
    @Test
-   public void testSpecialCharacters() throws IOException {
+   public void testSpecialCharacters() {
       // test quoted line
       String output = invokeWriter("This is a \r multiline entry", "so is \n this");
       assertEquals("'This is a \r multiline entry','so is \n this'\n", output);
    }
 
    @Test
-   public void parseLineWithBothEscapeAndQuoteChar() throws IOException {
+   public void parseLineWithBothEscapeAndQuoteChar() {
       // test quoted line
       String output = invokeWriter("This is a 'multiline' entry", "so is \n this");
       assertEquals("'This is a \"'multiline\"' entry','so is \n this'\n", output);
@@ -123,11 +133,9 @@ public class CSVWriterTest {
 
    /**
     * Tests parsing individual lines.
-    *
-    * @throws IOException if the reader fails.
     */
    @Test
-   public void testParseLineWithNoEscapeChar() throws IOException {
+   public void testParseLineWithNoEscapeChar() {
 
       // test normal case
       String[] normal = {"a", "b", "c"};
@@ -151,7 +159,7 @@ public class CSVWriterTest {
    }
 
    @Test
-   public void parseLineWithNoEscapeCharAndQuotes() throws IOException {
+   public void parseLineWithNoEscapeCharAndQuotes() {
       String output = invokeNoEscapeWriter("This is a \" 'multiline' entry", "so is \n this");
       assertEquals("'This is a \" 'multiline' entry','so is \n this'\n", output);
    }
@@ -232,8 +240,6 @@ public class CSVWriterTest {
 
    /**
     * Test writing from a list.
-    *
-    * @throws IOException if the reader fails.
     */
    @Test
    public void testWriteAllObjects() {
@@ -261,15 +267,16 @@ public class CSVWriterTest {
 
    /**
     * Tests the option of having omitting quotes in the output stream.
-    *
-    * @throws IOException if bad things happen
     */
    @Test
    public void testNoQuoteChars() {
 
       String[] line = {"Foo", "Bar", "Baz"};
       StringWriter sw = new StringWriter();
-      ICSVWriter csvw = new CSVWriter(sw, ICSVWriter.DEFAULT_SEPARATOR, ICSVWriter.NO_QUOTE_CHARACTER);
+      ICSVWriter csvw = new CSVWriterBuilder(sw)
+              .withSeparator(ICSVWriter.DEFAULT_SEPARATOR)
+              .withQuoteChar(ICSVWriter.NO_QUOTE_CHARACTER)
+              .build();
       csvw.writeNext(line);
       String result = sw.toString();
 
@@ -278,15 +285,17 @@ public class CSVWriterTest {
 
    /**
     * Tests the option of having omitting quotes in the output stream.
-    *
-    * @throws IOException if bad things happen
     */
    @Test
    public void testNoQuoteCharsAndNoEscapeChars() {
 
       String[] line = {"Foo", "Bar", "Baz"};
       StringWriter sw = new StringWriter();
-      ICSVWriter csvw = new CSVWriter(sw, ICSVWriter.DEFAULT_SEPARATOR, ICSVWriter.NO_QUOTE_CHARACTER, ICSVWriter.NO_ESCAPE_CHARACTER);
+      ICSVWriter csvw = new CSVWriterBuilder(sw)
+              .withSeparator(ICSVWriter.DEFAULT_SEPARATOR)
+              .withQuoteChar(ICSVWriter.NO_QUOTE_CHARACTER)
+              .withEscapeChar(ICSVWriter.NO_ESCAPE_CHARACTER)
+              .build();
       csvw.writeNext(line);
       String result = sw.toString();
 
@@ -300,7 +309,7 @@ public class CSVWriterTest {
    public void testIntelligentQuotes() {
       String[] line = {"1", "Foo", "With,Separator", "Line\nBreak", "Hello \"Foo Bar\" World", "Bar"};
       StringWriter sw = new StringWriter();
-      ICSVWriter csvw = new CSVWriter(sw, ICSVWriter.DEFAULT_SEPARATOR, ICSVWriter.DEFAULT_QUOTE_CHARACTER, ICSVWriter.DEFAULT_ESCAPE_CHARACTER);
+      ICSVWriter csvw = new CSVWriter(sw);
       csvw.writeNext(line, false);
       String result = sw.toString();
 
@@ -310,8 +319,6 @@ public class CSVWriterTest {
 
    /**
     * Test null values.
-    *
-    * @throws IOException if bad things happen
     */
    @Test
    public void testNullValues() {
@@ -372,7 +379,8 @@ public class CSVWriterTest {
    public void testAlternateEscapeChar() {
       String[] line = {"Foo", "bar's"};
       StringWriter sw = new StringWriter();
-      ICSVWriter csvw = new CSVWriter(sw, ICSVWriter.DEFAULT_SEPARATOR, ICSVWriter.DEFAULT_QUOTE_CHARACTER, '\'');
+      ICSVWriter csvw = new CSVWriterBuilder(sw)
+              .withEscapeChar('\'').build();
       csvw.writeNext(line);
       assertEquals("\"Foo\",\"bar''s\"\n", sw.toString());
    }
@@ -381,7 +389,9 @@ public class CSVWriterTest {
    public void embeddedQuoteInString() {
       String[] line = {"Foo", "I choose a \\\"hero\\\" for this adventure"};
       StringWriter sw = new StringWriter();
-      ICSVWriter csvw = new CSVWriter(sw, ICSVWriter.DEFAULT_SEPARATOR, ICSVWriter.DEFAULT_QUOTE_CHARACTER, ICSVWriter.NO_ESCAPE_CHARACTER);
+      ICSVWriter csvw = new CSVWriterBuilder(sw)
+              .withEscapeChar(ICSVWriter.NO_ESCAPE_CHARACTER)
+              .build();
       csvw.writeNext(line);
       assertEquals("\"Foo\",\"I choose a \\\"hero\\\" for this adventure\"\n", sw.toString());
    }
@@ -390,7 +400,10 @@ public class CSVWriterTest {
    public void testNoQuotingNoEscaping() {
       String[] line = {"\"Foo\",\"Bar\""};
       StringWriter sw = new StringWriter();
-      ICSVWriter csvw = new CSVWriter(sw, ICSVWriter.DEFAULT_SEPARATOR, ICSVWriter.NO_QUOTE_CHARACTER, ICSVWriter.NO_ESCAPE_CHARACTER);
+      ICSVWriter csvw = new CSVWriterBuilder(sw)
+              .withQuoteChar(ICSVWriter.NO_QUOTE_CHARACTER)
+              .withEscapeChar(ICSVWriter.NO_ESCAPE_CHARACTER)
+              .build();
       csvw.writeNext(line);
       assertEquals("\"Foo\",\"Bar\"\n", sw.toString());
    }
@@ -456,7 +469,9 @@ public class CSVWriterTest {
    public void testAlternateLineFeeds() {
       String[] line = {"Foo", "Bar", "baz"};
       StringWriter sw = new StringWriter();
-      ICSVWriter csvw = new CSVWriter(sw, ICSVWriter.DEFAULT_SEPARATOR, ICSVWriter.DEFAULT_QUOTE_CHARACTER, "\r");
+      ICSVWriter csvw = new CSVWriterBuilder(sw)
+              .withLineEnd("\r")
+              .build();
       csvw.writeNext(line);
       String result = sw.toString();
 
@@ -608,7 +623,10 @@ public class CSVWriterTest {
       String[] value = {"v1", "v2'v2a", "v3"};
 
       StringWriter sw = new StringWriter();
-      ICSVWriter csvw = new CSVWriter(sw, ICSVWriter.DEFAULT_SEPARATOR, '\'', '\'');
+      ICSVWriter csvw = new CSVWriterBuilder(sw)
+              .withQuoteChar('\'')
+              .withEscapeChar('\'')
+              .build();
       csvw.setResultService(new ResultSetHelperService());
 
       ResultSet rs = MockResultSetBuilder.buildResultSet(header, value, 1);
@@ -631,7 +649,9 @@ public class CSVWriterTest {
       lines.add(header);
       lines.add(value);
       StringWriter sw = new StringWriter();
-      ICSVWriter writer = new CSVWriter(sw, ICSVWriter.DEFAULT_SEPARATOR, ICSVWriter.NO_QUOTE_CHARACTER, ICSVWriter.DEFAULT_ESCAPE_CHARACTER);
+      ICSVWriter writer = new CSVWriterBuilder(sw)
+              .withQuoteChar(ICSVWriter.NO_QUOTE_CHARACTER)
+              .build();
       writer.writeAll(lines);
 
       String result = sw.toString();
@@ -640,7 +660,7 @@ public class CSVWriterTest {
    }
 
    @Test
-   public void issue123SeparatorEscapedWhenQuoteIsNoQuoteCharSpecifingNoneDefaultEscapeChar() {
+   public void issue123SeparatorEscapedWhenQuoteIsNoQuoteCharSpecifyingNoneDefaultEscapeChar() {
       String[] header = {"Foo", "Bar", "baz"};
       char escapeCharacter = '\\';
       String[] value = {"v1", "v2" + escapeCharacter + "v2a" + ICSVWriter.DEFAULT_SEPARATOR + "v2b", "v3"};
@@ -648,7 +668,10 @@ public class CSVWriterTest {
       lines.add(header);
       lines.add(value);
       StringWriter sw = new StringWriter();
-      ICSVWriter writer = new CSVWriter(sw, ICSVWriter.DEFAULT_SEPARATOR, ICSVWriter.NO_QUOTE_CHARACTER, escapeCharacter);
+      ICSVWriter writer = new CSVWriterBuilder(sw)
+              .withQuoteChar(ICSVWriter.NO_QUOTE_CHARACTER)
+              .withEscapeChar(escapeCharacter)
+              .build();
       writer.writeAll(lines);
 
       String result = sw.toString();
@@ -665,7 +688,10 @@ public class CSVWriterTest {
       lines.add(header);
       lines.add(value);
       StringWriter sw = new StringWriter();
-      ICSVWriter writer = new CSVWriter(sw, ICSVWriter.DEFAULT_SEPARATOR, ICSVWriter.NO_QUOTE_CHARACTER, escapeCharacter);
+      ICSVWriter writer = new CSVWriterBuilder(sw)
+              .withQuoteChar(ICSVWriter.NO_QUOTE_CHARACTER)
+              .withEscapeChar(escapeCharacter)
+              .build();
       writer.writeAll(lines);
 
       String result = sw.toString();

@@ -3,6 +3,7 @@
 Here is an overview of how to use opencsv in your project.
 
    * <<Quick start>>
+   * <<Upgrading from 4.x to 5.x>>
    * <<Upgrading from 3.x to 4.x>>
    * <<Core concepts>>
       - <<Configuration>>
@@ -60,6 +61,27 @@ out as a map:
       Map<String, String> values = new CSVReaderHeaderAware(new FileReader("yourfile.csv")).readMap();
 ----
 
+=== Upgrading from 4.x to 5.x
+
+5.0 is a major release because it breaks backward compatibility. What do you get
+for that? Here is a list of the improvements in opencsv 5.0.
+
+Here are the things you can expect to encounter during an upgrade and what to
+do about them.
+
+   * Java 8 is now the minimum supported version.
+   * Everything that was deprecated has been removed.
+      * All non-essential constructors and CsvToBean.parse() methods have been removed. Please use the builder classes instead.
+      * IterableCSVToBean and IterableCSVToBeanBuilder have both been removed. CsvToBean itself is iterable; use it instead.
+      * Scads of methods that had to do with the internal implementation details of a mapping strategy have been removed from the interface MappingStrategy. You probably never needed these anyway, if you wrote your own mapping strategy.
+      * The custom converter SplitOnWhitespace has been removed. Use the "split" parameter to the annotation in question.
+   * Writing non-annotated beans now produces capitalized headers like the rest of opencsv.
+
+And we have a new list of things that we have deprecated and plan to remove in
+6.0, as well as what you can do about it.
+
+   * MappingStrategy.isAnnotationDriven() is simply no longer necessary. It was always an internal implementation detail that has nothing to do with anything but two specific mapping strategies. We have made it a default method in the interface, so you can remove your code immediately if you have implemented your own mapping strategy.
+
 === Upgrading from 3.x to 4.x
 
 4.0 is a major release because it breaks backward compatibility. What do you get
@@ -71,7 +93,7 @@ for that? Here is a list of the improvements in opencsv 4.0.
    * opencsv now supports internationalization for all error messages it produces. The easiest way to benefit from this is to make certain the default locale is the one you want. Otherwise, look for the withErrorLocale() and setErrorLocale() methods in various classes. Localizations are provided for American English and German. Further submissions are welcome, but with a submission you enter into a life-long contract to provide updates for any new messages for the language(s) you submit. If you break this contract, you forefit your soul.
    * Support for national character sets was added to ResultSetHelperService (NClob, NVarchar, NChar, LongNVarchar).
 
-Here are the things you can expect to encounter during an upgrade, and what to
+Here are the things you can expect to encounter during an upgrade and what to
 do about them.
 
    * Java 7 is now the minimum supported version. Tough noogies.

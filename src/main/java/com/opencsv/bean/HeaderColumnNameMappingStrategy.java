@@ -74,7 +74,7 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
             String[] requiredHeaderNames = new String[missingRequiredHeaders.size()];
             List<Field> requiredFields = new ArrayList<>(missingRequiredHeaders.size());
             for(int i = 0; i < missingRequiredHeaders.size(); i++) {
-                FieldMapByNameEntry fme = missingRequiredHeaders.get(i);
+                FieldMapByNameEntry<T> fme = missingRequiredHeaders.get(i);
                 if(fme.isRegexPattern()) {
                     requiredHeaderNames[i] = String.format(
                             ResourceBundle
@@ -117,7 +117,7 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
     }
     
     @Override
-    public BeanField<T> findField(int col) throws CsvBadConverterException {
+    protected BeanField<T> findField(int col) throws CsvBadConverterException {
         BeanField<T> beanField = null;
         String columnName = getColumnName(col);
         if(StringUtils.isNotBlank(columnName)) {
@@ -125,14 +125,11 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
         }
         return beanField;
     }
-    
-    @Override
-    protected void loadFieldMap() throws CsvBadConverterException {
-        boolean required;
-        fieldMap = new FieldMapByName<>(errorLocale);
-        fieldMap.setColumnOrderOnWrite(writeOrder);
 
-        for (Field field : loadFields(getType())) {
+    private void loadAnnotatedFieldMap(List<Field> fields) {
+        boolean required;
+
+        for (Field field : fields) {
             String columnName, locale, capture, format;
 
             // Always check for a custom converter first.
@@ -142,7 +139,8 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
                 if(StringUtils.isEmpty(columnName)) {
                     columnName = field.getName().toUpperCase();
                 }
-                Class<? extends AbstractBeanField> converter = field
+                @SuppressWarnings("unchecked")
+                Class<? extends AbstractBeanField<T>> converter = (Class<? extends AbstractBeanField<T>>)field
                         .getAnnotation(CsvCustomBindByName.class)
                         .converter();
                 BeanField<T> bean = instantiateCustomConverter(converter);
@@ -151,7 +149,7 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
                 bean.setRequired(required);
                 fieldMap.put(columnName, bean);
             }
-            
+
             // Then check for a collection
             else if(field.isAnnotationPresent(CsvBindAndSplitByName.class)) {
                 CsvBindAndSplitByName annotation = field.getAnnotation(CsvBindAndSplitByName.class);
@@ -165,21 +163,21 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
                 Class<? extends AbstractCsvConverter> splitConverter = annotation.converter();
                 capture = annotation.capture();
                 format = annotation.format();
-                
+
                 CsvConverter converter = determineConverter(field, elementType, locale, splitConverter);
                 if (StringUtils.isEmpty(columnName)) {
                     fieldMap.put(field.getName().toUpperCase(),
-                            new BeanFieldSplit<T>(
+                            new BeanFieldSplit<>(
                                     field, required, errorLocale, converter,
                                     splitOn, writeDelimiter, collectionType,
                                     capture, format));
                 } else {
-                    fieldMap.put(columnName, new BeanFieldSplit<T>(
+                    fieldMap.put(columnName, new BeanFieldSplit<>(
                             field, required, errorLocale, converter, splitOn,
                             writeDelimiter, collectionType, capture, format));
                 }
             }
-            
+
             // Then for a multi-column annotation
             else if(field.isAnnotationPresent(CsvBindAndJoinByName.class)) {
                 CsvBindAndJoinByName annotation = field.getAnnotation(CsvBindAndJoinByName.class);
@@ -191,15 +189,15 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
                 Class<? extends AbstractCsvConverter> joinConverter = annotation.converter();
                 capture = annotation.capture();
                 format = annotation.format();
-                
+
                 CsvConverter converter = determineConverter(field, elementType, locale, joinConverter);
                 if (StringUtils.isEmpty(columnRegex)) {
                     fieldMap.putComplex(field.getName(),
-                            new BeanFieldJoinStringIndex<T>(
+                            new BeanFieldJoinStringIndex<>(
                                     field, required, errorLocale, converter,
                                     mapType, capture, format));
                 } else {
-                    fieldMap.putComplex(columnRegex, new BeanFieldJoinStringIndex<T>(
+                    fieldMap.putComplex(columnRegex, new BeanFieldJoinStringIndex<>(
                             field, required, errorLocale, converter, mapType,
                             capture, format));
                 }
@@ -217,25 +215,42 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
 
                 if (StringUtils.isEmpty(columnName)) {
                     fieldMap.put(field.getName().toUpperCase(),
-                            new BeanFieldSingleValue<T>(field, required,
+                            new BeanFieldSingleValue<>(field, required,
                                     errorLocale, converter, capture, format));
                 } else {
-                    fieldMap.put(columnName, new BeanFieldSingleValue<T>(
+                    fieldMap.put(columnName, new BeanFieldSingleValue<>(
                             field, required, errorLocale, converter, capture, format));
                 }
             }
         }
     }
 
-    private List<Field> loadFields(Class<? extends T> cls) {
-        List<Field> fields = Stream.of(FieldUtils.getAllFields(cls)).filter(
-                f -> f.isAnnotationPresent(CsvBindByName.class)
-                || f.isAnnotationPresent(CsvCustomBindByName.class)
-                || f.isAnnotationPresent(CsvBindAndSplitByName.class)
-                || f.isAnnotationPresent(CsvBindAndJoinByName.class))
-                .collect(Collectors.toCollection(LinkedList::new));
-        setAnnotationDriven(!fields.isEmpty());
-        return fields;
+    private void loadUnadornedFieldMap(List<Field> fields) {
+        for(Field field : fields) {
+            CsvConverter converter = determineConverter(field, field.getType(), null, null);
+            fieldMap.put(field.getName().toUpperCase(), new BeanFieldSingleValue<>(
+                    field, false, errorLocale, converter, null, null));
+        }
+    }
+    
+    @Override
+    protected void loadFieldMap() throws CsvBadConverterException {
+        fieldMap = new FieldMapByName<>(errorLocale);
+        fieldMap.setColumnOrderOnWrite(writeOrder);
+        Map<Boolean, List<Field>> partitionedFields = Stream.of(FieldUtils.getAllFields(getType()))
+                .filter(f -> !f.isSynthetic())
+                .collect(Collectors.partitioningBy(
+                        f -> f.isAnnotationPresent(CsvBindByName.class)
+                                || f.isAnnotationPresent(CsvCustomBindByName.class)
+                                || f.isAnnotationPresent(CsvBindAndSplitByName.class)
+                                || f.isAnnotationPresent(CsvBindAndJoinByName.class)));
+
+        if(!partitionedFields.get(Boolean.TRUE).isEmpty()) {
+            loadAnnotatedFieldMap(partitionedFields.get(Boolean.TRUE));
+        }
+        else {
+            loadUnadornedFieldMap(partitionedFields.get(Boolean.FALSE));
+        }
     }
 
     @Override
@@ -246,14 +261,6 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
         return headerIndex.getByPosition(col);
     }
     
-    @Override
-    public Integer getColumnIndex(String name) {
-        if (headerIndex.isEmpty()) {
-            throw new IllegalStateException(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("header.unread"));
-        }
-        return super.getColumnIndex(name);
-    }
-
     /**
      * Sets the {@link java.util.Comparator} to be used to sort columns when
      * writing beans to a CSV file.

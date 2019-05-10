@@ -36,7 +36,7 @@ import org.apache.commons.lang3.ObjectUtils;
  * @author Andrew Rucker Jones
  * @since 4.2
  */
-abstract public class AbstractFieldMap<I, K, C extends ComplexFieldMapEntry<I, K, T>, T>
+abstract public class AbstractFieldMap<I, K extends Comparable<K>, C extends ComplexFieldMapEntry<I, K, T>, T>
         implements FieldMap<I, K, C, T> {
     
     /** The locale for error messages. */
@@ -67,9 +67,9 @@ abstract public class AbstractFieldMap<I, K, C extends ComplexFieldMapEntry<I, K
     public BeanField<T> get(final K key) {
         BeanField<T> f = simpleMap.get(key);
         if(f == null) {
-            f = complexMapList.parallelStream()
+            f = complexMapList.stream()
                     .filter(r -> r.contains(key))
-                    .map(r -> r.getBeanField())
+                    .map(ComplexFieldMapEntry::getBeanField)
                     .findAny().orElse(null);
             // Would love to do .orElse(simpleMap.get(key)) and shorten this,
             // but that changes the order of precedence.

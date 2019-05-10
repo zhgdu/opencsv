@@ -520,10 +520,10 @@ public class CollectionSplitTest {
     @Test
     public void testRequiredNotPresentOnWrite() throws CsvDataTypeMismatchException {
         AnnotatedMockBeanCollectionSplitByColumn bean = new AnnotatedMockBeanCollectionSplitByColumn();
-        bean.setFloatList(new ArrayDeque<Float>());
+        bean.setFloatList(new ArrayDeque<>());
         bean.setStringList(Collections.singletonList("Test"));
         StringWriter writer = new StringWriter();
-        StatefulBeanToCsv b2csv = new StatefulBeanToCsvBuilder(writer).build();
+        StatefulBeanToCsv<AnnotatedMockBeanCollectionSplitByColumn> b2csv = new StatefulBeanToCsvBuilder<AnnotatedMockBeanCollectionSplitByColumn>(writer).build();
         try {
             b2csv.write(bean);
             fail("Exception should have been thrown.");

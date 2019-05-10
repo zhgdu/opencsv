@@ -70,8 +70,10 @@ public class CSVParserTest {
 
     @Test
     public void parseSimpleQuotedStringWithSpaces() throws IOException {
-        ICSVParser parser = new CSVParser(ICSVParser.DEFAULT_SEPARATOR, ICSVParser.DEFAULT_QUOTE_CHARACTER, ICSVParser.DEFAULT_ESCAPE_CHARACTER,
-                true, false);
+        ICSVParser parser = new CSVParserBuilder()
+                .withStrictQuotes(true)
+                .withIgnoreLeadingWhiteSpace(false)
+                .build();
 
         String[] nextLine = parser.parseLine(" \"a\" , \"b\" , \"c\" ");
         assertEquals(3, nextLine.length);
@@ -106,8 +108,8 @@ public class CSVParserTest {
     }
 
     @Test
-    public void parseQuotedStringWithDefinedSeperator() throws IOException {
-        csvParser = new CSVParser(':');
+    public void parseQuotedStringWithDefinedSeparator() throws IOException {
+        csvParser = new CSVParserBuilder().withSeparator(':').build();
 
         String[] nextLine = csvParser.parseLine("a:\"b:b:b\":c");
         assertEquals("a", nextLine[0]);
@@ -117,8 +119,11 @@ public class CSVParserTest {
     }
 
     @Test
-    public void parseQuotedStringWithDefinedSeperatorAndQuote() throws IOException {
-        csvParser = new CSVParser(':', '\'');
+    public void parseQuotedStringWithDefinedSeparatorAndQuote() throws IOException {
+        csvParser = new CSVParserBuilder()
+                .withSeparator(':')
+                .withQuoteChar('\'')
+                .build();
 
         String[] nextLine = csvParser.parseLine("a:'b:b:b':c");
         assertEquals("a", nextLine[0]);
@@ -146,7 +151,7 @@ public class CSVParserTest {
     }
 
     @Test
-    public void parseMultiLinedQuotedwithCarriageReturns() throws IOException {
+    public void parseMultiLinedQuotedWithCarriageReturns() throws IOException {
         String[] nextLine = csvParser.parseLine("a,\"PO Box 123,\r\nKippax,ACT. 2615.\r\nAustralia\",d.\n");
         assertEquals(3, nextLine.length);
         assertEquals("a", nextLine[0]);
@@ -231,7 +236,9 @@ public class CSVParserTest {
 
     @Test
     public void testStrictQuoteSimple() throws IOException {
-        csvParser = new CSVParser(',', '\"', '\\', true);
+        csvParser = new CSVParserBuilder()
+                .withStrictQuotes(true)
+                .build();
         String testString = "\"a\",\"b\",\"c\"";
 
         String[] nextLine = csvParser.parseLine(testString);
@@ -243,7 +250,7 @@ public class CSVParserTest {
 
     @Test
     public void testNotStrictQuoteSimple() throws IOException {
-        csvParser = new CSVParser(',', '\"', '\\', false);
+        csvParser = new CSVParserBuilder().build();
         String testString = "\"a\",\"b\",\"c\"";
 
         String[] nextLine = csvParser.parseLine(testString);
@@ -255,7 +262,9 @@ public class CSVParserTest {
 
     @Test
     public void testStrictQuoteWithSpacesAndTabs() throws IOException {
-        csvParser = new CSVParser(',', '\"', '\\', true);
+        csvParser = new CSVParserBuilder()
+                .withStrictQuotes(true)
+                .build();
         String testString = " \t      \"a\",\"b\"      \t       ,   \"c\"   ";
 
         String[] nextLine = csvParser.parseLine(testString);
@@ -272,7 +281,7 @@ public class CSVParserTest {
      */
     @Test
     public void testNotStrictQuoteWithSpacesAndTabs() throws IOException {
-        csvParser = new CSVParser(',', '\"', '\\', false);
+        csvParser = new CSVParserBuilder().build();
         String testString = " \t      \"a\",\"b\"      \t       ,   \"c\"   ";
 
         String[] nextLine = csvParser.parseLine(testString);
@@ -284,7 +293,9 @@ public class CSVParserTest {
 
     @Test
     public void testStrictQuoteWithGarbage() throws IOException {
-        csvParser = new CSVParser(',', '\"', '\\', true);
+        csvParser = new CSVParserBuilder()
+                .withStrictQuotes(true)
+                .build();
         String testString = "abc',!@#\",\\\"\"   xyz,";
 
         String[] nextLine = csvParser.parseLine(testString);
@@ -296,12 +307,9 @@ public class CSVParserTest {
 
     @Test
     public void testCanIgnoreQuotations() throws IOException {
-        csvParser = new CSVParser(ICSVParser.DEFAULT_SEPARATOR,
-                ICSVParser.DEFAULT_QUOTE_CHARACTER,
-                ICSVParser.DEFAULT_ESCAPE_CHARACTER,
-                ICSVParser.DEFAULT_STRICT_QUOTES,
-                ICSVParser.DEFAULT_IGNORE_LEADING_WHITESPACE,
-                true);
+        csvParser = new CSVParserBuilder()
+                .withIgnoreQuotations(true)
+                .build();
         String testString = "Bob,test\",Beaumont,TX";
 
         String[] nextLine = csvParser.parseLine(testString);
@@ -314,12 +322,9 @@ public class CSVParserTest {
 
     @Test(expected = IOException.class)
     public void testFalseIgnoreQuotations() throws IOException {
-        csvParser = new CSVParser(ICSVParser.DEFAULT_SEPARATOR,
-                ICSVParser.DEFAULT_QUOTE_CHARACTER,
-                ICSVParser.DEFAULT_ESCAPE_CHARACTER,
-                ICSVParser.DEFAULT_STRICT_QUOTES,
-                ICSVParser.DEFAULT_IGNORE_LEADING_WHITESPACE,
-                false);
+        csvParser = new CSVParserBuilder()
+                .withIgnoreQuotations(false)
+                .build();
         String testString = "Bob,test\",Beaumont,TX";
 
         csvParser.parseLine(testString);
@@ -340,12 +345,10 @@ public class CSVParserTest {
      */
     @Test
     public void testIssue3314579() throws IOException {
-        csvParser = new CSVParser(';',
-                ICSVParser.DEFAULT_QUOTE_CHARACTER,
-                ICSVParser.DEFAULT_ESCAPE_CHARACTER,
-                ICSVParser.DEFAULT_STRICT_QUOTES,
-                ICSVParser.DEFAULT_IGNORE_LEADING_WHITESPACE,
-                true);
+        csvParser = new CSVParserBuilder()
+                .withSeparator(';')
+                .withIgnoreQuotations(true)
+                .build();
         String testString = "RPO;2012;P; ; ; ;SDX;ACCESSORY WHEEL, 16\", ALUMINUM, DESIGN 1";
 
         String[] nextLine = csvParser.parseLine(testString);
@@ -368,7 +371,10 @@ public class CSVParserTest {
      */
     @Test
     public void testIssue2263439() throws IOException {
-        csvParser = new CSVParser(',', '\'');
+        csvParser = new CSVParserBuilder()
+                .withSeparator(',')
+                .withQuoteChar('\'')
+                .build();
 
         String[] nextLine = csvParser.parseLine("865,0,'AmeriKKKa\\'s_Most_Wanted','',294,0,0,0.734338696798625,'20081002052147',242429208,18448");
 
@@ -390,7 +396,7 @@ public class CSVParserTest {
      */
     @Test
     public void testIssue2859181() throws IOException {
-        csvParser = new CSVParser(';');
+        csvParser = new CSVParserBuilder().withSeparator(';').build();
         String[] nextLine = csvParser.parseLine("field1;\\=field2;\"\"\"field3\"\"\""); // field1;\=field2;"""field3"""
 
         assertEquals(3, nextLine.length);
@@ -428,7 +434,7 @@ public class CSVParserTest {
     }
 
     @Test
-    public void anIOExceptionThrownifStringEndsInsideAQuotedString() {
+    public void anIOExceptionThrownIfStringEndsInsideAQuotedString() {
         final String part1 = "This,is a \"";
         final String part2 = "bad line to parse.";
         try {
@@ -487,7 +493,9 @@ public class CSVParserTest {
 
     @Test
     public void spacesAtEndOfQuotedStringDoNotCountIfStrictQuotesIsTrue() throws IOException {
-        ICSVParser parser = new CSVParser(ICSVParser.DEFAULT_SEPARATOR, ICSVParser.DEFAULT_QUOTE_CHARACTER, ICSVParser.DEFAULT_ESCAPE_CHARACTER, true);
+        ICSVParser parser = new CSVParserBuilder()
+                .withStrictQuotes(true)
+                .build();
         String[] nextLine = parser.parseLine("\"Line with\", \"spaces at end\"  ");
 
         assertEquals(2, nextLine.length);
@@ -537,7 +545,7 @@ public class CSVParserTest {
 
     @Test
     public void testIssue2958242WithoutQuotes() throws IOException {
-        ICSVParser testParser = new CSVParser('\t');
+        ICSVParser testParser = new CSVParserBuilder().withSeparator('\t').build();
         String[] nextItem = testParser.parseLine("zo\"\"har\"\"at\t10-04-1980\t29\tC:\\\\foo.txt");
         assertEquals(4, nextItem.length);
         assertEquals("zo\"har\"at", nextItem[0]);
@@ -548,31 +556,41 @@ public class CSVParserTest {
 
     @Test(expected = UnsupportedOperationException.class)
     public void quoteAndEscapeCannotBeTheSame() {
-        new CSVParser(ICSVParser.DEFAULT_SEPARATOR, ICSVParser.DEFAULT_QUOTE_CHARACTER, ICSVParser.DEFAULT_QUOTE_CHARACTER);
+        new CSVParserBuilder()
+                .withQuoteChar(ICSVParser.DEFAULT_QUOTE_CHARACTER)
+                .withEscapeChar(ICSVParser.DEFAULT_QUOTE_CHARACTER)
+                .build();
     }
 
     @Test
     public void quoteAndEscapeCanBeTheSameIfNull() {
-        new CSVParser(ICSVParser.DEFAULT_SEPARATOR, ICSVParser.NULL_CHARACTER, ICSVParser.NULL_CHARACTER);
+        new CSVParserBuilder()
+                .withQuoteChar(ICSVParser.NULL_CHARACTER)
+                .withEscapeChar(ICSVParser.NULL_CHARACTER)
+                .build();
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void separatorCharacterCannotBeNull() {
-        new CSVParser(ICSVParser.NULL_CHARACTER);
+        new CSVParserBuilder().withSeparator(ICSVParser.NULL_CHARACTER).build();
     }
 
     @Test(expected = UnsupportedOperationException.class)
     public void separatorAndEscapeCannotBeTheSame() {
-        new CSVParser(ICSVParser.DEFAULT_SEPARATOR, ICSVParser.DEFAULT_QUOTE_CHARACTER, ICSVParser.DEFAULT_SEPARATOR);
+        new CSVParserBuilder()
+                .withSeparator(ICSVParser.DEFAULT_SEPARATOR)
+                .withEscapeChar(ICSVParser.DEFAULT_SEPARATOR)
+                .build();
     }
 
     @Test
     public void separatorAndQuoteCannotBeTheSame() {
         String englishErrorMessage = null;
         try {
-            new CSVParser(
-                    ICSVParser.DEFAULT_SEPARATOR, ICSVParser.DEFAULT_SEPARATOR,
-                    ICSVParser.DEFAULT_ESCAPE_CHARACTER);
+            new CSVParserBuilder()
+                    .withSeparator(ICSVParser.DEFAULT_SEPARATOR)
+                    .withQuoteChar(ICSVParser.DEFAULT_SEPARATOR)
+                    .build();
             fail("UnsupportedOperationException should have been thrown.");
         }
         catch(UnsupportedOperationException e) {
@@ -771,13 +789,13 @@ public class CSVParserTest {
     }
 
     @Test
-    public void parseToLineApplyQuotesToAllIsFalse() throws Exception {
+    public void parseToLineApplyQuotesToAllIsFalse() {
         String items[] = {"This", " is", " a", " test."};
         assertEquals("This, is, a, test.", csvParser.parseToLine(items, false));
     }
 
     @Test
-    public void parseToLineApplyQuotesToAllIsTrue() throws Exception {
+    public void parseToLineApplyQuotesToAllIsTrue() {
         String items[] = {"This", " is", " a", " test."};
         assertEquals("\"This\",\" is\",\" a\",\" test.\"", csvParser.parseToLine(items, true));
     }

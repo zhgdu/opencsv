@@ -26,47 +26,14 @@ import java.util.Locale;
 
 public class ErrorLineMappingStrategy<T> implements MappingStrategy<T> {
     @Override
-    public PropertyDescriptor findDescriptor(int col) {
-       return null;
-    }
-
-    @Override
-    public BeanField findField(int col) {
-       return null;
-    }
-
-    @Override
-    public T createBean() throws InstantiationException {
-       throw new InstantiationException("this is a test Exception");
-    }
-
-    @Override
     public void captureHeader(CSVReader reader) {
     }
 
-    @Override
-    public Integer getColumnIndex(String name) {
-       return null;
-    }
-
-    @Override
-    public boolean isAnnotationDriven() {
-       return false;
-    }
-    
     @Override
     public String[] generateHeader(T bean) {
         return new String[0];
     }
     
-    @Override
-    public int findMaxFieldIndex() {
-        return -1;
-    }
-    
-    @Override
-    public void verifyLineLength(int numberOfFields) {}
-
     @Override
     public void setErrorLocale(Locale errorLocale) {}
 
@@ -76,11 +43,6 @@ public class ErrorLineMappingStrategy<T> implements MappingStrategy<T> {
     @Override
     public T populateNewBean(String[] line) throws InstantiationException {
        throw new InstantiationException("this is a test Exception");
-    }
-
-    @Override
-    public T populateNewBeanWithIntrospection(String[] line) {
-        return null;
     }
 
     @Override

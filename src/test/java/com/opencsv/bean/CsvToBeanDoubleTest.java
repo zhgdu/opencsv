@@ -44,9 +44,11 @@ public class CsvToBeanDoubleTest {
     public void parseBeanWithNoAnnotations() {
         HeaderColumnNameMappingStrategy<MockBean> strategy = new HeaderColumnNameMappingStrategy<>();
         strategy.setType(MockBean.class);
-        CsvToBean<MockBean> bean = new CsvToBean<>();
+        CsvToBean<MockBean> bean = new CsvToBeanBuilder<MockBean>(createReader())
+                .withMappingStrategy(strategy)
+                .build();
 
-        List<MockBean> beanList = bean.parse(strategy, createReader());
+        List<MockBean> beanList = bean.parse();
         assertEquals(2, beanList.size());
         assertTrue(beanList.contains(createMockBean("kyle", "abc123456", DOUBLE_NUMBER)));
         assertTrue(beanList.contains(createMockBean("jimmy", "def098765", DOUBLE_NUMBER)));

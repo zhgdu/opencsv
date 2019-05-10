@@ -31,7 +31,7 @@ import java.util.Locale;
  * @author Andrew Rucker Jones
  * @since 4.2
  */
-public interface ComplexFieldMapEntry<I, K, T> {
+public interface ComplexFieldMapEntry<I, K extends Comparable<K>, T> {
     
     /**
      * Determines whether or not the given key is contained in this entry.

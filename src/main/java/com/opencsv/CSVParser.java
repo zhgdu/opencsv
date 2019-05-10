@@ -33,17 +33,17 @@ import java.util.ResourceBundle;
  * The purpose of the CSVParser is to take a single string and parse it into
  * its elements based on the delimiter, quote and escape characters.
  *
- * The CSVParser has grown organically based on user requests and does not truely match
+ * The CSVParser has grown organically based on user requests and does not truly match
  * any current requirements (though it can be configured to match or come close).  There
  * is no plans to change this as it will break existing requirements.  Consider using
- * the RFC4180Parser for less configurablility but closer match to the RFC4180 requirements.
+ * the RFC4180Parser for less configurability but closer match to the RFC4180 requirements.
  *
  * @author Glen Smith
  * @author Rainer Pruy
  */
 public class CSVParser extends AbstractCSVParser {
 
-    private static final int BEGINING_OF_LINE = 3;
+    private static final int BEGINNING_OF_LINE = 3;
     /**
      * This is the character that the CSVParser will treat as the escape character.
      */
@@ -70,113 +70,11 @@ public class CSVParser extends AbstractCSVParser {
      * Constructs CSVParser using default values for everything.
      */
     public CSVParser() {
-        this(DEFAULT_SEPARATOR, DEFAULT_QUOTE_CHARACTER, DEFAULT_ESCAPE_CHARACTER);
-    }
-
-    /**
-     * Constructs CSVParser with supplied separator.
-     *
-     * @param separator The delimiter to use for separating entries.
-     * @deprecated Please use {@link CSVParserBuilder} instead.
-     */
-    @Deprecated
-    public CSVParser(char separator) {
-        this(separator, DEFAULT_QUOTE_CHARACTER, DEFAULT_ESCAPE_CHARACTER);
-    }
-
-
-    /**
-     * Constructs CSVParser with supplied separator and quote char.
-     *
-     * @param separator The delimiter to use for separating entries
-     * @param quotechar The character to use for quoted elements
-     * @deprecated Please use {@link CSVParserBuilder} instead.
-     */
-    @Deprecated
-    public CSVParser(char separator, char quotechar) {
-        this(separator, quotechar, DEFAULT_ESCAPE_CHARACTER);
-    }
-
-    /**
-     * Constructs CSVParser with supplied separator and quote char.
-     *
-     * @param separator The delimiter to use for separating entries
-     * @param quotechar The character to use for quoted elements
-     * @param escape    The character to use for escaping a separator or quote
-     * @deprecated Please use {@link CSVParserBuilder} instead.
-     */
-    @Deprecated
-    public CSVParser(char separator, char quotechar, char escape) {
-        this(separator, quotechar, escape, DEFAULT_STRICT_QUOTES);
-    }
-
-    /**
-     * Constructs CSVParser with supplied separator and quote char.
-     * Allows setting the "strict quotes" flag.
-     *
-     * @param separator    The delimiter to use for separating entries
-     * @param quotechar    The character to use for quoted elements
-     * @param escape       The character to use for escaping a separator or quote
-     * @param strictQuotes If true, characters outside the quotes are ignored
-     * @deprecated Please use {@link CSVParserBuilder} instead.
-     */
-    @Deprecated
-    public CSVParser(char separator, char quotechar, char escape, boolean strictQuotes) {
-        this(separator, quotechar, escape, strictQuotes, DEFAULT_IGNORE_LEADING_WHITESPACE);
-    }
-
-    /**
-     * Constructs CSVParser with supplied separator and quote char.
-     * Allows setting the "strict quotes" and "ignore leading whitespace" flags.
-     *
-     * @param separator               The delimiter to use for separating entries
-     * @param quotechar               The character to use for quoted elements
-     * @param escape                  The character to use for escaping a separator or quote
-     * @param strictQuotes            If true, characters outside the quotes are ignored
-     * @param ignoreLeadingWhiteSpace If true, white space in front of a quote in a field is ignored
-     * @deprecated Please use {@link CSVParserBuilder} instead.
-     */
-    @Deprecated
-    public CSVParser(char separator, char quotechar, char escape, boolean strictQuotes, boolean ignoreLeadingWhiteSpace) {
-        this(separator, quotechar, escape, strictQuotes, ignoreLeadingWhiteSpace, DEFAULT_IGNORE_QUOTATIONS);
-    }
-
-    /**
-     * Constructs CSVParser with supplied separator and quote char.
-     * Allows setting the "strict quotes" and "ignore leading whitespace" flags.
-     *
-     * @param separator               The delimiter to use for separating entries
-     * @param quotechar               The character to use for quoted elements
-     * @param escape                  The character to use for escaping a separator or quote
-     * @param strictQuotes            If true, characters outside the quotes are ignored
-     * @param ignoreLeadingWhiteSpace If true, white space in front of a quote in a field is ignored
-     * @param ignoreQuotations        If true, treat quotations like any other character.
-     * @deprecated Please use {@link CSVParserBuilder} instead.
-     */
-    @Deprecated
-    public CSVParser(char separator, char quotechar, char escape, boolean strictQuotes, boolean ignoreLeadingWhiteSpace,
-                     boolean ignoreQuotations) {
-        this(separator, quotechar, escape, strictQuotes, ignoreLeadingWhiteSpace, ignoreQuotations, DEFAULT_NULL_FIELD_INDICATOR);
-    }
-
-    /**
-     * Constructs CSVParser with supplied separator and quote char.
-     * Allows setting the "strict quotes" and "ignore leading whitespace" flags.
-     *
-     * @param separator               The delimiter to use for separating entries
-     * @param quotechar               The character to use for quoted elements
-     * @param escape                  The character to use for escaping a separator or quote
-     * @param strictQuotes            If true, characters outside the quotes are ignored
-     * @param ignoreLeadingWhiteSpace If true, white space in front of a quote in a field is ignored
-     * @param ignoreQuotations        If true, treat quotations like any other character.
-     * @param nullFieldIndicator      Which field content will be returned as null: EMPTY_SEPARATORS, EMPTY_QUOTES,
-     *                                BOTH, NEITHER (default)
-     * @deprecated Please use {@link CSVParserBuilder} instead.
-     */
-    @Deprecated
-    CSVParser(char separator, char quotechar, char escape, boolean strictQuotes, boolean ignoreLeadingWhiteSpace,
-              boolean ignoreQuotations, CSVReaderNullFieldIndicator nullFieldIndicator) {
-        this(separator, quotechar, escape, strictQuotes, ignoreLeadingWhiteSpace, ignoreQuotations, nullFieldIndicator, Locale.getDefault());
+        this(DEFAULT_SEPARATOR, DEFAULT_QUOTE_CHARACTER,
+                DEFAULT_ESCAPE_CHARACTER, DEFAULT_STRICT_QUOTES,
+                DEFAULT_IGNORE_LEADING_WHITESPACE,
+                DEFAULT_IGNORE_QUOTATIONS,
+                DEFAULT_NULL_FIELD_INDICATOR, Locale.getDefault());
     }
 
     /**
@@ -333,7 +231,7 @@ public class CSVParser extends AbstractCSVParser {
                     // the tricky case of an embedded quote in the middle: a,bc"d"ef,g
                     if (!strictQuotes) {
                         final int i = sfc.i;
-                        if (i > BEGINING_OF_LINE //not on the beginning of the line
+                        if (i > BEGINNING_OF_LINE //not on the beginning of the line
                                 && nextLine.charAt(i - 2) != this.separator //not at the beginning of an escape sequence
                                 && nextLine.length() > (i) &&
                                 nextLine.charAt(i) != this.separator //not at the	end of an escape sequence

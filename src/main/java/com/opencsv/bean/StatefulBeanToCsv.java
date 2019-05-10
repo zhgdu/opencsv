@@ -68,20 +68,11 @@ public class StatefulBeanToCsv<T> {
     private IntolerantThreadPoolExecutor executor = null;
     private BlockingQueue<OrderedObject<String[]>> resultantLineQueue;
     private BlockingQueue<OrderedObject<CsvException>> thrownExceptionsQueue;
-    private AccumulateCsvResults accumulateThread = null;
+    private AccumulateCsvResults<String[]> accumulateThread = null;
     private ConcurrentNavigableMap<Long, String[]> resultantBeansMap = null;
     private ConcurrentNavigableMap<Long, CsvException> thrownExceptionsMap = null;
     private Locale errorLocale = Locale.getDefault();
     private boolean applyQuotesToAll;
-
-    /**
-     * The nullary constructor should never be used.
-     */
-    private StatefulBeanToCsv() {
-        throw new IllegalStateException(String.format(
-                ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME).getString("nullary.constructor.not.allowed"),
-                getClass().getName()));
-    }
 
     /**
      * Constructor used when supplying a Writer instead of a CsvWriter class.
