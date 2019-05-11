@@ -283,7 +283,7 @@ public class CsvToBeanBuilder<T> {
     }
     
     /**
-     * @see CSVParser#CSVParser(char, char, char, boolean, boolean, boolean, CSVReaderNullFieldIndicator)
+     * @see CSVParser#CSVParser(char, char, char, boolean, boolean, boolean, CSVReaderNullFieldIndicator, Locale)
      * @param indicator Please see the "See Also" section
      * @return {@code this}
      */
@@ -293,7 +293,7 @@ public class CsvToBeanBuilder<T> {
     }
     
     /**
-     * @see CSVReader#CSVReader(java.io.Reader, char, char, char, int, boolean, boolean, boolean)
+     * @see CSVReader#CSVReader(Reader, int, ICSVParser, boolean, boolean, int, Locale)
      * @param keepCR Please see the "See Also" section
      * @return {@code this}
      */
@@ -324,7 +324,7 @@ public class CsvToBeanBuilder<T> {
    }
     
     /**
-     * @see CSVParser#CSVParser(char)
+     * @see CSVParser#CSVParser(char, char, char, boolean, boolean, boolean, CSVReaderNullFieldIndicator, Locale)
      * @param separator Please see the "See Also" section
      * @return {@code this}
      */
@@ -334,7 +334,7 @@ public class CsvToBeanBuilder<T> {
     }
     
     /**
-     * @see CSVParser#CSVParser(char, char)
+     * @see CSVParser#CSVParser(char, char, char, boolean, boolean, boolean, CSVReaderNullFieldIndicator, Locale)
      * @param quoteChar Please see the "See Also" section
      * @return {@code this}
      */
@@ -344,7 +344,7 @@ public class CsvToBeanBuilder<T> {
     }
     
     /**
-     * @see CSVParser#CSVParser(char, char, char)
+     * @see CSVParser#CSVParser(char, char, char, boolean, boolean, boolean, CSVReaderNullFieldIndicator, Locale)
      * @param escapeChar Please see the "See Also" section
      * @return {@code this}
      */
@@ -354,7 +354,7 @@ public class CsvToBeanBuilder<T> {
     }
     
     /**
-     * @see CSVParser#CSVParser(char, char, char, boolean)
+     * @see CSVParser#CSVParser(char, char, char, boolean, boolean, boolean, CSVReaderNullFieldIndicator, Locale)
      * @param strictQuotes Please see the "See Also" section
      * @return {@code this}
      */
@@ -364,7 +364,7 @@ public class CsvToBeanBuilder<T> {
     }
     
     /**
-     * @see CSVParser#CSVParser(char, char, char, boolean, boolean)
+     * @see CSVParser#CSVParser(char, char, char, boolean, boolean, boolean, CSVReaderNullFieldIndicator, Locale)
      * @param ignoreLeadingWhiteSpace Please see the "See Also" section
      * @return {@code this}
      */
@@ -374,7 +374,7 @@ public class CsvToBeanBuilder<T> {
     }
     
     /**
-     * @see CSVParser#CSVParser(char, char, char, boolean, boolean, boolean)
+     * @see CSVParser#CSVParser(char, char, char, boolean, boolean, boolean, CSVReaderNullFieldIndicator, Locale)
      * @param ignoreQuotations Please see the "See Also" section
      * @return {@code this}
      */
@@ -404,7 +404,6 @@ public class CsvToBeanBuilder<T> {
      * @param multilineLimit No more than this number of lines is allowed in a
      *   single input record. The default is {@link CSVReader#DEFAULT_MULTILINE_LIMIT}.
      * @return {@code this}
-     * @see CSVReader#setMultilineLimit(int)
      */
     public CsvToBeanBuilder<T> withMultilineLimit(int multilineLimit) {
         this.multilineLimit = multilineLimit;

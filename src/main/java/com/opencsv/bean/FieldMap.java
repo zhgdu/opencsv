@@ -63,7 +63,7 @@ public interface FieldMap<I, K extends Comparable<K>, C extends ComplexFieldMapE
     /**
      * Gets the {@link BeanField} associated with this key.
      * If a key could possibly match both a regular, simple key (one added with
-     * {@link #put(java.lang.Object, com.opencsv.bean.BeanField)}), and a
+     * {@link #put(Comparable, BeanField)}), and a
      * complex key (one added with
      * {@link #putComplex(java.lang.Object, com.opencsv.bean.BeanField)}), the
      * simple key is always matched. If a key could match more than one complex

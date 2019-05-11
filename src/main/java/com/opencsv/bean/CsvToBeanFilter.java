@@ -67,10 +67,7 @@ public interface CsvToBeanFilter {
 
    /**
     * Determines if a line from the CSV file will be included in the
-    * output of {@link CsvToBean}.  If the CSV file has a header row, it
-    * may be useful for implementations to call
-    * {@link MappingStrategy#getColumnIndex} to identify the correct column
-    * indices to examine.
+    * output of {@link CsvToBean}.
     *
     * @param line A line of data from the CSV file
     * @return True if the line is to be included in the output. Otherwise,

@@ -214,7 +214,6 @@ public class CSVReaderBuilder {
      * @param multilineLimit No more than this number of lines is allowed in a
      *                       single input record. The default is {@link CSVReader#DEFAULT_MULTILINE_LIMIT}.
      * @return The CSVReaderBuilder based on this criteria.
-     * @see CSVReader#setMultilineLimit(int)
      */
     public CSVReaderBuilder withMultilineLimit(int multilineLimit) {
         this.multilineLimit = multilineLimit;
