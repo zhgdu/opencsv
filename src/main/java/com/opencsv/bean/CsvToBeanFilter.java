@@ -39,8 +39,7 @@ package com.opencsv.bean;
  * 	}
  *
  * 	public boolean allowLine(String[] line) {
- * 		int index = strategy.getColumnIndex("STATE");
- * 		String value = line[index];
+ * 		String value = line[1];
  * 		boolean result = !"production".equals(value);
  * 		return result;
  * 	}
