@@ -72,7 +72,7 @@ public interface FieldMap<I, K extends Comparable<K>, C extends ComplexFieldMapE
      * @param key The key under which to search for a {@link BeanField}
      * @return The {@link BeanField} found, or null if none is present
      */
-    BeanField<T> get(final K key);
+    BeanField<T, K> get(final K key);
 
     /**
      * Associates the given {@link BeanField} with the given {@code key}.
@@ -82,7 +82,7 @@ public interface FieldMap<I, K extends Comparable<K>, C extends ComplexFieldMapE
      * @return If there was a value previously associated with this key, it is
      *   returned
      */
-    BeanField<T> put(final K key, final BeanField<T> value);
+    BeanField<T, K> put(final K key, final BeanField<T, K> value);
     
     /**
      * Adds a {@link BeanField} to this map indexed by the data in
@@ -95,7 +95,7 @@ public interface FieldMap<I, K extends Comparable<K>, C extends ComplexFieldMapE
      * @param value The {@link BeanField} that is to be returned on a later
      *   match
      */
-    void putComplex(final I initializer, final BeanField<T> value);
+    void putComplex(final I initializer, final BeanField<T, K> value);
     
     /**
      * Sets the locale to be used for error messages.
@@ -109,6 +109,6 @@ public interface FieldMap<I, K extends Comparable<K>, C extends ComplexFieldMapE
      * 
      * @return The values in the map
      */
-    Collection<BeanField<T>> values();
+    Collection<BeanField<T, K>> values();
     
 }

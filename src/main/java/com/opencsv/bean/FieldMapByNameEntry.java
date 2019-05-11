@@ -33,7 +33,7 @@ public class FieldMapByNameEntry<T> {
     private final String name;
     
     /** The {@link BeanField} associated with this header or these headers. */
-    private final BeanField<T> field;
+    private final BeanField<T, String> field;
     
     /**
      * Whether {@link #name} is a header name or a regular expression pattern
@@ -48,7 +48,7 @@ public class FieldMapByNameEntry<T> {
      * @param field The field associated with the header(s)
      * @param regexPattern Whether or not {@code name} is a regular expression pattern
      */
-    public FieldMapByNameEntry(String name, BeanField<T> field, boolean regexPattern) {
+    public FieldMapByNameEntry(String name, BeanField<T, String> field, boolean regexPattern) {
         this.name = name;
         this.field = field;
         this.regexPattern = regexPattern;
@@ -65,7 +65,7 @@ public class FieldMapByNameEntry<T> {
     /**
      * @return The {@link BeanField} associated with this header or these headers
      */
-    public BeanField<T> getField() {
+    public BeanField<T, String> getField() {
         return field;
     }
 

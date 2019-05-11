@@ -26,9 +26,10 @@ import java.math.BigInteger;
  * Always returns the same values, regardless of the input.
  *
  * @param <T> Type of the bean
+ * @param <I> Type of the index into a multivalued field
  * @author Andrew Rucker Jones
  */
-public class CustomTestMapper<T> extends AbstractBeanField<T> {
+public class CustomTestMapper<T, I> extends AbstractBeanField<T, I> {
     @Override
     protected Object convert(String value)
             throws CsvDataTypeMismatchException {

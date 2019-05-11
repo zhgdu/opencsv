@@ -23,7 +23,7 @@ import com.opencsv.exceptions.CsvDataTypeMismatchException;
  *
  * @author Andrew Rucker Jones
  */
-public class ConverterComplexClassForCustomAnnotation<T> extends AbstractBeanField<T> {
+public class ConverterComplexClassForCustomAnnotation<T, I> extends AbstractBeanField<T, I> {
 
     @Override
     protected Object convert(String value) {

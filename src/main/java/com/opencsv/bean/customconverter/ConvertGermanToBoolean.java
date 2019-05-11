@@ -29,11 +29,12 @@ import org.apache.commons.lang3.StringUtils;
  * This class also demonstrates how to localize booleans for any other language.
  *
  * @param <T> Type of the bean to be manipulated
+ * @param <I> Type of the index into multivalued fields
  * 
  * @author Andrew Rucker Jones
  * @since 3.8
  */
-public class ConvertGermanToBoolean<T> extends AbstractBeanField<T> {
+public class ConvertGermanToBoolean<T, I> extends AbstractBeanField<T, I> {
     
     protected static final String WAHR = "wahr";
     protected static final String FALSCH = "falsch";

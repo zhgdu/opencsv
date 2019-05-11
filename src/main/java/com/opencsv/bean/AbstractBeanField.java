@@ -42,10 +42,11 @@ import org.apache.commons.lang3.ArrayUtils;
  * leaving this class mostly to deal with assigment to bean fields.</p>
  *
  * @param <T> Type of the bean being populated
+ * @param <I> Type of the index into a multivalued field
  * @author Andrew Rucker Jones
  * @since 3.8
  */
-abstract public class AbstractBeanField<T> implements BeanField<T> {
+abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
     
     /** The field this class represents. */
     protected Field field;
@@ -199,7 +200,7 @@ abstract public class AbstractBeanField<T> implements BeanField<T> {
      */
     // The rest of the Javadoc is inherited
     @Override
-    public Object[] indexAndSplitMultivaluedField(Object value, Object index)
+    public Object[] indexAndSplitMultivaluedField(Object value, I index)
             throws CsvDataTypeMismatchException {
         return new Object[]{value};
     }
@@ -343,7 +344,7 @@ abstract public class AbstractBeanField<T> implements BeanField<T> {
      */
     // The rest of the Javadoc is automatically inherited
     @Override
-    public final String[] write(T bean, Object index) throws CsvDataTypeMismatchException,
+    public final String[] write(T bean, I index) throws CsvDataTypeMismatchException,
             CsvRequiredFieldEmptyException {
         String[] result = ArrayUtils.EMPTY_STRING_ARRAY;
         if(bean != null && field != null) {

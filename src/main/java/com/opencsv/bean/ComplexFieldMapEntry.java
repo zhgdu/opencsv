@@ -44,7 +44,7 @@ public interface ComplexFieldMapEntry<I, K extends Comparable<K>, T> {
     /**
      * @return The {@link BeanField} to which this entry maps
      */
-    BeanField<T> getBeanField();
+    BeanField<T, K> getBeanField();
     
     /**
      * Returns the information used to initialize this entry.

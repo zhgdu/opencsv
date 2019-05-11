@@ -57,7 +57,7 @@ public class PositionToBeanField<T> extends AbstractFieldMapEntry<String, Intege
      * @param errorLocale The locale for error messages
      * @throws CsvBadConverterException If {@code rangeDefinition} cannot be parsed
      */
-    public PositionToBeanField(final String rangeDefinition, int maxIndex, final BeanField<T> field, Locale errorLocale) {
+    public PositionToBeanField(final String rangeDefinition, int maxIndex, final BeanField<T, Integer> field, Locale errorLocale) {
         super(field, errorLocale);
         initializer = rangeDefinition;
         ranges = new LinkedList<>();

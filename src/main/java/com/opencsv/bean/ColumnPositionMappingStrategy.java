@@ -94,12 +94,12 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
      */
     // The rest of the Javadoc is inherited
     @Override
-    protected Object chooseMultivaluedFieldIndexFromHeaderIndex(int index) {
+    protected Integer chooseMultivaluedFieldIndexFromHeaderIndex(int index) {
         return Integer.valueOf(index);
     }
 
     @Override
-    protected BeanField<T> findField(int col) {
+    protected BeanField<T, Integer> findField(int col) {
         // If we have a mapping for changing the order of the columns on
         // writing, be sure to use it.
         if (columnIndexForWriting != null) {
@@ -176,8 +176,8 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
                 CsvCustomBindByPosition annotation = field
                         .getAnnotation(CsvCustomBindByPosition.class);
                 @SuppressWarnings("unchecked")
-                Class<? extends AbstractBeanField<T>> converter = (Class<? extends AbstractBeanField<T>>)annotation.converter();
-                BeanField<T> bean = instantiateCustomConverter(converter);
+                Class<? extends AbstractBeanField<T, Integer>> converter = (Class<? extends AbstractBeanField<T, Integer>>)annotation.converter();
+                BeanField<T, Integer> bean = instantiateCustomConverter(converter);
                 bean.setField(field);
                 required = annotation.required();
                 bean.setRequired(required);
@@ -268,7 +268,7 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
     @Override
     protected void verifyLineLength(int numberOfFields) throws CsvRequiredFieldEmptyException {
         if (!headerIndex.isEmpty()) {
-            BeanField<T> f;
+            BeanField<T, Integer> f;
             StringBuilder sb = null;
             for (int i = numberOfFields; i <= headerIndex.findMaxIndex(); i++) {
                 f = findField(i);

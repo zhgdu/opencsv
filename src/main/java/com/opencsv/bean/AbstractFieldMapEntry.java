@@ -31,7 +31,7 @@ import org.apache.commons.lang3.ObjectUtils;
 abstract public class AbstractFieldMapEntry<I, K extends Comparable<K>, T> implements ComplexFieldMapEntry<I, K, T> {
     
     /** The {@link BeanField} that is the target of this mapping. */
-    protected final BeanField<T> field;
+    protected final BeanField<T, K> field;
     
     /** The locale to be used for error messages. */
     protected Locale errorLocale;
@@ -42,13 +42,13 @@ abstract public class AbstractFieldMapEntry<I, K extends Comparable<K>, T> imple
      * @param field The BeanField being mapped to
      * @param errorLocale The locale to be used for error messages
      */
-    protected AbstractFieldMapEntry(final BeanField<T> field, final Locale errorLocale) {
+    protected AbstractFieldMapEntry(final BeanField<T, K> field, final Locale errorLocale) {
         this.field = field;
         this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
     }
     
     @Override
-    public BeanField<T> getBeanField() {
+    public BeanField<T, K> getBeanField() {
         return field;
     }
     

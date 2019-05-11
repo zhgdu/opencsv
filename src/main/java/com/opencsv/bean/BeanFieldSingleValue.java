@@ -34,7 +34,7 @@ import java.util.regex.Pattern;
  * @author Andrew Rucker Jones
  * @since 4.2
  */
-public class BeanFieldSingleValue<T> extends AbstractBeanField<T> {
+public class BeanFieldSingleValue<T, I> extends AbstractBeanField<T, I> {
 
     /**
      * The regular expression to be used for capturing part of the input for

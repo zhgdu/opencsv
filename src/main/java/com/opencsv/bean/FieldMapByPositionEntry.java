@@ -31,7 +31,7 @@ public class FieldMapByPositionEntry<T> {
     private final int position;
     
     /** The {@link BeanField} associated with this position. */
-    private final BeanField<T> field;
+    private final BeanField<T, Integer> field;
     
     /**
      * Initializes this entry.
@@ -39,7 +39,7 @@ public class FieldMapByPositionEntry<T> {
      * @param position The position from the CSV input
      * @param field The field associated with this position
      */
-    public FieldMapByPositionEntry(int position, BeanField<T> field) {
+    public FieldMapByPositionEntry(int position, BeanField<T, Integer> field) {
         this.position = position;
         this.field = field;
     }
@@ -48,5 +48,5 @@ public class FieldMapByPositionEntry<T> {
     public int getPosition() {return position;}
     
     /** @return The {@link BeanField} with which this entry was initialized */
-    public BeanField<T> getField() {return field;}
+    public BeanField<T, Integer> getField() {return field;}
 }

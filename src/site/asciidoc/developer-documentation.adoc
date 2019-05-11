@@ -76,6 +76,7 @@ do about them.
       * Scads of methods that had to do with the internal implementation details of a mapping strategy have been removed from the interface MappingStrategy. You probably never needed these anyway, if you wrote your own mapping strategy.
       * The custom converter SplitOnWhitespace has been removed. Use the "split" parameter to the annotation in question.
    * Writing non-annotated beans now produces capitalized headers like the rest of opencsv.
+   * If you created custom converters and declared them with the type parameter for the bean type (e.g. MyConverter<T> extends AbstractBeanField<T>) instead of declaring them with a raw class (e.g. MyConverter extends AbstractBeanField), you will need to add one more type parameter for the type of the index into multivalued fields (e.g. MyConverter<T, I> extends AbstractBeanField<T, I>).
 
 And we have a new list of things that we have deprecated and plan to remove in
 6.0, as well as what you can do about it.

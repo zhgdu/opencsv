@@ -46,7 +46,7 @@ abstract public class AbstractFieldMap<I, K extends Comparable<K>, C extends Com
      * A map for all simple, that is one-to-one, mappings represented in this
      * {@link FieldMap}.
      */
-    protected final SortedMap<K, BeanField<T>> simpleMap = new TreeMap<>();
+    protected final SortedMap<K, BeanField<T, K>> simpleMap = new TreeMap<>();
     
     /**
      * A list of entries representing all complex, that is many-to-one, mappings
@@ -64,8 +64,8 @@ abstract public class AbstractFieldMap<I, K extends Comparable<K>, C extends Com
     }
     
     @Override
-    public BeanField<T> get(final K key) {
-        BeanField<T> f = simpleMap.get(key);
+    public BeanField<T, K> get(final K key) {
+        BeanField<T, K> f = simpleMap.get(key);
         if(f == null) {
             f = complexMapList.stream()
                     .filter(r -> r.contains(key))
@@ -78,13 +78,13 @@ abstract public class AbstractFieldMap<I, K extends Comparable<K>, C extends Com
     }
     
     @Override
-    public BeanField<T> put(final K key, final BeanField<T> value) {
+    public BeanField<T, K> put(final K key, final BeanField<T, K> value) {
         return simpleMap.put(key, value);
     }
     
     @Override
-    public Collection<BeanField<T>> values() {
-        final List<BeanField<T>> l = new ArrayList<>(simpleMap.size() + complexMapList.size());
+    public Collection<BeanField<T, K>> values() {
+        final List<BeanField<T, K>> l = new ArrayList<>(simpleMap.size() + complexMapList.size());
         l.addAll(simpleMap.values());
         complexMapList.forEach(r -> l.add(r.getBeanField()));
         return l;

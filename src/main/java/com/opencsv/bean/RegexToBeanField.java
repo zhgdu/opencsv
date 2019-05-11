@@ -40,7 +40,7 @@ public class RegexToBeanField<T> extends AbstractFieldMapEntry<String, String, T
      * @param field The {@link BeanField} this mapping maps to
      * @param errorLocale The locale for error messages
      */
-    public RegexToBeanField(final String pattern, final BeanField<T> field, final Locale errorLocale) {
+    public RegexToBeanField(final String pattern, final BeanField<T, String> field, final Locale errorLocale) {
         super(field, errorLocale);
         regex = OpencsvUtils.compilePattern(pattern, Pattern.CASE_INSENSITIVE, BeanFieldJoin.class, this.errorLocale);
     }

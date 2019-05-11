@@ -51,7 +51,7 @@ public class FieldMapByName<T> extends AbstractFieldMap<String, String, RegexToB
      */
     // The rest of the Javadoc is inherited
     @Override
-    public void putComplex(final String key, final BeanField<T> value) {
+    public void putComplex(final String key, final BeanField<T, String> value) {
         complexMapList.add(new RegexToBeanField<>(key, value, errorLocale));
     }
     
@@ -67,7 +67,7 @@ public class FieldMapByName<T> extends AbstractFieldMap<String, String, RegexToB
         // Start with collections of all required headers
         final List<String> requiredStringList = simpleMap.entrySet().stream()
                 .filter(e -> e.getValue().isRequired())
-                .map(e -> e.getKey())
+                .map(Map.Entry::getKey)
                 .collect(Collectors.toCollection(LinkedList::new));
         final List<ComplexFieldMapEntry<String, String, T>> requiredRegexList = complexMapList.stream()
                 .filter(r -> r.getBeanField().isRequired())
@@ -130,8 +130,8 @@ public class FieldMapByName<T> extends AbstractFieldMap<String, String, RegexToB
             final MultiValuedMap<String,T> m = (MultiValuedMap<String,T>) r.getBeanField().getFieldValue(bean);
             if(m != null && !m.isEmpty()) {
                 headerList.addAll(m.entries().stream()
-                        .map(e -> e.getKey())
-                        .filter(k -> r.contains(k))
+                        .map(Map.Entry::getKey)
+                        .filter(r::contains)
                         .collect(Collectors.toList()));
             }
             else {
@@ -148,14 +148,14 @@ public class FieldMapByName<T> extends AbstractFieldMap<String, String, RegexToB
                             .getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
                             .getString("header.required.field.absent"),
                     missingRequiredHeaders.stream()
-                            .map(f -> f.getName())
+                            .map(Field::getName)
                             .collect(Collectors.joining(" ")),
                     String.join(" ", headerList));
             throw new CsvRequiredFieldEmptyException(bean.getClass(), missingRequiredHeaders, errorMessage);
         }
         
         // Sort and return
-        Collections.sort(headerList, writeOrder);
+        headerList.sort(writeOrder);
         return headerList.toArray(new String[headerList.size()]);
     }
 

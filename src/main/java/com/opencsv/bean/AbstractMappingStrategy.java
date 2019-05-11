@@ -60,7 +60,7 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
      * @return The index to be used for this mapping strategy for
      *   {@link BeanField#indexAndSplitMultivaluedField(java.lang.Object, java.lang.Object) }
      */
-    abstract protected Object chooseMultivaluedFieldIndexFromHeaderIndex(int index);
+    abstract protected K chooseMultivaluedFieldIndexFromHeaderIndex(int index);
     
     /**
      * Returns the {@link FieldMap} associated with this mapping strategy.
@@ -86,7 +86,7 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
      * @throws CsvBadConverterException If a custom converter for a field cannot
      *                                  be initialized
      */
-    abstract protected BeanField<T> findField(int col);
+    abstract protected BeanField<T, K> findField(int col);
 
     /**
      * Must be called once the length of input for a line/record is known to
@@ -225,10 +225,10 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
      * @return The custom converter
      * @throws CsvBadConverterException If the class cannot be instantiated
      */
-    protected BeanField<T> instantiateCustomConverter(Class<? extends AbstractBeanField<T>> converter)
+    protected BeanField<T, K> instantiateCustomConverter(Class<? extends AbstractBeanField<T, K>> converter)
             throws CsvBadConverterException {
         try {
-            BeanField<T> c = converter.newInstance();
+            BeanField<T, K> c = converter.newInstance();
             c.setErrorLocale(errorLocale);
             return c;
         } catch (IllegalAccessException | InstantiationException oldEx) {
@@ -274,7 +274,7 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
     protected void setFieldValue(T bean, String value, int column)
             throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException,
             CsvConstraintViolationException {
-        BeanField<T> beanField = findField(column);
+        BeanField<T, K> beanField = findField(column);
         if (beanField != null) {
             beanField.setFieldValue(bean, value, findHeader(column));
         }
@@ -289,8 +289,8 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
 
     private List<String> writeWithReflection(T bean, int numColumns)
             throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
-        BeanField<T> firstBeanField, subsequentBeanField;
-        Object firstIndex, subsequentIndex;
+        BeanField<T, K> firstBeanField, subsequentBeanField;
+        K firstIndex, subsequentIndex;
         List<String> contents = new ArrayList<>(numColumns > 0 ? numColumns : 0);
         
         for(int i = 0; i < numColumns;) {

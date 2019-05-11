@@ -61,7 +61,7 @@ public class FieldMapByPosition<T> extends AbstractFieldMap<String, Integer, Pos
     public String[] generateHeader(final T bean) throws CsvRequiredFieldEmptyException {
         final List<Field> missingRequiredHeaders = new LinkedList<>();
         final SortedMap<Integer, String> headerMap = new TreeMap<>(writeOrder);
-        for(Map.Entry<Integer, BeanField<T>> entry : simpleMap.entrySet()) {
+        for(Map.Entry<Integer, BeanField<T, Integer>> entry : simpleMap.entrySet()) {
             headerMap.put(entry.getKey(), entry.getValue().getField().getName());
         }
         for(ComplexFieldMapEntry<String, Integer, T> r : complexMapList) {
@@ -109,7 +109,7 @@ public class FieldMapByPosition<T> extends AbstractFieldMap<String, Integer, Pos
                             .getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
                             .getString("header.required.field.absent"),
                     missingRequiredHeaders.stream()
-                            .map(f -> f.getName())
+                            .map(Field::getName)
                             .collect(Collectors.joining(" ")),
                     String.join(" ", headers));
             throw new CsvRequiredFieldEmptyException(bean.getClass(), missingRequiredHeaders, errorMessage);
@@ -125,7 +125,7 @@ public class FieldMapByPosition<T> extends AbstractFieldMap<String, Integer, Pos
      */
     // The rest of the Javadoc is inherited
     @Override
-    public void putComplex(final String rangeDefinition, final BeanField<T> field) {
+    public void putComplex(final String rangeDefinition, final BeanField<T, Integer> field) {
         complexMapList.add(new PositionToBeanField<>(rangeDefinition, maxIndex, field, errorLocale));
     }
     
@@ -156,7 +156,7 @@ public class FieldMapByPosition<T> extends AbstractFieldMap<String, Integer, Pos
                     return complexMapList.get(count-1).iterator();
                 }
                 if(count == complexMapList.size()+1) {
-                    return new TransformIterator<Map.Entry<Integer, BeanField<T>>, FieldMapByPositionEntry<T>>(
+                    return new TransformIterator<>(
                             simpleMap.entrySet().iterator(),
                             input -> new FieldMapByPositionEntry<T>(input.getKey(), input.getValue()));
                 }

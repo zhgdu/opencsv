@@ -18,15 +18,9 @@ import java.util.Locale;
  * be thread-safe.</p>
  *
  * @param <T> Type of the bean being populated
+ * @param <I> Type of the index into a multivalued field
  */
-// TODO for 5.0: The correct way to do this is to add another type
-// parameter for the type of the index into multivalued fields, I. This would
-// then be used for write() and indexAndSplitMultivaluedField(), and may even
-// obviate the need for BeanFieldJoinIntegerIndex and BeanFieldJoinStringIndex,
-// though I'm not certain about that. I cannot implement this change before
-// version 5.0 because it would break every custom converter in existence,
-// assuming the author used the type parameter instead of a raw class.
-public interface BeanField<T> {
+public interface BeanField<T, I> {
 
     /**
      * Sets the field to be processed.
@@ -114,7 +108,7 @@ public interface BeanField<T> {
      *   expected by the implementing class
      * @since 4.2
      */
-    Object[] indexAndSplitMultivaluedField(Object value, Object index)
+    Object[] indexAndSplitMultivaluedField(Object value, I index)
             throws CsvDataTypeMismatchException;
     
     /**
@@ -144,7 +138,7 @@ public interface BeanField<T> {
      *   but is currently empty
      * @since 3.9
      */
-    String[] write(T bean, Object index) throws CsvDataTypeMismatchException,
+    String[] write(T bean, I index) throws CsvDataTypeMismatchException,
             CsvRequiredFieldEmptyException;
     
     /**

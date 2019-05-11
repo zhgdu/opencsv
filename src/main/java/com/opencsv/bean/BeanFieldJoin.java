@@ -42,7 +42,7 @@ import java.util.ResourceBundle;
  * @author Andrew Rucker Jones
  * @since 4.2
  */
-abstract public class BeanFieldJoin<T, I> extends BeanFieldSingleValue<T> {
+abstract public class BeanFieldJoin<T, I> extends BeanFieldSingleValue<T, I> {
     
     /**
      * The type of the {@link org.apache.commons.collections4.MultiValuedMap}
@@ -154,6 +154,7 @@ abstract public class BeanFieldJoin<T, I> extends BeanFieldSingleValue<T> {
         // Find and use getter and setter methods if available
         // obj == null means that the source field was empty. Then we simply
         // make certain that a(n empty) map exists.
+        @SuppressWarnings("unchecked")
         MultiValuedMap<I,Object> currentValue = (MultiValuedMap<I,Object>) getFieldValue(bean);
         try {
             if(currentValue == null) {
@@ -187,7 +188,7 @@ abstract public class BeanFieldJoin<T, I> extends BeanFieldSingleValue<T> {
      */
     // The rest of the Javadoc is inherited
     @Override
-    public Object[] indexAndSplitMultivaluedField(Object value, Object index)
+    public Object[] indexAndSplitMultivaluedField(Object value, I index)
             throws CsvDataTypeMismatchException {
         Object[] splitObjects = ArrayUtils.EMPTY_OBJECT_ARRAY;
         if(value != null) {

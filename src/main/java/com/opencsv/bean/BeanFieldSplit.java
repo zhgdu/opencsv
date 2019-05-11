@@ -35,10 +35,11 @@ import java.util.regex.Pattern;
  * This class concerns itself with handling collection-valued bean fields.
  * 
  * @param <T> The type of the bean being populated
+ * @param <I> Type of the index into a multivalued field
  * @author Andrew Rucker Jones
  * @since 4.2
  */
-public class BeanFieldSplit<T> extends AbstractBeanField<T> {
+public class BeanFieldSplit<T, I> extends AbstractBeanField<T, I> {
     
     private final Pattern splitOn, capture;
     private final String writeDelimiter, writeFormat;

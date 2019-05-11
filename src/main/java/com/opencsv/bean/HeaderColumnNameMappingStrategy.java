@@ -100,7 +100,7 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
     }
     
     @Override
-    protected Object chooseMultivaluedFieldIndexFromHeaderIndex(int index) {
+    protected String chooseMultivaluedFieldIndexFromHeaderIndex(int index) {
         String[] s = headerIndex.getHeaderIndex();
         return index >= s.length ? null: s[index];
     }
@@ -117,8 +117,8 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
     }
     
     @Override
-    protected BeanField<T> findField(int col) throws CsvBadConverterException {
-        BeanField<T> beanField = null;
+    protected BeanField<T, String> findField(int col) throws CsvBadConverterException {
+        BeanField<T, String> beanField = null;
         String columnName = getColumnName(col);
         if(StringUtils.isNotBlank(columnName)) {
             beanField = fieldMap.get(columnName.toUpperCase().trim());
@@ -140,10 +140,10 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
                     columnName = field.getName().toUpperCase();
                 }
                 @SuppressWarnings("unchecked")
-                Class<? extends AbstractBeanField<T>> converter = (Class<? extends AbstractBeanField<T>>)field
+                Class<? extends AbstractBeanField<T, String>> converter = (Class<? extends AbstractBeanField<T, String>>)field
                         .getAnnotation(CsvCustomBindByName.class)
                         .converter();
-                BeanField<T> bean = instantiateCustomConverter(converter);
+                BeanField<T, String> bean = instantiateCustomConverter(converter);
                 bean.setField(field);
                 required = annotation.required();
                 bean.setRequired(required);

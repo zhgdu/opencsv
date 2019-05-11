@@ -28,10 +28,11 @@ import java.util.ResourceBundle;
  * This class takes a string and splits it on whitespace into a list of strings.
  *
  * @param <T> Type of the bean to be manipulated
- * 
+ * @param <I> Type of the index into a multivalued field
+ *
  * @author Andrew Rucker Jones
  */
-public class ConvertSplitOnWhitespace<T> extends AbstractBeanField<T> {
+public class ConvertSplitOnWhitespace<T, I> extends AbstractBeanField<T, I> {
 
     /**
      * Silence code style checker by adding a useless constructor.
