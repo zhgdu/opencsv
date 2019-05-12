@@ -104,11 +104,14 @@ public interface MappingStrategy<T> {
     
     /**
      * Sets the locale for all error messages.
+     * The default implementation does nothing, as it is expected that most
+     * implementations of this interface will not support multiple languages.
+     *
      * @param errorLocale Locale for error messages. If null, the default locale
      *   is used.
      * @since 4.0
      */
-    void setErrorLocale(Locale errorLocale);
+    default void setErrorLocale(Locale errorLocale) {}
    
     /**
      * Sets the class type that is being mapped.

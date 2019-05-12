@@ -35,9 +35,6 @@ public class ErrorLineMappingStrategy<T> implements MappingStrategy<T> {
     }
     
     @Override
-    public void setErrorLocale(Locale errorLocale) {}
-
-    @Override
     public void setType(Class type) throws CsvBadConverterException {}
 
     @Override

@@ -76,12 +76,14 @@ do about them.
       * Scads of methods that had to do with the internal implementation details of a mapping strategy have been removed from the interface MappingStrategy. You probably never needed these anyway, if you wrote your own mapping strategy.
       * The custom converter SplitOnWhitespace has been removed. Use the "split" parameter to the annotation in question.
    * Writing non-annotated beans now produces capitalized headers like the rest of opencsv.
+   * Introspection has been replaced with Reflection. As a result, writing beans no longer fails if a getter is not available.
    * If you created custom converters and declared them with the type parameter for the bean type (e.g. MyConverter<T> extends AbstractBeanField<T>) instead of declaring them with a raw class (e.g. MyConverter extends AbstractBeanField), you will need to add one more type parameter for the type of the index into multivalued fields (e.g. MyConverter<T, I> extends AbstractBeanField<T, I>).
 
 And we have a new list of things that we have deprecated and plan to remove in
 6.0, as well as what you can do about it.
 
    * MappingStrategy.isAnnotationDriven() is simply no longer necessary. It was always an internal implementation detail that has nothing to do with anything but two specific mapping strategies. We have made it a default method in the interface, so you can remove your code immediately if you have implemented your own mapping strategy.
+   * LiteralComparator can be replaced by a few Comparators from Apache Commons Collections strung together. See the deprecation note for details.
 
 === Upgrading from 3.x to 4.x
 
@@ -1079,7 +1081,12 @@ uncomfortable, because they have an exact order that they need that has nothing
 to do with any kind of rule-based ordering. For these people we have included
 com.opencsv.bean.comparator.LiteralComparator. It is instantiated with an array
 of strings for header name mapping or integers for column position mapping that
-define the order desired.
+define the order desired. Please note, though, that LiteralComparator is
+deprecated as of opencsv 5.0 because it is easily replaced by a few Comparators
+from Apache Commons Collections when strung together. Commons Collections is a
+dependency of opencsv, so it is already in your classpath. You are strongly
+encouraged to examine the Comparators Commons Collections makes available to
+you. They are quite flexible and very useful.
 
 ==== From a database table
 

@@ -51,12 +51,6 @@ abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
     /** The field this class represents. */
     protected Field field;
     
-    /**
-     * This is just to avoid instantiating a new PropertyUtilsBean for every
-     * time it needs to be used.
-     */
-    private PropertyUtilsBean propUtils;
-    
     /** Whether or not this field is required. */
     protected boolean required;
     
@@ -348,20 +342,8 @@ abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
             CsvRequiredFieldEmptyException {
         String[] result = ArrayUtils.EMPTY_STRING_ARRAY;
         if(bean != null && field != null) {
-            if(propUtils == null) {
-                propUtils = new PropertyUtilsBean();
-            }
-            Object value;
-            try {
-                // TODO for 5.0: This should probably become getFieldValue()
-                value = propUtils.getSimpleProperty(bean, field.getName());
-            }
-            catch(IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
-                CsvBeanIntrospectionException csve = new CsvBeanIntrospectionException(bean, field);
-                csve.initCause(e);
-                throw csve;
-            }
-            
+            Object value = getFieldValue(bean);
+
             if(isFieldEmptyForWrite(value) && required) {
                 throw new CsvRequiredFieldEmptyException(
                         bean.getClass(), field,

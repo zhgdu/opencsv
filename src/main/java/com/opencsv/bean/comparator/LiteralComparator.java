@@ -35,8 +35,20 @@ import java.util.List;
  * @param <T> The type to be sorted
  *
  * @since 4.3
+ * @deprecated This exact behavior can be had using comparators from Apache
+ * Commons Collections, which opencsv includes as a dependency. The following
+ * code gives the same result:
+ * {@code
+ * List<T> predefinedList = Arrays.<T>asList(predefinedOrder);
+ * FixedOrderComparator<T> fixedComparator = new FixedOrderComparator<>(predefinedList);
+ * fixedComparator.setUnknownObjectBehavior(FixedOrderComparator.UnknownObjectBehavior.AFTER);
+ * Comparator<T> c = new ComparatorChain<>(Arrays.<Comparator<T>>asList(
+ *     fixedComparator,
+ *     new NullComparator<>(false),
+ *     new ComparableComparator<>()));
+ * }
  */
-// TODO: For 5.0, this should be deprecated in favor of using the comparators from Commons Collections directly.
+@Deprecated
 public class LiteralComparator<T extends Comparable<T>> implements Comparator<T>, Serializable {
     private static final long serialVersionUID = 1L;
     private Comparator<T> c;

@@ -1128,14 +1128,8 @@ public class JoinTest {
         
         StringWriter w = new StringWriter();
         StatefulBeanToCsv<GoodJoinByPositionAnnotations> b2csv = new StatefulBeanToCsvBuilder<GoodJoinByPositionAnnotations>(w).build();
-        try {
-            b2csv.write(bean);
-            fail("Exception should have been thrown");
-        }
-        catch(CsvBeanIntrospectionException e) {
-            assertEquals(bean, e.getBean());
-            assertEquals("map2", e.getField().getName());
-        }
+        b2csv.write(bean);
+        assertEquals("\"-2147483648\",\"27. Feb 1974\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"15. Jan 1978\",\"13. Apr 2003\"\n", w.toString());
     }
     
     @Test

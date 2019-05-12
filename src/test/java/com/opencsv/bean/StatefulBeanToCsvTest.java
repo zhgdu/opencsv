@@ -472,14 +472,8 @@ public class StatefulBeanToCsvTest {
         StatefulBeanToCsv<GetterMissing> sbtcsv = new StatefulBeanToCsvBuilder<GetterMissing>(writer)
                 .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
                 .build();
-        try {
-            sbtcsv.write(getterMissing);
-            fail("An exception should have been thrown!");
-        }
-        catch(CsvBeanIntrospectionException e) {
-            assertEquals(getterMissing, e.getBean());
-            assertEquals("test", e.getField().getName());
-        }
+        sbtcsv.write(getterMissing);
+        assertEquals("TEST\n123\n", writer.toString());
     }
         
     /**
@@ -493,14 +487,8 @@ public class StatefulBeanToCsvTest {
         StatefulBeanToCsv<GetterPrivate> sbtcsv = new StatefulBeanToCsvBuilder<GetterPrivate>(writer)
                 .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
                 .build();
-        try {
-            sbtcsv.write(getterPrivate);
-            fail("An exception should have been thrown!");
-        }
-        catch(CsvBeanIntrospectionException e) {
-            assertEquals(getterPrivate, e.getBean());
-            assertEquals("test", e.getField().getName());
-        }
+        sbtcsv.write(getterPrivate);
+        assertEquals("TEST\n123\n", writer.toString());
     }
         
     /**
