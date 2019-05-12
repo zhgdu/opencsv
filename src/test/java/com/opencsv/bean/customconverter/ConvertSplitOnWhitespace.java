@@ -82,9 +82,7 @@ public class ConvertSplitOnWhitespace<T, I> extends AbstractBeanField<T, I> {
         }
         catch(ClassCastException e) {
             CsvDataTypeMismatchException csve =
-                    new CsvDataTypeMismatchException(ResourceBundle
-                            .getBundle("convertSplitOnWhitespace", errorLocale)
-                            .getString("wrong.type"));
+                    new CsvDataTypeMismatchException("The field must be of type List<String>.");
             csve.initCause(e);
             throw csve;
         }
