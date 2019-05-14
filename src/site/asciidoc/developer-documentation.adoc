@@ -84,6 +84,7 @@ And we have a new list of things that we have deprecated and plan to remove in
 
    * MappingStrategy.isAnnotationDriven() is simply no longer necessary. It was always an internal implementation detail that has nothing to do with anything but two specific mapping strategies. We have made it a default method in the interface, so you can remove your code immediately if you have implemented your own mapping strategy.
    * LiteralComparator can be replaced by a few Comparators from Apache Commons Collections strung together. See the deprecation note for details.
+   * CsvToBeanFilter should be replaced with BeanVerifier.
 
 === Upgrading from 3.x to 4.x
 

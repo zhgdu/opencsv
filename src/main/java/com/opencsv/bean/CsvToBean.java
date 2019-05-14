@@ -271,7 +271,9 @@ public class CsvToBean<T> implements Iterable<T> {
      * Sets a filter to selectively remove some lines of input before they
      * become beans.
      * @param filter A class that filters the input lines
+     * @deprecated Please use {@link CsvToBeanBuilder#withVerifier(BeanVerifier)} instead.
      */
+    @Deprecated
     public void setFilter(CsvToBeanFilter filter) {
         this.filter = filter;
     }

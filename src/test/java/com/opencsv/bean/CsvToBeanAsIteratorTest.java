@@ -47,14 +47,9 @@ public class CsvToBeanAsIteratorTest {
         StringReader reader = new StringReader(testString);
         return new CSVReader(reader);
     }
-    
+
+    @Deprecated
     private class FilterSmallNumbers implements CsvToBeanFilter {
-        
-        private final MappingStrategy strategy;
-        
-        public FilterSmallNumbers(MappingStrategy strategy) {
-            this.strategy = strategy;
-        }
         
         @Override
         public boolean allowLine(String[] line) {
@@ -177,7 +172,7 @@ public class CsvToBeanAsIteratorTest {
         strategy.setType(MockBean.class);
         CsvToBean<MockBean> bean = new CsvToBeanBuilder<MockBean>(new StringReader(TEST_STRING))
                 .withMappingStrategy(strategy)
-                .withFilter(new FilterSmallNumbers(strategy))
+                .withFilter(new FilterSmallNumbers())
                 .build();
 
         Iterator<MockBean> iterator = bean.iterator();

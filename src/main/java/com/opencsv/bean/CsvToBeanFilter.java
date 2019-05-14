@@ -61,7 +61,9 @@ package com.opencsv.bean;
  * </pre>
  *
  * @see BeanVerifier
+ * @deprecated Please use {@link BeanVerifier} instead.
  */
+@Deprecated
 public interface CsvToBeanFilter {
 
    /**

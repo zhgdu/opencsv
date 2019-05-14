@@ -202,6 +202,7 @@ public class CsvToBeanTest {
         assertEquals(2, result.size());
     }
 
+    @Deprecated
     private class BegToBeFiltered implements CsvToBeanFilter {
 
         @Override

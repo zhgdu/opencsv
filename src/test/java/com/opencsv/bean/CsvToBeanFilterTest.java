@@ -66,6 +66,7 @@ public class CsvToBeanFilterTest {
       }
    }
 
+   @Deprecated
    private class NonProductionFilter implements CsvToBeanFilter {
 
       @Override

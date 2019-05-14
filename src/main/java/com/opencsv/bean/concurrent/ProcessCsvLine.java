@@ -23,8 +23,6 @@ import com.opencsv.exceptions.*;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 
-import java.beans.IntrospectionException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -71,7 +69,7 @@ public class ProcessCsvLine<T> implements Runnable {
         this.lineNumber = lineNumber;
         this.mapper = mapper;
         this.filter = filter;
-        this.verifiers = ObjectUtils.defaultIfNull(new ArrayList<BeanVerifier<T>>(verifiers), Collections.<BeanVerifier<T>>emptyList());
+        this.verifiers = ObjectUtils.defaultIfNull(new ArrayList<>(verifiers), Collections.<BeanVerifier<T>>emptyList());
         this.line = ArrayUtils.clone(line);
         this.resultantBeanQueue = resultantBeanQueue;
         this.thrownExceptionsQueue = thrownExceptionsQueue;
@@ -111,9 +109,7 @@ public class ProcessCsvLine<T> implements Runnable {
      * Creates a single object from a line from the CSV file.
      * @return Object containing the values.
      * @throws IllegalAccessException Thrown on error creating bean.
-     * @throws InvocationTargetException Thrown on error calling the setters.
      * @throws InstantiationException Thrown on error creating bean.
-     * @throws IntrospectionException Thrown on error getting the
      *   PropertyDescriptor.
      * @throws CsvBadConverterException If a custom converter cannot be
      *   initialized properly
@@ -125,8 +121,8 @@ public class ProcessCsvLine<T> implements Runnable {
      *   data would be violated by the data in the CSV file
      */
     private T processLine()
-            throws IllegalAccessException, InvocationTargetException,
-            InstantiationException, IntrospectionException,
+            throws IllegalAccessException,
+            InstantiationException,
             CsvBadConverterException, CsvDataTypeMismatchException,
             CsvRequiredFieldEmptyException, CsvConstraintViolationException {
         return mapper.populateNewBean(line);
