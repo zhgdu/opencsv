@@ -57,7 +57,7 @@ import java.util.stream.Stream;
  * @author Andrew Rucker Jones
  * @since 4.0
  */
-public class IntolerantThreadPoolExecutor<T> extends ThreadPoolExecutor {
+class IntolerantThreadPoolExecutor<T> extends ThreadPoolExecutor {
 
     /** A queue of the beans created. */
     protected final BlockingQueue<OrderedObject<T>> resultQueue = new LinkedBlockingQueue<>();
@@ -89,7 +89,7 @@ public class IntolerantThreadPoolExecutor<T> extends ThreadPoolExecutor {
      * Threads never time out and the queue for inbound work is unbounded.
      * @param orderedResults Whether order should be preserved in the results
      */
-    public IntolerantThreadPoolExecutor(boolean orderedResults) {
+    IntolerantThreadPoolExecutor(boolean orderedResults) {
         super(Runtime.getRuntime().availableProcessors(),
                 Runtime.getRuntime().availableProcessors(), Long.MAX_VALUE,
                 TimeUnit.NANOSECONDS, new LinkedBlockingQueue<>());

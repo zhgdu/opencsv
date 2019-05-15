@@ -59,7 +59,7 @@ abstract public class AbstractFieldMap<I, K extends Comparable<K>, C extends Com
      * 
      * @param errorLocale The locale to be used for error messages
      */
-    public AbstractFieldMap(final Locale errorLocale) {
+    protected AbstractFieldMap(final Locale errorLocale) {
         this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
     }
     

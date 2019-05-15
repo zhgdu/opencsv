@@ -132,20 +132,6 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
     abstract public String findHeader(int col);
 
     /**
-     * Finds and returns the highest index in this mapping.
-     * This is especially important for writing, since position-based mapping
-     * can ignore some columns that must be included in the output anyway.
-     * {@link #findField(int) } will return null for these columns, so we need
-     * a way to know when to stop writing new columns.
-     * @return The highest index in the mapping. If there are no columns in the
-     *   mapping, returns -1.
-     * @since 3.9
-     */
-    public int findMaxFieldIndex() {
-        return headerIndex.findMaxIndex();
-    }
-
-    /**
      * This method generates a header that can be used for writing beans of the
      * type provided back to a file.
      * <p>The ordering of the headers is determined by the
@@ -180,7 +166,7 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
      * @return The column name or null if the position is larger than the
      * header array or there are no headers defined.
      */
-    public String getColumnName(int col) {
+    String getColumnName(int col) {
         // headerIndex is never null because it's final
         return headerIndex.getByPosition(col);
     }
@@ -282,7 +268,7 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
     
     @Override
     public String[] transmuteBean(T bean) throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
-        int numColumns = findMaxFieldIndex()+1;
+        int numColumns = headerIndex.findMaxIndex()+1;
         List<String> transmutedBean = writeWithReflection(bean, numColumns);
         return transmutedBean.toArray(new String[transmutedBean.size()]);
     }

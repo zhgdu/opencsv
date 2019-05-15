@@ -31,7 +31,7 @@ public class OrderedObject<E> {
      * @param ordinal The position in a sequence of objects
      * @param element The object being sequenced
      */
-    public OrderedObject(long ordinal, E element) {
+    OrderedObject(long ordinal, E element) {
         this.ordinal = ordinal;
         this.element = element;
     }
@@ -39,7 +39,7 @@ public class OrderedObject<E> {
     /**
      * @return The position in a sequence of objects
      */
-    public long getOrdinal() {
+    long getOrdinal() {
         return ordinal;
     }
     

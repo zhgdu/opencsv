@@ -115,14 +115,6 @@ public class CsvToBeanBuilder<T> {
    /** @see com.opencsv.bean.CsvToBean#verifiers */
    private final List<BeanVerifier<T>> verifiers = new LinkedList<>();
    
-   /** This constructor must never be called, because Reader must be set. */
-   private CsvToBeanBuilder() {
-       reader = null; // Otherwise the compiler complains that reader can't be final.
-       throw new IllegalStateException(String.format(ResourceBundle
-               .getBundle(ICSVParser.DEFAULT_BUNDLE_NAME) // Must be default locale, because we don't have anything else yet
-               .getString("nullary.constructor.not.allowed"), getClass().getName()));
-   }
-   
    /**
     * Constructor with the one parameter that is most definitely mandatory, and
     * always will be.

@@ -58,7 +58,7 @@ public final class OpencsvUtils {
      *   default locale is used.
      * @return A functional mapping strategy for the bean in question
      */
-    public static <T> MappingStrategy<T> determineMappingStrategy(Class<? extends T> type, Locale errorLocale) {
+    static <T> MappingStrategy<T> determineMappingStrategy(Class<? extends T> type, Locale errorLocale) {
         // Check for annotations
         boolean positionAnnotationsPresent = Stream.of(FieldUtils.getAllFields(type)).anyMatch(
                 f -> f.isAnnotationPresent(CsvBindByPosition.class)
@@ -117,7 +117,7 @@ public final class OpencsvUtils {
      * but invalid or valid but does not have at least one capturing group
      * @since 4.3
      */
-    public static Pattern compilePatternAtLeastOneGroup(String regex, int regexFlags, Class<?> callingClass, Locale errorLocale)
+    static Pattern compilePatternAtLeastOneGroup(String regex, int regexFlags, Class<?> callingClass, Locale errorLocale)
             throws CsvBadConverterException {
         Pattern tempPattern = compilePattern(regex, regexFlags, callingClass, errorLocale);
         errorLocale = errorLocale == null ? Locale.getDefault() : errorLocale;
@@ -158,7 +158,7 @@ public final class OpencsvUtils {
      * but invalid
      * @since 4.3
      */
-    public static Pattern compilePattern(String regex, int regexFlags, Class<?> callingClass, Locale errorLocale)
+    static Pattern compilePattern(String regex, int regexFlags, Class<?> callingClass, Locale errorLocale)
             throws CsvBadConverterException {
         Pattern tempPattern = null;
         errorLocale = errorLocale == null ? Locale.getDefault() : errorLocale;
@@ -191,7 +191,7 @@ public final class OpencsvUtils {
      * @param errorLocale  The locale to be used for error messages. If
      *                     {@code null}, the default locale is used.
      */
-    public static void verifyFormatString(String format, Class<?> callingClass, Locale errorLocale) {
+    static void verifyFormatString(String format, Class<?> callingClass, Locale errorLocale) {
         errorLocale = errorLocale == null ? Locale.getDefault() : errorLocale;
         try {
             if(StringUtils.isNotEmpty(format)) {

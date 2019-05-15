@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentMap;
  * @author Andrew Rucker Jones
  * @since 4.0
  */
-public class AccumulateCsvResults<T> extends Thread {
+class AccumulateCsvResults<T> extends Thread {
     private final BlockingQueue<OrderedObject<T>> resultantBeansQueue;
     private final BlockingQueue<OrderedObject<CsvException>> thrownExceptionsQueue;
     private final ConcurrentMap<Long, T> resultantBeanMap;
@@ -50,10 +50,10 @@ public class AccumulateCsvResults<T> extends Thread {
      * @param thrownExceptionsMap The (ordered) map of suppressed exceptions
      *   thrown during bean creation. The accumulator inserts into this map.
      */
-    public AccumulateCsvResults(BlockingQueue<OrderedObject<T>> resultantBeansQueue,
-            BlockingQueue<OrderedObject<CsvException>> thrownExceptionsQueue,
-            ConcurrentMap<Long, T> resultantBeanMap,
-            ConcurrentMap<Long, CsvException> thrownExceptionsMap) {
+    AccumulateCsvResults(BlockingQueue<OrderedObject<T>> resultantBeansQueue,
+                         BlockingQueue<OrderedObject<CsvException>> thrownExceptionsQueue,
+                         ConcurrentMap<Long, T> resultantBeanMap,
+                         ConcurrentMap<Long, CsvException> thrownExceptionsMap) {
         super();
         this.resultantBeansQueue = resultantBeansQueue;
         this.thrownExceptionsQueue = thrownExceptionsQueue;
@@ -67,7 +67,7 @@ public class AccumulateCsvResults<T> extends Thread {
      * because it's synchronized.
      * @return Whether the accumulator should stop
      */
-    public synchronized boolean isMustStop() {
+    private synchronized boolean isMustStop() {
         return mustStop;
     }
 
@@ -77,7 +77,7 @@ public class AccumulateCsvResults<T> extends Thread {
      * because it's synchronized.
      * @param mustStop Whether the accumulator should stop
      */
-    public synchronized void setMustStop(boolean mustStop) {
+    synchronized void setMustStop(boolean mustStop) {
         this.mustStop = mustStop;
     }
 

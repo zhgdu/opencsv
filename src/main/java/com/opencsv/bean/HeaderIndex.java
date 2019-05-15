@@ -53,8 +53,10 @@ public class HeaderIndex {
     }
     
     /**
+     * Finds and returns the highest index in this mapping.
      * @return The maximum index that is mapped and will return a header name
-     *   (or null if specifically mapped that way).
+     *   (or null if specifically mapped that way). If there are no columns in
+     *   the mapping, returns -1.
      */
     public int findMaxIndex() {
         return positionToHeader.length-1;

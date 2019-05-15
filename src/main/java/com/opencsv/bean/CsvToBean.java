@@ -295,7 +295,7 @@ public class CsvToBean<T> implements Iterable<T> {
         private BlockingQueue<OrderedObject<CsvException>> thrownExceptionsQueue;
         private T bean;
         
-        public CsvToBeanIterator() {
+        CsvToBeanIterator() {
             resultantBeansQueue = new ArrayBlockingQueue<>(1);
             thrownExceptionsQueue = new ArrayBlockingQueue<>(1);
             readSingleLine();
