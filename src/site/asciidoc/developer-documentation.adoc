@@ -66,6 +66,8 @@ out as a map:
 5.0 is a major release because it breaks backward compatibility. What do you get
 for that? Here is a list of the improvements in opencsv 5.0.
 
+   * CsvToBean now has a stream() method to allow you to gracefully continue processing your beans if you so choose. Since it bypasses internal copying to a new list, it saves a smidgen of time and space.
+
 Here are the things you can expect to encounter during an upgrade and what to
 do about them.
 
@@ -326,7 +328,7 @@ that offer finer control, for those who have a need for such a thing.
 Performance always being one of our top concerns, reading is written to be
 multi-threaded, which truly speeds the library up by quite a bit. There are two
 performance choices left in your hands:
-. Time vs. memory: The classic trade-off. If memory is not a problem, read using CsvToBean.parse(), which will read all beans at once and is multi-threaded. If your memory is limited, use CsvToBean.iterator() and iterate over the input. Only one bean is read at a time, making multi-threading impossible and slowing down reading, but only one object is in memory at a time (assuming you process and release the object for the garbage collector immediately).
+. Time vs. memory: The classic trade-off. If memory is not a problem, read using CsvToBean.parse() or CsvToBean.stream(), which will read all beans at once and are multi-threaded. If your memory is limited, use CsvToBean.iterator() and iterate over the input. Only one bean is read at a time, making multi-threading impossible and slowing down reading, but only one object is in memory at a time (assuming you process and release the object for the garbage collector immediately).
 . Ordered vs. unordered. opencsv preserves the order of the data given to it by default. Maintaining order when using parallel programming requires some extra effort which means extra CPU time. If order does not matter to you, use CsvToBeanBuilder.withOrderedResults(false). The performance benefit is not large, but it is measurable. The ordering or lack thereof applies to data as well as any captured exceptions.
 
 The bean work was begun by Kyle Miller and extended by Tom Squires and Andrew Jones.
@@ -977,19 +979,15 @@ or for reading with annotations:
        .withSeparator('\t').withQuoteChar('\'').withSkipLines(2).build();
 ----
 
-Filtering is different in that it works on CSV records and it applies to the whole
-input. It can also only be used with a bean mapping strategy. To filter input
-beans, implement CsvToBeanFilter and pass your implementation to
-CsvToBeanBuilder.withFilter(), or equivalently if you're not using the builders,
-to the appropriate parse() method from CsvToBean or even setFilter().
-
-Verifying is slightly different still. With verifying, a complete finished bean
+Verifying is slightly different. With verifying, a complete finished bean
 is checked for desirability and consistency. By implementing BeanVerifier and
 passing it to CsvToBeanBuilder.withVerifier(), each bean will be vetted before
 being returned to the calling code. Beans can be silently filtered if they are
 simply undesirable data sets, or if the data are inconsistent and this is
 considered an error for the surrounding logic, CsvConstraintViolationException
-may be thrown.
+may be thrown. Incidentally, though it is a well-kept secret, the bean passed
+to a BeanVerifier is not a copy, so any changes made to the bean will be kept.
+This is a way to get a postprocessor for beans into opencsv.
 
 === Writing
 Less often used, but just as comfortable as reading CSV files is writing them.

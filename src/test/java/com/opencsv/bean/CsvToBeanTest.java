@@ -20,6 +20,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -200,6 +201,21 @@ public class CsvToBeanTest {
                         .build()
                         .parse();
         assertEquals(2, result.size());
+    }
+
+    @Test
+    public void testParseVsStream() {
+        List<MinimalCsvBindByPositionBeanForWriting> resultList =
+                new CsvToBeanBuilder<MinimalCsvBindByPositionBeanForWriting>(new StringReader("1,2,3\n4,5,6"))
+                        .withType(MinimalCsvBindByPositionBeanForWriting.class)
+                        .build()
+                        .parse();
+        List<MinimalCsvBindByPositionBeanForWriting> resultStream =
+                new CsvToBeanBuilder<MinimalCsvBindByPositionBeanForWriting>(new StringReader("1,2,3\n4,5,6"))
+                        .withType(MinimalCsvBindByPositionBeanForWriting.class)
+                        .build()
+                        .stream().collect(Collectors.toList());
+        assertEquals(resultList, resultStream);
     }
 
     @Deprecated

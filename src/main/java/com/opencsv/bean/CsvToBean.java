@@ -18,10 +18,7 @@ package com.opencsv.bean;
 
 import com.opencsv.CSVReader;
 import com.opencsv.ICSVParser;
-import com.opencsv.bean.concurrent.AccumulateCsvResults;
-import com.opencsv.bean.concurrent.IntolerantThreadPoolExecutor;
-import com.opencsv.bean.concurrent.OrderedObject;
-import com.opencsv.bean.concurrent.ProcessCsvLine;
+import com.opencsv.bean.concurrent.*;
 import com.opencsv.exceptions.CsvException;
 import com.opencsv.exceptions.CsvMalformedLineException;
 import org.apache.commons.lang3.ObjectUtils;
@@ -29,6 +26,8 @@ import org.apache.commons.lang3.ObjectUtils;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Converts CSV data to objects.
@@ -42,7 +41,7 @@ import java.util.concurrent.*;
 public class CsvToBean<T> implements Iterable<T> {
     
    /** A list of all exceptions during parsing and mapping of the input. */
-    private List<CsvException> capturedExceptions = null;
+    private final List<CsvException> capturedExceptions = new LinkedList<>();
 
    /** The mapping strategy to be used by this CsvToBean. */
     private MappingStrategy<? extends T> mappingStrategy;
@@ -71,23 +70,11 @@ public class CsvToBean<T> implements Iterable<T> {
     /** Stores the result of parsing a line of input. */
     private String[] line;
     
-    /** The ExecutorService for parallel processing of beans. */
-    private IntolerantThreadPoolExecutor executor;
-    
-    /** A separate thread that accumulates and orders results. */
-    private AccumulateCsvResults<T> accumulateThread = null;
-    
-    /** A queue of the beans created. */
-    private BlockingQueue<OrderedObject<T>> resultantBeansQueue;
-    
-    /** A queue of exceptions thrown by threads during processing. */
-    private BlockingQueue<OrderedObject<CsvException>> thrownExceptionsQueue;
-    
-    /** A sorted, concurrent map for the beans created. */
-    private ConcurrentNavigableMap<Long, T> resultantBeansMap = null;
-    
-    /** A sorted, concurrent map for any exceptions captured. */
-    private ConcurrentNavigableMap<Long, CsvException> thrownExceptionsMap = null;
+    /**
+     * The {@link java.util.concurrent.ExecutorService} for parallel processing
+     * of beans.
+     */
+    private LineExecutor<T> executor;
     
     /** The errorLocale for error messages. */
     private Locale errorLocale = Locale.getDefault();
@@ -104,102 +91,44 @@ public class CsvToBean<T> implements Iterable<T> {
     public CsvToBean() {
     }
 
-    /**
-     * Prepare for parallel processing.
-     * <p>The structure is:
-     * <ol><li>The main thread parses input and passes it on to</li>
-     * <li>The executor, which creates a number of beans in parallel and passes
-     * these and any resultant errors to</li>
-     * <li>The accumulator, which creates an ordered list of the results.</li></ol></p>
-     * <p>The threads in the executor queue their results in a thread-safe
-     * queue, which should be O(1), minimizing wait time due to synchronization.
-     * The accumulator then removes items from the queue and inserts them into a
-     * sorted data structure, which is O(log n) on average and O(n) in the worst
-     * case. If the user has told us she doesn't need sorted data, the
-     * accumulator is not necessary, and thus is not started.</p>
-     */
-    private void prepareForParallelProcessing() {
-        executor = new IntolerantThreadPoolExecutor();
-        executor.prestartAllCoreThreads();
-        resultantBeansQueue = new LinkedBlockingQueue<>();
-        thrownExceptionsQueue = new LinkedBlockingQueue<>();
-        
-        // The ordered maps and accumulator are only necessary if ordering is
-        // stipulated. After this, the presence or absence of the accumulator is
-        // used to indicate ordering or not so as to guard against the unlikely
-        // problem that someone sets orderedResults right in the middle of
-        // processing.
-        if(orderedResults) {
-            resultantBeansMap = new ConcurrentSkipListMap<>();
-            thrownExceptionsMap = new ConcurrentSkipListMap<>();
-
-            // Start the process for accumulating results and cleaning up
-            accumulateThread = new AccumulateCsvResults<>(
-                    resultantBeansQueue, thrownExceptionsQueue, resultantBeansMap,
-                    thrownExceptionsMap);
-            accumulateThread.start();
-        }
-    }
-    
     private void submitAllBeans() throws IOException, InterruptedException {
         while (null != (line = csvReader.readNext())) {
             lineProcessed = csvReader.getLinesRead();
-            executor.execute(new ProcessCsvLine<>(
-                    lineProcessed, mappingStrategy, filter, verifiers, line,
-                    resultantBeansQueue, thrownExceptionsQueue,
-                    throwExceptions));
+            executor.submitLine(lineProcessed, mappingStrategy, filter,
+                    verifiers, line, throwExceptions);
         }
-
-        // Normal termination
-        executor.shutdown();
-        executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS); // Wait indefinitely
-        if(accumulateThread != null) {
-            accumulateThread.setMustStop(true);
-            accumulateThread.join();
-        }
-
-        // There's one more possibility: The very last bean caused a problem.
-        if(executor.getTerminalException() != null) {
-            // Trigger a catch in the calling method
-            throw new RejectedExecutionException();
-        }
+        executor.complete();
     }
     
-    private List<T> prepareResults() {
-        // Prepare results. Checking for these maps to be != null makes the
-        // compiler feel better than checking that the accumulator is not null.
-        // This is to differentiate between the ordered and unordered cases.
-        List<T> resultList;
-        if(thrownExceptionsMap != null && resultantBeansMap != null) {
-            capturedExceptions = new ArrayList<>(thrownExceptionsMap.values());
-            resultList = new ArrayList<>(resultantBeansMap.values());
-        }
-        else {
-            capturedExceptions = new ArrayList<>(thrownExceptionsQueue.size());
-            OrderedObject<CsvException> oocsve;
-            while(!thrownExceptionsQueue.isEmpty()) {
-                oocsve = thrownExceptionsQueue.poll();
-                if(oocsve != null) {capturedExceptions.add(oocsve.getElement());}
-            }
-            resultList = new ArrayList<>(resultantBeansQueue.size());
-            OrderedObject<T> ooresult;
-            while(!resultantBeansQueue.isEmpty()) {
-                    ooresult = resultantBeansQueue.poll();
-                    if(ooresult != null) {resultList.add(ooresult.getElement());}
-            }
-        }
-        return resultList;
-    }
-
     /**
      * Parses the input based on parameters already set through other methods.
      * @return A list of populated beans based on the input
      * @throws IllegalStateException If either MappingStrategy or CSVReader is
      *   not specified
+     * @see #stream()
+     * @see #iterator()
      */
     public List<T> parse() throws IllegalStateException {
+        return stream().collect(Collectors.toList());
+    }
+
+    /**
+     * Parses the input based on parameters already set through other methods.
+     * This method saves a marginal amount of time and storage compared to
+     * {@link #parse()} because it avoids the intermediate storage of the
+     * results in a {@link java.util.List}. If you plan on further processing
+     * the results as a {@link java.util.stream.Stream}, use this method.
+     *
+     * @return A stream of populated beans based on the input
+     * @throws IllegalStateException If either MappingStrategy or CSVReader is
+     *   not specified
+     * @see #parse()
+     * @see #iterator()
+     */
+    public Stream<T> stream() throws IllegalStateException {
         prepareToReadInput();
-        prepareForParallelProcessing();
+        executor = new LineExecutor<>(orderedResults);
+        executor.prepare();
 
         // Parse through each line of the file
         try {
@@ -207,9 +136,6 @@ public class CsvToBean<T> implements Iterable<T> {
         } catch(RejectedExecutionException e) {
             // An exception in one of the bean creation threads prompted the
             // executor service to shutdown before we were done.
-            if(accumulateThread != null) {
-                accumulateThread.setMustStop(true);
-            }
             if(executor.getTerminalException() instanceof CsvException) {
                 CsvException csve = (CsvException)executor.getTerminalException();
                 throw new RuntimeException(String.format(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("parsing.error.linenumber"),
@@ -219,22 +145,16 @@ public class CsvToBean<T> implements Iterable<T> {
         } catch (CsvMalformedLineException cmle) {
             // Exception during parsing. Always unrecoverable.
             executor.shutdownNow();
-            if (accumulateThread != null) {
-                accumulateThread.setMustStop(true);
-            }
             throw new RuntimeException(String.format(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("parsing.error.full"),
                     cmle.getLineNumber(), cmle.getContext()), cmle);
         } catch (Exception e) {
             // Exception during parsing. Always unrecoverable.
             executor.shutdownNow();
-            if(accumulateThread != null) {
-                accumulateThread.setMustStop(true);
-            }
             throw new RuntimeException(String.format(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("parsing.error.full"),
                     lineProcessed, Arrays.toString(line)), e);
         }
         
-        return prepareResults();
+        return executor.resultStream();
     }
 
     /**
@@ -245,10 +165,9 @@ public class CsvToBean<T> implements Iterable<T> {
      * @return The list of exceptions captured while processing the input file
      */
     public List<CsvException> getCapturedExceptions() {
-        if (capturedExceptions == null) {
-            capturedExceptions = new LinkedList<>();
-        }
-        return capturedExceptions;
+        // The exceptions are stored in different places, dependent on
+        // whether or not the iterator is used.
+        return executor != null ? executor.getCapturedExceptions() : capturedExceptions;
     }
 
     /**
@@ -359,6 +278,8 @@ public class CsvToBean<T> implements Iterable<T> {
      * <p>The iterator respects all aspects of {@link CsvToBean}, including
      * filters and capturing exceptions.</p>
      * @return An iterator over the beans created from the input
+     * @see #parse()
+     * @see #stream()
      */
     @Override
     public Iterator<T> iterator() {
@@ -370,6 +291,8 @@ public class CsvToBean<T> implements Iterable<T> {
      * A private inner class for implementing an iterator for the input data.
      */
     private class CsvToBeanIterator implements Iterator<T> {
+        private BlockingQueue<OrderedObject<T>> resultantBeansQueue;
+        private BlockingQueue<OrderedObject<CsvException>> thrownExceptionsQueue;
         private T bean;
         
         public CsvToBeanIterator() {
@@ -382,9 +305,6 @@ public class CsvToBean<T> implements Iterable<T> {
             // An exception was thrown
             OrderedObject<CsvException> o = thrownExceptionsQueue.poll();
             if(o != null && o.getElement() != null) {
-                if(capturedExceptions == null) {
-                    capturedExceptions = new LinkedList<>();
-                }
                 capturedExceptions.add(o.getElement());
             }
         }

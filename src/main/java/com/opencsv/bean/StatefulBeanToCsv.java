@@ -18,10 +18,7 @@ package com.opencsv.bean;
 import com.opencsv.CSVWriter;
 import com.opencsv.ICSVParser;
 import com.opencsv.ICSVWriter;
-import com.opencsv.bean.concurrent.AccumulateCsvResults;
-import com.opencsv.bean.concurrent.IntolerantThreadPoolExecutor;
-import com.opencsv.bean.concurrent.OrderedObject;
-import com.opencsv.bean.concurrent.ProcessCsvBean;
+import com.opencsv.bean.concurrent.*;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
@@ -65,12 +62,7 @@ public class StatefulBeanToCsv<T> {
     private boolean throwExceptions;
     private List<CsvException> capturedExceptions = new ArrayList<>();
     private boolean orderedResults = true;
-    private IntolerantThreadPoolExecutor executor = null;
-    private BlockingQueue<OrderedObject<String[]>> resultantLineQueue;
-    private BlockingQueue<OrderedObject<CsvException>> thrownExceptionsQueue;
-    private AccumulateCsvResults<String[]> accumulateThread = null;
-    private ConcurrentNavigableMap<Long, String[]> resultantBeansMap = null;
-    private ConcurrentNavigableMap<Long, CsvException> thrownExceptionsMap = null;
+    private BeanExecutor<T> executor = null;
     private Locale errorLocale = Locale.getDefault();
     private boolean applyQuotesToAll;
 
@@ -180,8 +172,8 @@ public class StatefulBeanToCsv<T> {
             }
 
             // Process the bean
-            resultantLineQueue = new ArrayBlockingQueue<>(1);
-            thrownExceptionsQueue = new ArrayBlockingQueue<>(1);
+            BlockingQueue<OrderedObject<String[]>> resultantLineQueue = new ArrayBlockingQueue<>(1);
+            BlockingQueue<OrderedObject<CsvException>> thrownExceptionsQueue = new ArrayBlockingQueue<>(1);
             ProcessCsvBean<T> proc = new ProcessCsvBean<>(++lineNumber,
                     mappingStrategy, bean, resultantLineQueue,
                     thrownExceptionsQueue, throwExceptions);
@@ -221,90 +213,14 @@ public class StatefulBeanToCsv<T> {
         }
     }
 
-    /**
-     * Prepare for parallel processing.
-     * <p>The structure is:
-     * <ol><li>The main thread parses input and passes it on to</li>
-     * <li>The executor, which creates a number of beans in parallel and passes
-     * these and any resultant errors to</li>
-     * <li>The accumulator, which creates an ordered list of the results.</li></ol></p>
-     * <p>The threads in the executor queue their results in a thread-safe
-     * queue, which should be O(1), minimizing wait time due to synchronization.
-     * The accumulator then removes items from the queue and inserts them into a
-     * sorted data structure, which is O(log n) on average and O(n) in the worst
-     * case. If the user has told us she doesn't need sorted data, the
-     * accumulator is not necessary, and thus is not started.</p>
-     */
-    private void prepareForParallelProcessing() {
-        executor = new IntolerantThreadPoolExecutor();
-        executor.prestartAllCoreThreads();
-        resultantLineQueue = new LinkedBlockingQueue<>();
-        thrownExceptionsQueue = new LinkedBlockingQueue<>();
-
-        // The ordered maps and accumulator are only necessary if ordering is
-        // stipulated. After this, the presence or absence of the accumulator is
-        // used to indicate ordering or not so as to guard against the unlikely
-        // problem that someone sets orderedResults right in the middle of
-        // processing.
-        if (orderedResults) {
-            resultantBeansMap = new ConcurrentSkipListMap<>();
-            thrownExceptionsMap = new ConcurrentSkipListMap<>();
-
-            // Start the process for accumulating results and cleaning up
-            accumulateThread = new AccumulateCsvResults<>(
-                    resultantLineQueue, thrownExceptionsQueue, resultantBeansMap,
-                    thrownExceptionsMap);
-            accumulateThread.start();
-        }
-    }
-
     private void submitAllLines(Iterator<T> beans) throws InterruptedException {
         while (beans.hasNext()) {
             T bean = beans.next();
             if (bean != null) {
-                executor.execute(new ProcessCsvBean<T>(++lineNumber, mappingStrategy, bean, resultantLineQueue,
-                        thrownExceptionsQueue, throwExceptions));
+                executor.submitBean(++lineNumber, mappingStrategy, bean, throwExceptions);
             }
         }
-
-        // Normal termination
-        executor.shutdown();
-        executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS); // Wait indefinitely
-        if (accumulateThread != null) {
-            accumulateThread.setMustStop(true);
-            accumulateThread.join();
-        }
-
-        // There's one more possibility: The very last bean caused a problem.
-        if (executor.getTerminalException() != null) {
-            // Trigger first catch clause
-            throw new RejectedExecutionException();
-        }
-    }
-
-    private void writeResultsOfParallelProcessingToFile() {
-        // Prepare results. Checking for these maps to be != null makes the
-        // compiler feel better than checking that the accumulator is not null.
-        if (thrownExceptionsMap != null && resultantBeansMap != null) {
-            capturedExceptions = new ArrayList<>(thrownExceptionsMap.values());
-            resultantBeansMap.values().forEach(l -> csvwriter.writeNext(l, applyQuotesToAll));
-        } else {
-            capturedExceptions = new ArrayList<>(thrownExceptionsQueue.size());
-            OrderedObject<CsvException> oocsve;
-            while (!thrownExceptionsQueue.isEmpty()) {
-                oocsve = thrownExceptionsQueue.poll();
-                if (oocsve != null && oocsve.getElement() != null) {
-                    capturedExceptions.add(oocsve.getElement());
-                }
-            }
-            OrderedObject<String[]> ooresult;
-            while (!resultantLineQueue.isEmpty()) {
-                try {
-                    ooresult = resultantLineQueue.take();
-                    csvwriter.writeNext(ooresult.getElement(), applyQuotesToAll);
-                } catch (InterruptedException e) {/* We'll get it during the next loop through. */}
-            }
-        }
+        executor.complete();
     }
 
     /**
@@ -326,7 +242,7 @@ public class StatefulBeanToCsv<T> {
     }
 
     /**
-     * Writes a stream of beans out to the {@link java.io.Writer} provided to the
+     * Writes an iterator of beans out to the {@link java.io.Writer} provided to the
      * constructor.
      *
      * @param iBeans An iterator of beans to be written to a CSV destination
@@ -348,7 +264,8 @@ public class StatefulBeanToCsv<T> {
             beforeFirstWrite(firstBean);
         }
 
-        prepareForParallelProcessing();
+        executor = new BeanExecutor<>(orderedResults);
+        executor.prepare();
 
         // Process the beans
         try {
@@ -356,9 +273,6 @@ public class StatefulBeanToCsv<T> {
         } catch (RejectedExecutionException e) {
             // An exception in one of the bean writing threads prompted the
             // executor service to shutdown before we were done.
-            if (accumulateThread != null) {
-                accumulateThread.setMustStop(true);
-            }
             if (executor.getTerminalException() instanceof RuntimeException) {
                 throw (RuntimeException) executor.getTerminalException();
             }
@@ -376,9 +290,6 @@ public class StatefulBeanToCsv<T> {
             // I can't find a way to create this condition in the current
             // code, but we must have a catch-all clause.
             executor.shutdownNow();
-            if (accumulateThread != null) {
-                accumulateThread.setMustStop(true);
-            }
             if (executor.getTerminalException() instanceof RuntimeException) {
                 throw (RuntimeException) executor.getTerminalException();
             }
@@ -386,7 +297,8 @@ public class StatefulBeanToCsv<T> {
                     .getString("error.writing.beans"), e);
         }
 
-        writeResultsOfParallelProcessingToFile();
+        capturedExceptions.addAll(executor.getCapturedExceptions());
+        executor.resultStream().forEach(l -> csvwriter.writeNext(l, applyQuotesToAll));
     }
 
     /**

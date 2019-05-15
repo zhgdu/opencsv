@@ -16,6 +16,7 @@
 package com.opencsv.bean.mocks;
 
 import com.opencsv.bean.CsvBindByPosition;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 
 /**
  *
@@ -54,5 +55,18 @@ public class MinimalCsvBindByPositionBeanForWriting {
 
     public void setA(int a) {
         this.a = a;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj == null) {return false;}
+        if(obj == this) {return true;}
+        if(obj.getClass() != getClass()) {return false;}
+        MinimalCsvBindByPositionBeanForWriting rhs = (MinimalCsvBindByPositionBeanForWriting) obj;
+        return new EqualsBuilder()
+                .append(a, rhs.a)
+                .append(b, rhs.b)
+                .append(c, rhs.c)
+                .isEquals();
     }
 }
