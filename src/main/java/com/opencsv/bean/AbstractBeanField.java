@@ -20,6 +20,7 @@ import com.opencsv.exceptions.CsvBeanIntrospectionException;
 import com.opencsv.exceptions.CsvConstraintViolationException;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
@@ -27,10 +28,7 @@ import org.apache.commons.lang3.reflect.FieldUtils;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Locale;
-import java.util.Objects;
-import java.util.ResourceBundle;
-import org.apache.commons.lang3.ArrayUtils;
+import java.util.*;
 
 /**
  * This base bean takes over the responsibility of converting the supplied
@@ -63,7 +61,21 @@ abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
      * converters.
      */
     protected CsvConverter converter;
-    
+
+    /**
+     * Stores the setter name for a field so we do not have to compute it for every call to the setter.
+     */
+    protected String setterName;
+
+    /**
+     * Stores the getter name for a field so we do not have to compute it for every call to the getter.
+     */
+    protected String getterName;
+
+    private Map<Class, Method> setterMap = new HashMap<>();
+
+    private Map<Class, Method> getterMap = new HashMap<>();
+
     /**
      * Default nullary constructor, so derived classes aren't forced to create
      * a constructor identical to this one.
@@ -87,11 +99,15 @@ abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
         // Once we support Java 9, we can replace ObjectUtils.defaultIfNull() with Objects.requireNonNullElse()
         this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
         this.converter = converter;
+        determineGetterName();
+        determineSetterName();
     }
 
     @Override
     public void setField(Field field) {
         this.field = field;
+        determineGetterName();
+        determineSetterName();
     }
 
     @Override
@@ -164,9 +180,16 @@ abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
      * @since 4.2
      */
     protected Method getReadMethod(T bean) throws NoSuchMethodException {
-        String getterName = "get" + Character.toUpperCase(field.getName().charAt(0))
+        if (!getterMap.containsKey(bean.getClass())) {
+            getterMap.put(bean.getClass(), bean.getClass().getMethod(getterName));
+        }
+
+        return getterMap.get(bean.getClass());
+    }
+
+    private void determineGetterName() {
+        getterName = "get" + Character.toUpperCase(field.getName().charAt(0))
                 + field.getName().substring(1);
-        return bean.getClass().getMethod(getterName);
     }
     
     /**
@@ -181,11 +204,17 @@ abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
      * @since 4.2
      */
     protected Method getWriteMethod(T bean) throws NoSuchMethodException {
-        String setterName = "set" + Character.toUpperCase(field.getName().charAt(0))
-                + field.getName().substring(1);
-        return bean.getClass().getMethod(setterName, field.getType());
+        if (!setterMap.containsKey(bean.getClass())) {
+            setterMap.put(bean.getClass(), bean.getClass().getMethod(setterName, field.getType()));
+        }
+        return setterMap.get(bean.getClass());
     }
-    
+
+    private void determineSetterName() {
+        setterName = "set" + Character.toUpperCase(field.getName().charAt(0))
+                + field.getName().substring(1);
+    }
+
     /**
      * @return {@code value} wrapped in an array, since we assume most values
      *   will not be multi-valued
