@@ -19,10 +19,7 @@ package com.opencsv.bean;
 import com.opencsv.CSVReader;
 import com.opencsv.bean.mocks.MockBean;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -48,17 +45,17 @@ public class HeaderColumnNameMappingStrategyTest {
    private HeaderColumnNameMappingStrategy<MockBean> strat;
    private static Locale systemLocale;
 
-    @BeforeClass
+    @BeforeAll
     public static void storeSystemLocale() {
         systemLocale = Locale.getDefault();
     }
 
-    @After
+    @AfterEach
     public void setSystemLocaleBackToDefault() {
         Locale.setDefault(systemLocale);
     }
 
-   @Before
+    @BeforeEach
    public void setUp() {
       Locale.setDefault(Locale.US);
       strat = new HeaderColumnNameMappingStrategy<>();
@@ -148,10 +145,12 @@ public class HeaderColumnNameMappingStrategyTest {
           assertEquals(IllegalStateException.class, e.getCause().getClass());
       }
    }
-   
-   @Test(expected = IllegalStateException.class)
+
+    @Test
    public void throwsIllegalStateExceptionIfTypeNotSetBeforeGenerateHeaders() throws CsvRequiredFieldEmptyException {
       strat = new HeaderColumnNameMappingStrategy<>();
-      strat.generateHeader(new MockBean());
+        Assertions.assertThrows(IllegalStateException.class, () -> {
+            strat.generateHeader(new MockBean());
+        });
    }
 }

@@ -15,7 +15,8 @@ package com.opencsv;
  limitations under the License.
  */
 
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
@@ -357,13 +358,15 @@ public class CSVWriterTest {
 
    }
 
-   @Test(expected = IOException.class)
+   @Test
    public void flushWillThrowIOException() throws IOException {
       String[] line = {"Foo", "bar's"};
       StringWriter sw = new StringWriter();
       ICSVWriter csvw = new CSVWriterExceptionThrower(sw);
       csvw.writeNext(line);
-      csvw.flush();
+      Assertions.assertThrows(IOException.class, () -> {
+         csvw.flush();
+      });
    }
 
    @Test

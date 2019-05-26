@@ -15,8 +15,8 @@ package com.opencsv;
  limitations under the License.
  */
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.FileReader;
@@ -29,7 +29,7 @@ public class OpencsvTest {
 
    private File tempFile = null;
 
-   @Before
+    @BeforeEach
    public void setUp() throws IOException {
       tempFile = File.createTempFile("csvWriterTest", ".csv");
       tempFile.deleteOnExit();

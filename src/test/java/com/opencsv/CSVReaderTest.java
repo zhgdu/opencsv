@@ -17,18 +17,15 @@ package com.opencsv;
  */
 
 import com.opencsv.enums.CSVReaderNullFieldIndicator;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
 
 import java.io.*;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.util.Locale;
-import org.junit.After;
 
 import static org.junit.Assert.*;
-import org.junit.BeforeClass;
 
 public class CSVReaderTest {
 
@@ -36,17 +33,17 @@ public class CSVReaderTest {
 
     private static Locale systemLocale;
 
-    @BeforeClass
+    @BeforeAll
     public static void storeSystemLocale() {
         systemLocale = Locale.getDefault();
     }
 
-    @After
+    @AfterEach
     public void setSystemLocaleBackToDefault() {
         Locale.setDefault(systemLocale);
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         Locale.setDefault(Locale.US);
         StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
@@ -561,43 +558,49 @@ public class CSVReaderTest {
         assertEquals("ddd\"eee", nextLine[3]);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void quoteAndEscapeMustBeDifferent() {
         StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
 
         sb.append("a,b,c,ddd\\\"eee\nf,g,h,\"iii,jjj\"");
 
-        new CSVReaderBuilder(new StringReader(sb.toString()))
-                .withCSVParser(new CSVParserBuilder()
-                        .withEscapeChar(ICSVParser.DEFAULT_QUOTE_CHARACTER)
-                        .build())
-                .build();
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
+            new CSVReaderBuilder(new StringReader(sb.toString()))
+                    .withCSVParser(new CSVParserBuilder()
+                            .withEscapeChar(ICSVParser.DEFAULT_QUOTE_CHARACTER)
+                            .build())
+                    .build();
+        });
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void separatorAndEscapeMustBeDifferent() {
         StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
 
         sb.append("a,b,c,ddd\\\"eee\nf,g,h,\"iii,jjj\"");
 
-        new CSVReaderBuilder(new StringReader(sb.toString()))
-                .withCSVParser(new CSVParserBuilder()
-                        .withEscapeChar(ICSVParser.DEFAULT_SEPARATOR)
-                        .build())
-                .build();
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
+            new CSVReaderBuilder(new StringReader(sb.toString()))
+                    .withCSVParser(new CSVParserBuilder()
+                            .withEscapeChar(ICSVParser.DEFAULT_SEPARATOR)
+                            .build())
+                    .build();
+        });
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void separatorAndQuoteMustBeDifferent() {
         StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
 
         sb.append("a,b,c,ddd\\\"eee\nf,g,h,\"iii,jjj\"");
 
-        new CSVReaderBuilder(new StringReader(sb.toString()))
-                .withCSVParser(new CSVParserBuilder()
-                        .withQuoteChar(ICSVParser.DEFAULT_SEPARATOR)
-                        .build())
-                .build();
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
+            new CSVReaderBuilder(new StringReader(sb.toString()))
+                    .withCSVParser(new CSVParserBuilder()
+                            .withQuoteChar(ICSVParser.DEFAULT_SEPARATOR)
+                            .build())
+                    .build();
+        });
     }
 
     /**
@@ -782,11 +785,13 @@ public class CSVReaderTest {
         assertNull(item[4]);
     }
 
-    @Test(expected = IOException.class)
-    public void testMultilineLimit() throws IOException {
+    @Test
+    public void testMultilineLimit() {
         CSVReader r = new CSVReaderBuilder(new StringReader("This,is,a,\"test\na\",test"))
                 .withMultilineLimit(1).build();
-        r.readNext();
+        Assertions.assertThrows(IOException.class, () -> {
+            r.readNext();
+        });
     }
 
     @Test

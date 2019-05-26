@@ -1,7 +1,7 @@
 package com.opencsv.bean;
 
 import com.opencsv.CSVReader;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.io.StringReader;
 import java.util.ArrayList;

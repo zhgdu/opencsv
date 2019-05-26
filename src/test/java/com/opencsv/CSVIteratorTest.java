@@ -1,15 +1,12 @@
 package com.opencsv;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.util.Locale;
 import java.util.NoSuchElementException;
-import org.junit.After;
 
 import static org.junit.Assert.*;
-import org.junit.BeforeClass;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -20,17 +17,17 @@ public class CSVIteratorTest {
 
     private static Locale systemLocale;
 
-    @BeforeClass
+    @BeforeAll
     public static void storeSystemLocale() {
         systemLocale = Locale.getDefault();
     }
 
-    @After
+    @AfterEach
     public void setSystemLocaleBackToDefault() {
         Locale.setDefault(systemLocale);
     }
 
-    @Before
+    @BeforeEach
     public void setUp() throws IOException {
         Locale.setDefault(Locale.US);
         mockReader = mock(CSVReader.class);
@@ -38,10 +35,12 @@ public class CSVIteratorTest {
         iterator = new CSVIterator(mockReader);
     }
 
-    @Test(expected = NoSuchElementException.class)
+    @Test
     public void readerExceptionCausesRunTimeException() throws IOException {
         when(mockReader.readNext()).thenThrow(new IOException("reader threw test exception"));
-        iterator.next();
+        Assertions.assertThrows(NoSuchElementException.class, () -> {
+            iterator.next();
+        });
     }
 
     @Test

@@ -2,13 +2,9 @@ package com.opencsv.exceptions;
 
 
 import com.opencsv.bean.mocks.MockBean;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
+import java.io.*;
 import java.lang.reflect.Field;
 
 import static org.junit.Assert.*;

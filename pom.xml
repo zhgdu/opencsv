@@ -20,7 +20,7 @@
         <groovy-all.version>2.4.16</groovy-all.version>
         <commons-lang3.version>3.9</commons-lang3.version>
         <commons-collections4.version>4.3</commons-collections4.version>
-       	<argLine>-Dfile.encoding=UTF-8</argLine>
+        <argLine>-Dfile.encoding=UTF-8</argLine>
     </properties>
 
     <licenses>
@@ -118,7 +118,6 @@
     <profiles>
         <profile>
             <id>allTests</id>
-
             <build>
                 <plugins>
                     <plugin>
@@ -197,42 +196,42 @@
                 </plugin>
                 <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
                 <plugin>
-                	<groupId>org.eclipse.m2e</groupId>
-                	<artifactId>lifecycle-mapping</artifactId>
-                	<version>1.0.0</version>
-                	<configuration>
-                		<lifecycleMappingMetadata>
-                			<pluginExecutions>
-                				<pluginExecution>
-                					<pluginExecutionFilter>
-                						<groupId>org.codehaus.gmavenplus</groupId>
-                						<artifactId>gmavenplus-plugin</artifactId>
-                						<versionRange>[1.6.1,)</versionRange>
-                						<goals>
-                							<goal>addTestSources</goal>
-                							<goal>compileTests</goal>
-                						</goals>
-                					</pluginExecutionFilter>
-                					<action>
-                						<ignore></ignore>
-                					</action>
-                				</pluginExecution>
-                				<pluginExecution>
-                					<pluginExecutionFilter>
-						                <groupId>org.apache.felix</groupId>
-						                <artifactId>maven-bundle-plugin</artifactId>
-                						<versionRange>[3.5.1,)</versionRange>
-                						<goals>
-				                            <goal>manifest</goal>
-                						</goals>
-                					</pluginExecutionFilter>
-                					<action>
-                						<ignore></ignore>
-                					</action>
-                				</pluginExecution>
-                			</pluginExecutions>
-                		</lifecycleMappingMetadata>
-                	</configuration>
+                    <groupId>org.eclipse.m2e</groupId>
+                    <artifactId>lifecycle-mapping</artifactId>
+                    <version>1.0.0</version>
+                    <configuration>
+                        <lifecycleMappingMetadata>
+                            <pluginExecutions>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>org.codehaus.gmavenplus</groupId>
+                                        <artifactId>gmavenplus-plugin</artifactId>
+                                        <versionRange>[1.6.1,)</versionRange>
+                                        <goals>
+                                            <goal>addTestSources</goal>
+                                            <goal>compileTests</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore></ignore>
+                                    </action>
+                                </pluginExecution>
+                                <pluginExecution>
+                                    <pluginExecutionFilter>
+                                        <groupId>org.apache.felix</groupId>
+                                        <artifactId>maven-bundle-plugin</artifactId>
+                                        <versionRange>[3.5.1,)</versionRange>
+                                        <goals>
+                                            <goal>manifest</goal>
+                                        </goals>
+                                    </pluginExecutionFilter>
+                                    <action>
+                                        <ignore></ignore>
+                                    </action>
+                                </pluginExecution>
+                            </pluginExecutions>
+                        </lifecycleMappingMetadata>
+                    </configuration>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -347,9 +346,9 @@
                                 <requireJavaVersion>
                                     <version>[1.8,9)</version>
                                 </requireJavaVersion>
-				<requireMavenVersion>
+                                <requireMavenVersion>
                                     <version>[3.0.5,)</version>
-				</requireMavenVersion>
+                                </requireMavenVersion>
                                 <dependencyConvergence/>
                                 <banDuplicatePomDependencyVersions/>
                             </rules>
@@ -433,12 +432,6 @@
     </dependencyManagement>
     <dependencies>
         <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.12</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
@@ -478,6 +471,12 @@
             <groupId>cglib</groupId>
             <artifactId>cglib-nodep</artifactId>
             <version>3.2.10</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.4.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

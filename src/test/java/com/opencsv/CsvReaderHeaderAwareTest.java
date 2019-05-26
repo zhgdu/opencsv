@@ -1,7 +1,8 @@
 package com.opencsv;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -21,7 +22,7 @@ public class CsvReaderHeaderAwareTest {
 
     private CSVReaderHeaderAware csvr;
 
-    @Before
+    @BeforeEach
     public void setUpWithHeader() throws Exception {
         StringReader reader = createReader();
         csvr = new CSVReaderHeaderAware(reader);
@@ -82,26 +83,34 @@ public class CsvReaderHeaderAwareTest {
         assertEquals("b,b,b", csvr.readNext("second")[0]);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailForInvalidColumn() throws IOException {
-        csvr.readNext("fourth");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            csvr.readNext("fourth");
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailForInvalidColumnEvenAmongstValidOnes() throws IOException {
-        csvr.readNext("first", "third", "fourth");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            csvr.readNext("first", "third", "fourth");
+        });
     }
 
-    @Test(expected = IOException.class)
+    @Test
     public void shouldFailWhenNumberOfDataItemsIsLessThanHeader() throws IOException {
         csvr.skip(7);
-        csvr.readNext("second");
+        Assertions.assertThrows(IOException.class, () -> {
+            csvr.readNext("second");
+        });
     }
 
-    @Test(expected = IOException.class)
+    @Test
     public void shouldFailWhenNumberOfDataItemsIsGreaterThanHeader() throws IOException {
         csvr.skip(6);
-        csvr.readNext("second");
+        Assertions.assertThrows(IOException.class, () -> {
+            csvr.readNext("second");
+        });
     }
 
     @Test
@@ -119,7 +128,7 @@ public class CsvReaderHeaderAwareTest {
         assertEquals("d.", mappedLine.get("third"));
     }
 
-    @Test(expected = IOException.class)
+    @Test
     public void readMapThrowsExceptionIfNumberOfDataItemsIsGreaterThanHeader() throws IOException {
         Map<String, String> mappedLine = csvr.readMap();
         assertEquals("a", mappedLine.get("first"));
@@ -128,10 +137,12 @@ public class CsvReaderHeaderAwareTest {
 
         csvr.skip(5);
 
-        mappedLine = csvr.readMap();
+        Assertions.assertThrows(IOException.class, () -> {
+            csvr.readMap();
+        });
     }
 
-    @Test(expected = IOException.class)
+    @Test
     public void readMapThrowsExceptionIfNumberOfDataItemsIsLessThanHeader() throws IOException {
         Map<String, String> mappedLine = csvr.readMap();
         assertEquals("a", mappedLine.get("first"));
@@ -140,7 +151,9 @@ public class CsvReaderHeaderAwareTest {
 
         csvr.skip(6);
 
-        mappedLine = csvr.readMap();
+        Assertions.assertThrows(IOException.class, () -> {
+            csvr.readMap();
+        });
     }
 
     @Test

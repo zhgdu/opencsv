@@ -1,19 +1,14 @@
 package com.opencsv;
 
-import org.junit.Test;
+import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.GregorianCalendar;
 import java.util.Locale;
-import org.junit.After;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.fail;
-import org.junit.Before;
-import org.junit.BeforeClass;
+import static org.junit.Assert.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -24,17 +19,17 @@ public class ResultSetColumnNameHelperServiceTest {
 
     private static Locale systemLocale;
 
-    @BeforeClass
+    @BeforeAll
     public static void storeSystemLocale() {
         systemLocale = Locale.getDefault();
     }
 
-    @Before
+    @BeforeEach
     public void setSystemLocaleToValueNotGerman() {
         Locale.setDefault(Locale.US);
     }
 
-    @After
+    @AfterEach
     public void setSystemLocaleBackToDefault() {
         Locale.setDefault(systemLocale);
     }
@@ -122,61 +117,73 @@ public class ResultSetColumnNameHelperServiceTest {
         }
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void cannotHaveNullColumnName() {
         String[] desiredColumnNames = {"name3", null, "name1"};
         String[] columnHeaders = {"Column Name 1", "Column Name 2", "Column Name 3"};
 
         ResultSetColumnNameHelperService service = new ResultSetColumnNameHelperService();
-        service.setColumnNames(desiredColumnNames, columnHeaders);
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
+            service.setColumnNames(desiredColumnNames, columnHeaders);
+        });
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void cannotHaveEmptyColumnName() {
         String[] desiredColumnNames = {"name3", "", "name1"};
         String[] columnHeaders = {"Column Name 1", "Column Name 2", "Column Name 3"};
 
         ResultSetColumnNameHelperService service = new ResultSetColumnNameHelperService();
-        service.setColumnNames(desiredColumnNames, columnHeaders);
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
+            service.setColumnNames(desiredColumnNames, columnHeaders);
+        });
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void cannotHaveSpaceColumnName() {
         String[] desiredColumnNames = {"name3", "    ", "name1"};
         String[] columnHeaders = {"Column Name 1", "Column Name 2", "Column Name 3"};
 
         ResultSetColumnNameHelperService service = new ResultSetColumnNameHelperService();
-        service.setColumnNames(desiredColumnNames, columnHeaders);
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
+            service.setColumnNames(desiredColumnNames, columnHeaders);
+        });
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void cannotHaveNullHeaderName() {
         String[] desiredColumnNames = {"name3", "name2", "name1"};
         String[] columnHeaders = {"Column Name 1", null, "Column Name 3"};
 
         ResultSetColumnNameHelperService service = new ResultSetColumnNameHelperService();
-        service.setColumnNames(desiredColumnNames, columnHeaders);
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
+            service.setColumnNames(desiredColumnNames, columnHeaders);
+        });
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void cannotHaveEmptyHeaderName() {
         String[] desiredColumnNames = {"name3", "name2", "name1"};
         String[] columnHeaders = {"Column Name 1", "", "Column Name 3"};
 
         ResultSetColumnNameHelperService service = new ResultSetColumnNameHelperService();
-        service.setColumnNames(desiredColumnNames, columnHeaders);
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
+            service.setColumnNames(desiredColumnNames, columnHeaders);
+        });
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void cannotHaveSpaceHeaderName() {
         String[] desiredColumnNames = {"name3", "name2", "name1"};
         String[] columnHeaders = {"Column Name 1", "     ", "Column Name 3"};
 
         ResultSetColumnNameHelperService service = new ResultSetColumnNameHelperService();
-        service.setColumnNames(desiredColumnNames, columnHeaders);
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
+            service.setColumnNames(desiredColumnNames, columnHeaders);
+        });
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void getColumnNamesThrowsExceptionIfColumnDoesNotExist() throws SQLException {
         String[] desiredColumnNames = {"name1", "name2", "badname"};
         String[] columnHeaders = {"Column Name 1", "Column Name 2", "Column Name 3"};
@@ -193,7 +200,9 @@ public class ResultSetColumnNameHelperServiceTest {
 
         // end expects
 
-        service.getColumnNames(resultSet);
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
+            service.getColumnNames(resultSet);
+        });
     }
 
     @Test

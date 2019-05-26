@@ -2,10 +2,7 @@ package com.opencsv;
 
 import com.opencsv.enums.CSVReaderNullFieldIndicator;
 import com.opencsv.exceptions.CsvMultilineLimitBrokenException;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -20,17 +17,17 @@ public class CSVParserTest {
     CSVParser csvParser;
     private static Locale systemLocale;
 
-    @BeforeClass
+    @BeforeAll
     public static void storeSystemLocale() {
         systemLocale = Locale.getDefault();
     }
 
-    @After
+    @AfterEach
     public void setSystemLocaleBackToDefault() {
         Locale.setDefault(systemLocale);
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         Locale.setDefault(Locale.US);
         csvParser = new CSVParser();
@@ -320,14 +317,16 @@ public class CSVParserTest {
         assertEquals("TX", nextLine[3]);
     }
 
-    @Test(expected = IOException.class)
+    @Test
     public void testFalseIgnoreQuotations() throws IOException {
         csvParser = new CSVParserBuilder()
                 .withIgnoreQuotations(false)
                 .build();
         String testString = "Bob,test\",Beaumont,TX";
 
-        csvParser.parseLine(testString);
+        Assertions.assertThrows(IOException.class, () -> {
+            csvParser.parseLine(testString);
+        });
     }
 
     /**
@@ -554,12 +553,14 @@ public class CSVParserTest {
         assertEquals("C:\\foo.txt", nextItem[3]);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void quoteAndEscapeCannotBeTheSame() {
-        new CSVParserBuilder()
-                .withQuoteChar(ICSVParser.DEFAULT_QUOTE_CHARACTER)
-                .withEscapeChar(ICSVParser.DEFAULT_QUOTE_CHARACTER)
-                .build();
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
+            new CSVParserBuilder()
+                    .withQuoteChar(ICSVParser.DEFAULT_QUOTE_CHARACTER)
+                    .withEscapeChar(ICSVParser.DEFAULT_QUOTE_CHARACTER)
+                    .build();
+        });
     }
 
     @Test
@@ -570,17 +571,21 @@ public class CSVParserTest {
                 .build();
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void separatorCharacterCannotBeNull() {
-        new CSVParserBuilder().withSeparator(ICSVParser.NULL_CHARACTER).build();
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
+            new CSVParserBuilder().withSeparator(ICSVParser.NULL_CHARACTER).build();
+        });
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void separatorAndEscapeCannotBeTheSame() {
-        new CSVParserBuilder()
-                .withSeparator(ICSVParser.DEFAULT_SEPARATOR)
-                .withEscapeChar(ICSVParser.DEFAULT_SEPARATOR)
-                .build();
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
+            new CSVParserBuilder()
+                    .withSeparator(ICSVParser.DEFAULT_SEPARATOR)
+                    .withEscapeChar(ICSVParser.DEFAULT_SEPARATOR)
+                    .build();
+        });
     }
 
     @Test

@@ -1,8 +1,9 @@
 package com.opencsv;
 
 import org.apache.commons.lang3.reflect.FieldUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.StringWriter;
 import java.io.Writer;
@@ -16,7 +17,7 @@ public class CSVWriterBuilderTest {
     private Writer writer;
     private ICSVParser mockParser = mock(ICSVParser.class);
 
-    @Before
+    @BeforeEach
     public void setup() {
         writer = new StringWriter();
         builder = new CSVWriterBuilder(writer);
@@ -44,14 +45,18 @@ public class CSVWriterBuilderTest {
         assertEquals(ICSVParser.DEFAULT_SEPARATOR, separatorField.get(builder));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void withSeparatorFailsIfParserSet() {
-        builder.withParser(mockParser).withSeparator(ICSVParser.DEFAULT_SEPARATOR);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            builder.withParser(mockParser).withSeparator(ICSVParser.DEFAULT_SEPARATOR);
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void withParserFailsIfSeparatorSet() {
-        builder.withSeparator(ICSVParser.DEFAULT_SEPARATOR).withParser(mockParser);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            builder.withSeparator(ICSVParser.DEFAULT_SEPARATOR).withParser(mockParser);
+        });
     }
 
     @Test
@@ -62,14 +67,18 @@ public class CSVWriterBuilderTest {
         assertEquals(ICSVParser.DEFAULT_QUOTE_CHARACTER, quoteCharField.get(builder));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void withQuoteCharFailsIfParserSet() {
-        builder.withParser(mockParser).withQuoteChar(ICSVParser.DEFAULT_SEPARATOR);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            builder.withParser(mockParser).withQuoteChar(ICSVParser.DEFAULT_SEPARATOR);
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void withParserFailsIfQuoteCharSet() {
-        builder.withQuoteChar(ICSVParser.DEFAULT_SEPARATOR).withParser(mockParser);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            builder.withQuoteChar(ICSVParser.DEFAULT_SEPARATOR).withParser(mockParser);
+        });
     }
 
     @Test
@@ -80,14 +89,18 @@ public class CSVWriterBuilderTest {
         assertEquals(ICSVParser.DEFAULT_ESCAPE_CHARACTER, escapeCharField.get(builder));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void withEscapeCharFailsIfParserSet() {
-        builder.withParser(mockParser).withEscapeChar(ICSVParser.DEFAULT_ESCAPE_CHARACTER);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            builder.withParser(mockParser).withEscapeChar(ICSVParser.DEFAULT_ESCAPE_CHARACTER);
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void withParserFailsIfEscapeCharSet() {
-        builder.withEscapeChar(ICSVParser.DEFAULT_ESCAPE_CHARACTER).withParser(mockParser);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            builder.withEscapeChar(ICSVParser.DEFAULT_ESCAPE_CHARACTER).withParser(mockParser);
+        });
     }
 
     @Test

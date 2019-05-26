@@ -15,11 +15,11 @@
  */
 package com.opencsv.bean.comparator;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertArrayEquals;
 
 public class ComparatorTest {
 

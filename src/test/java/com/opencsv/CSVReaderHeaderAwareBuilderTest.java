@@ -1,7 +1,8 @@
 package com.opencsv;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -21,7 +22,7 @@ public class CSVReaderHeaderAwareBuilderTest {
 
     private CSVReaderHeaderAwareBuilder builder;
 
-    @Before
+    @BeforeEach
     public void setup() {
         this.builder = new CSVReaderHeaderAwareBuilder(new StringReader("header"));
     }
@@ -31,10 +32,12 @@ public class CSVReaderHeaderAwareBuilderTest {
         assertThat(builder.build(), instanceOf(CSVReaderHeaderAware.class));
     }
 
-    @Test(expected = RuntimeException.class)
+    @Test
     public void shouldThrowExceptionWhenCannotReadHeader() throws IOException {
         Reader reader = mock(Reader.class);
         when(reader.read(any((char[].class)), 0, 8192)).thenThrow(new IOException());
-        new CSVReaderHeaderAwareBuilder(reader).build();
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            new CSVReaderHeaderAwareBuilder(reader).build();
+        });
     }
 }

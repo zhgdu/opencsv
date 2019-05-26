@@ -16,38 +16,35 @@ package com.opencsv.bean;
  limitations under the License.
  */
 
-import com.opencsv.CSVReader;
 import com.opencsv.bean.mocks.MockBean;
-import java.io.IOException;
-
 import org.apache.commons.lang3.StringUtils;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.StringReader;
 import java.util.List;
 import java.util.Locale;
-import org.junit.After;
 
 import static org.junit.Assert.*;
-import org.junit.BeforeClass;
 
 public class ColumnPositionMappingStrategyTest {
    private ColumnPositionMappingStrategy<MockBean> strat;
 
    private static Locale systemLocale;
 
-    @BeforeClass
+    @BeforeAll
     public static void storeSystemLocale() {
         systemLocale = Locale.getDefault();
     }
 
-    @After
+    @AfterEach
     public void setSystemLocaleBackToDefault() {
         Locale.setDefault(systemLocale);
     }
 
-   @Before
+    @BeforeEach
    public void setUp() {
       Locale.setDefault(Locale.US);
       strat = new ColumnPositionMappingStrategy<>();
