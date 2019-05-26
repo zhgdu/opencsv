@@ -28,7 +28,9 @@ import org.apache.commons.lang3.reflect.FieldUtils;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.Locale;
+import java.util.Objects;
+import java.util.ResourceBundle;
 
 /**
  * This base bean takes over the responsibility of converting the supplied
@@ -72,9 +74,9 @@ abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
      */
     protected String getterName;
 
-    private Map<Class, Method> setterMap = new HashMap<>();
+    private Method getterMethod;
 
-    private Map<Class, Method> getterMap = new HashMap<>();
+    private Method setterMethod;
 
     /**
      * Default nullary constructor, so derived classes aren't forced to create
@@ -99,15 +101,15 @@ abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
         // Once we support Java 9, we can replace ObjectUtils.defaultIfNull() with Objects.requireNonNullElse()
         this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
         this.converter = converter;
-        determineGetterName();
-        determineSetterName();
+        determineGetterInformation();
+        determineSetterInformation();
     }
 
     @Override
     public void setField(Field field) {
         this.field = field;
-        determineGetterName();
-        determineSetterName();
+        determineGetterInformation();
+        determineSetterInformation();
     }
 
     @Override
@@ -180,16 +182,22 @@ abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
      * @since 4.2
      */
     protected Method getReadMethod(T bean) throws NoSuchMethodException {
-        if (!getterMap.containsKey(bean.getClass())) {
-            getterMap.put(bean.getClass(), bean.getClass().getMethod(getterName));
+        if (getterMethod == null) {
+            throw new NoSuchMethodException("Getter for " + field.getName() + " not found.");
         }
 
-        return getterMap.get(bean.getClass());
+        return getterMethod;
     }
 
-    private void determineGetterName() {
+    private void determineGetterInformation() {
         getterName = "get" + Character.toUpperCase(field.getName().charAt(0))
                 + field.getName().substring(1);
+
+        try {
+            getterMethod = field.getDeclaringClass().getMethod(getterName);
+        } catch (NoSuchMethodException e) {
+
+        }
     }
     
     /**
@@ -204,15 +212,21 @@ abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
      * @since 4.2
      */
     protected Method getWriteMethod(T bean) throws NoSuchMethodException {
-        if (!setterMap.containsKey(bean.getClass())) {
-            setterMap.put(bean.getClass(), bean.getClass().getMethod(setterName, field.getType()));
+        if (setterMethod == null) {
+            throw new NoSuchMethodException("Setter for  " + field.getName() + " not found.");
         }
-        return setterMap.get(bean.getClass());
+        return setterMethod;
     }
 
-    private void determineSetterName() {
+    private void determineSetterInformation() {
         setterName = "set" + Character.toUpperCase(field.getName().charAt(0))
                 + field.getName().substring(1);
+
+        try {
+            setterMethod = field.getDeclaringClass().getMethod(setterName, field.getType());
+        } catch (NoSuchMethodException e) {
+
+        }
     }
 
     /**
