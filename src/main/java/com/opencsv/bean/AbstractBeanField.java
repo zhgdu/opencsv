@@ -46,16 +46,22 @@ import java.util.ResourceBundle;
  * @since 3.8
  */
 abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
-    
-    /** The field this class represents. */
+
+    /**
+     * The field this class represents.
+     */
     protected Field field;
-    
-    /** Whether or not this field is required. */
+
+    /**
+     * Whether or not this field is required.
+     */
     protected boolean required;
-    
-    /** Locale for error messages. */
+
+    /**
+     * Locale for error messages.
+     */
     protected Locale errorLocale;
-    
+
     /**
      * A class that converts from a string to the destination type on reading
      * and vice versa on writing.
@@ -88,11 +94,11 @@ abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
     }
 
     /**
-     * @param field A {@link java.lang.reflect.Field} object.
-     * @param required Whether or not this field is required in input
+     * @param field       A {@link java.lang.reflect.Field} object.
+     * @param required    Whether or not this field is required in input
      * @param errorLocale The errorLocale to use for error messages.
-     * @param converter The converter to be used to perform the actual data
-     *   conversion
+     * @param converter   The converter to be used to perform the actual data
+     *                    conversion
      * @since 4.2
      */
     public AbstractBeanField(Field field, boolean required, Locale errorLocale, CsvConverter converter) {
@@ -116,25 +122,25 @@ abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
     public Field getField() {
         return this.field;
     }
-    
+
     @Override
     public boolean isRequired() {
         return required;
     }
-    
+
     @Override
     public void setRequired(boolean required) {
         this.required = required;
     }
-    
+
     @Override
     public void setErrorLocale(Locale errorLocale) {
         this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
-        if(converter != null) {
+        if (converter != null) {
             converter.setErrorLocale(this.errorLocale);
         }
     }
-    
+
     @Override
     public final void setFieldValue(T bean, String value, String header)
             throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException,
@@ -145,37 +151,33 @@ abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
                     String.format(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("required.field.empty"),
                             field.getName()));
         }
-        
+
         assignValueToField(bean, convert(value), header);
     }
-    
+
     @Override
     public Object getFieldValue(T bean) {
         Object o = null;
         // Find and use a getter method if one is available.
+
+        Method getterMethod = getReadMethodSilently(bean);
         try {
-            Method getterMethod = getReadMethod(bean);
-            try {
-                o = getterMethod.invoke(bean);
-            } catch (IllegalAccessException | InvocationTargetException e) {
-                // Can't happen, because we've already established that the
-                // method is public through the use of getMethod().
-            }
-        } catch (NoSuchMethodException | SecurityException e1) {
-            // Otherwise set the field directly.
-            o = readWithoutGetter(bean);
+            o = getterMethod != null ? getterMethod.invoke(bean) : readWithoutGetter(bean);
+        } catch (IllegalAccessException | InvocationTargetException e) {
+            // Can't happen, because we've already established that the
+            // method is public through the use of getMethod().
         }
-        
+
         return o;
     }
-    
+
     /**
      * Gets the method for accessing this field in the given bean (type).
      * This does <em>not</em> account for the special case of "is" for boolean
      * fields. It also does not follow the Java Bean specification for getting
      * the accessor method. It just follows the convention of "get" + "field
      * name with initial capital".
-     * 
+     *
      * @param bean A representative bean of the type this field belongs to
      * @return The accessor method
      * @throws NoSuchMethodException If the accessor method does not exist
@@ -189,6 +191,25 @@ abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
         return getterMethod;
     }
 
+    /**
+     * Gets the method for accessing this field in the given bean (type).
+     * This does <em>not</em> account for the special case of "is" for boolean
+     * fields. It also does not follow the Java Bean specification for getting
+     * the accessor method. It just follows the convention of "get" + "field
+     * name with initial capital".
+     * <p>
+     * This method will return null instead of throwing NoSuchMethodException and should
+     * only be used if there are performance concerns in cases where it is known that
+     * there are no getter methods for a field to prevent excessive creation of NoSuchMethodException.
+     *
+     * @param bean A representative bean of the type this field belongs to
+     * @return The accessor method
+     * @since 4.2
+     */
+    protected Method getReadMethodSilently(T bean) {
+        return getterMethod;
+    }
+
     private void determineGetterInformation() {
         getterName = "get" + Character.toUpperCase(field.getName().charAt(0))
                 + field.getName().substring(1);
@@ -199,13 +220,13 @@ abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
 
         }
     }
-    
+
     /**
      * Gets the method for assigning this field in the given bean (type).
      * This does <em>not</em> follow the Java Bean specification for getting
      * the assignment method. It just follows the convention of "set" + "field
      * name with initial capital".
-     * 
+     *
      * @param bean A representative bean of the type this field belongs to
      * @return The assignment method
      * @throws NoSuchMethodException If the assignment method does not exist
@@ -215,6 +236,24 @@ abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
         if (setterMethod == null) {
             throw new NoSuchMethodException("Setter for  " + field.getName() + " not found.");
         }
+        return setterMethod;
+    }
+
+    /**
+     * Gets the method for assigning this field in the given bean (type).
+     * This does <em>not</em> follow the Java Bean specification for getting
+     * the assignment method. It just follows the convention of "set" + "field
+     * name with initial capital".
+     * <p>
+     * This method will return null instead of throwing a NoSuchMethodException and should
+     * only be used if there are performance concerns in cases where it is known there are
+     * no setter methods.
+     *
+     * @param bean A representative bean of the type this field belongs to
+     * @return The assignment method
+     * @since 4.2
+     */
+    protected Method getWriteMethodSilently(T bean) {
         return setterMethod;
     }
 
@@ -231,7 +270,7 @@ abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
 
     /**
      * @return {@code value} wrapped in an array, since we assume most values
-     *   will not be multi-valued
+     * will not be multi-valued
      * @since 4.2
      */
     // The rest of the Javadoc is inherited
@@ -240,7 +279,7 @@ abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
             throws CsvDataTypeMismatchException {
         return new Object[]{value};
     }
-    
+
     /**
      * Whether or not this implementation of {@link BeanField} considers the
      * value passed in as empty for the purposes of determining whether or not
@@ -250,11 +289,11 @@ abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
      * simple example is a {@link java.util.Collection} that is not null, but
      * empty.</p>
      * <p>The default implementation simply checks for {@code null}.</p>
-     * 
+     *
      * @param value The value of a field out of a bean that is being written to
-     *   a CSV file. Can be {@code null}.
+     *              a CSV file. Can be {@code null}.
      * @return Whether or not this implementation considers {@code value} to be
-     *   empty for the purposes of its conversion
+     * empty for the purposes of its conversion
      * @since 4.2
      */
     protected boolean isFieldEmptyForWrite(Object value) {
@@ -268,8 +307,8 @@ abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
      * for setting the value of a field, such as adding to an existing
      * collection.</p>
      *
-     * @param bean The bean in which the field is located
-     * @param obj  The data to be assigned to this field of the destination bean
+     * @param bean   The bean in which the field is located
+     * @param obj    The data to be assigned to this field of the destination bean
      * @param header The header from the CSV file under which this value was found.
      * @throws CsvDataTypeMismatchException If the data to be assigned cannot
      *                                      be converted to the type of the destination field
@@ -282,8 +321,9 @@ abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
         // that will be values like 0, and for objects it will be null.
         if (obj != null) {
             // Find and use a setter method if one is available.
-            try {
-                Method setterMethod = getWriteMethod(bean);
+
+            Method setterMethod = getWriteMethodSilently(bean);
+            if (setterMethod != null) {
                 try {
                     setterMethod.invoke(bean, obj);
                 } catch (IllegalAccessException e) {
@@ -296,7 +336,7 @@ abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
                     csve.initCause(e);
                     throw csve;
                 }
-            } catch (NoSuchMethodException | SecurityException e1) {
+            } else {
                 // Otherwise set the field directly.
                 writeWithoutSetter(bean, obj);
             }
@@ -307,7 +347,7 @@ abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
      * Sets a field in a bean if there is no setter available.
      * Turns off all accessibility checking to accomplish the goal, and handles
      * errors as best it can.
-     * 
+     *
      * @param bean The bean in which the field is located
      * @param obj  The data to be assigned to this field of the destination bean
      * @throws CsvDataTypeMismatchException If the data to be assigned cannot
@@ -328,25 +368,25 @@ abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
             throw csve;
         }
     }
-    
+
     /**
      * Gets a field in a bean if there is no getter available.
      * Turns off all accessibility checking to accomplish the goal, and handles
      * errors as best it can.
-     * 
+     *
      * @param bean The bean in which the field is located
      * @return The contents of the field being accessed in the bean provided
      * @since 4.2
      */
     protected Object readWithoutGetter(T bean) {
         Object o = null;
-        
+
         try {
             o = FieldUtils.readField(field, bean, true);
         } catch (IllegalAccessException | IllegalArgumentException e) {
             // Neither exception can ever be thrown.
         }
-        
+
         return o;
     }
 
@@ -356,11 +396,11 @@ abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
      * This method must be specified in all non-abstract derived classes.
      *
      * @param value The string from the selected field of the CSV file. If the
-     *   field is marked as required in the annotation, this value is guaranteed
-     *   not to be null, empty or blank according to
-     *   {@link org.apache.commons.lang3.StringUtils#isBlank(java.lang.CharSequence)}
+     *              field is marked as required in the annotation, this value is guaranteed
+     *              not to be null, empty or blank according to
+     *              {@link org.apache.commons.lang3.StringUtils#isBlank(java.lang.CharSequence)}
      * @return An {@link java.lang.Object} representing the input data converted
-     *   into the proper type
+     * into the proper type
      * @throws CsvDataTypeMismatchException    If the input string cannot be converted into
      *                                         the proper type
      * @throws CsvConstraintViolationException When the internal structure of
@@ -368,7 +408,7 @@ abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
      */
     protected abstract Object convert(String value)
             throws CsvDataTypeMismatchException, CsvConstraintViolationException;
-    
+
     /**
      * This method takes the current value of the field in question in the bean
      * passed in and converts it to a string.
@@ -383,31 +423,29 @@ abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
     public final String[] write(T bean, I index) throws CsvDataTypeMismatchException,
             CsvRequiredFieldEmptyException {
         String[] result = ArrayUtils.EMPTY_STRING_ARRAY;
-        if(bean != null && field != null) {
+        if (bean != null && field != null) {
             Object value = getFieldValue(bean);
 
-            if(isFieldEmptyForWrite(value) && required) {
+            if (isFieldEmptyForWrite(value) && required) {
                 throw new CsvRequiredFieldEmptyException(
                         bean.getClass(), field,
                         String.format(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("required.field.empty"),
                                 field.getName()));
             }
-            
+
             Object[] multivalues = indexAndSplitMultivaluedField(value, index);
             String[] intermediateResult = new String[multivalues.length];
             try {
-                for(int i = 0; i < multivalues.length; i++) {
+                for (int i = 0; i < multivalues.length; i++) {
                     intermediateResult[i] = convertToWrite(multivalues[i]);
                 }
                 result = intermediateResult;
-            }
-            catch(CsvDataTypeMismatchException e) {
+            } catch (CsvDataTypeMismatchException e) {
                 CsvDataTypeMismatchException csve = new CsvDataTypeMismatchException(
                         bean, field.getType(), e.getMessage());
                 csve.initCause(e.getCause());
                 throw csve;
-            }
-            catch(CsvRequiredFieldEmptyException e) {
+            } catch (CsvRequiredFieldEmptyException e) {
                 // Our code no longer throws this exception from here, but
                 // rather from write() using isFieldEmptyForWrite() to determine
                 // when to throw the exception. But user code is still allowed
@@ -420,7 +458,7 @@ abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
         }
         return result;
     }
-    
+
     /**
      * This is the method that actually performs the conversion from field to
      * string for {@link #write(java.lang.Object, java.lang.Object) } and should
@@ -430,22 +468,22 @@ abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
      * this method. Alternatively, for complex types, overriding the
      * {@code toString()} method in the type of the field in question would also
      * work fine.</p>
-     * 
+     *
      * @param value The contents of the field currently being processed from the
-     *   bean to be written. Can be null if the field is not marked as required.
+     *              bean to be written. Can be null if the field is not marked as required.
      * @return A string representation of the value of the field in question in
-     *   the bean passed in, or an empty string if {@code value} is null
-     * @throws CsvDataTypeMismatchException This implementation does not throw
-     *   this exception
+     * the bean passed in, or an empty string if {@code value} is null
+     * @throws CsvDataTypeMismatchException   This implementation does not throw
+     *                                        this exception
      * @throws CsvRequiredFieldEmptyException If the input is empty but the
-     *   field is required. The case of the field being null is checked before
-     *   this method is called, but other implementations may have other cases
-     *   that are semantically equivalent to being empty, such as an empty
-     *   collection. The preferred way to perform this check is in
-     *   {@link #isFieldEmptyForWrite(java.lang.Object) }. This exception may
-     *   be removed from this method signature sometime in the future.
+     *                                        field is required. The case of the field being null is checked before
+     *                                        this method is called, but other implementations may have other cases
+     *                                        that are semantically equivalent to being empty, such as an empty
+     *                                        collection. The preferred way to perform this check is in
+     *                                        {@link #isFieldEmptyForWrite(java.lang.Object) }. This exception may
+     *                                        be removed from this method signature sometime in the future.
+     * @see #write(java.lang.Object, java.lang.Object)
      * @since 3.9
-     * @see #write(java.lang.Object, java.lang.Object) 
      */
     protected String convertToWrite(Object value)
             throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {

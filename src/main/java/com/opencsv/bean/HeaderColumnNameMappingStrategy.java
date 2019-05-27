@@ -120,8 +120,12 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
     protected BeanField<T, String> findField(int col) throws CsvBadConverterException {
         BeanField<T, String> beanField = null;
         String columnName = getColumnName(col);
-        if(StringUtils.isNotBlank(columnName)) {
-            beanField = fieldMap.get(columnName.toUpperCase().trim());
+        if (columnName == null) {
+            return null;
+        }
+        columnName = columnName.trim();
+        if (!columnName.isEmpty()) {
+            beanField = fieldMap.get(columnName.toUpperCase());
         }
         return beanField;
     }
