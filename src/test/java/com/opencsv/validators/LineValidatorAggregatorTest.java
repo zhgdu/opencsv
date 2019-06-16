@@ -6,6 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -22,19 +23,22 @@ public class LineValidatorAggregatorTest {
         lineDoesNotHaveBadString = new LineDoesNotHaveForbiddenString(BAD);
         lineDoesNotHaveAwfulString = new LineDoesNotHaveForbiddenString(AWFUL);
 
-        aggregator.addValidator(null);
-        aggregator.addValidator(lineDoesNotHaveAwfulString);
-        aggregator.addValidator(lineDoesNotHaveBadString);
     }
 
 
     @DisplayName("Validate that")
     @ParameterizedTest(name = "Line \"{0}\" should be {1} and if invalid it {2} have first forbidden string error and {3} have second forbidden string error")
     @CsvSource({"a;b;c, valid, will not, will not",
+            "empty, valid, will not, will not",
+            "null, valid, will not, will not",
             "awful;b;c, invalid, will, will not",
             "a;bad;c, invalid, will not, will",
             "awful;bad;c, invalid, will, will"})
     public void validateLine(String line, String valid, String willHaveAwful, String willHaveBadString) {
+        aggregator.addValidator(null);
+        aggregator.addValidator(lineDoesNotHaveAwfulString);
+        aggregator.addValidator(lineDoesNotHaveBadString);
+
         Assertions.assertAll("Parameter data must be valid.",
                 () -> assertNotNull(line),
                 () -> assertFalse(line.isEmpty()),
@@ -46,8 +50,10 @@ public class LineValidatorAggregatorTest {
 
         Assertions.assertTrue(aggregator.isValid(line) == "valid".equals(valid));
 
+        String testLine = preprocessLine(line);
+
         try {
-            aggregator.validate(line);
+            aggregator.validate(testLine);
             if ("invalid".equals(valid)) {
                 fail("was supposed to be invalid!");
             }
@@ -59,6 +65,57 @@ public class LineValidatorAggregatorTest {
             Assertions.assertAll("Exception message is incorrect",
                     () -> assertTrue("will".equals(willHaveAwful) == exceptionMessage.contains(lineDoesNotHaveAwfulString.getMessage()), "Supposed to have Awful message."),
                     () -> assertTrue("will".equals(willHaveBadString) == exceptionMessage.contains(lineDoesNotHaveBadString.getMessage()), "Supposed to have Bad message."));
+        }
+    }
+
+    private String preprocessLine(String line) {
+        switch (line) {
+            case "null":
+                return null;
+            case "empty":
+                return "";
+            default:
+                return line;
+        }
+    }
+
+    @DisplayName("Everything is valid with no validators.")
+    @ParameterizedTest(name = "Line \"{0}\" is valid")
+    @ValueSource(strings = {"a;b;c", "awful;b;c", "a;bad;c", "awful;bad;c", "empty", "null"})
+    public void noValidators(String line) {
+
+        Assertions.assertAll("Parameter data must be valid.",
+                () -> assertNotNull(line),
+                () -> assertFalse(line.isEmpty())
+        );
+
+        String testLine = preprocessLine(line);
+
+        try {
+            aggregator.validate(testLine);
+        } catch (CsvLineValidationException ex) {
+            fail("was supposed to be valid!");
+        }
+    }
+
+    @DisplayName("Everything is valid with null validators.")
+    @ParameterizedTest(name = "Line \"{0}\" is valid")
+    @ValueSource(strings = {"a;b;c", "awful;b;c", "a;bad;c", "awful;bad;c", "empty", "null"})
+    public void nullValidators(String line) {
+
+        aggregator.addValidator(null);
+
+        Assertions.assertAll("Parameter data must be valid.",
+                () -> assertNotNull(line),
+                () -> assertFalse(line.isEmpty())
+        );
+
+        String testLine = preprocessLine(line);
+
+        try {
+            aggregator.validate(testLine);
+        } catch (CsvLineValidationException ex) {
+            fail("was supposed to be valid!");
         }
     }
 }
