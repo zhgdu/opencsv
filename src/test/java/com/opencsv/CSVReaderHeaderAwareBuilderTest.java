@@ -11,6 +11,7 @@ import java.io.StringReader;
 import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.junit.Assert.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -35,7 +36,7 @@ public class CSVReaderHeaderAwareBuilderTest {
     @Test
     public void shouldThrowExceptionWhenCannotReadHeader() throws IOException {
         Reader reader = mock(Reader.class);
-        when(reader.read(any((char[].class)), 0, 8192)).thenThrow(new IOException());
+        when(reader.read(any((char[].class)), eq(0), eq(8192))).thenThrow(new IOException());
         Assertions.assertThrows(RuntimeException.class, () -> {
             new CSVReaderHeaderAwareBuilder(reader).build();
         });

@@ -159,8 +159,8 @@ public class CsvToBeanTest {
     }
 
     @Test
-    public void throwIllegalStateWhenReaderNotProvidedInBuilder() {
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
+    public void throwIllegalArguementWhenReaderNotProvidedInBuilder() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
             new CsvToBeanBuilder<AnnotatedMockBeanFull>((Reader) null)
                     .withType(AnnotatedMockBeanFull.class)
                     .build();
@@ -400,7 +400,11 @@ public class CsvToBeanTest {
                 "Q,12\n" +
                 "R,1a\n" +
                 "S,1b";
-        CsvToBean<Bug154Bean> c = new CsvToBeanBuilder<Bug154Bean>(new StringReader(data)).withType(Bug154Bean.class).withThrowExceptions(false).withErrorLocale(Locale.ROOT).build();
+        CsvToBean<Bug154Bean> c = new CsvToBeanBuilder<Bug154Bean>(new StringReader(data))
+                .withType(Bug154Bean.class)
+                .withThrowExceptions(false)
+                .withErrorLocale(Locale.ROOT)
+                .build();
         for (Bug154Bean mockBean : c) {
             System.out.println(mockBean.toString());
         }

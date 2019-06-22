@@ -52,7 +52,7 @@ public class CsvToBeanAsIteratorTest {
 
     @Deprecated
     private class FilterSmallNumbers implements CsvToBeanFilter {
-        
+
         @Override
         public boolean allowLine(String[] line) {
             return Integer.parseInt(line[2].trim()) > 200;
@@ -231,13 +231,12 @@ public class CsvToBeanAsIteratorTest {
                 = new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanForIterator.class);
         Reader fin = new StringReader("a\n1;2\n3,4");
-        Iterator<AnnotatedMockBeanForIterator> iterator = new CsvToBeanBuilder<AnnotatedMockBeanForIterator>(fin)
-                .withMappingStrategy(strat)
-                .withSeparator(';')
-                .build()
-                .iterator();
-        Assertions.assertThrows(NoSuchElementException.class, () -> {
-            iterator.next();
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            Iterator<AnnotatedMockBeanForIterator> iterator = new CsvToBeanBuilder<AnnotatedMockBeanForIterator>(fin)
+                    .withMappingStrategy(strat)
+                    .withSeparator(';')
+                    .build()
+                    .iterator();
         });
     }
 
@@ -255,8 +254,7 @@ public class CsvToBeanAsIteratorTest {
         try {
             iterator.next();
             fail("The first bean should not have been returned since the second bean is incomplete.");
-        }
-        catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             assertNotNull(e.getCause());
             assertTrue(e.getCause() instanceof CsvRequiredFieldEmptyException);
         }
@@ -274,7 +272,7 @@ public class CsvToBeanAsIteratorTest {
                 .withThrowExceptions(false)
                 .build();
         Iterator<AnnotatedMockBeanForIterator> iterator = csvtb.iterator();
-        
+
         iterator.next(); // The first bean is okay.
         assertFalse(iterator.hasNext());
         List<CsvException> savedExceptions = csvtb.getCapturedExceptions();
@@ -282,7 +280,7 @@ public class CsvToBeanAsIteratorTest {
         CsvException csve = savedExceptions.get(0);
         assertTrue(csve instanceof CsvRequiredFieldEmptyException);
     }
-    
+
     @Test
     public void iteratorConvertsIOExceptionToRuntimeException() {
         HeaderColumnNameMappingStrategy<MockBean> strategy = new HeaderColumnNameMappingStrategy<>();
@@ -294,8 +292,7 @@ public class CsvToBeanAsIteratorTest {
         try {
             bean.iterator();
             fail("Exception should have been thrown.");
-        }
-        catch(RuntimeException re) {
+        } catch (RuntimeException re) {
             assertNotNull(re.getCause());
             assertTrue(re.getCause() instanceof IOException);
         }

@@ -12,7 +12,7 @@ import java.io.StringReader;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class CSVReaderWithValidatorsTest {
     private static final String BAD = "bad";
@@ -41,7 +41,7 @@ public class CSVReaderWithValidatorsTest {
         assertEquals(2, rows.size());
     }
 
-    @DisplayName("CSVReader with LineValidator with good string")
+    @DisplayName("CSVReader with LineValidator with bad string")
     @Test
     public void readerWithLineValidatorWithBadString() throws IOException {
         String lines = "a,b,c\nd,bad,f\n";
@@ -51,13 +51,8 @@ public class CSVReaderWithValidatorsTest {
         CSVReader csvReader = builder.withLineValidator(lineDoesNotHaveBadString)
                 .build();
 
-        try {
+        assertThrows(CsvValidationException.class, () -> {
             List<String[]> rows = csvReader.readAll();
-            fail("Expected exception to be thrown!");
-        } catch (CsvValidationException clve) {
-
-        } catch (Throwable t) {
-            fail("Was expecting CsvValidationException to be thrown");
-        }
+        });
     }
 }

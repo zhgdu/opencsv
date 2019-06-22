@@ -1,6 +1,7 @@
 package com.opencsv;
 
 import com.opencsv.exceptions.CsvValidationException;
+import com.opencsv.validators.LineValidatorAggregator;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -34,6 +35,7 @@ public class CSVReaderHeaderAware extends CSVReader {
 
     /**
      * Supports non-deprecated constructor from the parent class.
+     * Like the CSVReader this constructor is package scope so only the builder can use it.
      *
      * @param reader         The reader to an underlying CSV source
      * @param skipLines      The number of lines to skip before reading
@@ -42,11 +44,12 @@ public class CSVReaderHeaderAware extends CSVReader {
      * @param verifyReader   True to verify reader before each read, false otherwise
      * @param multilineLimit Allow the user to define the limit to the number of lines in a multiline record. Less than one means no limit.
      * @param errorLocale    Set the locale for error messages. If null, the default locale is used.
+     * @param lineValidatorAggregator contains all the custom defined line validators.
      * @throws IOException   If bad things happen while initializing the header
      */
-    public CSVReaderHeaderAware(Reader reader, int skipLines, ICSVParser parser, boolean keepCR, boolean verifyReader,
-                                int multilineLimit, Locale errorLocale) throws IOException {
-        super(reader, skipLines, parser, keepCR, verifyReader, multilineLimit, errorLocale);
+    CSVReaderHeaderAware(Reader reader, int skipLines, ICSVParser parser, boolean keepCR, boolean verifyReader,
+                         int multilineLimit, Locale errorLocale, LineValidatorAggregator lineValidatorAggregator) throws IOException {
+        super(reader, skipLines, parser, keepCR, verifyReader, multilineLimit, errorLocale, lineValidatorAggregator);
         initializeHeader();
     }
 

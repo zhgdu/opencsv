@@ -11,22 +11,21 @@
     <rule ref="category/java/bestpractices.xml/UnusedPrivateMethod"/>
     <rule ref="category/java/codestyle.xml/DuplicateImports"/>
     <rule ref="category/java/errorprone.xml/UnnecessaryConversionTemporary"/>
-    <rule ref="rulesets/java/optimizations.xml/UseStringBufferForStringAppends"/>
-    <rule ref="rulesets/java/optimizations.xml/UseArraysAsList"/>
-    <rule ref="rulesets/java/optimizations.xml/AvoidArrayLoops"/>
+    <rule ref="category/java/performance.xml/UseStringBufferForStringAppends"/>
+    <rule ref="category/java/performance.xml/UseArraysAsList"/>
 
     <rule ref="category/java/errorprone.xml/EmptyCatchBlock" message="Must handle exceptions">
         <priority>2</priority>
     </rule>
-    <rule ref="rulesets/java/codesize.xml/CyclomaticComplexity">
+    <rule ref="category/java/design.xml/CyclomaticComplexity">
         <properties>
             <property name="methodReportLevel" value="25"/>
             <property name="classReportLevel" value="250"/>
         </properties>
     </rule>
-    <rule ref="rulesets/java/codesize.xml/TooManyMethods">
+    <rule ref="category/java/design.xml/TooManyMethods">
         <properties>
-            <property name="maxmethods" value="20"/>
+            <property name="maxmethods" value="24"/>
         </properties>
     </rule>
 </ruleset>
