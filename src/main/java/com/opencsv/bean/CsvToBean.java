@@ -18,14 +18,19 @@ package com.opencsv.bean;
 
 import com.opencsv.CSVReader;
 import com.opencsv.ICSVParser;
-import com.opencsv.bean.concurrent.*;
+import com.opencsv.bean.concurrent.LineExecutor;
+import com.opencsv.bean.concurrent.OrderedObject;
+import com.opencsv.bean.concurrent.ProcessCsvLine;
 import com.opencsv.exceptions.CsvException;
 import com.opencsv.exceptions.CsvMalformedLineException;
+import com.opencsv.exceptions.CsvValidationException;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -91,7 +96,7 @@ public class CsvToBean<T> implements Iterable<T> {
     public CsvToBean() {
     }
 
-    private void submitAllBeans() throws IOException, InterruptedException {
+    private void submitAllBeans() throws IOException, InterruptedException, CsvValidationException {
         while (null != (line = csvReader.readNext())) {
             lineProcessed = csvReader.getLinesRead();
             executor.submitLine(lineProcessed, mappingStrategy, filter,
@@ -309,7 +314,7 @@ public class CsvToBean<T> implements Iterable<T> {
             }
         }
 
-        private void readLineWithPossibleError() throws IOException {
+        private void readLineWithPossibleError() throws IOException, CsvValidationException {
             // Read a line
             bean = null;
             while(bean == null && null != (line = csvReader.readNext())) {
@@ -340,8 +345,7 @@ public class CsvToBean<T> implements Iterable<T> {
         private void readSingleLine() {
             try {
                 readLineWithPossibleError();
-            }
-            catch(IOException e) {
+            } catch (IOException | CsvValidationException e) {
                 line = null;
                 throw new RuntimeException(String.format(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("parsing.error"),
                         lineProcessed, Arrays.toString(line)), e);

@@ -1,5 +1,6 @@
 package com.opencsv;
 
+import com.opencsv.exceptions.CsvValidationException;
 import org.junit.jupiter.api.*;
 
 import java.io.IOException;
@@ -28,7 +29,7 @@ public class CSVIteratorTest {
     }
 
     @BeforeEach
-    public void setUp() throws IOException {
+    public void setUp() throws IOException, CsvValidationException {
         Locale.setDefault(Locale.US);
         mockReader = mock(CSVReader.class);
         when(mockReader.readNext()).thenReturn(STRINGS);
@@ -36,7 +37,7 @@ public class CSVIteratorTest {
     }
 
     @Test
-    public void readerExceptionCausesRunTimeException() throws IOException {
+    public void readerExceptionCausesRunTimeException() throws IOException, CsvValidationException {
         when(mockReader.readNext()).thenThrow(new IOException("reader threw test exception"));
         Assertions.assertThrows(NoSuchElementException.class, () -> {
             iterator.next();
@@ -71,7 +72,7 @@ public class CSVIteratorTest {
     }
 
     @Test
-    public void hasNextWorks() throws IOException {
+    public void hasNextWorks() throws IOException, CsvValidationException {
         when(mockReader.readNext()).thenReturn(null);
         assertTrue(iterator.hasNext()); // initial read from constructor
         iterator.next();

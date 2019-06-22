@@ -1,6 +1,6 @@
 package com.opencsv.validators;
 
-import com.opencsv.exceptions.CsvLineValidationException;
+import com.opencsv.exceptions.CsvValidationException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,24 +48,24 @@ public class LineValidatorAggregator {
 
     /**
      * Runs all LineValdators validate commands and if the string is invalid then it combines all the validation error
-     * messages in a single CsvLineValidationException.
+     * messages in a single CsvValidationException.
      *
      * @param line - string to be validation.
-     * @throws CsvLineValidationException - thrown if the string is invalid.
+     * @throws CsvValidationException - thrown if the string is invalid.
      */
-    public void validate(String line) throws CsvLineValidationException {
+    public void validate(String line) throws CsvValidationException {
         StringBuilder combinedExceptionMessage = new StringBuilder(CAPACITY);
 
         for (LineValidator validator : validators) {
             try {
                 validator.validate(line);
-            } catch (CsvLineValidationException ex) {
+            } catch (CsvValidationException ex) {
                 combinedExceptionMessage.append(ex.getMessage()).append("\n");
             }
         }
 
         if (combinedExceptionMessage.length() > 0) {
-            throw new CsvLineValidationException(combinedExceptionMessage.toString());
+            throw new CsvValidationException(combinedExceptionMessage.toString());
         }
     }
 }

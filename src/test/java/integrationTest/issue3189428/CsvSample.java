@@ -1,10 +1,14 @@
 package integrationTest.issue3189428;
 
 
-import com.opencsv.*;
+import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
+import com.opencsv.CSVWriter;
+import com.opencsv.ICSVWriter;
 import com.opencsv.bean.ColumnPositionMappingStrategy;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.bean.CsvToBeanBuilder;
+import com.opencsv.exceptions.CsvValidationException;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -53,7 +57,7 @@ public class CsvSample {
     * @param originalCommentText No idea
     * @throws IOException But not really
     */
-   protected void testRawCsvRead(String originalCommentText) throws IOException {
+   protected void testRawCsvRead(String originalCommentText) throws IOException, CsvValidationException {
       CSVReader reader = new CSVReader(new FileReader(filePath));
       String[] nextLine;
       int count = 0;

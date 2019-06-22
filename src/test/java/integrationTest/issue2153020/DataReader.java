@@ -1,6 +1,7 @@
 package integrationTest.issue2153020;
 
 import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvValidationException;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -8,7 +9,7 @@ import java.io.IOException;
 public class DataReader {
    private static final String ADDRESS_FILE = "test/integrationTest/issue2153020/Sample.csv";
 
-   public static void main(String[] args) throws IOException {
+   public static void main(String[] args) throws IOException, CsvValidationException {
 
       CSVReader reader = new CSVReader(new FileReader(ADDRESS_FILE));
       String[] nextLine;

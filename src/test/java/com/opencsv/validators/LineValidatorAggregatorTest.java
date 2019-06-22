@@ -1,6 +1,6 @@
 package com.opencsv.validators;
 
-import com.opencsv.exceptions.CsvLineValidationException;
+import com.opencsv.exceptions.CsvValidationException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -57,7 +57,7 @@ public class LineValidatorAggregatorTest {
             if ("invalid".equals(valid)) {
                 fail("was supposed to be invalid!");
             }
-        } catch (CsvLineValidationException ex) {
+        } catch (CsvValidationException ex) {
             if ("valid".equals(valid)) {
                 fail("was supposed to be valid!");
             }
@@ -93,7 +93,7 @@ public class LineValidatorAggregatorTest {
 
         try {
             aggregator.validate(testLine);
-        } catch (CsvLineValidationException ex) {
+        } catch (CsvValidationException ex) {
             fail("was supposed to be valid!");
         }
     }
@@ -114,7 +114,7 @@ public class LineValidatorAggregatorTest {
 
         try {
             aggregator.validate(testLine);
-        } catch (CsvLineValidationException ex) {
+        } catch (CsvValidationException ex) {
             fail("was supposed to be valid!");
         }
     }

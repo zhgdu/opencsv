@@ -1,6 +1,6 @@
 package com.opencsv.validators;
 
-import com.opencsv.exceptions.CsvLineValidationException;
+import com.opencsv.exceptions.CsvValidationException;
 
 /**
  * This is the interface for validators for a String read by the Reader in the CSVReader before it is processed.
@@ -25,7 +25,7 @@ public interface LineValidator {
      * Performs the validation check on the string and throws an exception if invalid.
      *
      * @param line - string to be validated.
-     * @throws CsvLineValidationException - thrown if invalid.  Should contain a message describing the error.
+     * @throws CsvValidationException - thrown if invalid.  Should contain a message describing the error.
      */
-    void validate(String line) throws CsvLineValidationException;
+    void validate(String line) throws CsvValidationException;
 }

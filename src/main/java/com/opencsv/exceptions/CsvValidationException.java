@@ -6,11 +6,11 @@ package com.opencsv.exceptions;
  * @author Scott Conway
  * @since 5.0
  */
-public class CsvLineValidationException extends CsvException {
+public class CsvValidationException extends CsvException {
     /**
      * Default constructor.
      */
-    public CsvLineValidationException() {
+    public CsvValidationException() {
         super();
     }
 
@@ -19,7 +19,7 @@ public class CsvLineValidationException extends CsvException {
      *
      * @param message - error text.
      */
-    public CsvLineValidationException(String message) {
+    public CsvValidationException(String message) {
         super(message);
     }
 }

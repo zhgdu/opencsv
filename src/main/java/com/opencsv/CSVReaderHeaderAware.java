@@ -1,5 +1,7 @@
 package com.opencsv;
 
+import com.opencsv.exceptions.CsvValidationException;
+
 import java.io.IOException;
 import java.io.Reader;
 import java.util.HashMap;
@@ -56,10 +58,11 @@ public class CSVReaderHeaderAware extends CSVReader {
      * @throws IOException              An error occured during the read or there is a mismatch in the number of data items in a row
      *                                  and the number of header items
      * @throws IllegalArgumentException If headerName does not exist
+     * @throws CsvValidationException If a custom defined validator fails.
      */
-    public String[] readNext(String... headerNames) throws IOException {
+    public String[] readNext(String... headerNames) throws IOException, CsvValidationException {
         if (headerNames == null) {
-            return super.readNext();
+            return super.readNextSilently();
         }
 
         String[] strings = readNext();
@@ -98,8 +101,9 @@ public class CSVReaderHeaderAware extends CSVReader {
      * @return A map whose key is the header row of the data file and the values is the data values. Or null if the line is blank.
      * @throws IOException An error occured during the read or there is a mismatch in the number of data items in a row
      *                     and the number of header items.
+     * @throws CsvValidationException If a custom defined validator fails.
      */
-    public Map<String, String> readMap() throws IOException {
+    public Map<String, String> readMap() throws IOException, CsvValidationException {
         String[] strings = readNext();
         if (strings == null) {
             return null;
@@ -116,7 +120,7 @@ public class CSVReaderHeaderAware extends CSVReader {
     }
 
     private void initializeHeader() throws IOException {
-        String[] headers = super.readNext();
+        String[] headers = super.readNextSilently();
         for (int i = 0; i < headers.length; i++) {
             headerIndex.put(headers[i], i);
         }

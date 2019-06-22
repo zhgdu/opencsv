@@ -1,7 +1,7 @@
 package com.opencsv.validators;
 
 
-import com.opencsv.exceptions.CsvLineValidationException;
+import com.opencsv.exceptions.CsvValidationException;
 
 public class LineDoesNotHaveForbiddenString implements LineValidator {
 
@@ -23,9 +23,9 @@ public class LineDoesNotHaveForbiddenString implements LineValidator {
     }
 
     @Override
-    public void validate(String line) throws CsvLineValidationException {
+    public void validate(String line) throws CsvValidationException {
         if (!isValid(line)) {
-            throw new CsvLineValidationException(MESSAGE);
+            throw new CsvValidationException(MESSAGE);
         }
     }
 

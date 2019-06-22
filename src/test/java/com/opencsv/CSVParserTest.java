@@ -2,6 +2,7 @@ package com.opencsv;
 
 import com.opencsv.enums.CSVReaderNullFieldIndicator;
 import com.opencsv.exceptions.CsvMultilineLimitBrokenException;
+import com.opencsv.exceptions.CsvValidationException;
 import org.junit.jupiter.api.*;
 
 import java.io.FileReader;
@@ -812,7 +813,7 @@ public class CSVParserTest {
      * @throws IOException
      */
     @Test
-    public void testMultilineLimitBrokeErrorDetailWithQuoteBegin() throws IOException {
+    public void testMultilineLimitBrokeErrorDetailWithQuoteBegin() throws IOException, CsvValidationException {
         csvParser = new CSVParser();
 
         int multilineLimit = 10;
@@ -851,7 +852,7 @@ public class CSVParserTest {
      * @throws IOException
      */
     @Test
-    public void testMultilineLimitBrokeErrorDetailWithQuoteMiddle() throws IOException {
+    public void testMultilineLimitBrokeErrorDetailWithQuoteMiddle() throws IOException, CsvValidationException {
         csvParser = new CSVParser();
         int multilineLimit = 10;
 
@@ -890,7 +891,7 @@ public class CSVParserTest {
      * @throws IOException
      */
     @Test
-    public void testMultilineLimitBrokeErrorDetailWithQuoteEnd() throws IOException {
+    public void testMultilineLimitBrokeErrorDetailWithQuoteEnd() throws IOException, CsvValidationException {
         csvParser = new CSVParser();
         int multilineLimit = 10;
         try {

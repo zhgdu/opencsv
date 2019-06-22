@@ -3,6 +3,7 @@ package integrationTest.isClosed;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
+import com.opencsv.exceptions.CsvException;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -23,7 +24,7 @@ public class isClosedTest {
     private static final int ROWS = 10001;
 
     @Test
-    public void issue115StandardReadFailsAfterALargeNumberOfReads() throws IOException {
+    public void issue115StandardReadFailsAfterALargeNumberOfReads() throws IOException, CsvException {
         StringBuilder all = new StringBuilder();
         for (int i = 0; i < ROWS; i++) {
             all.append(ONE_ROW);

@@ -65,7 +65,7 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
         }
         
         // Read the header
-        String[] header = ObjectUtils.defaultIfNull(reader.readNext(), ArrayUtils.EMPTY_STRING_ARRAY);
+        String[] header = ObjectUtils.defaultIfNull(reader.readNextSilently(), ArrayUtils.EMPTY_STRING_ARRAY);
         headerIndex.initializeHeaderIndex(header);
 
         // Throw an exception if any required headers are missing

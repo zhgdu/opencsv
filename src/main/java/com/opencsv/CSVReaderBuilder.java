@@ -17,6 +17,7 @@ package com.opencsv;
 
 
 import com.opencsv.enums.CSVReaderNullFieldIndicator;
+import com.opencsv.validators.LineValidator;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.io.Reader;
@@ -237,5 +238,16 @@ public class CSVReaderBuilder {
      */
     public Locale getErrorLocale() {
         return errorLocale;
+    }
+
+    /**
+     * Sets the LineValidator for the CSVReader.
+     *
+     * @param lineValidator LineValidator to inject.
+     * @return this
+     * @since 5.0
+     */
+    public CSVReaderBuilder withLineValidator(LineValidator lineValidator) {
+        return this;
     }
 }

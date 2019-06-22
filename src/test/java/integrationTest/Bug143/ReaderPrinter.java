@@ -4,6 +4,7 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 import com.opencsv.ICSVParser;
 import com.opencsv.RFC4180ParserBuilder;
+import com.opencsv.exceptions.CsvValidationException;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -16,7 +17,7 @@ public class ReaderPrinter {
     private static final String IMPORT_FILE = "src/test/resources/Bug143.csv";
     private static final String SEPARATOR = "\n===========================================================\n";
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException, CsvValidationException {
 
         RFC4180ParserBuilder rfc4180ParserBuilder = new RFC4180ParserBuilder();
         ICSVParser rfc4180Parser = rfc4180ParserBuilder.build();
