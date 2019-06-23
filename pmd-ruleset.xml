@@ -4,6 +4,10 @@
          name="Custom PMD Plugin Ruleset for OpenCSV"
          xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 http://pmd.sourceforge.net/ruleset_2_0_0.xsd ">
     <description>This ruleset checks code for violations</description>
+    <rule ref="category/java/bestpractices.xml/AbstractClassWithoutAbstractMethod"/>
+    <rule ref="category/java/bestpractices.xml/AvoidPrintStackTrace"/>
+    <rule ref="category/java/bestpractices.xml/AvoidReassigningParameters"/>
+    <rule ref="category/java/bestpractices.xml/LooseCoupling"/>
     <rule ref="category/java/bestpractices.xml/UnusedImports"/>
     <rule ref="category/java/bestpractices.xml/UnusedFormalParameter"/>
     <rule ref="category/java/bestpractices.xml/UnusedLocalVariable"/>

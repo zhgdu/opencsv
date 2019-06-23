@@ -17,15 +17,10 @@ package com.opencsv.bean;
 
 import com.opencsv.ICSVParser;
 import com.opencsv.exceptions.CsvBadConverterException;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
-import java.util.Locale;
-import java.util.NoSuchElementException;
-import java.util.ResourceBundle;
 import org.apache.commons.lang3.Range;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.*;
 
 /**
  * Maps any column position matching a range definition to a {@link BeanField}.
@@ -203,8 +198,8 @@ public class PositionToBeanField<T> extends AbstractFieldMapEntry<String, Intege
         private ListIterator<Range<Integer>> rangeIterator;
         private Range<Integer> currentRange;
         private int position;
-        
-        public PositionIterator() {
+
+        PositionIterator() {
             if(ranges.isEmpty()) {
                 position = -1;
             }

@@ -60,5 +60,5 @@ public interface ComplexFieldMapEntry<I, K extends Comparable<K>, T> {
      * 
      * @param errorLocale The locale to be used for error messages
      */
-    void setErrorLocale(final Locale errorLocale);
+    void setErrorLocale(Locale errorLocale);
 }

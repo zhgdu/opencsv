@@ -11,6 +11,7 @@
         </module>
         <module name="JavadocType"/>
         <module name="VisibilityModifier"/>
+        <module name="RedundantModifier"/>
         <module name="TodoComment">
             <property name="severity" value="warning"/>
         </module>
@@ -37,5 +38,8 @@
             <property name="allowedDuplicates" value="2"/>
         </module>
         <module name="MultipleVariableDeclarations"/>
+        <module name="FinalClass"/>
+        <module name="HideUtilityClassConstructor"/>
+        <module name="InterfaceIsType"/>
     </module>
 </module>

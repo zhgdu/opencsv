@@ -28,5 +28,5 @@ public interface BeanVerifier<T> {
      * exception will be propagated up the call stack and, depending on how
      * opencsv is being used, may simply be reported, or may halt execution.
      */
-    boolean verifyBean(final T bean) throws CsvConstraintViolationException;
+    boolean verifyBean(T bean) throws CsvConstraintViolationException;
 }

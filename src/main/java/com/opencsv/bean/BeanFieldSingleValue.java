@@ -80,15 +80,16 @@ public class BeanFieldSingleValue<T, I> extends AbstractBeanField<T, I> {
     // The rest of the Javadoc is inherited
     @Override
     protected Object convert(String value) throws CsvDataTypeMismatchException, CsvConstraintViolationException {
+        String convertValue = value;
         if(capture != null) {
             Matcher m = capture.matcher(value);
             if(m.matches()) {
-                value = m.group(1);
+                convertValue = m.group(1);
             }
             // Otherwise value remains intentionally unchanged
         }
         if(converter != null) {
-            return converter.convertToRead(value);
+            return converter.convertToRead(convertValue);
         }
         throw new CsvBadConverterException(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("no.converter.specified"));
     }
