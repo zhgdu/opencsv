@@ -24,7 +24,7 @@ import java.util.function.Function;
  *     private static final String[] SHORT_ROW = {"8675309", "Firstname", "Lastname", "Dec 06, 1951"};
  *
  *     private static final Function<String[], Boolean> THIRD_ELEMENT_IS_MIDDLE_INITIAL = (x) -> {
- *         return x[2].matches("^[A-Z]$");
+ *         return x.length > 2 && x[2].matches("^[A-Z]$");
  *     };
  *
  *     private static final Function<String[], Boolean> ROW_MUST_HAME_FIVE_ELEMENTS = (x) -> {
