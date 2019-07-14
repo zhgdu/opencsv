@@ -73,13 +73,24 @@ do about them.
 
    * Java 8 is now the minimum supported version.
    * Everything that was deprecated has been removed.
-      * All non-essential constructors and CsvToBean.parse() methods have been removed. Please use the builder classes instead.
-      * IterableCSVToBean and IterableCSVToBeanBuilder have both been removed. CsvToBean itself is iterable; use it instead.
-      * Scads of methods that had to do with the internal implementation details of a mapping strategy have been removed from the interface MappingStrategy. You probably never needed these anyway, if you wrote your own mapping strategy.
-      * The custom converter SplitOnWhitespace has been removed. Use the "split" parameter to the annotation in question.
+   ** All non-essential constructors and CsvToBean.parse() methods have been removed. Please use the builder classes instead.
+   ** IterableCSVToBean and IterableCSVToBeanBuilder have both been removed. CsvToBean itself is iterable; use it instead.
+   ** Scads of methods that had to do with the internal implementation details of a mapping strategy have been removed from the interface MappingStrategy.
+      You probably never needed these anyway, if you wrote your own mapping strategy.
+   ** The custom converter SplitOnWhitespace has been removed. Use the "split" parameter to the annotation in question.
    * Writing non-annotated beans now produces capitalized headers like the rest of opencsv.
    * Introspection has been replaced with Reflection. As a result, writing beans no longer fails if a getter is not available.
-   * If you created custom converters and declared them with the type parameter for the bean type (e.g. MyConverter<T> extends AbstractBeanField<T>) instead of declaring them with a raw class (e.g. MyConverter extends AbstractBeanField), you will need to add one more type parameter for the type of the index into multivalued fields (e.g. MyConverter<T, I> extends AbstractBeanField<T, I>).
+   * If you created custom converters and declared them with the type parameter for the bean type (e.g. MyConverter<T> extends AbstractBeanField<T>) instead
+   of declaring them with a raw class (e.g. MyConverter extends AbstractBeanField), you will need to add one more type parameter for the type of the index
+   into multivalued fields (e.g. MyConverter<T, I> extends AbstractBeanField<T, I>).
+   * With the introduction of the LineValidator and RowValidator the following classes will throw CsvValidationException as well as an IOException
+   ** CSVReader
+   *** readNext
+   ** CSVIterator
+   *** constructor
+   ** CSVReaderHeaderAware
+   *** readNext
+   *** readMap
 
 And we have a new list of things that we have deprecated and plan to remove in
 6.0, as well as what you can do about it.

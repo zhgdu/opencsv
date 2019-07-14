@@ -6,20 +6,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The aggregator purpose is to collect multiple LineValidators and run them against a single line.
+ * The aggregator purpose is to collect multiple RowValidators and run them against a single array of Strings.
  * This way complex validations can be performed.
  *
  * @author Scott Conway
  * @since 5.0
  */
-public class LineValidatorAggregator {
+public class RowValidatorAggregator {
     private static final int CAPACITY = 256;
-    private List<LineValidator> validators = new ArrayList<>();
+    private List<RowValidator> validators = new ArrayList<>();
 
     /**
      * Default constructor.
      */
-    public LineValidatorAggregator() {
+    public RowValidatorAggregator() {
     }
 
     /**
@@ -27,22 +27,22 @@ public class LineValidatorAggregator {
      *
      * @param validator - validator to be added.
      */
-    public void addValidator(LineValidator validator) {
+    public void addValidator(RowValidator validator) {
         if (validator != null) {
             validators.add(validator);
         }
     }
 
     /**
-     * Runs all LineValidators isValid command against the line.   This is a short circuit and - as soon as one validator
+     * Runs all RowValidator isValid command against the line.   This is a short circuit and - as soon as one validator
      * returns false then false is return.
      *
-     * @param line - string to be validated.
+     * @param row - Array of Strings to be validated.
      * @return true if all validators isValid methods returns true, false otherwise.
      */
-    public boolean isValid(String line) {
-        for (LineValidator validator : validators) {
-            if (!validator.isValid(line)) {
+    public boolean isValid(String[] row) {
+        for (RowValidator validator : validators) {
+            if (!validator.isValid(row)) {
                 return false;
             }
         }
@@ -50,18 +50,18 @@ public class LineValidatorAggregator {
     }
 
     /**
-     * Runs all LineValdators validate commands and if the string is invalid then it combines all the validation error
+     * Runs all RowValdators validate commands and if the string is invalid then it combines all the validation error
      * messages in a single CsvValidationException.
      *
-     * @param line - string to be validation.
+     * @param row - Array of Strings to be validation.
      * @throws CsvValidationException - thrown if the string is invalid.
      */
-    public void validate(String line) throws CsvValidationException {
+    public void validate(String[] row) throws CsvValidationException {
         StringBuilder combinedExceptionMessage = new StringBuilder(CAPACITY);
 
-        for (LineValidator validator : validators) {
+        for (RowValidator validator : validators) {
             try {
-                validator.validate(line);
+                validator.validate(row);
             } catch (CsvValidationException ex) {
                 combinedExceptionMessage.append(ex.getMessage()).append("\n");
             }
