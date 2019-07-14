@@ -277,8 +277,8 @@ public class CsvToBeanBuilder<T> {
     }
     
     /**
-     * @see CSVParser#CSVParser(char, char, char, boolean, boolean, boolean, CSVReaderNullFieldIndicator, Locale)
-     * @param indicator Please see the "See Also" section
+     * @param indicator Which field content will be returned as null: EMPTY_SEPARATORS, EMPTY_QUOTES,
+     *                           BOTH, NEITHER (default)
      * @return {@code this}
      */
     public CsvToBeanBuilder<T> withFieldAsNull(CSVReaderNullFieldIndicator indicator) {
@@ -287,8 +287,7 @@ public class CsvToBeanBuilder<T> {
     }
     
     /**
-     * @see CSVReader#CSVReader(Reader, int, ICSVParser, boolean, boolean, int, Locale)
-     * @param keepCR Please see the "See Also" section
+     * @param keepCR True to keep carriage returns in data read, false otherwise
      * @return {@code this}
      */
     public CsvToBeanBuilder<T> withKeepCarriageReturn(boolean keepCR) {

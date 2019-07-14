@@ -16,7 +16,7 @@ import java.util.function.Function;
  * There are several examples coded in the RowFunctionValidatorTest but here are a couple to give you the
  * idea of the flexibility this validator offers.
  *
- * <pre>{@code
+ * <pre>
  *
  *     private static final String[] GOOD_ROW = {"8675309", "Firstname", "M", "Lastname", "Dec 06, 1951"};
  *     private static final String[] BAD_ROW = {"not a number", "not capitialized", "not an initial", "Not Single word", "12/06/51"};
@@ -49,6 +49,7 @@ import java.util.function.Function;
  *         assertFalse(validator.isValid(LONG_ROW));
  *         assertFalse(validator.isValid(SHORT_ROW));
  *     }
+ *
  * </pre>
  *
  * @author Scott Conway
