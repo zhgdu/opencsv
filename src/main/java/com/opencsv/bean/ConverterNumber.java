@@ -28,6 +28,7 @@ import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.function.UnaryOperator;
 
 /**
  * This converter class is used in combination with {@link CsvNumber}, that is,
@@ -38,21 +39,25 @@ import java.util.ResourceBundle;
  */
 public class ConverterNumber extends AbstractCsvConverter {
 
-    private final DecimalFormat df;
+    private final DecimalFormat readFormatter, writeFormatter;
+    private final UnaryOperator<Number> readConversionFunction;
 
     /**
      * @param type    The class of the type of the data being processed
      * @param locale   If not null or empty, specifies the locale used for
-     *                 converting locale-specific data types
+     *                 converting locale-specific data types for reading
+     * @param writeLocale   If not null or empty, specifies the locale used for
+     *                 converting locale-specific data types for writing
      * @param errorLocale The locale to use for error messages
-     * @param formatString The string to use for formatting the number.
+     * @param readFormat The string to use for parsing the number.
+     * @param writeFormat The string to use for formatting the number.
      * @throws CsvBadConverterException If the information given to initialize the converter are inconsistent (e.g.
      *   the annotation {@link com.opencsv.bean.CsvNumber} has been applied to a non-{@link java.lang.Number} type.
      * @see com.opencsv.bean.CsvNumber#value()
      */
-    public ConverterNumber(Class<?> type, String locale, Locale errorLocale, String formatString)
+    public ConverterNumber(Class<?> type, String locale, String writeLocale, Locale errorLocale, String readFormat, String writeFormat)
             throws CsvBadConverterException {
-        super(type, locale, errorLocale);
+        super(type, locale, writeLocale, errorLocale);
 
         // Check that the bean member is of an applicable type
         if(!Number.class.isAssignableFrom(
@@ -67,7 +72,7 @@ public class ConverterNumber extends AbstractCsvConverter {
                             .getString("csvnumber.not.number"));
         }
 
-        // Set up the formatter
+        // Set up the read formatter
         NumberFormat nf = NumberFormat.getInstance(ObjectUtils.defaultIfNull(this.locale, Locale.getDefault(Locale.Category.FORMAT)));
         if(!(nf instanceof DecimalFormat)) {
             throw new CsvBadConverterException(
@@ -77,10 +82,10 @@ public class ConverterNumber extends AbstractCsvConverter {
                             this.errorLocale)
                             .getString("numberformat.not.decimalformat"));
         }
-        df = (DecimalFormat) nf;
+        readFormatter = (DecimalFormat) nf;
 
         try {
-            df.applyLocalizedPattern(formatString);
+            readFormatter.applyLocalizedPattern(readFormat);
         } catch (IllegalArgumentException e) {
             CsvBadConverterException csve = new CsvBadConverterException(
                     ConverterNumber.class,
@@ -88,7 +93,7 @@ public class ConverterNumber extends AbstractCsvConverter {
                             ICSVParser.DEFAULT_BUNDLE_NAME,
                             this.errorLocale)
                             .getString("invalid.number.pattern"),
-                            formatString));
+                            readFormat));
             csve.initCause(e);
             throw csve;
         }
@@ -96,7 +101,63 @@ public class ConverterNumber extends AbstractCsvConverter {
         // Account for BigDecimal and BigInteger, which require special
         // processing
         if(this.type == BigInteger.class || this.type == BigDecimal.class) {
-            df.setParseBigDecimal(true);
+            readFormatter.setParseBigDecimal(true);
+        }
+
+        // Save the read conversion function for later
+        if(this.type == Byte.class || this.type == Byte.TYPE) {
+            readConversionFunction = Number::byteValue;
+        }
+        else if(this.type == Short.class || this.type == Short.TYPE) {
+            readConversionFunction = Number::shortValue;
+        }
+        else if(this.type == Integer.class || this.type == Integer.TYPE) {
+            readConversionFunction = Number::intValue;
+        }
+        else if(this.type == Long.class || this.type == Long.TYPE) {
+            readConversionFunction = Number::longValue;
+        }
+        else if(this.type == Float.class || this.type == Float.TYPE) {
+            readConversionFunction = Number::floatValue;
+        }
+        else if(this.type == Double.class || this.type == Double.TYPE) {
+            readConversionFunction = Number::doubleValue;
+        }
+        else if(this.type == BigInteger.class) {
+            readConversionFunction = n -> ((BigDecimal) n).toBigInteger();
+        }
+        else {
+            // Either it's already a BigDecimal and nothing need be done,
+            // or it's some derivative of java.lang.Number that we couldn't be
+            // expected to know and accommodate for. In the latter case, a class
+            // cast exception will be thrown later on assignment.
+            readConversionFunction = n -> n;
+        }
+
+        // Set up the write formatter
+        nf = NumberFormat.getInstance(ObjectUtils.defaultIfNull(this.writeLocale, Locale.getDefault(Locale.Category.FORMAT)));
+        if(!(nf instanceof DecimalFormat)) {
+            throw new CsvBadConverterException(
+                    ConverterNumber.class,
+                    ResourceBundle.getBundle(
+                            ICSVParser.DEFAULT_BUNDLE_NAME,
+                            this.errorLocale)
+                            .getString("numberformat.not.decimalformat"));
+        }
+        writeFormatter = (DecimalFormat) nf;
+
+        try {
+            writeFormatter.applyLocalizedPattern(writeFormat);
+        } catch (IllegalArgumentException e) {
+            CsvBadConverterException csve = new CsvBadConverterException(
+                    ConverterNumber.class,
+                    String.format(ResourceBundle.getBundle(
+                            ICSVParser.DEFAULT_BUNDLE_NAME,
+                            this.errorLocale)
+                                    .getString("invalid.number.pattern"),
+                            writeFormat));
+            csve.initCause(e);
+            throw csve;
         }
     }
 
@@ -104,8 +165,8 @@ public class ConverterNumber extends AbstractCsvConverter {
     public Object convertToRead(String value) throws CsvDataTypeMismatchException {
         Number n;
         try {
-            synchronized (df) {
-                n = df.parse(value);
+            synchronized (readFormatter) {
+                n = readFormatter.parse(value);
             }
         }
         catch(ParseException e) {
@@ -114,37 +175,12 @@ public class ConverterNumber extends AbstractCsvConverter {
                     String.format(ResourceBundle.getBundle(
                             ICSVParser.DEFAULT_BUNDLE_NAME,
                             errorLocale)
-                            .getString("unparsable.number"), value, df.toPattern()));
+                            .getString("unparsable.number"), value, readFormatter.toPattern()));
             csve.initCause(e);
             throw csve;
         }
-        if(type == Byte.class || type == Byte.TYPE) {
-            n = n.byteValue();
-        }
-        else if(type == Short.class || type == Short.TYPE) {
-            n = n.shortValue();
-        }
-        else if(type == Integer.class || type == Integer.TYPE) {
-            n = n.intValue();
-        }
-        else if(type == Long.class || type == Long.TYPE) {
-            n = n.longValue();
-        }
-        else if(type == Float.class || type == Float.TYPE) {
-            n = n.floatValue();
-        }
-        else if(type == Double.class || type == Double.TYPE) {
-            n = n.doubleValue();
-        }
-        else if(type == BigInteger.class) {
-            n = ((BigDecimal) n).toBigInteger();
-        }
-        // else: Either it's already a BigDecimal and nothing need be done,
-        // or it's some derivative of java.lang.Number that we couldn't be
-        // expected to know and accommodate for. In the latter case, a class
-        // cast exception will be thrown later on assignment.
 
-        return n;
+        return readConversionFunction.apply(n);
     }
 
     /**
@@ -154,8 +190,8 @@ public class ConverterNumber extends AbstractCsvConverter {
     // The rest of the Javadoc is inherited.
     @Override
     public String convertToWrite(Object value) {
-        synchronized (df) {
-            return value != null ? df.format(value) : null;
+        synchronized (writeFormatter) {
+            return value != null ? writeFormatter.format(value) : null;
         }
     }
 }

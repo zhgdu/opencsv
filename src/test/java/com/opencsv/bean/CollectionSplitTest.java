@@ -418,7 +418,9 @@ public class CollectionSplitTest {
     /**
      * Tests writing with a header name mapping strategy.
      * <p>Also incidentally tests:
-     * <ul><li>Writing with a format string and a header name mapping strategy</li></ul></p>
+     * <ul><li>Writing with a format string and a header name mapping strategy</li>
+     * <li>Writing with a different format for SimpleDateFormat-based writing</li>
+     * <li>Setting an explicit chronology for SimpleDateFormat-based reading or writing</li></ul></p>
      *
      * @throws CsvDataTypeMismatchException Never
      * @throws CsvRequiredFieldEmptyException Never
@@ -445,9 +447,9 @@ public class CollectionSplitTest {
         // depending on I don't know what (probably the JDK version), the order
         // can change.
         String option1 = "\"COLLECTIONTYPE\",\"DEQUETYPE\",\"LISTTYPE\",\"NAVIGABLESETTYPE\",\"QUEUETYPE\",\"SETTYPE\",\"SORTEDSETTYPE\"\n" +
-                "\"\",\"\",\"\",\"\",\"\",\"1978-01-15 2018-01-01\",\"a1j a2j a3j\"\n";
+                "\"\",\"\",\"\",\"\",\"\",\"1978-Jan-15 2018-Jan-01\",\"a1j a2j a3j\"\n";
         String option2 = "\"COLLECTIONTYPE\",\"DEQUETYPE\",\"LISTTYPE\",\"NAVIGABLESETTYPE\",\"QUEUETYPE\",\"SETTYPE\",\"SORTEDSETTYPE\"\n" +
-                "\"\",\"\",\"\",\"\",\"\",\"2018-01-01 1978-01-15\",\"a1j a2j a3j\"\n";
+                "\"\",\"\",\"\",\"\",\"\",\"2018-Jan-01 1978-Jan-15\",\"a1j a2j a3j\"\n";
         assertTrue(option1.equals(s) || option2.equals(s));
     }
     

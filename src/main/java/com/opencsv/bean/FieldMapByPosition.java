@@ -29,6 +29,7 @@ import java.util.stream.Collectors;
  * This class maintains a mapping from column position out of a CSV file to bean
  * fields.
  *
+ * @param <T> Type of the bean being converted
  * @author Andrew Rucker Jones
  * @since 4.2
  */

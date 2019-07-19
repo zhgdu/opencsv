@@ -169,7 +169,7 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
     private void loadAnnotatedFieldMap(List<Field> fields) {
         boolean required;
         for (Field field : fields) {
-            String fieldLocale, capture, format;
+            String fieldLocale, fieldWriteLocale, capture, format;
 
             // Custom converters always have precedence.
             if (field.isAnnotationPresent(CsvCustomBindByPosition.class)) {
@@ -189,6 +189,9 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
                 CsvBindAndSplitByPosition annotation = field.getAnnotation(CsvBindAndSplitByPosition.class);
                 required = annotation.required();
                 fieldLocale = annotation.locale();
+                fieldWriteLocale = annotation.writeLocaleEqualsReadLocale()
+                        ? fieldLocale
+                        : annotation.writeLocale();
                 String splitOn = annotation.splitOn();
                 String writeDelimiter = annotation.writeDelimiter();
                 Class<? extends Collection> collectionType = annotation.collectionType();
@@ -197,7 +200,7 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
                 capture = annotation.capture();
                 format = annotation.format();
 
-                CsvConverter converter = determineConverter(field, elementType, fieldLocale, splitConverter);
+                CsvConverter converter = determineConverter(field, elementType, fieldLocale, fieldWriteLocale, splitConverter);
                 fieldMap.put(annotation.position(), new BeanFieldSplit<>(
                         field, required, errorLocale, converter, splitOn,
                         writeDelimiter, collectionType, capture, format));
@@ -208,13 +211,16 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
                 CsvBindAndJoinByPosition annotation = field.getAnnotation(CsvBindAndJoinByPosition.class);
                 required = annotation.required();
                 fieldLocale = annotation.locale();
+                fieldWriteLocale = annotation.writeLocaleEqualsReadLocale()
+                        ? fieldLocale
+                        : annotation.writeLocale();
                 Class<?> elementType = annotation.elementType();
                 Class<? extends MultiValuedMap> mapType = annotation.mapType();
                 Class<? extends AbstractCsvConverter> joinConverter = annotation.converter();
                 capture = annotation.capture();
                 format = annotation.format();
 
-                CsvConverter converter = determineConverter(field, elementType, fieldLocale, joinConverter);
+                CsvConverter converter = determineConverter(field, elementType, fieldLocale, fieldWriteLocale, joinConverter);
                 fieldMap.putComplex(annotation.position(), new BeanFieldJoinIntegerIndex<>(
                         field, required, errorLocale, converter, mapType, capture, format));
             }
@@ -224,9 +230,12 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
                 CsvBindByPosition annotation = field.getAnnotation(CsvBindByPosition.class);
                 required = annotation.required();
                 fieldLocale = annotation.locale();
+                fieldWriteLocale = annotation.writeLocaleEqualsReadLocale()
+                        ? fieldLocale
+                        : annotation.writeLocale();
                 capture = annotation.capture();
                 format = annotation.format();
-                CsvConverter converter = determineConverter(field, field.getType(), fieldLocale, null);
+                CsvConverter converter = determineConverter(field, field.getType(), fieldLocale, fieldWriteLocale, null);
 
                 fieldMap.put(annotation.position(), new BeanFieldSingleValue<>(
                         field, required, errorLocale, converter, capture, format));
@@ -236,7 +245,7 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
 
     private void loadUnadornedFieldMap(List<Field> fields) {
         for(Field field : fields) {
-            CsvConverter converter = determineConverter(field, field.getType(), null, null);
+            CsvConverter converter = determineConverter(field, field.getType(), null, null, null);
             int[] indices = headerIndex.getByName(field.getName());
             if(indices.length != 0) {
                 fieldMap.put(indices[0], new BeanFieldSingleValue<>(

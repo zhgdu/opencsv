@@ -32,6 +32,7 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.*;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -1129,7 +1130,8 @@ public class JoinTest {
         StringWriter w = new StringWriter();
         StatefulBeanToCsv<GoodJoinByPositionAnnotations> b2csv = new StatefulBeanToCsvBuilder<GoodJoinByPositionAnnotations>(w).build();
         b2csv.write(bean);
-        assertEquals("\"-2147483648\",\"27. Feb 1974\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"15. Jan 1978\",\"13. Apr 2003\"\n", w.toString());
+
+        assertTrue(Pattern.matches("\"-2147483648\",\"27\\. Feb\\.? 1974\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"\",\"15\\. Jan\\.? 1978\",\"13\\. Apr\\.? 2003\"\n", w.toString()));
     }
     
     @Test

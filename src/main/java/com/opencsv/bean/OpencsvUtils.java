@@ -203,7 +203,7 @@ public final class OpencsvUtils {
                     callingClass,
                     String.format(ResourceBundle.getBundle(
                             ICSVParser.DEFAULT_BUNDLE_NAME,
-                            errorLocale).getString("invalid.format.string"), format));
+                            errorLocale).getString("invalid.one.parameter.format.string"), format));
             csve.initCause(e);
             throw csve;
         }

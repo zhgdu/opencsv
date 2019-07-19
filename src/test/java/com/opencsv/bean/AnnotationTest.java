@@ -25,11 +25,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
+import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.text.ParseException;
@@ -38,8 +34,10 @@ import java.util.*;
 import static org.junit.Assert.*;
 
 /**
- * This class tests all annotation-based mapping.
+ * This class tests all annotation-based mapping except
+ * {@link java.time.temporal.TemporalAccessor}-based types.
  *
+ * @see TemporalTest
  * @author Andrew Rucker Jones
  */
 public class AnnotationTest {
@@ -744,7 +742,7 @@ public class AnnotationTest {
     }
 
     @Test
-    public void testDateAnnotationOnNondate() {
+    public void testDateAnnotationOnNondateReading() {
         HeaderColumnNameMappingStrategy<DateAnnotationOnNondate> strat =
                 new HeaderColumnNameMappingStrategy<>();
         strat.setType(DateAnnotationOnNondate.class);
@@ -762,6 +760,19 @@ public class AnnotationTest {
             assertNotNull(csve.getLine());
             assertTrue(csve.getSourceObject() instanceof String);
             assertEquals("19780115T063209", csve.getSourceObject());
+            assertEquals(String.class, csve.getDestinationClass());
+        }
+    }
+
+    @Test
+    public void testDateAnnotationOnNondateWriting() throws CsvException {
+        StringWriter w = new StringWriter();
+        try {
+            new StatefulBeanToCsvBuilder<DateAnnotationOnNondate>(w).build().write(new DateAnnotationOnNondate("test"));
+        }
+        catch(CsvDataTypeMismatchException csve) {
+            assertEquals(1, csve.getLineNumber());
+            assertTrue(csve.getSourceObject() instanceof DateAnnotationOnNondate);
             assertEquals(String.class, csve.getDestinationClass());
         }
     }
@@ -1057,5 +1068,41 @@ public class AnnotationTest {
             assertEquals(BeanFieldSingleValue.class, csve.getConverterClass());
             assertNotNull(csve.getCause());
         }
+    }
+
+    @Test
+    public void testWriteFormatWithHeaderNames() throws CsvException {
+        MappingStrategy<WriteLocale> ms = new HeaderColumnNameMappingStrategy<>();
+        ms.setType(WriteLocale.class);
+        WriteLocale bean = new CsvToBeanBuilder<WriteLocale>(new StringReader(
+                "primitivePlain;numberPlain;datePlain;primitiveSplit;numberSplit;dateSplit;primitiveJoinName;primitiveJoinName;numberJoinName;numberJoinName;dateJoinName;dateJoinName;redHerring\n" +
+                        "123.404,404;123.505,505;01/August/2019;234.505,505 234.606,606;234.707,707 234.808,808;01/Juni/2019 01/Juli/2019;345.606,606;345.707,707;345.808,808;345.909,909;01/Juli/2019;01/August/2019;456.707,707\n"))
+                .withSeparator(';')
+                .withMappingStrategy(ms)
+                .withType(WriteLocale.class)
+                .build().parse().get(0);
+        StringWriter w = new StringWriter();
+        new StatefulBeanToCsvBuilder<WriteLocale>(w)
+                .withMappingStrategy(ms)
+                .withApplyQuotesToAll(false)
+                .withSeparator(';')
+                .build().write(bean);
+        assertEquals("primitivePlain;numberPlain;datePlain;primitiveSplit;numberSplit;dateSplit;primitiveJoinName;primitiveJoinName;numberJoinName;numberJoinName;dateJoinName;dateJoinName;redHerring\n" +
+                "123\u00A0404,404;123\u00A0505,505;01/août/2019;234\u00A0505,505 234\u00A0606,606;234\u00A0707,707 234\u00A0808,808;01/juin/2019 01/juil./2019;345\u00A0606,606;345\u00A0707,707;345\u00A0808,808;345\u00A0909,909;01/juil./2019;01/août/2019;456.707,707\n", w.toString());
+    }
+
+    @Test
+    public void testWriteFormatWithColumnPositions() throws CsvException {
+        WriteLocale bean = new CsvToBeanBuilder<WriteLocale>(new StringReader(
+                "123.404,404;123.505,505;01/August/2019;234.505,505 234.606,606;234.707,707 234.808,808;01/Juni/2019 01/Juli/2019;345.606,606;345.707,707;345.808,808;345.909,909;01/Juli/2019;01/August/2019;456.707,707\n"))
+                .withSeparator(';')
+                .withType(WriteLocale.class)
+                .build().parse().get(0);
+        StringWriter w = new StringWriter();
+        new StatefulBeanToCsvBuilder<WriteLocale>(w)
+                .withApplyQuotesToAll(false)
+                .withSeparator(';')
+                .build().write(bean);
+        assertEquals("123\u00A0404,404;123\u00A0505,505;01/août/2019;234\u00A0505,505 234\u00A0606,606;234\u00A0707,707 234\u00A0808,808;01/juin/2019 01/juil./2019;345\u00A0606,606;345\u00A0707,707;345\u00A0808,808;345\u00A0909,909;01/juil./2019;01/août/2019;456.707,707\n", w.toString());
     }
 }

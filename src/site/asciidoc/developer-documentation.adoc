@@ -67,6 +67,11 @@ out as a map:
 for that? Here is a list of the improvements in opencsv 5.0.
 
    * CsvToBean now has a stream() method to allow you to gracefully continue processing your beans if you so choose. Since it bypasses internal copying to a new list, it saves a smidgen of time and space.
+   * Similarly, StatefulBeanToCsv now accepts a Stream to a new write() method.
+   * Full support for the Java 8 Time API is included. Conversion to and from all JDK-types that implement TemporalAccessor is included.
+   * In all annotations that accepted a conversion locale, it is now possible to stipulate a different conversion locale for writing than the one used for reading.
+   * Similarly, @CsvDate can now take a different format for writing than reading.
+   * Similarly, @CsvNumber can now take a different format for writing than reading.
 
 Here are the things you can expect to encounter during an upgrade and what to
 do about them.
@@ -75,7 +80,7 @@ do about them.
    * Everything that was deprecated has been removed.
       * All non-essential constructors and CsvToBean.parse() methods have been removed. Please use the builder classes instead.
       * IterableCSVToBean and IterableCSVToBeanBuilder have both been removed. CsvToBean itself is iterable; use it instead.
-      * Scads of methods that had to do with the internal implementation details of a mapping strategy have been removed from the interface MappingStrategy. You probably never needed these anyway, if you wrote your own mapping strategy.
+      * Scads of methods that had to do with the internal implementation details of a mapping strategy have been removed from the interface MappingStrategy. You probably never needed these anyway if you wrote your own mapping strategy.
       * The custom converter SplitOnWhitespace has been removed. Use the "split" parameter to the annotation in question.
    * Writing non-annotated beans now produces capitalized headers like the rest of opencsv.
    * Introspection has been replaced with Reflection. As a result, writing beans no longer fails if a getter is not available.
@@ -953,9 +958,6 @@ can map to a bean based on the field positions in your CSV file:
     CsvToBean csv = new CsvToBean();
     List list = csv.parse(strat, yourReader);
 ----
-
-Please note, if you do not use annotations, opencsv uses introspection to access
-member variables, so your objects will have to be honest-to-God beans.
 
 ===== Skipping, filtering and verifying
 With some input it can be helpful to skip the first few lines. opencsv provides

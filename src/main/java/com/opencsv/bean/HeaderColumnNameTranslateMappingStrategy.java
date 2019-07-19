@@ -77,7 +77,7 @@ public class HeaderColumnNameTranslateMappingStrategy<T> extends HeaderColumnNam
         fieldMap = new FieldMapByName<>(errorLocale);
         fieldMap.setColumnOrderOnWrite(writeOrder);
         for(Field field : FieldUtils.getAllFields(getType())) {
-            CsvConverter converter = determineConverter(field, field.getType(), null, null);
+            CsvConverter converter = determineConverter(field, field.getType(), null, null, null);
             fieldMap.put(field.getName().toUpperCase(), new BeanFieldSingleValue<>(
                     field, false, errorLocale, converter, null, null));
         }

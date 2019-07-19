@@ -38,8 +38,16 @@ public abstract class AbstractCsvConverter implements CsvConverter {
      */
     protected Class<?> type;
     
-    /** The locale to be used when converting, if a locale is relevant. */
+    /**
+     * The locale to be used when converting for reading, if a locale is relevant.
+     */
     protected Locale locale;
+
+    /**
+     * The locale to be used when converting for writing, if a locale is
+     * relevant.
+     */
+    protected Locale writeLocale;
     
     /** The locale to be used for error messages. */
     protected Locale errorLocale;
@@ -53,6 +61,7 @@ public abstract class AbstractCsvConverter implements CsvConverter {
     public AbstractCsvConverter() {
         this.type = null;
         this.locale = null;
+        this.writeLocale = null;
         errorLocale = Locale.getDefault();
     }
 
@@ -61,13 +70,16 @@ public abstract class AbstractCsvConverter implements CsvConverter {
      * 
      * @param type The type to which (on reading) or from which (on writing) is
      *   being converted
-     * @param locale The locale to be used when converting, if a locale is
-     *   relevant
+     * @param locale The locale to be used when converting for reading, if a
+     *               locale is relevant
+     * @param writeLocale The locale to be used when converting for writing, if
+     *                    a locale is relevant
      * @param errorLocale The locale to be used for error messages
      */
-    public AbstractCsvConverter(Class<?> type, String locale, Locale errorLocale) {
+    public AbstractCsvConverter(Class<?> type, String locale, String writeLocale, Locale errorLocale) {
         this.type = type;
         this.locale = StringUtils.isNotEmpty(locale) ? Locale.forLanguageTag(locale) : null;
+        this.writeLocale = StringUtils.isNotEmpty(writeLocale) ? Locale.forLanguageTag(writeLocale) : null;
         this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
     }
     
@@ -105,5 +117,12 @@ public abstract class AbstractCsvConverter implements CsvConverter {
     @Override
     public void setLocale(String locale) {
         this.locale = StringUtils.isNotEmpty(locale) ? Locale.forLanguageTag(locale) : null;
+    }
+
+    @Override
+    public void setWriteLocale(String writeLocale) {
+        this.writeLocale = StringUtils.isNotEmpty(writeLocale)
+                ? Locale.forLanguageTag(writeLocale)
+                : null;
     }
 }

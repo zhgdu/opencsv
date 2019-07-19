@@ -130,7 +130,7 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
         boolean required;
 
         for (Field field : fields) {
-            String columnName, locale, capture, format;
+            String columnName, locale, writeLocale, capture, format;
 
             // Always check for a custom converter first.
             if (field.isAnnotationPresent(CsvCustomBindByName.class)) {
@@ -156,6 +156,8 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
                 required = annotation.required();
                 columnName = annotation.column().toUpperCase().trim();
                 locale = annotation.locale();
+                writeLocale = annotation.writeLocaleEqualsReadLocale()
+                        ? locale : annotation.writeLocale();
                 String splitOn = annotation.splitOn();
                 String writeDelimiter = annotation.writeDelimiter();
                 Class<? extends Collection> collectionType = annotation.collectionType();
@@ -164,7 +166,7 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
                 capture = annotation.capture();
                 format = annotation.format();
 
-                CsvConverter converter = determineConverter(field, elementType, locale, splitConverter);
+                CsvConverter converter = determineConverter(field, elementType, locale, writeLocale, splitConverter);
                 if (StringUtils.isEmpty(columnName)) {
                     fieldMap.put(field.getName().toUpperCase(),
                             new BeanFieldSplit<>(
@@ -184,13 +186,15 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
                 required = annotation.required();
                 String columnRegex = annotation.column();
                 locale = annotation.locale();
+                writeLocale = annotation.writeLocaleEqualsReadLocale()
+                        ? locale : annotation.writeLocale();
                 Class<?> elementType = annotation.elementType();
                 Class<? extends MultiValuedMap> mapType = annotation.mapType();
                 Class<? extends AbstractCsvConverter> joinConverter = annotation.converter();
                 capture = annotation.capture();
                 format = annotation.format();
 
-                CsvConverter converter = determineConverter(field, elementType, locale, joinConverter);
+                CsvConverter converter = determineConverter(field, elementType, locale, writeLocale, joinConverter);
                 if (StringUtils.isEmpty(columnRegex)) {
                     fieldMap.putComplex(field.getName(),
                             new BeanFieldJoinStringIndex<>(
@@ -209,9 +213,11 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
                 required = annotation.required();
                 columnName = annotation.column().toUpperCase().trim();
                 locale = annotation.locale();
+                writeLocale = annotation.writeLocaleEqualsReadLocale()
+                        ? locale : annotation.writeLocale();
                 capture = annotation.capture();
                 format = annotation.format();
-                CsvConverter converter = determineConverter(field, field.getType(), locale, null);
+                CsvConverter converter = determineConverter(field, field.getType(), locale, writeLocale, null);
 
                 if (StringUtils.isEmpty(columnName)) {
                     fieldMap.put(field.getName().toUpperCase(),
@@ -227,7 +233,7 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
 
     private void loadUnadornedFieldMap(List<Field> fields) {
         for(Field field : fields) {
-            CsvConverter converter = determineConverter(field, field.getType(), null, null);
+            CsvConverter converter = determineConverter(field, field.getType(), null, null, null);
             fieldMap.put(field.getName().toUpperCase(), new BeanFieldSingleValue<>(
                     field, false, errorLocale, converter, null, null));
         }

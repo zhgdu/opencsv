@@ -30,6 +30,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import java.io.Writer;
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.stream.Stream;
 
 /**
  * This class writes beans out in CSV format to a {@link java.io.Writer},
@@ -299,6 +300,19 @@ public class StatefulBeanToCsv<T> {
 
         capturedExceptions.addAll(executor.getCapturedExceptions());
         executor.resultStream().forEach(l -> csvwriter.writeNext(l, applyQuotesToAll));
+    }
+
+    /**
+     * Writes a stream of beans out to the {@link java.io.Writer} provided to the
+     * constructor.
+     *
+     * @param beans A stream of beans to be written to a CSV destination
+     * @throws CsvDataTypeMismatchException   If a field of the beans is annotated improperly or an unsupported
+     *                                        data type is supposed to be written
+     * @throws CsvRequiredFieldEmptyException If a field is marked as required, but the source is null
+     */
+    public void write(Stream<T> beans) throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
+        write(beans.iterator());
     }
 
     /**

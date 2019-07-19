@@ -40,7 +40,12 @@ public class AnnotatedMockBeanCollectionSplit {
     private List<Integer> listType;
     
     @CsvBindAndSplitByName(elementType = Date.class)
-    @CsvDate("yyyy-MM-dd")
+    @CsvDate(
+            value = "yyyy-MM-dd",
+            writeFormatEqualsReadFormat = false,
+            writeFormat = "yyyy-MMM-dd",
+            writeChronologyEqualsReadChronology = false,
+            writeChronology = "Japanese")
     private Set<Date> setType;
     
     @CsvBindAndSplitByName(elementType = Integer.class, format = "a%sj")

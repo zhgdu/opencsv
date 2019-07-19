@@ -30,8 +30,10 @@ import java.util.GregorianCalendar;
 
 /**
  * A test class that should provide full coverage for tests of the opencsv
- * annotations and their functions.
+ * annotations and their functions excepting
+ * {@link java.time.temporal.TemporalAccessor}-based types.
  *
+ * @see AnnotatedMockBeanTemporal
  * @author Andrew Rucker Jones
  */
 public class AnnotatedMockBeanFull {
@@ -166,8 +168,16 @@ public class AnnotatedMockBeanFull {
      * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
      * </ul></p>
      */
-    @CsvBindByName(column = "double4", locale = "de")
-    @CsvBindByPosition(position = 10, locale = "de")
+    @CsvBindByName(
+            column = "double4",
+            locale = "de",
+            writeLocaleEqualsReadLocale = false,
+            writeLocale = "fr")
+    @CsvBindByPosition(
+            position = 10,
+            locale = "de",
+            writeLocaleEqualsReadLocale = false,
+            writeLocale = "fr")
     private double doublePrimitiveSetLocale;
 
     /**

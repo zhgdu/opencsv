@@ -30,6 +30,7 @@ import org.apache.commons.lang3.StringUtils;
 /**
  * Maps any column position matching a range definition to a {@link BeanField}.
  *
+ * @param <T> Type of the bean being converted
  * @author Andrew Rucker Jones
  */
 public class PositionToBeanField<T> extends AbstractFieldMapEntry<String, Integer, T> implements Iterable<FieldMapByPositionEntry<T>> {

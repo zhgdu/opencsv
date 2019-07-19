@@ -53,4 +53,26 @@ public @interface CsvNumber {
      * @return The format string for parsing input
      */
     String value();
+
+    /**
+     * Whether or not the same format string is used for writing as for reading.
+     * If this is true, {@link #value()} is used for both reading and writing
+     * and {@link #writeFormat()} is ignored.
+     *
+     * @return Whether the read format is used for writing as well
+     * @since 5.0
+     */
+    boolean writeFormatEqualsReadFormat() default true;
+
+    /**
+     * A number format string.
+     * The default value is blank and only exists to make sure the parameter is
+     * optional.
+     *
+     * @return The format string for formatting output
+     * @see #value()
+     * @see #writeFormatEqualsReadFormat()
+     * @since 5.0
+     */
+    String writeFormat() default "";
 }

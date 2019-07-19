@@ -65,7 +65,7 @@ public class NumberTest {
      * Also incidentally tests:
      * <ul><li>Reading with a HeaderColumnNameMappingStrategy</li>
      * <li>Conversion without a locale</li></ul>
-     * @throws IOException
+     * @throws IOException If bad things happen
      */
     @Test
     public void testPrimitiveByte() throws IOException {
@@ -300,6 +300,17 @@ public class NumberTest {
                 w.toString());
     }
 
+    /**
+     * Tests writing numerical values using {@link CsvNumber} and the column
+     * position mapping strategy.
+     * <p>Also incidentally tests:
+     * <ul><li>Using a different format string for writing than reading</li>
+     * <li>Using a different format string for writing, but leaving
+     * {@link CsvNumber#writeFormatEqualsReadFormat()} {@code true}</li></ul></p>
+     *
+     * @throws IOException Never thrown
+     * @throws CsvException Never thrown
+     */
     @Test
     public void testWritingColumnPositionMappingStrategy() throws IOException, CsvException {
         List<NumberMockColumn> beans = new CsvToBeanBuilder<NumberMockColumn>(new FileReader("src/test/resources/testnumberbypositiongood.csv"))
@@ -311,7 +322,7 @@ public class NumberTest {
                 .withApplyQuotesToAll(false)
                 .build()
                 .write(beans);
-        assertEquals("1.2;34\n2.1;43\n",
+        assertEquals("1.2yeah;34\n2.1yeah;43\n",
                 w.toString());
     }
 
@@ -329,11 +340,23 @@ public class NumberTest {
     }
 
     @Test
-    public void testInvalidPattern() {
+    public void testInvalidPatternReading() {
         try {
-            new CsvToBeanBuilder<NumberInvalidPattern>(new StringReader("number\\n3"))
-                    .withType(NumberInvalidPattern.class)
+            new CsvToBeanBuilder<NumberInvalidPatternReading>(new StringReader("number\\n3"))
+                    .withType(NumberInvalidPatternReading.class)
                     .build();
+            fail("Exception should have been thrown");
+        } catch (CsvBadConverterException e) {
+            assertEquals(ConverterNumber.class, e.getConverterClass());
+            assertTrue(StringUtils.isNotBlank(e.getLocalizedMessage()));
+        }
+    }
+
+    @Test
+    public void testInvalidPatternWriting() throws CsvException {
+        try {
+            new StatefulBeanToCsvBuilder<NumberInvalidPatternWriting>(new StringWriter())
+                    .build().write(new NumberInvalidPatternWriting(1));
             fail("Exception should have been thrown");
         } catch (CsvBadConverterException e) {
             assertEquals(ConverterNumber.class, e.getConverterClass());

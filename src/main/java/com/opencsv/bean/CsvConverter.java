@@ -82,10 +82,19 @@ public interface CsvConverter {
 
     /**
      * If not null or empty, specifies the locale used for converting
-     * locale-specific data types.
+     * locale-specific data types for reading.
      *
      * @param locale The name of the locale for locale-sensitive data
      * @since 4.3
      */
     void setLocale(String locale);
+
+    /**
+     * If not null or empty, specifies the locale used for converting
+     * locale-specific data types for writing.
+     *
+     * @param writeLocale The name of the locale for locale-sensitive data
+     * @since 5.0
+     */
+    void setWriteLocale(String writeLocale);
 }

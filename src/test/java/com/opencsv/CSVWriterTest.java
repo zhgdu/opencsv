@@ -207,11 +207,13 @@ public class CSVWriterTest {
       final String[] line2 = "Glen#1234#glen@abcd.com".split("#");
       final String[] line3 = "John#5678#john@efgh.com".split("#");
 
-      Iterable iterable = mock(Iterable.class);
+      @SuppressWarnings("unchecked")
+      Iterable<String[]> iterable = mock(Iterable.class);
 
       Answer<Iterator> iteratorAnswer = new Answer<Iterator>() {
          @Override
          public Iterator answer(InvocationOnMock invocationOnMock) {
+            @SuppressWarnings("unchecked")
             Iterator<String[]> iterator = mock(Iterator.class);
             when(iterator.hasNext()).thenReturn(true).thenReturn(true).thenReturn(true)
                     .thenReturn(false);
@@ -462,7 +464,7 @@ public class CSVWriterTest {
          fail();
       }
 
-      assertTrue(oracle.equals(fileContents.toString()));
+      assertEquals(oracle, fileContents.toString());
    }
 
    @Test

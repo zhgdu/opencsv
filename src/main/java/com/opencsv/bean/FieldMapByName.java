@@ -28,7 +28,8 @@ import java.util.stream.Collectors;
  * fields.
  * Simple entries are matched using string equality. Complex entries are matched
  * using regular expressions.
- * 
+ *
+ * @param <T> Type of the bean being converted
  * @author Andrew Rucker Jones
  * @since 4.2
  */

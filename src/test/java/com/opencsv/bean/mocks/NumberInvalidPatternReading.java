@@ -3,11 +3,14 @@ package com.opencsv.bean.mocks;
 import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvNumber;
 
-public class NumberInvalidPattern {
+public class NumberInvalidPatternReading {
 
     @CsvBindByName
     @CsvNumber("0.0.0")
     private Integer number;
+
+    public NumberInvalidPatternReading() {}
+    public NumberInvalidPatternReading(Integer number) { this.number = number; }
 
     public Integer getNumber() {
         return number;

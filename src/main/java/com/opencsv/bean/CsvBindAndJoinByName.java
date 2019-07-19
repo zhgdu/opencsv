@@ -85,7 +85,29 @@ public @interface CsvBindAndJoinByName {
      * @return The locale selected. The default is indicated by an empty string.
      */
     String locale() default "";
-    
+
+    /**
+     * Whether or not the same locale is used for writing as for reading.
+     * If this is true, {@link #locale()} is used for both reading and writing
+     * and {@link #writeLocale()} is ignored.
+     *
+     * @return Whether the read locale is used for writing as well
+     * @since 5.0
+     */
+    boolean writeLocaleEqualsReadLocale() default true;
+
+    /**
+     * The locale for writing.
+     * This field is ignored unless {@link #writeLocaleEqualsReadLocale()} is
+     * {@code false}. The format is identical to {@link #locale()}.
+     *
+     * @return The locale for writing, if one is in use
+     * @see #locale()
+     * @see #writeLocaleEqualsReadLocale()
+     * @since 5.0
+     */
+    String writeLocale() default "";
+
     /**
      * Defines the class used for the multi-valued map.
      * <p>This must be a specific implementation of

@@ -9,11 +9,16 @@ import java.math.BigInteger;
 public class NumberMockColumn {
 
     @CsvBindByPosition(position = 0)
-    @CsvNumber("#.#")
+    @CsvNumber(
+            value = "#.#",
+            writeFormatEqualsReadFormat = false,
+            writeFormat = "#.#yeah")
     private BigDecimal bigDecimal;
 
     @CsvBindByPosition(position = 1)
-    @CsvNumber("#")
+    @CsvNumber(
+            value = "#",
+            writeFormat = "#.#") // Will be ignored
     private BigInteger bigInteger;
 
     public BigDecimal getBigDecimal() {

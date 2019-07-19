@@ -31,6 +31,7 @@ import java.util.regex.Pattern;
  * This class concerns itself with handling single-valued bean fields.
  * 
  * @param <T> The type of the bean being populated
+ * @param <I> Type of the index into a multivalued field
  * @author Andrew Rucker Jones
  * @since 4.2
  */

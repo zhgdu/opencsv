@@ -30,4 +30,7 @@ public class DateAnnotationOnNondate {
     @CsvBindByName
     @CsvDate
     String isnotdate;
+
+    public DateAnnotationOnNondate() {}
+    public DateAnnotationOnNondate(String s) {isnotdate = s;}
 }

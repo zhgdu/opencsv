@@ -35,42 +35,74 @@ import java.util.ResourceBundle;
 public class ConverterPrimitiveTypes extends AbstractCsvConverter {
 
     /**
-     * The formatter for all inputs to and from wrapped and unwrapped primitive
+     * The formatter for all inputs to wrapped and unwrapped primitive
      * types when a specific locale is not required.
-     * <p>Either this or {@link #localeConverter} should be used, and the other
-     * should always be {@code null}.</p>
+     * <p>Either this or {@link #readLocaleConverter} should be used, and the
+     * other should always be {@code null}.</p>
      * <p><em>It is absolutely critical that access to this member variable is
      * always synchronized!</em></p>
      */
-    protected final ConvertUtilsBean converter;
+    protected final ConvertUtilsBean readConverter;
 
     /**
-     * The formatter for all inputs to and from wrapped and unwrapped primitive
+     * The formatter for all inputs to wrapped and unwrapped primitive
      * types when a specific locale is required.
-     * <p>Either this or {@link #converter} should be used, and the other
+     * <p>Either this or {@link #readConverter} should be used, and the other
      * should always be {@code null}.</p>
      * <p><em>It is absolutely critical that access to this member variable is
      * always synchronized!</em></p>
      */
-    protected final LocaleConvertUtilsBean localeConverter;
+    protected final LocaleConvertUtilsBean readLocaleConverter;
+
+    /**
+     * The formatter for all inputs from wrapped and unwrapped primitive
+     * types when a specific locale is not required.
+     * <p>Either this or {@link #writeLocaleConverter} should be used, and the
+     * other should always be {@code null}.</p>
+     * <p><em>It is absolutely critical that access to this member variable is
+     * always synchronized!</em></p>
+     */
+    protected final ConvertUtilsBean writeConverter;
+
+    /**
+     * The formatter for all inputs from wrapped and unwrapped primitive
+     * types when a specific locale is required.
+     * <p>Either this or {@link #writeConverter} should be used, and the other
+     * should always be {@code null}.</p>
+     * <p><em>It is absolutely critical that access to this member variable is
+     * always synchronized!</em></p>
+     */
+    protected final LocaleConvertUtilsBean writeLocaleConverter;
 
     /**
      * @param type    The class of the type of the data being processed
      * @param locale   If not null or empty, specifies the locale used for
      *                 converting locale-specific data types
+     * @param writeLocale   If not null or empty, specifies the locale used for
+     *                 converting locale-specific data types for writing
      * @param errorLocale The locale to use for error messages.
      */
-    public ConverterPrimitiveTypes(Class<?> type, String locale, Locale errorLocale) {
-        super(type, locale, errorLocale);
+    public ConverterPrimitiveTypes(Class<?> type, String locale, String writeLocale, Locale errorLocale) {
+        super(type, locale, writeLocale, errorLocale);
         if(this.locale == null) {
-            converter = new ConvertUtilsBean();
-            converter.register(true, false, 0);
-            localeConverter = null;
+            readConverter = new ConvertUtilsBean();
+            readConverter.register(true, false, 0);
+            readLocaleConverter = null;
         }
         else {
-            localeConverter = new LocaleConvertUtilsBean();
-            localeConverter.setDefaultLocale(this.locale);
-            converter = null;
+            readLocaleConverter = new LocaleConvertUtilsBean();
+            readLocaleConverter.setDefaultLocale(this.locale);
+            readConverter = null;
+        }
+        if(this.writeLocale == null) {
+            writeConverter = new ConvertUtilsBean();
+            writeConverter.register(true, false, 0);
+            writeLocaleConverter = null;
+        }
+        else {
+            writeLocaleConverter = new LocaleConvertUtilsBean();
+            writeLocaleConverter.setDefaultLocale(this.writeLocale);
+            writeConverter = null;
         }
     }
 
@@ -81,14 +113,14 @@ public class ConverterPrimitiveTypes extends AbstractCsvConverter {
 
         if (StringUtils.isNotBlank(value) || (value != null && type.equals(String.class))) {
             try {
-                if(converter != null) {
-                    synchronized (converter) {
-                        o = converter.convert(value, type);
+                if(readConverter != null) {
+                    synchronized (readConverter) {
+                        o = readConverter.convert(value, type);
                     }
                 }
                 else {
-                    synchronized (localeConverter) {
-                        o = localeConverter.convert(value, type);
+                    synchronized (readLocaleConverter) {
+                        o = readLocaleConverter.convert(value, type);
                     }
                 }
             } catch (ConversionException e) {
@@ -120,14 +152,14 @@ public class ConverterPrimitiveTypes extends AbstractCsvConverter {
         String result = null;
         if(value != null) {
             try {
-                if(converter != null) {
-                    synchronized (converter) {
-                        result = converter.convert(value);
+                if(writeConverter != null) {
+                    synchronized (writeConverter) {
+                        result = writeConverter.convert(value);
                     }
                 }
                 else {
-                    synchronized (localeConverter) {
-                        result = localeConverter.convert(value);
+                    synchronized (writeLocaleConverter) {
+                        result = writeLocaleConverter.convert(value);
                     }
                 }
             }
