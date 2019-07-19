@@ -15,8 +15,9 @@ package com.opencsv;
  limitations under the License.
  */
 
-import org.junit.Before;
-import org.junit.Test;
+import com.opencsv.exceptions.CsvValidationException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.FileReader;
@@ -29,7 +30,7 @@ public class OpencsvTest {
 
    private File tempFile = null;
 
-   @Before
+    @BeforeEach
    public void setUp() throws IOException {
       tempFile = File.createTempFile("csvWriterTest", ".csv");
       tempFile.deleteOnExit();
@@ -40,7 +41,7 @@ public class OpencsvTest {
     * @throws IOException But not really
     */
    @Test
-   public void testWriteRead() throws IOException {
+   public void testWriteRead() throws IOException, CsvValidationException {
       final String[][] data = new String[][]{{"hello, a test", "one nested \" test"}, {"\"\"", "test", null, "8"}};
 
       ICSVWriter writer = new CSVWriter(new FileWriter(tempFile));

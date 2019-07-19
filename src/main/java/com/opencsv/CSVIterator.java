@@ -1,5 +1,6 @@
 package com.opencsv;
 
+import com.opencsv.exceptions.CsvValidationException;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.io.IOException;
@@ -24,8 +25,9 @@ public class CSVIterator implements Iterator<String[]> {
    /**
     * @param reader Reader for the CSV data.
     * @throws IOException If unable to read data from the reader.
+    * @throws CsvValidationException if custom defined validator fails.
     */
-   public CSVIterator(CSVReader reader) throws IOException {
+   public CSVIterator(CSVReader reader) throws IOException, CsvValidationException {
       this.reader = reader;
       nextLine = reader.readNext();
    }
@@ -63,7 +65,7 @@ public class CSVIterator implements Iterator<String[]> {
       String[] temp = nextLine;
       try {
          nextLine = reader.readNext();
-      } catch (IOException e) {
+      } catch (IOException | CsvValidationException e) {
          NoSuchElementException nse = new NoSuchElementException(e.getLocalizedMessage());
          nse.initCause(e);
          throw nse;

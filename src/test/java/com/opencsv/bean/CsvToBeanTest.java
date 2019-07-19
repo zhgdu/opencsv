@@ -9,10 +9,7 @@ import com.opencsv.exceptions.CsvConstraintViolationException;
 import com.opencsv.exceptions.CsvException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -38,36 +35,40 @@ public class CsvToBeanTest {
 
     private static Locale systemLocale;
 
-    @BeforeClass
+    @BeforeAll
     public static void storeSystemLocale() {
         systemLocale = Locale.getDefault();
     }
 
-    @Before
+    @BeforeEach
     public void setSystemLocaleToValueNotGerman() {
         Locale.setDefault(Locale.US);
     }
 
-    @After
+    @AfterEach
     public void setSystemLocaleBackToDefault() {
         Locale.setDefault(systemLocale);
     }
 
     @SuppressWarnings("unchecked")
-    @Test(expected = RuntimeException.class)
+    @Test
     public void throwRuntimeExceptionWhenExceptionIsThrown() {
-        new CsvToBeanBuilder(new StringReader(TEST_STRING))
-                .withMappingStrategy(new ErrorHeaderMappingStrategy())
-                .build().parse();
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            new CsvToBeanBuilder(new StringReader(TEST_STRING))
+                    .withMappingStrategy(new ErrorHeaderMappingStrategy())
+                    .build().parse();
+        });
     }
 
     @SuppressWarnings("unchecked")
-    @Test(expected = RuntimeException.class)
+    @Test
     public void throwRuntimeExceptionLineWhenExceptionIsThrown() {
-        new CsvToBeanBuilder(new StringReader(TEST_STRING))
-                .withMappingStrategy(new ErrorLineMappingStrategy())
-                .withThrowExceptions(false)
-                .build().parse(); // Extra arguments for code coverage
+        Assertions.assertThrows(RuntimeException.class, () -> {
+            new CsvToBeanBuilder(new StringReader(TEST_STRING))
+                    .withMappingStrategy(new ErrorLineMappingStrategy())
+                    .withThrowExceptions(false)
+                    .build().parse(); // Extra arguments for code coverage
+        });
     }
 
     @Test
@@ -137,27 +138,33 @@ public class CsvToBeanTest {
         }
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void throwIllegalStateWhenOnlyReaderIsSpecifiedToParseWithoutArguments() {
         CsvToBean csvtb = new CsvToBean();
         csvtb.setCsvReader(new CSVReader(new StringReader(TEST_STRING)));
-        csvtb.parse();
+        Assertions.assertThrows(IllegalStateException.class, () -> {
+            csvtb.parse();
+        });
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void throwIllegalStateWhenOnlyMapperIsSpecifiedToParseWithoutArguments() {
         CsvToBean<AnnotatedMockBeanFull> csvtb = new CsvToBean<>();
         HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat = new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanFull.class);
         csvtb.setMappingStrategy(strat);
-        csvtb.parse();
+        Assertions.assertThrows(IllegalStateException.class, () -> {
+            csvtb.parse();
+        });
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void throwIllegalStateWhenReaderNotProvidedInBuilder() {
-        new CsvToBeanBuilder<AnnotatedMockBeanFull>((Reader) null)
-                .withType(AnnotatedMockBeanFull.class)
-                .build();
+    @Test
+    public void throwIllegalArguementWhenReaderNotProvidedInBuilder() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            new CsvToBeanBuilder<AnnotatedMockBeanFull>((Reader) null)
+                    .withType(AnnotatedMockBeanFull.class)
+                    .build();
+        });
     }
 
     @Test
@@ -393,7 +400,11 @@ public class CsvToBeanTest {
                 "Q,12\n" +
                 "R,1a\n" +
                 "S,1b";
-        CsvToBean<Bug154Bean> c = new CsvToBeanBuilder<Bug154Bean>(new StringReader(data)).withType(Bug154Bean.class).withThrowExceptions(false).withErrorLocale(Locale.ROOT).build();
+        CsvToBean<Bug154Bean> c = new CsvToBeanBuilder<Bug154Bean>(new StringReader(data))
+                .withType(Bug154Bean.class)
+                .withThrowExceptions(false)
+                .withErrorLocale(Locale.ROOT)
+                .build();
         for (Bug154Bean mockBean : c) {
             System.out.println(mockBean.toString());
         }

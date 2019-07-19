@@ -1,0 +1,12 @@
+=== Validators
+
+While it always has, and always will be, our position that opencsv should do just enough
+validation to prove that it is working with a CSV file and leave any further validation
+to the developer so as to allow opencsv to work for as broad a developer base as possible,
+over the last couple of years a number of feature requests, support requests and feature
+requests disguised as bug reports have made us realize that we should allow for the _integration_
+of user defined validation to give opencsv the best of both worlds.
+
+By allowing integration, developers can inject validations for their specific requirements
+without adding performance overhead and an unnecessary burden to the users who do not need them.
+

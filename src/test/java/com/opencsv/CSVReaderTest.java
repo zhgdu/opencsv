@@ -17,18 +17,17 @@ package com.opencsv;
  */
 
 import com.opencsv.enums.CSVReaderNullFieldIndicator;
-import org.junit.Before;
-import org.junit.Test;
+import com.opencsv.exceptions.CsvException;
+import com.opencsv.exceptions.CsvValidationException;
+import org.junit.jupiter.api.*;
 
 import java.io.*;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.charset.Charset;
 import java.util.Locale;
-import org.junit.After;
 
 import static org.junit.Assert.*;
-import org.junit.BeforeClass;
 
 public class CSVReaderTest {
 
@@ -36,17 +35,17 @@ public class CSVReaderTest {
 
     private static Locale systemLocale;
 
-    @BeforeClass
+    @BeforeAll
     public static void storeSystemLocale() {
         systemLocale = Locale.getDefault();
     }
 
-    @After
+    @AfterEach
     public void setSystemLocaleBackToDefault() {
         Locale.setDefault(systemLocale);
     }
 
-    @Before
+    @BeforeEach
     public void setUp() {
         Locale.setDefault(Locale.US);
         StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
@@ -67,7 +66,7 @@ public class CSVReaderTest {
      * @throws IOException if the reader fails.
      */
     @Test
-    public void testParseLine() throws IOException {
+    public void testParseLine() throws IOException, CsvValidationException {
 
         // test normal case
         String[] nextLine = csvr.readNext();
@@ -105,7 +104,7 @@ public class CSVReaderTest {
     }
 
     @Test
-    public void readerCanHandleNullInString() throws IOException {
+    public void readerCanHandleNullInString() throws IOException, CsvValidationException {
         StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
         sb.append("a,\0b,c");
 
@@ -123,7 +122,7 @@ public class CSVReaderTest {
     }
 
     @Test
-    public void testParseLineStrictQuote() throws IOException {
+    public void testParseLineStrictQuote() throws IOException, CsvValidationException {
         StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
         sb.append("a,b,c").append("\n");   // standard case
         sb.append("a,\"b,b,b\",c").append("\n");  // quoted elements
@@ -184,7 +183,7 @@ public class CSVReaderTest {
      * @throws IOException if the reader fails.
      */
     @Test
-    public void testParseAll() throws IOException {
+    public void testParseAll() throws IOException, CsvException {
         assertEquals(7, csvr.readAll().size());
     }
 
@@ -194,7 +193,7 @@ public class CSVReaderTest {
      * @throws IOException if the reader fails.
      */
     @Test
-    public void testOptionalConstructors() throws IOException {
+    public void testOptionalConstructors() throws IOException, CsvValidationException {
 
         StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
         sb.append("a\tb\tc").append("\n");   // tab separated case
@@ -214,7 +213,7 @@ public class CSVReaderTest {
     }
 
     @Test
-    public void parseQuotedStringWithDefinedSeparator() throws IOException {
+    public void parseQuotedStringWithDefinedSeparator() throws IOException, CsvValidationException {
         StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
         sb.append("a\tb\tc").append("\n");   // tab separated case
 
@@ -234,7 +233,7 @@ public class CSVReaderTest {
      * @throws IOException if bad things happen
      */
     @Test
-    public void testSkippingLines() throws IOException {
+    public void testSkippingLines() throws IOException, CsvValidationException {
 
         StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
         sb.append("Skip this line\t with tab").append("\n");   // should skip this
@@ -260,7 +259,7 @@ public class CSVReaderTest {
      * @throws IOException if bad things happen
      */
     @Test
-    public void linesAndRecordsRead() throws IOException {
+    public void linesAndRecordsRead() throws IOException, CsvValidationException {
 
         StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
         sb.append("Skip this line\t with tab").append("\n");   // should skip this
@@ -309,7 +308,7 @@ public class CSVReaderTest {
      * @throws IOException if bad things happen
      */
     @Test
-    public void testSkippingLinesWithDifferentEscape() throws IOException {
+    public void testSkippingLinesWithDifferentEscape() throws IOException, CsvValidationException {
 
         StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
         sb.append("Skip this line?t with tab").append("\n");   // should skip this
@@ -339,7 +338,7 @@ public class CSVReaderTest {
      * @throws IOException But not really
      */
     @Test
-    public void testNormalParsedLine() throws IOException {
+    public void testNormalParsedLine() throws IOException, CsvValidationException {
 
         StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
 
@@ -363,7 +362,7 @@ public class CSVReaderTest {
      * @throws IOException But not really
      */
     @Test
-    public void testASingleQuoteAsDataElement() throws IOException {
+    public void testASingleQuoteAsDataElement() throws IOException, CsvValidationException {
 
         StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
 
@@ -392,7 +391,7 @@ public class CSVReaderTest {
      * @throws IOException But not really
      */
     @Test
-    public void testASingleQuoteAsDataElementWithEmptyField() throws IOException {
+    public void testASingleQuoteAsDataElementWithEmptyField() throws IOException, CsvValidationException {
 
         StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
 
@@ -415,7 +414,7 @@ public class CSVReaderTest {
     }
 
     @Test
-    public void testSpacesAtEndOfString() throws IOException {
+    public void testSpacesAtEndOfString() throws IOException, CsvValidationException {
         StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
 
         sb.append("\"a\",\"b\",\"c\"   ");
@@ -436,7 +435,7 @@ public class CSVReaderTest {
 
 
     @Test
-    public void testEscapedQuote() throws IOException {
+    public void testEscapedQuote() throws IOException, CsvValidationException {
 
         StringBuilder sb = new StringBuilder();
 
@@ -451,7 +450,7 @@ public class CSVReaderTest {
     }
 
     @Test
-    public void testEscapedEscape() throws IOException {
+    public void testEscapedEscape() throws IOException, CsvValidationException {
 
         StringBuilder sb = new StringBuilder();
 
@@ -474,7 +473,7 @@ public class CSVReaderTest {
      * @throws IOException But not really
      */
     @Test
-    public void testSingleQuoteWhenDoubleQuoteIsQuoteChar() throws IOException {
+    public void testSingleQuoteWhenDoubleQuoteIsQuoteChar() throws IOException, CsvValidationException {
 
         StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
 
@@ -497,7 +496,7 @@ public class CSVReaderTest {
      * @throws IOException But not really
      */
     @Test
-    public void testQuotedParsedLine() throws IOException {
+    public void testQuotedParsedLine() throws IOException, CsvValidationException {
 
         StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
 
@@ -520,7 +519,7 @@ public class CSVReaderTest {
     }
 
     @Test
-    public void bug106ParseLineWithCarriageReturnNewLineStrictQuotes() throws IOException {
+    public void bug106ParseLineWithCarriageReturnNewLineStrictQuotes() throws IOException, CsvValidationException {
 
         StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
 
@@ -546,7 +545,7 @@ public class CSVReaderTest {
     }
 
     @Test
-    public void testIssue2992134OutOfPlaceQuotes() throws IOException {
+    public void testIssue2992134OutOfPlaceQuotes() throws IOException, CsvValidationException {
         StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
 
         sb.append("a,b,c,ddd\\\"eee\nf,g,h,\"iii,jjj\"");
@@ -561,43 +560,49 @@ public class CSVReaderTest {
         assertEquals("ddd\"eee", nextLine[3]);
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void quoteAndEscapeMustBeDifferent() {
         StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
 
         sb.append("a,b,c,ddd\\\"eee\nf,g,h,\"iii,jjj\"");
 
-        new CSVReaderBuilder(new StringReader(sb.toString()))
-                .withCSVParser(new CSVParserBuilder()
-                        .withEscapeChar(ICSVParser.DEFAULT_QUOTE_CHARACTER)
-                        .build())
-                .build();
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
+            new CSVReaderBuilder(new StringReader(sb.toString()))
+                    .withCSVParser(new CSVParserBuilder()
+                            .withEscapeChar(ICSVParser.DEFAULT_QUOTE_CHARACTER)
+                            .build())
+                    .build();
+        });
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void separatorAndEscapeMustBeDifferent() {
         StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
 
         sb.append("a,b,c,ddd\\\"eee\nf,g,h,\"iii,jjj\"");
 
-        new CSVReaderBuilder(new StringReader(sb.toString()))
-                .withCSVParser(new CSVParserBuilder()
-                        .withEscapeChar(ICSVParser.DEFAULT_SEPARATOR)
-                        .build())
-                .build();
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
+            new CSVReaderBuilder(new StringReader(sb.toString()))
+                    .withCSVParser(new CSVParserBuilder()
+                            .withEscapeChar(ICSVParser.DEFAULT_SEPARATOR)
+                            .build())
+                    .build();
+        });
     }
 
-    @Test(expected = UnsupportedOperationException.class)
+    @Test
     public void separatorAndQuoteMustBeDifferent() {
         StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
 
         sb.append("a,b,c,ddd\\\"eee\nf,g,h,\"iii,jjj\"");
 
-        new CSVReaderBuilder(new StringReader(sb.toString()))
-                .withCSVParser(new CSVParserBuilder()
-                        .withQuoteChar(ICSVParser.DEFAULT_SEPARATOR)
-                        .build())
-                .build();
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
+            new CSVReaderBuilder(new StringReader(sb.toString()))
+                    .withCSVParser(new CSVParserBuilder()
+                            .withQuoteChar(ICSVParser.DEFAULT_SEPARATOR)
+                            .build())
+                    .build();
+        });
     }
 
     /**
@@ -660,7 +665,7 @@ public class CSVReaderTest {
     }
 
     @Test
-    public void attemptToReadCloseStreamReturnsNull() throws IOException {
+    public void attemptToReadCloseStreamReturnsNull() throws IOException, CsvValidationException {
         BufferedReader bufferedReader = new BufferedReader(new StringReader(""));
         bufferedReader.close();
         CSVReader csvReader = new CSVReader(bufferedReader);
@@ -668,7 +673,7 @@ public class CSVReaderTest {
     }
 
     @Test
-    public void testIssue102() throws IOException {
+    public void testIssue102() throws IOException, CsvValidationException {
         CSVReader csvReader = new CSVReader(new StringReader("\"\",a\n\"\",b\n"));
 
         String[] firstRow = csvReader.readNext();
@@ -683,7 +688,7 @@ public class CSVReaderTest {
     }
 
     @Test
-    public void issue108ReaderPlaysWellWithChannels() throws IOException {
+    public void issue108ReaderPlaysWellWithChannels() throws IOException, CsvException {
         byte[] bytes = "name\r\nvalue\r\n".getBytes("UTF-8");
         ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
         ReadableByteChannel ch = Channels.newChannel(bais);
@@ -695,7 +700,7 @@ public class CSVReaderTest {
     }
 
     @Test
-    public void featureRequest60ByDefaultEmptyFieldsAreBlank() throws IOException {
+    public void featureRequest60ByDefaultEmptyFieldsAreBlank() throws IOException, CsvValidationException {
         StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
 
         sb.append(",,,\"\",");
@@ -716,7 +721,7 @@ public class CSVReaderTest {
     }
 
     @Test
-    public void featureRequest60TreatEmptyFieldsAsNull() throws IOException {
+    public void featureRequest60TreatEmptyFieldsAsNull() throws IOException, CsvValidationException {
 
         StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
 
@@ -740,7 +745,7 @@ public class CSVReaderTest {
     }
 
     @Test
-    public void featureRequest60TreatEmptyDelimitedFieldsAsNull() throws IOException {
+    public void featureRequest60TreatEmptyDelimitedFieldsAsNull() throws IOException, CsvValidationException {
         StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
 
         sb.append(",,,\"\",");
@@ -761,7 +766,7 @@ public class CSVReaderTest {
     }
 
     @Test
-    public void featureRequest60TreatEmptyFieldsDelimitedOrNotAsNull() throws IOException {
+    public void featureRequest60TreatEmptyFieldsDelimitedOrNotAsNull() throws IOException, CsvValidationException {
 
         StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
 
@@ -782,15 +787,17 @@ public class CSVReaderTest {
         assertNull(item[4]);
     }
 
-    @Test(expected = IOException.class)
-    public void testMultilineLimit() throws IOException {
+    @Test
+    public void testMultilineLimit() {
         CSVReader r = new CSVReaderBuilder(new StringReader("This,is,a,\"test\na\",test"))
                 .withMultilineLimit(1).build();
-        r.readNext();
+        Assertions.assertThrows(IOException.class, () -> {
+            r.readNext();
+        });
     }
 
     @Test
-    public void testReadMultilineClosingQuoteMissing() {
+    public void testReadMultilineClosingQuoteMissing() throws CsvValidationException {
         final String part1 = "This,is,a,\"";
         final String part2 = "test\na,test";
         CSVReader r = new CSVReader(new StringReader(part1+part2));
@@ -804,7 +811,7 @@ public class CSVReaderTest {
     }
     
     @Test
-    public void testPeek() throws IOException {
+    public void testPeek() throws IOException, CsvValidationException {
         String[] peeked = csvr.peek();
         assertArrayEquals(peeked, csvr.peek());
         assertArrayEquals(peeked, csvr.peek());

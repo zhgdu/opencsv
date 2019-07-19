@@ -17,6 +17,8 @@ package com.opencsv;
 
 
 import com.opencsv.enums.CSVReaderNullFieldIndicator;
+import com.opencsv.validators.LineValidator;
+import com.opencsv.validators.LineValidatorAggregator;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.io.Reader;
@@ -55,6 +57,7 @@ public class CSVReaderBuilder {
     private CSVReaderNullFieldIndicator nullFieldIndicator = CSVReaderNullFieldIndicator.NEITHER;
     private int multilineLimit = CSVReader.DEFAULT_MULTILINE_LIMIT;
     private Locale errorLocale = Locale.getDefault();
+    private LineValidatorAggregator lineValidatorAggregator = new LineValidatorAggregator();
 
     /**
      * Sets the reader to an underlying CSV source.
@@ -137,7 +140,7 @@ public class CSVReaderBuilder {
      */
     public CSVReader build() {
         final ICSVParser parser = getOrCreateCsvParser();
-        return new CSVReader(reader, skipLines, parser, keepCR, verifyReader, multilineLimit, errorLocale);
+        return new CSVReader(reader, skipLines, parser, keepCR, verifyReader, multilineLimit, errorLocale, lineValidatorAggregator);
     }
 
     /**
@@ -237,5 +240,24 @@ public class CSVReaderBuilder {
      */
     public Locale getErrorLocale() {
         return errorLocale;
+    }
+
+    /**
+     * @return The LineValidatorAggragator for custom defined LineValidators.
+     */
+    public LineValidatorAggregator getLineValidatorAggregator() {
+        return lineValidatorAggregator;
+    }
+
+    /**
+     * Sets the LineValidator for the CSVReader.
+     *
+     * @param lineValidator LineValidator to inject.
+     * @return this
+     * @since 5.0
+     */
+    public CSVReaderBuilder withLineValidator(LineValidator lineValidator) {
+        lineValidatorAggregator.addValidator(lineValidator);
+        return this;
     }
 }

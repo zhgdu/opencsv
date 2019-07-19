@@ -6,10 +6,10 @@ import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import org.apache.commons.lang3.time.StopWatch;
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -22,17 +22,17 @@ public class StatefulBeanToCsvPerformanceTest {
     private static final String SEPARATOR_LINE = "===============================================================================";
     private static Locale systemLocale;
 
-    @BeforeClass
+    @BeforeAll
     public static void storeSystemLocale() {
         systemLocale = Locale.getDefault();
     }
 
-    @Before
+    @BeforeEach
     public void setSystemLocaleToValueNotGerman() {
         Locale.setDefault(Locale.US);
     }
 
-    @After
+    @AfterEach
     public void setSystemLocaleBackToDefault() {
         Locale.setDefault(systemLocale);
     }

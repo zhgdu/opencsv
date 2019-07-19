@@ -1,7 +1,10 @@
 package com.opencsv;
 
-import org.junit.Before;
-import org.junit.Test;
+import com.opencsv.exceptions.CsvValidationException;
+import com.opencsv.validators.LineValidatorAggregator;
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -9,7 +12,9 @@ import java.util.Locale;
 import java.util.Map;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -21,14 +26,14 @@ public class CsvReaderHeaderAwareTest {
 
     private CSVReaderHeaderAware csvr;
 
-    @Before
+    @BeforeEach
     public void setUpWithHeader() throws Exception {
         StringReader reader = createReader();
         csvr = new CSVReaderHeaderAware(reader);
     }
 
     @Test
-    public void shouldKeepBasicParsing() throws IOException {
+    public void shouldKeepBasicParsing() throws IOException, CsvValidationException {
         String[] nextLine = csvr.readNext();
         assertEquals("a", nextLine[0]);
         assertEquals("b", nextLine[1]);
@@ -66,7 +71,7 @@ public class CsvReaderHeaderAwareTest {
     }
 
     @Test
-    public void shouldRetrieveColumnsByHeaderName() throws IOException {
+    public void shouldRetrieveColumnsByHeaderName() throws IOException, CsvValidationException {
         assertEquals("a", csvr.readNext("first")[0]);
         assertEquals("a", csvr.readNext("first")[0]);
         assertEquals("", csvr.readNext("first")[0]);
@@ -74,7 +79,7 @@ public class CsvReaderHeaderAwareTest {
     }
 
     @Test
-    public void shouldRetrieveMultipleColumnsByHeaderName() throws IOException {
+    public void shouldRetrieveMultipleColumnsByHeaderName() throws IOException, CsvValidationException {
         String[] nextLine = csvr.readNext("first", "third");
         assertEquals("a", nextLine[0]);
         assertEquals("c", nextLine[1]);
@@ -82,30 +87,38 @@ public class CsvReaderHeaderAwareTest {
         assertEquals("b,b,b", csvr.readNext("second")[0]);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void shouldFailForInvalidColumn() throws IOException {
-        csvr.readNext("fourth");
-    }
-
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldFailForInvalidColumnEvenAmongstValidOnes() throws IOException {
-        csvr.readNext("first", "third", "fourth");
-    }
-
-    @Test(expected = IOException.class)
-    public void shouldFailWhenNumberOfDataItemsIsLessThanHeader() throws IOException {
-        csvr.skip(7);
-        csvr.readNext("second");
-    }
-
-    @Test(expected = IOException.class)
-    public void shouldFailWhenNumberOfDataItemsIsGreaterThanHeader() throws IOException {
-        csvr.skip(6);
-        csvr.readNext("second");
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            csvr.readNext("fourth");
+        });
     }
 
     @Test
-    public void shouldRetrieveMap() throws IOException {
+    public void shouldFailForInvalidColumnEvenAmongstValidOnes() throws IOException {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            csvr.readNext("first", "third", "fourth");
+        });
+    }
+
+    @Test
+    public void shouldFailWhenNumberOfDataItemsIsLessThanHeader() throws IOException {
+        csvr.skip(7);
+        Assertions.assertThrows(IOException.class, () -> {
+            csvr.readNext("second");
+        });
+    }
+
+    @Test
+    public void shouldFailWhenNumberOfDataItemsIsGreaterThanHeader() throws IOException {
+        csvr.skip(6);
+        Assertions.assertThrows(IOException.class, () -> {
+            csvr.readNext("second");
+        });
+    }
+
+    @Test
+    public void shouldRetrieveMap() throws IOException, CsvValidationException {
         Map<String, String> mappedLine = csvr.readMap();
         assertEquals("a", mappedLine.get("first"));
         assertEquals("b", mappedLine.get("second"));
@@ -119,8 +132,8 @@ public class CsvReaderHeaderAwareTest {
         assertEquals("d.", mappedLine.get("third"));
     }
 
-    @Test(expected = IOException.class)
-    public void readMapThrowsExceptionIfNumberOfDataItemsIsGreaterThanHeader() throws IOException {
+    @Test
+    public void readMapThrowsExceptionIfNumberOfDataItemsIsGreaterThanHeader() throws IOException, CsvValidationException {
         Map<String, String> mappedLine = csvr.readMap();
         assertEquals("a", mappedLine.get("first"));
         assertEquals("b", mappedLine.get("second"));
@@ -128,11 +141,13 @@ public class CsvReaderHeaderAwareTest {
 
         csvr.skip(5);
 
-        mappedLine = csvr.readMap();
+        Assertions.assertThrows(IOException.class, () -> {
+            csvr.readMap();
+        });
     }
 
-    @Test(expected = IOException.class)
-    public void readMapThrowsExceptionIfNumberOfDataItemsIsLessThanHeader() throws IOException {
+    @Test
+    public void readMapThrowsExceptionIfNumberOfDataItemsIsLessThanHeader() throws IOException, CsvValidationException {
         Map<String, String> mappedLine = csvr.readMap();
         assertEquals("a", mappedLine.get("first"));
         assertEquals("b", mappedLine.get("second"));
@@ -140,26 +155,28 @@ public class CsvReaderHeaderAwareTest {
 
         csvr.skip(6);
 
-        mappedLine = csvr.readMap();
+        Assertions.assertThrows(IOException.class, () -> {
+            csvr.readMap();
+        });
     }
 
     @Test
-    public void shouldReturnNullWhenFileIsOver() throws IOException {
+    public void shouldReturnNullWhenFileIsOver() throws IOException, CsvValidationException {
         csvr.skip(8);
         assertNull(csvr.readMap());
     }
 
     @Test
-    public void readNextWhenPastEOF() throws IOException {
+    public void readNextWhenPastEOF() throws IOException, CsvValidationException {
         csvr.skip(8);
         assertNull(csvr.readNext("first"));
     }
 
     @Test
-    public void shouldInitialiseHeaderWithCompleteConstrucotr() throws IOException {
+    public void shouldInitialiseHeaderWithCompleteConstrucotr() throws IOException, CsvValidationException {
         ICSVParser parser = mock(ICSVParser.class);
         when(parser.parseLineMulti(anyString())).thenReturn(new String[]{"myHeader"});
-        CSVReaderHeaderAware reader = new CSVReaderHeaderAware(createReader(), 0, parser, false, false, 1, Locale.getDefault());
+        CSVReaderHeaderAware reader = new CSVReaderHeaderAware(createReader(), 0, parser, false, false, 1, Locale.getDefault(), new LineValidatorAggregator());
         assertThat(reader.readMap().keySet().iterator().next(), is("myHeader"));
     }
 

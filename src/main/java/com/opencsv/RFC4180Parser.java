@@ -221,12 +221,9 @@ public class RFC4180Parser extends AbstractCSVParser {
     private String handleQuotes(String element) {
         String ret = element;
 
-        if (!hasOnlyOneQuote(ret) && StringUtils.startsWith(ret, quoteCharString)) {
+        if (!hasOnlyOneQuote(ret) && ret.startsWith(quoteCharString)) {
             ret = StringUtils.removeStart(ret, quoteCharString);
-
-            if (StringUtils.endsWith(ret, quoteCharString)) {
-                ret = StringUtils.removeEnd(ret, quoteCharString);
-            }
+            ret = StringUtils.removeEnd(ret, quoteCharString);
         }
         ret = StringUtils.replace(ret, quoteCharString + quoteCharString, quoteCharString);
         if (ret.isEmpty() && (nullFieldIndicator == CSVReaderNullFieldIndicator.BOTH || nullFieldIndicator == CSVReaderNullFieldIndicator.EMPTY_QUOTES)) {

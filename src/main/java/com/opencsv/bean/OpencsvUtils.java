@@ -120,7 +120,7 @@ public final class OpencsvUtils {
     static Pattern compilePatternAtLeastOneGroup(String regex, int regexFlags, Class<?> callingClass, Locale errorLocale)
             throws CsvBadConverterException {
         Pattern tempPattern = compilePattern(regex, regexFlags, callingClass, errorLocale);
-        errorLocale = errorLocale == null ? Locale.getDefault() : errorLocale;
+        Locale exceptionLocale = errorLocale == null ? Locale.getDefault() : errorLocale;
 
         // Verify that the pattern has at least one capture group. This does
         // not appear to be possible without matching a string first.
@@ -130,7 +130,7 @@ public final class OpencsvUtils {
                 throw new CsvBadConverterException(callingClass,
                         String.format(ResourceBundle.getBundle(
                                 ICSVParser.DEFAULT_BUNDLE_NAME,
-                                errorLocale).getString("regex.without.capture.group"), regex));
+                                exceptionLocale).getString("regex.without.capture.group"), regex));
             }
         }
 
@@ -161,7 +161,7 @@ public final class OpencsvUtils {
     static Pattern compilePattern(String regex, int regexFlags, Class<?> callingClass, Locale errorLocale)
             throws CsvBadConverterException {
         Pattern tempPattern = null;
-        errorLocale = errorLocale == null ? Locale.getDefault() : errorLocale;
+        Locale exceptionLocale = errorLocale == null ? Locale.getDefault() : errorLocale;
 
         // Set up the regular expression for extraction of the value to be
         // converted
@@ -174,7 +174,7 @@ public final class OpencsvUtils {
                         callingClass,
                         String.format(ResourceBundle.getBundle(
                                 ICSVParser.DEFAULT_BUNDLE_NAME,
-                                errorLocale).getString("invalid.regex"), regex));
+                                exceptionLocale).getString("invalid.regex"), regex));
                 csve.initCause(e);
                 throw csve;
             }
@@ -192,7 +192,7 @@ public final class OpencsvUtils {
      *                     {@code null}, the default locale is used.
      */
     static void verifyFormatString(String format, Class<?> callingClass, Locale errorLocale) {
-        errorLocale = errorLocale == null ? Locale.getDefault() : errorLocale;
+        Locale exceptionLocale = errorLocale == null ? Locale.getDefault() : errorLocale;
         try {
             if(StringUtils.isNotEmpty(format)) {
                 String.format(format, StringUtils.SPACE);
@@ -203,7 +203,7 @@ public final class OpencsvUtils {
                     callingClass,
                     String.format(ResourceBundle.getBundle(
                             ICSVParser.DEFAULT_BUNDLE_NAME,
-                            errorLocale).getString("invalid.one.parameter.format.string"), format));
+                            exceptionLocale).getString("invalid.one.parameter.format.string"), format));
             csve.initCause(e);
             throw csve;
         }

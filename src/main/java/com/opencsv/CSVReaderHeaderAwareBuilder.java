@@ -24,7 +24,8 @@ public class CSVReaderHeaderAwareBuilder extends CSVReaderBuilder {
     public CSVReaderHeaderAware build() throws RuntimeException {
         final ICSVParser parser = getOrCreateCsvParser();
         try {
-            return new CSVReaderHeaderAware(getReader(), getSkipLines(), parser, keepCarriageReturn(), isVerifyReader(), getMultilineLimit(), getErrorLocale());
+            return new CSVReaderHeaderAware(getReader(), getSkipLines(), parser, keepCarriageReturn(), isVerifyReader(),
+                    getMultilineLimit(), getErrorLocale(), getLineValidatorAggregator());
         } catch (IOException e) {
             throw new RuntimeException("Failed to initialize CSVReaderHeaderAware", e);
         }

@@ -17,15 +17,14 @@ package com.opencsv.bean;
 
 import com.opencsv.*;
 import com.opencsv.bean.mocks.*;
-import com.opencsv.exceptions.CsvBeanIntrospectionException;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.FileReader;
 import java.io.IOException;
@@ -64,23 +63,23 @@ public class StatefulBeanToCsvWithCSVWriterTest {
     private StringWriter writer;
     private CSVWriterBuilder csvWriterBuilder;
 
-    @BeforeClass
+    @BeforeAll
     public static void storeSystemLocale() {
         systemLocale = Locale.getDefault();
     }
 
-    @Before
+    @BeforeEach
     public void setSystemLocaleToValueNotGerman() {
         Locale.setDefault(Locale.US);
     }
 
-    @Before
+    @BeforeEach
     public void createWriters() {
         writer = new StringWriter(ICSVWriter.INITIAL_STRING_SIZE);
         csvWriterBuilder = new CSVWriterBuilder(writer);
     }
 
-    @After
+    @AfterEach
     public void setSystemLocaleBackToDefault() {
         Locale.setDefault(systemLocale);
     }

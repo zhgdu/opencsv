@@ -403,7 +403,7 @@ public class CSVParser extends AbstractCSVParser {
         private int pendingSubstrFrom = 0;
         private int pendingSubstrTo = 0;
 
-        public StringFragmentCopier(String input) {
+        StringFragmentCopier(String input) {
             this.input = input;
         }
 

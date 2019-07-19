@@ -16,28 +16,32 @@
 package com.opencsv.bean;
 
 import com.opencsv.bean.customconverter.BadCollectionConverter;
-import com.opencsv.bean.mocks.split.*;
 import com.opencsv.bean.mocks.join.BadSplitConverter;
 import com.opencsv.bean.mocks.join.ErrorCode;
 import com.opencsv.bean.mocks.join.IdAndErrorSplitByName;
 import com.opencsv.bean.mocks.join.IdAndErrorSplitByPosition;
-import com.opencsv.exceptions.*;
+import com.opencsv.bean.mocks.split.*;
+import com.opencsv.exceptions.CsvBadConverterException;
+import com.opencsv.exceptions.CsvDataTypeMismatchException;
+import com.opencsv.exceptions.CsvException;
+import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+import org.apache.commons.collections4.Bag;
+import org.apache.commons.collections4.SortedBag;
+import org.apache.commons.collections4.bag.HashBag;
+import org.apache.commons.collections4.bag.TreeBag;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import org.apache.commons.collections4.Bag;
-import org.apache.commons.collections4.SortedBag;
-import org.apache.commons.collections4.bag.HashBag;
-import org.apache.commons.collections4.bag.TreeBag;
-import static org.junit.Assert.*;
 
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import static org.junit.Assert.*;
 
 /**
  *
@@ -47,17 +51,17 @@ public class CollectionSplitTest {
 
     private static Locale systemLocale;
 
-    @BeforeClass
+    @BeforeAll
     public static void storeSystemLocale() {
         systemLocale = Locale.getDefault();
     }
 
-    @Before
+    @BeforeEach
     public void setSystemLocaleToValueNotGerman() {
         Locale.setDefault(Locale.US);
     }
 
-    @After
+    @AfterEach
     public void setSystemLocaleBackToDefault() {
         Locale.setDefault(systemLocale);
     }

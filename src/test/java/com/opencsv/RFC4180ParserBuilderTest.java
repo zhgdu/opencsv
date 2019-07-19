@@ -2,8 +2,8 @@ package com.opencsv;
 
 
 import com.opencsv.enums.CSVReaderNullFieldIndicator;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.junit.Assert.assertEquals;
 
@@ -11,7 +11,7 @@ public class RFC4180ParserBuilderTest {
 
     private RFC4180ParserBuilder builder;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         builder = new RFC4180ParserBuilder();
     }

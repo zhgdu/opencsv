@@ -30,4 +30,14 @@ public class CsvRuntimeException extends RuntimeException {
      * @param message A human-readable error message
      */
     public CsvRuntimeException(String message) {super(message);}
+
+    /**
+     * Constructor with a message and throwable
+     *
+     * @param message A human-readable error message
+     * @param e       - Throwable that caused the issue.
+     */
+    public CsvRuntimeException(String message, Throwable e) {
+        super(message, e);
+    }
 }

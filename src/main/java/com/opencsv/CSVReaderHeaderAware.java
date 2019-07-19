@@ -1,5 +1,8 @@
 package com.opencsv;
 
+import com.opencsv.exceptions.CsvValidationException;
+import com.opencsv.validators.LineValidatorAggregator;
+
 import java.io.IOException;
 import java.io.Reader;
 import java.util.HashMap;
@@ -32,6 +35,7 @@ public class CSVReaderHeaderAware extends CSVReader {
 
     /**
      * Supports non-deprecated constructor from the parent class.
+     * Like the CSVReader this constructor is package scope so only the builder can use it.
      *
      * @param reader         The reader to an underlying CSV source
      * @param skipLines      The number of lines to skip before reading
@@ -40,11 +44,12 @@ public class CSVReaderHeaderAware extends CSVReader {
      * @param verifyReader   True to verify reader before each read, false otherwise
      * @param multilineLimit Allow the user to define the limit to the number of lines in a multiline record. Less than one means no limit.
      * @param errorLocale    Set the locale for error messages. If null, the default locale is used.
+     * @param lineValidatorAggregator contains all the custom defined line validators.
      * @throws IOException   If bad things happen while initializing the header
      */
-    public CSVReaderHeaderAware(Reader reader, int skipLines, ICSVParser parser, boolean keepCR, boolean verifyReader,
-                                int multilineLimit, Locale errorLocale) throws IOException {
-        super(reader, skipLines, parser, keepCR, verifyReader, multilineLimit, errorLocale);
+    CSVReaderHeaderAware(Reader reader, int skipLines, ICSVParser parser, boolean keepCR, boolean verifyReader,
+                         int multilineLimit, Locale errorLocale, LineValidatorAggregator lineValidatorAggregator) throws IOException {
+        super(reader, skipLines, parser, keepCR, verifyReader, multilineLimit, errorLocale, lineValidatorAggregator);
         initializeHeader();
     }
 
@@ -56,10 +61,11 @@ public class CSVReaderHeaderAware extends CSVReader {
      * @throws IOException              An error occured during the read or there is a mismatch in the number of data items in a row
      *                                  and the number of header items
      * @throws IllegalArgumentException If headerName does not exist
+     * @throws CsvValidationException If a custom defined validator fails.
      */
-    public String[] readNext(String... headerNames) throws IOException {
+    public String[] readNext(String... headerNames) throws IOException, CsvValidationException {
         if (headerNames == null) {
-            return super.readNext();
+            return super.readNextSilently();
         }
 
         String[] strings = readNext();
@@ -98,8 +104,9 @@ public class CSVReaderHeaderAware extends CSVReader {
      * @return A map whose key is the header row of the data file and the values is the data values. Or null if the line is blank.
      * @throws IOException An error occured during the read or there is a mismatch in the number of data items in a row
      *                     and the number of header items.
+     * @throws CsvValidationException If a custom defined validator fails.
      */
-    public Map<String, String> readMap() throws IOException {
+    public Map<String, String> readMap() throws IOException, CsvValidationException {
         String[] strings = readNext();
         if (strings == null) {
             return null;
@@ -116,7 +123,7 @@ public class CSVReaderHeaderAware extends CSVReader {
     }
 
     private void initializeHeader() throws IOException {
-        String[] headers = super.readNext();
+        String[] headers = super.readNextSilently();
         for (int i = 0; i < headers.length; i++) {
             headerIndex.put(headers[i], i);
         }

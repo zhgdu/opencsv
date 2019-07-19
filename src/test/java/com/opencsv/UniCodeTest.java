@@ -1,6 +1,8 @@
 package com.opencsv;
 
-import org.junit.Test;
+import com.opencsv.exceptions.CsvException;
+import com.opencsv.exceptions.CsvValidationException;
+import org.junit.jupiter.api.Test;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -48,7 +50,7 @@ public class UniCodeTest {
    }
 
    @Test
-   public void runUniCodeThroughCSVReader() throws IOException {
+   public void runUniCodeThroughCSVReader() throws IOException, CsvValidationException {
       CSVReader reader = new CSVReader(new StringReader(COMPOUND_STRING));
       String[] items = reader.readNext();
       assertEquals(2, items.length);
@@ -74,7 +76,7 @@ public class UniCodeTest {
    }
 
    @Test
-   public void writeThenReadAscii() throws IOException {
+   public void writeThenReadAscii() throws IOException, CsvValidationException {
       StringWriter sw = new StringWriter();
       ICSVWriter writer = new CSVWriter(sw);
       writer.writeNext(ASCII_ARRAY);
@@ -86,7 +88,7 @@ public class UniCodeTest {
    }
 
    @Test
-   public void writeThenReadTwiceAscii() throws IOException {
+   public void writeThenReadTwiceAscii() throws IOException, CsvException {
       StringWriter sw = new StringWriter();
       ICSVWriter writer = new CSVWriter(sw);
       writer.writeNext(ASCII_ARRAY);
@@ -107,7 +109,7 @@ public class UniCodeTest {
    }
 
    @Test
-   public void writeThenReadTwiceUnicode() throws IOException {
+   public void writeThenReadTwiceUnicode() throws IOException, CsvException {
       StringWriter sw = new StringWriter();
       ICSVWriter writer = new CSVWriter(sw);
       writer.writeNext(UNICODE_ARRAY);
@@ -128,7 +130,7 @@ public class UniCodeTest {
    }
 
    @Test
-   public void writeThenReadTwiceMixedUnicode() throws IOException {
+   public void writeThenReadTwiceMixedUnicode() throws IOException, CsvException {
       StringWriter sw = new StringWriter();
       ICSVWriter writer = new CSVWriter(sw);
       writer.writeNext(MIXED_ARRAY);

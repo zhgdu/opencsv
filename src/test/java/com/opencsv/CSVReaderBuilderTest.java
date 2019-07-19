@@ -1,15 +1,12 @@
 package com.opencsv;
 
 import com.opencsv.enums.CSVReaderNullFieldIndicator;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.*;
 
 import java.io.Reader;
 import java.util.Locale;
-import org.junit.After;
 
 import static org.junit.Assert.*;
-import org.junit.BeforeClass;
 import static org.mockito.Mockito.mock;
 
 public class CSVReaderBuilderTest {
@@ -19,17 +16,17 @@ public class CSVReaderBuilderTest {
 
     private static Locale systemLocale;
 
-    @BeforeClass
+    @BeforeAll
     public static void storeSystemLocale() {
         systemLocale = Locale.getDefault();
     }
 
-    @After
+    @AfterEach
     public void setSystemLocaleBackToDefault() {
         Locale.setDefault(systemLocale);
     }
 
-   @Before
+    @BeforeEach
    public void setUp() {
       Locale.setDefault(Locale.US);
       reader = mock(Reader.class);
@@ -55,9 +52,11 @@ public class CSVReaderBuilderTest {
        assertEquals(Locale.getDefault(), csvReader.errorLocale);
    }
 
-   @Test(expected = IllegalArgumentException.class)
+    @Test
    public void testNullReader() {
-      builder = new CSVReaderBuilder(null);
+        Assertions.assertThrows(IllegalArgumentException.class, () -> {
+            builder = new CSVReaderBuilder(null);
+        });
    }
 
    @Test

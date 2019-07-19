@@ -1,15 +1,13 @@
 package com.opencsv;
 
-import org.junit.Before;
-import org.junit.Test;
+import com.opencsv.exceptions.CsvValidationException;
+import org.junit.jupiter.api.*;
 
 import java.io.IOException;
 import java.util.Locale;
 import java.util.NoSuchElementException;
-import org.junit.After;
 
 import static org.junit.Assert.*;
-import org.junit.BeforeClass;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -20,28 +18,30 @@ public class CSVIteratorTest {
 
     private static Locale systemLocale;
 
-    @BeforeClass
+    @BeforeAll
     public static void storeSystemLocale() {
         systemLocale = Locale.getDefault();
     }
 
-    @After
+    @AfterEach
     public void setSystemLocaleBackToDefault() {
         Locale.setDefault(systemLocale);
     }
 
-    @Before
-    public void setUp() throws IOException {
+    @BeforeEach
+    public void setUp() throws IOException, CsvValidationException {
         Locale.setDefault(Locale.US);
         mockReader = mock(CSVReader.class);
         when(mockReader.readNext()).thenReturn(STRINGS);
         iterator = new CSVIterator(mockReader);
     }
 
-    @Test(expected = NoSuchElementException.class)
-    public void readerExceptionCausesRunTimeException() throws IOException {
+    @Test
+    public void readerExceptionCausesRunTimeException() throws IOException, CsvValidationException {
         when(mockReader.readNext()).thenThrow(new IOException("reader threw test exception"));
-        iterator.next();
+        Assertions.assertThrows(NoSuchElementException.class, () -> {
+            iterator.next();
+        });
     }
 
     @Test
@@ -72,7 +72,7 @@ public class CSVIteratorTest {
     }
 
     @Test
-    public void hasNextWorks() throws IOException {
+    public void hasNextWorks() throws IOException, CsvValidationException {
         when(mockReader.readNext()).thenReturn(null);
         assertTrue(iterator.hasNext()); // initial read from constructor
         iterator.next();

@@ -16,6 +16,7 @@
 package com.opencsv.bean;
 
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+
 import java.util.Collection;
 import java.util.Locale;
 
@@ -58,7 +59,7 @@ public interface FieldMap<I, K extends Comparable<K>, C extends ComplexFieldMapE
      *   through the bean fields and their associated annotations, this can only
      *   happen with multi-valued fields.
      */
-    String[] generateHeader(final T bean) throws CsvRequiredFieldEmptyException;
+    String[] generateHeader(T bean) throws CsvRequiredFieldEmptyException;
 
     /**
      * Gets the {@link BeanField} associated with this key.
@@ -72,7 +73,7 @@ public interface FieldMap<I, K extends Comparable<K>, C extends ComplexFieldMapE
      * @param key The key under which to search for a {@link BeanField}
      * @return The {@link BeanField} found, or null if none is present
      */
-    BeanField<T, K> get(final K key);
+    BeanField<T, K> get(K key);
 
     /**
      * Associates the given {@link BeanField} with the given {@code key}.
@@ -82,7 +83,7 @@ public interface FieldMap<I, K extends Comparable<K>, C extends ComplexFieldMapE
      * @return If there was a value previously associated with this key, it is
      *   returned
      */
-    BeanField<T, K> put(final K key, final BeanField<T, K> value);
+    BeanField<T, K> put(K key, BeanField<T, K> value);
     
     /**
      * Adds a {@link BeanField} to this map indexed by the data in
@@ -95,14 +96,14 @@ public interface FieldMap<I, K extends Comparable<K>, C extends ComplexFieldMapE
      * @param value The {@link BeanField} that is to be returned on a later
      *   match
      */
-    void putComplex(final I initializer, final BeanField<T, K> value);
+    void putComplex(I initializer, BeanField<T, K> value);
     
     /**
      * Sets the locale to be used for error messages.
      * 
      * @param errorLocale The locale to be used for error messages
      */
-    void setErrorLocale(final Locale errorLocale);
+    void setErrorLocale(Locale errorLocale);
     
     /**
      * Provides all values currently in the map.
