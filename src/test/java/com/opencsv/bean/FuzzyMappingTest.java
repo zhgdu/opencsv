@@ -1,6 +1,7 @@
 package com.opencsv.bean;
 
 import com.opencsv.bean.mocks.FuzzyMock;
+import com.opencsv.bean.mocks.MockBean;
 import com.opencsv.exceptions.CsvException;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
@@ -40,8 +41,26 @@ public class FuzzyMappingTest {
         assertEquals(EXACT_DATA, bean.getExactMatch());
     }
 
+    @Test
+    public void testReadingFuzzyWithoutAnnotations() {
+        MappingStrategy<MockBean> strategy = new FuzzyMappingStrategy<>();
+        strategy.setType(MockBean.class);
+        StringReader input = new StringReader("name,ident,order number,number,double number\nAndrew,myID,12J,1,2.3\n");
+        List<MockBean> beans = new CsvToBeanBuilder<MockBean>(input)
+                .withMappingStrategy(strategy)
+                .build().parse();
+        assertNotNull(beans);
+        assertEquals(1, beans.size());
+        MockBean bean = beans.get(0);
+        assertEquals("Andrew", bean.getName());
+        assertEquals("myID", bean.getId());
+        assertEquals("12J", bean.getOrderNumber());
+        assertEquals(1, bean.getNum());
+        assertEquals(2.3, bean.getDoubleNum());
+    }
+
     /**
-     * Tests reading with {@link FuzzyMappingStrategy}.
+     * Tests reading with {@link FuzzyMappingStrategy} and some annotations present.
      * <p>Also incidentally tests:<ul>
      *     <li>Precedence of explicit annotations (all name-based types)</li>
      *     <li>Exact matches between header names and member variable names</li>
@@ -51,7 +70,7 @@ public class FuzzyMappingTest {
      * </ul></p>
      */
     @Test
-    public void testReadingFuzzy() {
+    public void testReadingFuzzyWithAnnotations() {
         MappingStrategy<FuzzyMock> strategy = new FuzzyMappingStrategy<>();
         strategy.setType(FuzzyMock.class);
         StringReader input = new StringReader(HEADERS + DATA);

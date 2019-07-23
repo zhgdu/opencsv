@@ -21,6 +21,9 @@ import java.util.stream.Stream;
  */
 public class FuzzyMappingStrategy<T> extends HeaderColumnNameMappingStrategy<T> {
 
+    /** Nullary constructor to make the style checker happy. */
+    public FuzzyMappingStrategy() {}
+
     /**
      * This implementation intentionally does nothing in order to allow fuzzy
      * matching in case there are no annotations at all in the class in
@@ -71,6 +74,10 @@ public class FuzzyMappingStrategy<T> extends HeaderColumnNameMappingStrategy<T> 
         }
     }
 
+    /**
+     * This is a simple class for grouping header name, member variable name,
+     * and the result of fuzzy matching in one sortable place.
+     */
     private class FuzzyComparison implements Comparable<FuzzyComparison> {
 
         final Integer distance;
