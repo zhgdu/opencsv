@@ -195,7 +195,7 @@ public final class OpencsvUtils {
         Locale exceptionLocale = errorLocale == null ? Locale.getDefault() : errorLocale;
         try {
             if(StringUtils.isNotEmpty(format)) {
-                String.format(format, StringUtils.SPACE);
+                String okayToIgnore = String.format(format, StringUtils.SPACE);
             }
         }
         catch(IllegalFormatException e) {

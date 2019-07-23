@@ -194,8 +194,7 @@ public class CSVReader implements Closeable, Iterable<String[]> {
      *
      * @return A string array with each comma-separated element as a separate
      * entry, or null if there is no more input.
-     * @throws IOException If bad things happen during the read
-     * @throws CsvValidationException If a user defined valdators fail.
+     * @throws IOException If bad things happen during the read.
      */
     public String[] readNextSilently() throws IOException {
         try {
