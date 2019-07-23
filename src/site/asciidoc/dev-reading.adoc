@@ -89,9 +89,8 @@ position in an array must be intuited. We shall start with the easiest and most
 powerful method of reading data into beans, and work our way down to the cogs
 that offer finer control, for those who have a need for such a thing.
 
-Performance always being one of our top concerns, reading is written to be
-multi-threaded, which truly speeds the library up by quite a bit. There are two
-performance choices left in your hands:
+Performance always being one of our top concerns, reading is multi-threaded.
+There are two performance choices left in your hands:
 . Time vs. memory: The classic trade-off. If memory is not a problem, read using CsvToBean.parse() or CsvToBean.stream(), which will read all beans at once and are multi-threaded. If your memory is limited, use CsvToBean.iterator() and iterate over the input. Only one bean is read at a time, making multi-threading impossible and slowing down reading, but only one object is in memory at a time (assuming you process and release the object for the garbage collector immediately).
 . Ordered vs. unordered. opencsv preserves the order of the data given to it by default. Maintaining order when using parallel programming requires some extra effort which means extra CPU time. If order does not matter to you, use CsvToBeanBuilder.withOrderedResults(false). The performance benefit is not large, but it is measurable. The ordering or lack thereof applies to data as well as any captured exceptions.
 
@@ -107,8 +106,6 @@ conform to the Java Bean Specification, but is required to be public and have a
 public nullary constructor. If getters and setters are present and accessible,
 they are used. Otherwise, opencsv bypasses access control restrictions to get to
 member variables.
-
-Writing is unfortunately not quite the same. Writing requires getters.
 
 Besides the basic mapping strategy, there are various mechanisms for processing
 certain kinds of data.
@@ -704,8 +701,11 @@ also provided.
 ===== Reading into beans without annotations
 
 If annotations are anathema to you, you can bypass them with carefully
-structured data, beans and with somewhat more code. For example, here's how you
-can map to a bean based on the field positions in your CSV file:
+structured data and beans.
+
+====== Reading without annotations, column positions
+
+Here's how you can map to a bean based on the field positions in your CSV file:
 
 [source, java]
 ----
@@ -717,6 +717,92 @@ can map to a bean based on the field positions in your CSV file:
     CsvToBean csv = new CsvToBean();
     List list = csv.parse(strat, yourReader);
 ----
+
+====== Reading without annotations, exact header names
+
+With a header name mapping strategy, things are even easier. As long as you do
+not annotate anything in the bean, the header name mapping strategy will assume
+that all columns may be matched to a member variable of the bean with
+precisely the same name (save capitalization). Every field is considered
+optional.
+
+If no annotations of any kind are present, the header name mapping strategy is
+automatically chosen for you.
+
+====== Reading without annotations, fuzzy header names
+
+If you explicitly specify the mapping strategy FuzzyMappingStrategy, all
+annotated member variables are respected, if any are present, and if any input
+fields are left unmapped, they will be mapped to the best non-annotated member
+variable. "Best" means the closest fuzzy string match between available header
+names and available member variable names, case insensitive.
+
+If we have the following input header names:
+
+----
+joined header 1,joined header 2,split header,first header,second header,mispeling
+----
+
+We could write the following bean:
+
+[source, java]
+----
+public class MyBean {
+
+    @CsvBindAndJoinByName(column = "joined header [0-9]", elementType = String.class)
+    private MultiValuedMap<String, String> joinedFields;
+
+    @CsvBindAndSplitByName(column = "split header", elementType = String.class)
+    private List<String> splitFields;
+
+    private Integer firstHeader;
+
+    private Date secondHeader;
+
+    private String misspelling;
+}
+----
+
+And use this code for reading:
+
+[source, java]
+----
+MappingStrategy<MyBean> strategy = new FuzzyMappingStrategy<>();
+strategy.setType(MyBean.class);
+List<MyBean> beans = new CsvToBeanBuilder(FileReader("yourfile.csv"))
+    .withMappingStrategy(strategy)
+    .build()
+    .parse();
+----
+
+Everything will work like you want it to with a minimum of annotating. Both
+@CsvBindAndJoinByName() as well as @CsvBindAndSplitByName() will be honored
+exactly, consuming the headers from the input they are meant to consume. After
+that, the fuzzy mapping strategy will compute that the header name
+"first header" is closest to the member variable name "firstHeader",
+"second header" is closest to "secondHeader", and "mispeling" is closest to
+"misspelling". The mappings will be initialized appropriately.
+
+The dangers of this mapping strategy should be obvious. Even though the
+algorithm for computing the closest match is stable, the results might not
+be obvious to you. If you have headers named "header&nbsp;&nbsp;1" (with two
+spaces) and "header 11", and only one member variable named "header1" (perhaps
+you wish to ignore "header 11" in the input), it is non-deterministic which of
+the two input columns will be mapped to the member variable "header1". You
+might accidentally get stuck with the wrong mapping.
+
+A similar problem can arise if the structure of your input data is not stable.
+If someone else is in control of the input and may add or delete columns at any
+time, fuzzy mappings that have worked fine for a long time may stop working
+because the new input file has a better match between header name and member
+variable.
+
+Nonetheless, if you know your data and a mismapping will not cause catastrophic
+failure of a critical system, this mapping strategy can save you some
+burdensome annotating for obvious mappings.
+
+Since this matching strategy only makes sense for reading, it is not supported
+for writing, but it should behave exactly as HeaderColumnNameMappingStrategy.
 
 ===== Skipping, filtering and verifying
 With some input it can be helpful to skip the first few lines. opencsv provides

@@ -73,6 +73,7 @@ for that? Here is a list of the improvements in opencsv 5.0.
    * In all annotations that accepted a conversion locale, it is now possible to stipulate a different conversion locale for writing than the one used for reading.
    * Similarly, @CsvDate can now take a different format for writing than reading.
    * Similarly, @CsvNumber can now take a different format for writing than reading.
+   * A new mapping strategy (FuzzyMappingStrategy) for reading into beans that uses a fuzzy matching algorithm between header names and member variable names to reduce your burden in annotating beans.
 
 Here are the things you can expect to encounter during an upgrade and what to
 do about them.

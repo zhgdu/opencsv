@@ -130,7 +130,16 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
         return beanField;
     }
 
-    private void loadAnnotatedFieldMap(List<Field> fields) {
+    /**
+     * Creates a map of annotated fields in the bean to be processed.
+     * This method is called by {@link #loadFieldMap()} when at least one
+     * relevant annotation is found on a member variable.
+     *
+     * @param fields A list of fields annotated with a name-binding annotation
+     *               in the bean to be processed
+     * @since 5.0
+     */
+    protected void loadAnnotatedFieldMap(List<Field> fields) {
         boolean required;
 
         for (Field field : fields) {
@@ -235,25 +244,58 @@ public class HeaderColumnNameMappingStrategy<T> extends AbstractMappingStrategy<
         }
     }
 
-    private void loadUnadornedFieldMap(List<Field> fields) {
+    /**
+     * Creates a map of fields in the bean to be processed that have no
+     * annotations.
+     * This method is called by {@link #loadFieldMap()} when absolutely no
+     * annotations that are relevant for this mapping strategy are found in the
+     * type of bean being processed. It is then assumed that every field is to
+     * be included, and that the name of the member variable must exactly match
+     * the header name of the input.
+     *
+     * @param fields A list of all non-synthetic fields in the bean to be
+     *               processed
+     * @since 5.0
+     */
+    protected void loadUnadornedFieldMap(List<Field> fields) {
         for(Field field : fields) {
             CsvConverter converter = determineConverter(field, field.getType(), null, null, null);
             fieldMap.put(field.getName().toUpperCase(), new BeanFieldSingleValue<>(
                     field, false, errorLocale, converter, null, null));
         }
     }
-    
-    @Override
-    protected void loadFieldMap() throws CsvBadConverterException {
-        fieldMap = new FieldMapByName<>(errorLocale);
-        fieldMap.setColumnOrderOnWrite(writeOrder);
-        Map<Boolean, List<Field>> partitionedFields = Stream.of(FieldUtils.getAllFields(getType()))
+
+    /**
+     * Partitions all non-synthetic fields of the bean type being processed
+     * into annotated and non-annotated fields.
+     *
+     * @return A map in which all annotated fields are mapped under
+     * {@link Boolean#TRUE}, and all non-annotated fields are mapped under
+     * {@link Boolean#FALSE}.
+     * @since 5.0
+     */
+    protected Map<Boolean, List<Field>> partitionFields() {
+        return Stream.of(FieldUtils.getAllFields(getType()))
                 .filter(f -> !f.isSynthetic())
                 .collect(Collectors.partitioningBy(
                         f -> f.isAnnotationPresent(CsvBindByName.class)
                                 || f.isAnnotationPresent(CsvCustomBindByName.class)
                                 || f.isAnnotationPresent(CsvBindAndSplitByName.class)
                                 || f.isAnnotationPresent(CsvBindAndJoinByName.class)));
+    }
+
+    /**
+     * Builds a map of fields for the bean.
+     * In this mapping strategy, that means checking all fields for the
+     * presence of any relevant annotations, and if any are found, sending
+     * all annotated fields to {@link #loadAnnotatedFieldMap(List)}, otherwise
+     * sending all fields to {@link #loadUnadornedFieldMap(List)}.
+     */
+    @Override
+    protected void loadFieldMap() throws CsvBadConverterException {
+        fieldMap = new FieldMapByName<>(errorLocale);
+        fieldMap.setColumnOrderOnWrite(writeOrder);
+        Map<Boolean, List<Field>> partitionedFields = partitionFields();
 
         if(!partitionedFields.get(Boolean.TRUE).isEmpty()) {
             loadAnnotatedFieldMap(partitionedFields.get(Boolean.TRUE));
