@@ -282,6 +282,29 @@ public class NumberTest {
         assertNotNull(csve.getCause());
     }
 
+    @Test
+    public void testEmptyOptionalInput() {
+        StringReader reader = new StringReader("primitiveByte;wrappedByte;primitiveShort;wrappedShort;primitiveInteger;wrappedInteger;primitiveLong;wrappedLong;primitiveFloat;wrappedFloat;primitiveDouble;wrappedDouble\n" +
+                "byte: 3;;1;23;1.234;5;123456789;987654321;1.2E-1;23,45%;10.1234;1\n");
+        List<NumberMockHeader> beans = new CsvToBeanBuilder<NumberMockHeader>(reader)
+                .withType(NumberMockHeader.class)
+                .withSeparator(';').build().parse();
+        assertNotNull(beans);
+        assertEquals(1, beans.size());
+        NumberMockHeader bean = beans.get(0);
+        assertEquals(3, bean.getPrimitiveByte());
+        assertNull(bean.getWrappedByte());
+        assertEquals(1, bean.getPrimitiveShort());
+        assertEquals(23, (short)bean.getWrappedShort());
+        assertEquals(1234, bean.getPrimitiveInteger());
+        assertEquals(5, (int)bean.getWrappedInteger());
+        assertEquals(123456789L, bean.getPrimitiveLong());
+        assertEquals(987654321L, (long)bean.getWrappedLong());
+        assertEquals(0.12f, bean.getPrimitiveFloat(), 0.001);
+        assertEquals(0.2345f, bean.getWrappedFloat(), 0.001);
+        assertEquals(10.1234, bean.getPrimitiveDouble(), 0.00001);
+        assertEquals(1.0, bean.getWrappedDouble(), 0.1);
+    }
 
     @Test
     public void testWritingHeaderNameMappingStrategy() throws IOException, CsvException {

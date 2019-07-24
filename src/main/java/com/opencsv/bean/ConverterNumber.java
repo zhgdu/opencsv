@@ -20,6 +20,7 @@ import com.opencsv.exceptions.CsvBadConverterException;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
@@ -163,24 +164,27 @@ public class ConverterNumber extends AbstractCsvConverter {
 
     @Override
     public Object convertToRead(String value) throws CsvDataTypeMismatchException {
-        Number n;
-        try {
-            synchronized (readFormatter) {
-                n = readFormatter.parse(value);
+        Number n = null;
+        if(StringUtils.isNotEmpty(value)) {
+            try {
+                synchronized (readFormatter) {
+                    n = readFormatter.parse(value);
+                }
             }
-        }
-        catch(ParseException e) {
-            CsvDataTypeMismatchException csve = new CsvDataTypeMismatchException(
-                    value, type,
-                    String.format(ResourceBundle.getBundle(
-                            ICSVParser.DEFAULT_BUNDLE_NAME,
-                            errorLocale)
-                            .getString("unparsable.number"), value, readFormatter.toPattern()));
-            csve.initCause(e);
-            throw csve;
-        }
+            catch(ParseException e) {
+                CsvDataTypeMismatchException csve = new CsvDataTypeMismatchException(
+                        value, type,
+                        String.format(ResourceBundle.getBundle(
+                                ICSVParser.DEFAULT_BUNDLE_NAME,
+                                errorLocale)
+                                .getString("unparsable.number"), value, readFormatter.toPattern()));
+                csve.initCause(e);
+                throw csve;
+            }
 
-        return readConversionFunction.apply(n);
+            n = readConversionFunction.apply(n);
+        }
+        return n;
     }
 
     /**

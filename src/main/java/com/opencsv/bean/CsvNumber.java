@@ -35,6 +35,7 @@ import java.lang.annotation.*;
  * <li>{@link java.math.BigInteger}</li></ul>
  *
  * @since 4.2
+ * @author Andrew Rucker Jones
  */
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
