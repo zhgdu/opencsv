@@ -797,6 +797,13 @@ time, fuzzy mappings that have worked fine for a long time may stop working
 because the new input file has a better match between header name and member
 variable.
 
+Finally, if you have headers that should remain unmatched and member variables
+without annotations that should also remain unmatched, you will have a problem.
+This mapping strategy will map any unused field to the best unused member
+variable, no matter how poor the match. If you need to get around this, the
+best way is to annotate the member variable to be skipped and map it to a
+fictitious but optional header.
+
 Nonetheless, if you know your data and a mismapping will not cause catastrophic
 failure of a critical system, this mapping strategy can save you some
 burdensome annotating for obvious mappings.

@@ -13,7 +13,7 @@ import java.util.function.Function;
  * <p>There are several examples coded in the RowFunctionValidatorTest but here are a couple to give you the
  * idea of the flexibility this validator offers.</p>
  *
- * {@code
+ * <pre>{@code
  *     private static final String[] GOOD_ROW = {"8675309", "Firstname", "M", "Lastname", "Dec 06, 1951"};
  *     private static final String[] BAD_ROW = {"not a number", "not capitialized", "not an initial", "Not Single word", "12/06/51"};
  *     private static final String[] LONG_ROW = {"8675309", "Firstname", "M", "Lastname", "Dec 06, 1951", "More data"};
@@ -26,26 +26,26 @@ import java.util.function.Function;
  *     private static final Function<String[], Boolean> ROW_MUST_HAVE_FIVE_ELEMENTS = (x) -> {
  *         return (x.length == 5);
  *     };
- *
- *     \@Test
- *     \@DisplayName("Simple test to show checking an middle initial")
- *     public void thirdElementIsMiddleInitial() {
+ * }
+ * {@code    @Test}
+ * {@code    @DisplayName("Simple test to show checking an middle initial")}
+ * {@code    public void thirdElementIsMiddleInitial() {
  *         validator = new RowFunctionValidator(THIRD_ELEMENT_IS_MIDDLE_INITIAL, "The third element must be the middle initial.");
  *
  *         assertTrue(validator.isValid(GOOD_ROW));
  *         assertFalse(validator.isValid(BAD_ROW));
  *     }
- *
- *     \@Test
- *     \@DisplayName("The row must have a specific number of elements in order to be valid.")
- *     public void numberOfElementsInARow() {
+ * }
+ * {@code    @Test}
+ * {@code    @DisplayName("The row must have a specific number of elements in order to be valid.")}
+ * {@code    public void numberOfElementsInARow() {
  *         validator = new RowFunctionValidator(ROW_MUST_HAVE_FIVE_ELEMENTS, "A Row can have only five elements.");
  *
  *         assertTrue(validator.isValid(GOOD_ROW));
  *         assertFalse(validator.isValid(LONG_ROW));
  *         assertFalse(validator.isValid(SHORT_ROW));
  *     }
- * }
+ * }</pre>
  *
  * @author Scott Conway
  * @since 5.0
