@@ -2,7 +2,6 @@ package com.opencsv.bean;
 
 import com.opencsv.CSVReader;
 import com.opencsv.ICSVParser;
-import com.opencsv.exceptions.CsvBadConverterException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.lang3.ArrayUtils;
@@ -166,7 +165,13 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
         }
     }
 
-    private void loadAnnotatedFieldMap(List<Field> fields) {
+    /**
+     * Creates a map of annotated fields in the bean to be processed.
+     * <p>This method is called by {@link #loadFieldMap()} when at least one
+     * relevant annotation is found on a member variable.</p>
+     */
+    @Override
+    protected void loadAnnotatedFieldMap(List<Field> fields) {
         boolean required;
         for (Field field : fields) {
             String fieldLocale, fieldWriteLocale, capture, format;
@@ -243,7 +248,8 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
         }
     }
 
-    private void loadUnadornedFieldMap(List<Field> fields) {
+    @Override
+    protected void loadUnadornedFieldMap(List<Field> fields) {
         for(Field field : fields) {
             CsvConverter converter = determineConverter(field, field.getType(), null, null, null);
             int[] indices = headerIndex.getByName(field.getName());
@@ -254,24 +260,29 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
         }
     }
 
+    /**
+     * Partitions all non-synthetic fields of the bean type being processed
+     * into annotated and non-annotated fields.
+     *
+     * @return A map in which all annotated fields are mapped under
+     * {@link Boolean#TRUE}, and all non-annotated fields are mapped under
+     * {@link Boolean#FALSE}.
+     */
     @Override
-    protected void loadFieldMap() throws CsvBadConverterException {
-        fieldMap = new FieldMapByPosition<>(errorLocale);
-        fieldMap.setColumnOrderOnWrite(writeOrder);
-        Map<Boolean, List<Field>> partitionedFields = Stream.of(FieldUtils.getAllFields(getType()))
+    protected Map<Boolean, List<Field>> partitionFields() {
+        return Stream.of(FieldUtils.getAllFields(getType()))
                 .filter(f -> !f.isSynthetic())
                 .collect(Collectors.partitioningBy(
                         f -> f.isAnnotationPresent(CsvBindByPosition.class)
                                 || f.isAnnotationPresent(CsvCustomBindByPosition.class)
                                 || f.isAnnotationPresent(CsvBindAndJoinByPosition.class)
                                 || f.isAnnotationPresent(CsvBindAndSplitByPosition.class)));
+    }
 
-        if(!partitionedFields.get(Boolean.TRUE).isEmpty()) {
-            loadAnnotatedFieldMap(partitionedFields.get(Boolean.TRUE));
-        }
-        else {
-            loadUnadornedFieldMap(partitionedFields.get(Boolean.FALSE));
-        }
+    @Override
+    protected void initializeFieldMap() {
+        fieldMap = new FieldMapByPosition<>(errorLocale);
+        fieldMap.setColumnOrderOnWrite(writeOrder);
     }
 
     @Override

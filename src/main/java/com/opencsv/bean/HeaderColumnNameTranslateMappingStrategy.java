@@ -1,8 +1,5 @@
 package com.opencsv.bean;
 
-import org.apache.commons.lang3.reflect.FieldUtils;
-
-import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -23,15 +20,15 @@ import java.util.Map;
  */
 
 /**
- * Expands on HeaderColumnNameMappingStrategy by allowing the user to pass in a
- * map of column names to bean names.
+ * Expands on {@link HeaderColumnNameMappingStrategy} by allowing the user to
+ * pass in a map of column names to bean names.
  * This way the fields in the bean do not have to match the fields in the CSV
  * file. This is only for when the user passes in the header names
  * programmatically, and not for annotated beans.
  *
  * @param <T> Class to be mapped.
  */
-public class HeaderColumnNameTranslateMappingStrategy<T> extends HeaderColumnNameMappingStrategy<T> {
+public class HeaderColumnNameTranslateMappingStrategy<T> extends HeaderNameBaseMappingStrategy<T> {
     private final Map<String, String> columnMapping;
 
     /**
@@ -69,17 +66,6 @@ public class HeaderColumnNameTranslateMappingStrategy<T> extends HeaderColumnNam
         }
         if(getType() != null) {
             loadFieldMap();
-        }
-    }
-
-    @Override
-    protected void loadFieldMap() {
-        fieldMap = new FieldMapByName<>(errorLocale);
-        fieldMap.setColumnOrderOnWrite(writeOrder);
-        for(Field field : FieldUtils.getAllFields(getType())) {
-            CsvConverter converter = determineConverter(field, field.getType(), null, null, null);
-            fieldMap.put(field.getName().toUpperCase(), new BeanFieldSingleValue<>(
-                    field, false, errorLocale, converter, null, null));
         }
     }
 }

@@ -23,14 +23,21 @@ import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.reflect.FieldUtils;
 
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * This class collects as many generally useful parts of the implementation
  * of a mapping strategy as possible.
- * Anyone is welcome to use it as a base class for their own mapping strategies.
+ * <p>This mapping strategy knows of the existence of binding annotations, but
+ * assumes through {@link #partitionFields()} and
+ * {@link #loadAnnotatedFieldMap(List)} they are not in use.</p>
+ * <p>Anyone is welcome to use it as a base class for their own mapping
+ * strategies.</p>
  * 
  * @param <T> Type of object that is being processed.
  * @param <C> The type of the internal many-to-one mapping
@@ -71,14 +78,39 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
      * @return The {@link FieldMap} used by this strategy
      */
     abstract protected FieldMap<I,K,? extends C,T> getFieldMap();
-    
+
     /**
-     * Builds a map of fields for the bean.
+     * Creates a map of annotated fields in the bean to be processed.
+     * <p>This method is called by {@link #loadFieldMap()} when at least one
+     * relevant annotation is found on a member variable.</p>
+     * <p>The default implementation assumes there are no annotations and does
+     * nothing.</p>
      *
-     * @throws CsvBadConverterException If there is a problem instantiating the
-     *                                  custom converter for an annotated field
+     * @param fields A list of fields annotated with a binding annotation
+     *               in the bean to be processed
+     * @since 5.0
      */
-    abstract protected void loadFieldMap() throws CsvBadConverterException;
+    protected void loadAnnotatedFieldMap(List<Field> fields) {}
+
+    /**
+     * Creates a map of fields in the bean to be processed that have no
+     * annotations.
+     * This method is called by {@link #loadFieldMap()} when absolutely no
+     * annotations that are relevant for this mapping strategy are found in the
+     * type of bean being processed.
+     *
+     * @param fields A list of all non-synthetic fields in the bean to be
+     *               processed
+     * @since 5.0
+     */
+    abstract protected void loadUnadornedFieldMap(List<Field> fields);
+
+    /**
+     * Creates an empty binding type-specific field map that can be filled in
+     * later steps.
+     * @since 5.0
+     */
+    abstract protected void initializeFieldMap();
 
     /**
      * Gets the field for a given column position.
@@ -206,7 +238,44 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
         this.type = type;
         loadFieldMap();
     }
-    
+
+    /**
+     * Builds a map of columns from the input to fields of the bean type.
+     *
+     * @throws CsvBadConverterException If there is a problem instantiating the
+     *                                  custom converter for an annotated field
+     */
+    protected void loadFieldMap() throws CsvBadConverterException {
+        initializeFieldMap();
+        Map<Boolean, List<Field>> partitionedFields = partitionFields();
+
+        if(!partitionedFields.get(Boolean.TRUE).isEmpty()) {
+            loadAnnotatedFieldMap(partitionedFields.get(Boolean.TRUE));
+        }
+        else {
+            loadUnadornedFieldMap(partitionedFields.get(Boolean.FALSE));
+        }
+    }
+
+    /**
+     * Partitions all non-synthetic fields of the bean type being processed
+     * into annotated and non-annotated fields.
+     * For the base mapping strategy, annotations are completely ignored, so
+     * this implementation pretends they don't exist and returns all fields as
+     * unadorned.
+     *
+     * @return A map in which all annotated fields are mapped under
+     * {@link Boolean#TRUE}, and all non-annotated fields are mapped under
+     * {@link Boolean#FALSE}. For the base class, all fields are partitioned
+     * as non-annotated.
+     * @since 5.0
+     */
+    protected Map<Boolean, List<Field>> partitionFields() {
+        return Stream.of(FieldUtils.getAllFields(getType()))
+                .filter(f -> !f.isSynthetic())
+                .collect(Collectors.partitioningBy(f -> Boolean.FALSE));
+    }
+
     /**
      * Attempts to instantiate the class of the custom converter specified.
      *
@@ -273,14 +342,14 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
     public String[] transmuteBean(T bean) throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
         int numColumns = headerIndex.findMaxIndex()+1;
         List<String> transmutedBean = writeWithReflection(bean, numColumns);
-        return transmutedBean.toArray(new String[transmutedBean.size()]);
+        return transmutedBean.toArray(new String[0]);
     }
 
     private List<String> writeWithReflection(T bean, int numColumns)
             throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
         BeanField<T, K> firstBeanField, subsequentBeanField;
         K firstIndex, subsequentIndex;
-        List<String> contents = new ArrayList<>(numColumns > 0 ? numColumns : 0);
+        List<String> contents = new ArrayList<>(Math.max(numColumns, 0));
         
         for(int i = 0; i < numColumns;) {
             

@@ -78,7 +78,7 @@ public class FuzzyMappingStrategy<T> extends HeaderColumnNameMappingStrategy<T> 
      * This is a simple class for grouping header name, member variable name,
      * and the result of fuzzy matching in one sortable place.
      */
-    private class FuzzyComparison implements Comparable<FuzzyComparison> {
+    private static class FuzzyComparison implements Comparable<FuzzyComparison> {
 
         final Integer distance;
         final String header;
