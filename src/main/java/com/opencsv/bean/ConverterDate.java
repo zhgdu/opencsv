@@ -57,10 +57,9 @@ import java.util.function.BiFunction;
  * <p>This class works for all types from the JDK that implement
  * {@link java.time.temporal.TemporalAccessor}.</p>
  *
- *
  * @author Andrew Rucker Jones
- * @since 4.2 (previously BeanFieldDate since 3.8)
  * @see com.opencsv.bean.CsvDate
+ * @since 4.2 (previously BeanFieldDate since 3.8)
  */
 public class ConverterDate extends AbstractCsvConverter {
 
@@ -110,161 +109,45 @@ public class ConverterDate extends AbstractCsvConverter {
      * format strings for reading and writing, and the chronologies for
      * reading and writing, all as necessary based on the type to be converted.
      *
-     * @param type         The type of the field being populated
-     * @param readFormat The string to use for parsing the date. See
-     *                     {@link com.opencsv.bean.CsvDate#value()}
-     * @param writeFormat The string to use for formatting the date. See
-     *                     {@link CsvDate#writeFormat()}
-     * @param locale       If not null or empty, specifies the locale used for
-     *                     converting locale-specific data types
-     * @param writeLocale   If not null or empty, specifies the locale used for
-     *                 converting locale-specific data types for writing
-     * @param errorLocale The locale to use for error messages
-     * @param readChronology The {@link java.time.chrono.Chronology} to be used
-     *                       for reading if
-     *                   {@link java.time.temporal.TemporalAccessor}-based
-     *                   fields are in use
+     * @param type            The type of the field being populated
+     * @param readFormat      The string to use for parsing the date. See
+     *                        {@link com.opencsv.bean.CsvDate#value()}
+     * @param writeFormat     The string to use for formatting the date. See
+     *                        {@link CsvDate#writeFormat()}
+     * @param locale          If not null or empty, specifies the locale used for
+     *                        converting locale-specific data types
+     * @param writeLocale     If not null or empty, specifies the locale used for
+     *                        converting locale-specific data types for writing
+     * @param errorLocale     The locale to use for error messages
+     * @param readChronology  The {@link java.time.chrono.Chronology} to be used
+     *                        for reading if
+     *                        {@link java.time.temporal.TemporalAccessor}-based
+     *                        fields are in use
      * @param writeChronology The {@link java.time.chrono.Chronology} to be
      *                        used for writing if
-     *                   {@link java.time.temporal.TemporalAccessor}-based
-     *                   fields are in use
+     *                        {@link java.time.temporal.TemporalAccessor}-based
+     *                        fields are in use
      */
     public ConverterDate(Class<?> type, String locale, String writeLocale, Locale errorLocale, String readFormat, String writeFormat, String readChronology, String writeChronology) {
         super(type, locale, writeLocale, errorLocale);
 
         // Chronology
-        Chronology readChrono, writeChrono;
-        try {
-            readChrono = StringUtils.isNotBlank(readChronology) ?
-                    Chronology.of(readChronology) :
-                    Chronology.ofLocale(this.locale);
-        }
-        catch(DateTimeException e) {
-            CsvBadConverterException csve = new CsvBadConverterException(getClass(),
-                    String.format(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, this.errorLocale)
-                            .getString("chronology.not.found"), readChronology));
-            csve.initCause(e);
-            throw csve;
-        }
-        try {
-            writeChrono = StringUtils.isNotBlank(writeChronology) ?
-                    Chronology.of(writeChronology) :
-                    Chronology.ofLocale(this.writeLocale);
-        }
-        catch(DateTimeException e) {
-            CsvBadConverterException csve = new CsvBadConverterException(getClass(),
-                    String.format(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, this.errorLocale)
-                            .getString("chronology.not.found"), writeChronology));
-            csve.initCause(e);
-            throw csve;
-        }
+        Chronology readChrono = getChronology(readChronology, this.locale);
+        Chronology writeChrono = getChronology(writeChronology, this.writeLocale);
 
         // Format string, locale, and conversion function for reading
         try {
-            if(TemporalAccessor.class.isAssignableFrom(type)) {
+            if (TemporalAccessor.class.isAssignableFrom(type)) {
                 readSdf = null;
-                DateTimeFormatter dtfWithoutChronology;
-                if(this.locale != null) {
-                    dtfWithoutChronology = DateTimeFormatter.ofPattern(readFormat, this.locale);
-                }
-                else {
-                    dtfWithoutChronology = DateTimeFormatter.ofPattern(readFormat);
-                }
+                DateTimeFormatter dtfWithoutChronology = setDateTimeFormatter(readFormat, this.locale);
                 readDtf = dtfWithoutChronology.withChronology(readChrono);
 
-                if(TemporalAccessor.class.equals(type)) {
-                    readTemporalConversionFunction = DateTimeFormatter::parse;
-                }
-                else if(ChronoLocalDate.class.equals(type)
-                        || LocalDate.class.equals(type)) {
-                    readTemporalConversionFunction = (readDtf, s) -> readDtf.parse(s, LocalDate::from);
-                }
-                else if(ChronoLocalDateTime.class.equals(type)
-                        || LocalDateTime.class.equals(type)) {
-                    readTemporalConversionFunction = (readDtf, s) -> readDtf.parse(s, LocalDateTime::from);
-                }
-                else if(ChronoZonedDateTime.class.equals(type)
-                        || ZonedDateTime.class.equals(type)) {
-                    readTemporalConversionFunction = (readDtf, s) -> readDtf.parse(s, ZonedDateTime::from);
-                }
-                else if(Temporal.class.equals(type)) {
-                    readTemporalConversionFunction = (readDtf, s) -> readDtf.parseBest(s, ZonedDateTime::from,
-                            OffsetDateTime::from, Instant::from,
-                            LocalDateTime::from, LocalDate::from, OffsetTime::from,
-                            LocalTime::from);
-                }
-                else if (Era.class.equals(type) || IsoEra.class.equals(type)) {
-                    readTemporalConversionFunction = (readDtf, s) -> IsoEra.of(readDtf.parse(s).get(ChronoField.ERA));
-                }
-                else if(DayOfWeek.class.equals(type)) {
-                    readTemporalConversionFunction = (readDtf, s) -> readDtf.parse(s, DayOfWeek::from);
-                }
-                else if(HijrahDate.class.equals(type)) {
-                    readTemporalConversionFunction = (readDtf, s) -> readDtf.parse(s, HijrahDate::from);
-                }
-                else if(HijrahEra.class.equals(type)) {
-                    readTemporalConversionFunction = (readDtf, s) -> HijrahEra.of(readDtf.parse(s).get(ChronoField.ERA));
-                }
-                else if(Instant.class.equals(type)) {
-                    readTemporalConversionFunction = (readDtf, s) -> readDtf.parse(s, Instant::from);
-                }
-                else if(JapaneseDate.class.equals(type)) {
-                    readTemporalConversionFunction = (readDtf, s) -> readDtf.parse(s, JapaneseDate::from);
-                }
-                else if(JapaneseEra.class.equals(type)) {
-                    readTemporalConversionFunction = (readDtf, s) -> JapaneseEra.of(readDtf.parse(s).get(ChronoField.ERA));
-                }
-                else if(LocalTime.class.equals(type)) {
-                    readTemporalConversionFunction = (readDtf, s) -> readDtf.parse(s, LocalTime::from);
-                }
-                else if(MinguoDate.class.equals(type)) {
-                    readTemporalConversionFunction = (readDtf, s) -> readDtf.parse(s, MinguoDate::from);
-                }
-                else if(MinguoEra.class.equals(type)) {
-                    readTemporalConversionFunction = (readDtf, s) -> MinguoEra.of(readDtf.parse(s).get(ChronoField.ERA));
-                }
-                else if(Month.class.equals(type)) {
-                    readTemporalConversionFunction = (readDtf, s) -> readDtf.parse(s, Month::from);
-                }
-                else if(MonthDay.class.equals(type)) {
-                    readTemporalConversionFunction = (readDtf, s) -> readDtf.parse(s, MonthDay::from);
-                }
-                else if(OffsetDateTime.class.equals(type)) {
-                    readTemporalConversionFunction = (readDtf, s) -> readDtf.parse(s, OffsetDateTime::from);
-                }
-                else if(OffsetTime.class.equals(type)) {
-                    readTemporalConversionFunction = (readDtf, s) -> readDtf.parse(s, OffsetTime::from);
-                }
-                else if(ThaiBuddhistDate.class.equals(type)) {
-                    readTemporalConversionFunction = (readDtf, s) -> readDtf.parse(s, ThaiBuddhistDate::from);
-                }
-                else if(ThaiBuddhistEra.class.equals(type)) {
-                    readTemporalConversionFunction = (readDtf, s) -> ThaiBuddhistEra.of(readDtf.parse(s).get(ChronoField.ERA));
-                }
-                else if(Year.class.equals(type)) {
-                    readTemporalConversionFunction = (readDtf, s) -> readDtf.parse(s, Year::from);
-                }
-                else if(YearMonth.class.equals(type)) {
-                    readTemporalConversionFunction = (readDtf, s) -> readDtf.parse(s, YearMonth::from);
-                }
-                else if(ZoneOffset.class.equals(type)) {
-                    readTemporalConversionFunction = (readDtf, s) -> readDtf.parse(s, ZoneOffset::from);
-                }
-                else {
-                    throw new CsvBadConverterException(getClass(),String.format(
-                            ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, this.errorLocale)
-                                    .getString(CSVDATE_NOT_DATE), type));
-                }
+                readTemporalConversionFunction = determineReadTemporalConversionFunction(type);
 
-            }
-            else {
+            } else {
                 readDtf = null;
                 readTemporalConversionFunction = null;
-                if (this.locale != null) {
-                    readSdf = new SimpleDateFormat(readFormat, this.locale);
-                } else {
-                    readSdf = new SimpleDateFormat(readFormat);
-                }
+                readSdf = setDateFormat(readFormat, this.locale);
             }
         } catch (IllegalArgumentException e) {
             CsvBadConverterException csve = new CsvBadConverterException(getClass(), String.format(
@@ -276,35 +159,15 @@ public class ConverterDate extends AbstractCsvConverter {
 
         // Format string, locale, and conversion function for writing
         try {
-            if(TemporalAccessor.class.isAssignableFrom(type)) {
+            if (TemporalAccessor.class.isAssignableFrom(type)) {
                 writeSdf = null;
-                DateTimeFormatter dtfWithoutChronology;
-                if(this.writeLocale != null) {
-                    dtfWithoutChronology = DateTimeFormatter.ofPattern(writeFormat, this.writeLocale);
-                }
-                else {
-                    dtfWithoutChronology = DateTimeFormatter.ofPattern(writeFormat);
-                }
+                DateTimeFormatter dtfWithoutChronology = setDateTimeFormatter(writeFormat, this.writeLocale);
                 writeDtf = dtfWithoutChronology.withChronology(writeChrono);
-
-                if(Instant.class.equals(type)) {
-                    writeTemporalConversionFunction = (writeDtf, value) -> {
-                        LocalDateTime ldt = LocalDateTime.ofInstant((Instant)value, ZoneId.of("UTC"));
-                        return writeDtf.format(ldt);
-                    };
-                }
-                else {
-                    writeTemporalConversionFunction = (writeDtf, value) -> writeDtf.format((TemporalAccessor)value);
-                }
-            }
-            else {
+                writeTemporalConversionFunction = determineWriteTemporalConversionFunction(type);
+            } else {
                 writeDtf = null;
                 writeTemporalConversionFunction = null;
-                if (this.writeLocale != null) {
-                    writeSdf = new SimpleDateFormat(writeFormat, this.writeLocale);
-                } else {
-                    writeSdf = new SimpleDateFormat(writeFormat);
-                }
+                writeSdf = setDateFormat(writeFormat, this.writeLocale);
             }
         } catch (IllegalArgumentException e) {
             CsvBadConverterException csve = new CsvBadConverterException(getClass(), String.format(
@@ -314,11 +177,106 @@ public class ConverterDate extends AbstractCsvConverter {
             throw csve;
         }
     }
-    
+
+    private BiFunction<DateTimeFormatter, TemporalAccessor, String> determineWriteTemporalConversionFunction(Class<?> type) {
+        if (Instant.class.equals(type)) {
+            return (writeDtf, value) -> {
+                LocalDateTime ldt = LocalDateTime.ofInstant((Instant) value, ZoneId.of("UTC"));
+                return writeDtf.format(ldt);
+            };
+        } else {
+            return (writeDtf, value) -> writeDtf.format((TemporalAccessor) value);
+        }
+    }
+
+    private BiFunction<DateTimeFormatter, String, TemporalAccessor> determineReadTemporalConversionFunction(Class<?> type) {
+
+        if (TemporalAccessor.class.equals(type)) {
+            return DateTimeFormatter::parse;
+        } else if (ChronoLocalDateTime.class.equals(type)
+                || LocalDateTime.class.equals(type)) {
+            return (readDtf, s) -> readDtf.parse(s, LocalDateTime::from);
+        } else if (ChronoZonedDateTime.class.equals(type)
+                || ZonedDateTime.class.equals(type)) {
+            return (readDtf, s) -> readDtf.parse(s, ZonedDateTime::from);
+        } else if (Temporal.class.equals(type)) {
+            return (readDtf, s) -> readDtf.parseBest(s, ZonedDateTime::from,
+                    OffsetDateTime::from, Instant::from,
+                    LocalDateTime::from, LocalDate::from, OffsetTime::from,
+                    LocalTime::from);
+        } else if (Era.class.equals(type) || IsoEra.class.equals(type)) {
+            return (readDtf, s) -> IsoEra.of(readDtf.parse(s).get(ChronoField.ERA));
+        } else if (DayOfWeek.class.equals(type)) {
+            return (readDtf, s) -> readDtf.parse(s, DayOfWeek::from);
+        } else if (HijrahEra.class.equals(type)) {
+            return (readDtf, s) -> HijrahEra.of(readDtf.parse(s).get(ChronoField.ERA));
+        } else if (Instant.class.equals(type)) {
+            return (readDtf, s) -> readDtf.parse(s, Instant::from);
+        } else if (ChronoLocalDate.class.isAssignableFrom(type)) {
+            return (readDtf, s) -> readDtf.parse(s, ChronoLocalDate::from);
+        } else if (JapaneseEra.class.equals(type)) {
+            return (readDtf, s) -> JapaneseEra.of(readDtf.parse(s).get(ChronoField.ERA));
+        } else if (LocalTime.class.equals(type)) {
+            return (readDtf, s) -> readDtf.parse(s, LocalTime::from);
+        } else if (MinguoEra.class.equals(type)) {
+            return (readDtf, s) -> MinguoEra.of(readDtf.parse(s).get(ChronoField.ERA));
+        } else if (Month.class.equals(type)) {
+            return (readDtf, s) -> readDtf.parse(s, Month::from);
+        } else if (MonthDay.class.equals(type)) {
+            return (readDtf, s) -> readDtf.parse(s, MonthDay::from);
+        } else if (OffsetDateTime.class.equals(type)) {
+            return (readDtf, s) -> readDtf.parse(s, OffsetDateTime::from);
+        } else if (OffsetTime.class.equals(type)) {
+            return (readDtf, s) -> readDtf.parse(s, OffsetTime::from);
+        } else if (ThaiBuddhistEra.class.equals(type)) {
+            return (readDtf, s) -> ThaiBuddhistEra.of(readDtf.parse(s).get(ChronoField.ERA));
+        } else if (Year.class.equals(type)) {
+            return (readDtf, s) -> readDtf.parse(s, Year::from);
+        } else if (YearMonth.class.equals(type)) {
+            return (readDtf, s) -> readDtf.parse(s, YearMonth::from);
+        } else if (ZoneOffset.class.equals(type)) {
+            return (readDtf, s) -> readDtf.parse(s, ZoneOffset::from);
+        } else {
+            throw new CsvBadConverterException(getClass(), String.format(
+                    ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, this.errorLocale)
+                            .getString(CSVDATE_NOT_DATE), type));
+        }
+    }
+
+    private SimpleDateFormat setDateFormat(String format, Locale formatLocale) {
+        if (formatLocale != null) {
+            return new SimpleDateFormat(format, formatLocale);
+        }
+        return new SimpleDateFormat(format);
+    }
+
+    private DateTimeFormatter setDateTimeFormatter(String format, Locale formatLocale) {
+        if (this.writeLocale != null) {
+            return DateTimeFormatter.ofPattern(format, formatLocale);
+        }
+        return DateTimeFormatter.ofPattern(format);
+    }
+
+    private Chronology getChronology(String readChronology, Locale locale2) {
+        Chronology readChrono;
+        try {
+            readChrono = StringUtils.isNotBlank(readChronology) ?
+                    Chronology.of(readChronology) :
+                    Chronology.ofLocale(locale2);
+        } catch (DateTimeException e) {
+            CsvBadConverterException csve = new CsvBadConverterException(getClass(),
+                    String.format(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, this.errorLocale)
+                            .getString("chronology.not.found"), readChronology));
+            csve.initCause(e);
+            throw csve;
+        }
+        return readChrono;
+    }
+
     @Override
     public Object convertToRead(String value) throws CsvDataTypeMismatchException {
         Object returnValue = null;
-        if(StringUtils.isNotBlank(value)) {
+        if (StringUtils.isNotBlank(value)) {
 
             // Convert Date-based types
             if (Date.class.isAssignableFrom(type)) {
@@ -335,14 +293,14 @@ public class ConverterDate extends AbstractCsvConverter {
                 // illogical: I know all of the data types I expect here, and they
                 // should all be instantiated with no problems. Ergo, this must be
                 // the wrong data type.
-                catch(ParseException | InstantiationException
+                catch (ParseException | InstantiationException
                         | IllegalAccessException | NoSuchMethodException
                         | InvocationTargetException e) {
                     CsvDataTypeMismatchException csve = new CsvDataTypeMismatchException(value, type);
                     csve.initCause(e);
                     throw csve;
                 }
-            // Convert TemporalAccessor-based types
+                // Convert TemporalAccessor-based types
             } else if (TemporalAccessor.class.isAssignableFrom(type)) {
                 try {
                     returnValue = type.cast(readTemporalConversionFunction.apply(readDtf, value));
@@ -351,7 +309,7 @@ public class ConverterDate extends AbstractCsvConverter {
                     csve.initCause(e);
                     throw csve;
                 }
-            // Convert Calendar-based types
+                // Convert Calendar-based types
             } else if (Calendar.class.isAssignableFrom(type)
                     || XMLGregorianCalendar.class.isAssignableFrom(type)) {
                 // Parse input
@@ -387,8 +345,7 @@ public class ConverterDate extends AbstractCsvConverter {
                         ex.initCause(e);
                         throw ex;
                     }
-                }
-                else {
+                } else {
                     returnValue = type.cast(gc);
                 }
             } else {
@@ -404,44 +361,43 @@ public class ConverterDate extends AbstractCsvConverter {
      * This method converts the encapsulated date type to a string, respecting
      * any locales and conversion patterns that have been set through opencsv
      * annotations.
-     * 
+     *
      * @param value The object containing a date of one of the supported types
      * @return A string representation of the date. If a
-     *   {@link CsvBindByName#locale() locale} or {@link CsvDate#value() conversion
-     *   pattern} has been specified through annotations, these are used when
-     *   creating the return value.
+     * {@link CsvBindByName#locale() locale} or {@link CsvDate#value() conversion
+     * pattern} has been specified through annotations, these are used when
+     * creating the return value.
      * @throws CsvDataTypeMismatchException If an unsupported type as been
-     *   improperly annotated
+     *                                      improperly annotated
      */
     @Override
     public String convertToWrite(Object value)
             throws CsvDataTypeMismatchException {
         String returnValue = null;
-        if(value != null) {
+        if (value != null) {
 
             // For Date-based conversions
             if (Date.class.isAssignableFrom(type)) {
                 synchronized (writeSdf) {
-                    returnValue = writeSdf.format((Date)value);
+                    returnValue = writeSdf.format((Date) value);
                 }
-            // For TemporalAccessor-based conversions
+                // For TemporalAccessor-based conversions
             } else if (TemporalAccessor.class.isAssignableFrom(type)) {
                 try {
-                    returnValue = writeTemporalConversionFunction.apply(writeDtf, (TemporalAccessor)value);
+                    returnValue = writeTemporalConversionFunction.apply(writeDtf, (TemporalAccessor) value);
                 } catch (DateTimeException | ArithmeticException e) {
                     CsvDataTypeMismatchException csve = new CsvDataTypeMismatchException(value, type);
                     csve.initCause(e);
                     throw csve;
                 }
-            // For Calendar-based conversions
+                // For Calendar-based conversions
             } else if (Calendar.class.isAssignableFrom(type)
                     || XMLGregorianCalendar.class.isAssignableFrom(type)) {
                 Calendar c;
-                if(value instanceof XMLGregorianCalendar) {
-                    c = ((XMLGregorianCalendar)value).toGregorianCalendar();
-                }
-                else {
-                    c = (Calendar)value;
+                if (value instanceof XMLGregorianCalendar) {
+                    c = ((XMLGregorianCalendar) value).toGregorianCalendar();
+                } else {
+                    c = (Calendar) value;
                 }
                 synchronized (writeSdf) {
                     returnValue = writeSdf.format(c.getTime());

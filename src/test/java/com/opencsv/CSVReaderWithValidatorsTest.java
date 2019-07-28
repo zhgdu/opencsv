@@ -14,8 +14,7 @@ import java.io.StringReader;
 import java.util.List;
 import java.util.function.Function;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CSVReaderWithValidatorsTest {
     private static final String BAD = "bad";
@@ -68,6 +67,28 @@ public class CSVReaderWithValidatorsTest {
         });
     }
 
+    @DisplayName("CSVReader populates line number of exception thrown by LineValidatorAggregator")
+    @Test
+    public void readerWithLineValidatorExceptionContainsLineNumber() throws IOException {
+        String lines = "a,b,c\nd,bad,f\n";
+        StringReader stringReader = new StringReader(lines);
+        CSVReaderBuilder builder = new CSVReaderBuilder(stringReader);
+
+        CSVReader csvReader = builder
+                .withLineValidator(lineDoesNotHaveAwfulString)
+                .withLineValidator(lineDoesNotHaveBadString)
+                .build();
+
+        try {
+            List<String[]> rows = csvReader.readAll();
+            fail("Expected a CsvValidationException to be thrown!");
+        } catch (CsvValidationException cve) {
+            assertEquals(2, cve.getLineNumber());
+        } catch (Exception e) {
+            fail("Caught an exception other than CsvValidationException!", e);
+        }
+    }
+
     @DisplayName("CSVReader with RowValidator with bad row")
     @Test
     public void readerWithRowValidatorWithBadRow() {
@@ -82,5 +103,26 @@ public class CSVReaderWithValidatorsTest {
         assertThrows(CsvValidationException.class, () -> {
             List<String[]> rows = csvReader.readAll();
         });
+    }
+
+    @DisplayName("CSVReader populates line number of exception thrown by RowValidatorAggregator")
+    @Test
+    public void readerWithRowValidatorExceptionContainsLineNumber() {
+        String lines = "a,b,c\nd,f\n";
+        StringReader stringReader = new StringReader(lines);
+        CSVReaderBuilder builder = new CSVReaderBuilder(stringReader);
+
+        CSVReader csvReader = builder
+                .withRowValidator(THREE_COLUMNS_ROW_VALIDATOR)
+                .build();
+
+        try {
+            List<String[]> rows = csvReader.readAll();
+            fail("Expected a CsvValidationException to be thrown!");
+        } catch (CsvValidationException cve) {
+            assertEquals(2, cve.getLineNumber());
+        } catch (Exception e) {
+            fail("Caught an exception other than CsvValidationException!", e);
+        }
     }
 }
