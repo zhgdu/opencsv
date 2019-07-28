@@ -14,6 +14,11 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.ResourceBundle;
 
+/**
+ * Abstract class containing commmon logic for the header name mapping strategies.
+ *
+ * @param <T> Type of the bean to be returned
+ */
 abstract public class HeaderNameBaseMappingStrategy<T> extends AbstractMappingStrategy<String, String, ComplexFieldMapEntry<String, String, T>, T> {
 
     /**
@@ -51,8 +56,7 @@ abstract public class HeaderNameBaseMappingStrategy<T> extends AbstractMappingSt
                                     .getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
                                     .getString("matching"),
                             fme.getName());
-                }
-                else {
+                } else {
                     requiredHeaderNames[i] = fme.getName();
                 }
                 requiredFields.add(fme.getField().getField());

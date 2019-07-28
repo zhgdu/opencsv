@@ -3,6 +3,8 @@ package com.opencsv;
 import com.opencsv.exceptions.CsvException;
 import com.opencsv.exceptions.CsvValidationException;
 import com.opencsv.validators.LineDoesNotHaveForbiddenString;
+import com.opencsv.validators.RowFunctionValidator;
+import com.opencsv.validators.RowValidator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -10,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.io.StringReader;
 import java.util.List;
+import java.util.function.Function;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -20,11 +23,15 @@ public class CSVReaderWithValidatorsTest {
     private LineDoesNotHaveForbiddenString lineDoesNotHaveBadString;
     private LineDoesNotHaveForbiddenString lineDoesNotHaveAwfulString;
 
+    private static final Function<String[], Boolean> ROW_MUST_HAVE_THREE_COLUMNS = (x) -> {
+        return x.length == 3;
+    };
+    private static final RowValidator THREE_COLUMNS_ROW_VALIDATOR = new RowFunctionValidator(ROW_MUST_HAVE_THREE_COLUMNS, "Row must have three columns!");
+
     @BeforeEach
     public void setup() {
         lineDoesNotHaveBadString = new LineDoesNotHaveForbiddenString(BAD);
         lineDoesNotHaveAwfulString = new LineDoesNotHaveForbiddenString(AWFUL);
-
     }
 
     @DisplayName("CSVReader with LineValidator with good string")
@@ -34,7 +41,10 @@ public class CSVReaderWithValidatorsTest {
         StringReader stringReader = new StringReader(lines);
         CSVReaderBuilder builder = new CSVReaderBuilder(stringReader);
 
-        CSVReader csvReader = builder.withLineValidator(lineDoesNotHaveBadString)
+        CSVReader csvReader = builder
+                .withLineValidator(lineDoesNotHaveAwfulString)
+                .withLineValidator(lineDoesNotHaveBadString)
+                .withRowValidator(THREE_COLUMNS_ROW_VALIDATOR)
                 .build();
 
         List<String[]> rows = csvReader.readAll();
@@ -48,7 +58,25 @@ public class CSVReaderWithValidatorsTest {
         StringReader stringReader = new StringReader(lines);
         CSVReaderBuilder builder = new CSVReaderBuilder(stringReader);
 
-        CSVReader csvReader = builder.withLineValidator(lineDoesNotHaveBadString)
+        CSVReader csvReader = builder
+                .withLineValidator(lineDoesNotHaveAwfulString)
+                .withLineValidator(lineDoesNotHaveBadString)
+                .build();
+
+        assertThrows(CsvValidationException.class, () -> {
+            List<String[]> rows = csvReader.readAll();
+        });
+    }
+
+    @DisplayName("CSVReader with RowValidator with bad row")
+    @Test
+    public void readerWithRowValidatorWithBadRow() {
+        String lines = "a,b,c\nd,f\n";
+        StringReader stringReader = new StringReader(lines);
+        CSVReaderBuilder builder = new CSVReaderBuilder(stringReader);
+
+        CSVReader csvReader = builder
+                .withRowValidator(THREE_COLUMNS_ROW_VALIDATOR)
                 .build();
 
         assertThrows(CsvValidationException.class, () -> {

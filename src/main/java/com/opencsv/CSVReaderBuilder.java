@@ -19,6 +19,8 @@ package com.opencsv;
 import com.opencsv.enums.CSVReaderNullFieldIndicator;
 import com.opencsv.validators.LineValidator;
 import com.opencsv.validators.LineValidatorAggregator;
+import com.opencsv.validators.RowValidator;
+import com.opencsv.validators.RowValidatorAggregator;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.io.Reader;
@@ -58,6 +60,7 @@ public class CSVReaderBuilder {
     private int multilineLimit = CSVReader.DEFAULT_MULTILINE_LIMIT;
     private Locale errorLocale = Locale.getDefault();
     private LineValidatorAggregator lineValidatorAggregator = new LineValidatorAggregator();
+    private RowValidatorAggregator rowValidatorAggregator = new RowValidatorAggregator();
 
     /**
      * Sets the reader to an underlying CSV source.
@@ -140,7 +143,7 @@ public class CSVReaderBuilder {
      */
     public CSVReader build() {
         final ICSVParser parser = getOrCreateCsvParser();
-        return new CSVReader(reader, skipLines, parser, keepCR, verifyReader, multilineLimit, errorLocale, lineValidatorAggregator);
+        return new CSVReader(reader, skipLines, parser, keepCR, verifyReader, multilineLimit, errorLocale, lineValidatorAggregator, rowValidatorAggregator);
     }
 
     /**
@@ -250,7 +253,14 @@ public class CSVReaderBuilder {
     }
 
     /**
-     * Sets the LineValidator for the CSVReader.
+     * @return The RowValidatorAggregator for the custom defined RowValidators.
+     */
+    public RowValidatorAggregator getRowValidatorAggregator() {
+        return rowValidatorAggregator;
+    }
+
+    /**
+     * Adds a LineValidator to the CSVReader.
      *
      * @param lineValidator LineValidator to inject.
      * @return this
@@ -258,6 +268,18 @@ public class CSVReaderBuilder {
      */
     public CSVReaderBuilder withLineValidator(LineValidator lineValidator) {
         lineValidatorAggregator.addValidator(lineValidator);
+        return this;
+    }
+
+    /**
+     * Adds a RowValidator to the CSVReader.
+     *
+     * @param rowValidator RowValidator to inject
+     * @return this
+     * @since 5.0
+     */
+    public CSVReaderBuilder withRowValidator(RowValidator rowValidator) {
+        rowValidatorAggregator.addValidator(rowValidator);
         return this;
     }
 }

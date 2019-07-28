@@ -7,7 +7,10 @@ import org.apache.commons.text.similarity.LevenshteinDistance;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -21,8 +24,11 @@ import java.util.stream.Stream;
  */
 public class FuzzyMappingStrategy<T> extends HeaderColumnNameMappingStrategy<T> {
 
-    /** Nullary constructor to make the style checker happy. */
-    public FuzzyMappingStrategy() {}
+    /**
+     * Nullary constructor to make the style checker happy.
+     */
+    public FuzzyMappingStrategy() {
+    }
 
     /**
      * This implementation intentionally does nothing in order to allow fuzzy
@@ -30,7 +36,8 @@ public class FuzzyMappingStrategy<T> extends HeaderColumnNameMappingStrategy<T> 
      * question.
      */
     @Override
-    protected void loadUnadornedFieldMap(List<Field> fields) {}
+    protected void loadUnadornedFieldMap(List<Field> fields) {
+    }
 
     @Override
     public void captureHeader(CSVReader reader) throws IOException, CsvRequiredFieldEmptyException {
@@ -58,7 +65,7 @@ public class FuzzyMappingStrategy<T> extends HeaderColumnNameMappingStrategy<T> 
         comparisons.sort(null);
 
         // Use the best matches
-        while(!comparisons.isEmpty()) {
+        while (!comparisons.isEmpty()) {
             FuzzyComparison fc = comparisons.get(0);
 
             // Add the mapping
@@ -93,6 +100,23 @@ public class FuzzyMappingStrategy<T> extends HeaderColumnNameMappingStrategy<T> 
         @Override
         public int compareTo(FuzzyComparison o) {
             return Integer.compare(distance, o.distance);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (!(o instanceof FuzzyComparison)) {
+                return false;
+            }
+            FuzzyComparison that = (FuzzyComparison) o;
+            return Objects.equals(distance, that.distance);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(distance);
         }
     }
 }
