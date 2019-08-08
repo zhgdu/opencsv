@@ -23,6 +23,7 @@ import com.opencsv.exceptions.*;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -69,7 +70,7 @@ public class ProcessCsvLine<T> implements Runnable {
         this.lineNumber = lineNumber;
         this.mapper = mapper;
         this.filter = filter;
-        this.verifiers = ObjectUtils.defaultIfNull(new ArrayList<>(verifiers), Collections.<BeanVerifier<T>>emptyList());
+        this.verifiers = ObjectUtils.defaultIfNull(new ArrayList<>(verifiers), Collections.emptyList());
         this.line = ArrayUtils.clone(line);
         this.resultantBeanQueue = resultantBeanQueue;
         this.thrownExceptionsQueue = thrownExceptionsQueue;
@@ -110,7 +111,7 @@ public class ProcessCsvLine<T> implements Runnable {
      * @return Object containing the values.
      * @throws IllegalAccessException Thrown on error creating bean.
      * @throws InstantiationException Thrown on error creating bean.
-     *   PropertyDescriptor.
+     * @throws InvocationTargetException Thrown on error creating bean.
      * @throws CsvBadConverterException If a custom converter cannot be
      *   initialized properly
      * @throws CsvDataTypeMismatchException If the source data cannot be
@@ -122,7 +123,7 @@ public class ProcessCsvLine<T> implements Runnable {
      */
     private T processLine()
             throws IllegalAccessException,
-            InstantiationException,
+            InstantiationException, InvocationTargetException,
             CsvBadConverterException, CsvDataTypeMismatchException,
             CsvRequiredFieldEmptyException, CsvConstraintViolationException {
         return mapper.populateNewBean(line);

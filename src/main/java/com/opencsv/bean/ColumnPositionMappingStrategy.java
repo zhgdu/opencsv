@@ -3,16 +3,15 @@ package com.opencsv.bean;
 import com.opencsv.CSVReader;
 import com.opencsv.ICSVParser;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+import org.apache.commons.collections4.ListValuedMap;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.reflect.FieldUtils;
 
 import java.io.IOException;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Allows for the mapping of columns with their positions. Using this strategy
@@ -171,27 +170,30 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
      * relevant annotation is found on a member variable.</p>
      */
     @Override
-    protected void loadAnnotatedFieldMap(List<Field> fields) {
+    protected void loadAnnotatedFieldMap(ListValuedMap<Class<?>, Field> fields) {
         boolean required;
-        for (Field field : fields) {
+        for (Map.Entry<Class<?>, Field> classAndField : fields.entries()) {
+            Class<?> localType = classAndField.getKey();
+            Field localField = classAndField.getValue();
             String fieldLocale, fieldWriteLocale, capture, format;
 
             // Custom converters always have precedence.
-            if (field.isAnnotationPresent(CsvCustomBindByPosition.class)) {
-                CsvCustomBindByPosition annotation = field
+            if (localField.isAnnotationPresent(CsvCustomBindByPosition.class)) {
+                CsvCustomBindByPosition annotation = localField
                         .getAnnotation(CsvCustomBindByPosition.class);
                 @SuppressWarnings("unchecked")
                 Class<? extends AbstractBeanField<T, Integer>> converter = (Class<? extends AbstractBeanField<T, Integer>>)annotation.converter();
                 BeanField<T, Integer> bean = instantiateCustomConverter(converter);
-                bean.setField(field);
+                bean.setType(localType);
+                bean.setField(localField);
                 required = annotation.required();
                 bean.setRequired(required);
                 fieldMap.put(annotation.position(), bean);
             }
 
             // Then check for a collection
-            else if (field.isAnnotationPresent(CsvBindAndSplitByPosition.class)) {
-                CsvBindAndSplitByPosition annotation = field.getAnnotation(CsvBindAndSplitByPosition.class);
+            else if (localField.isAnnotationPresent(CsvBindAndSplitByPosition.class)) {
+                CsvBindAndSplitByPosition annotation = localField.getAnnotation(CsvBindAndSplitByPosition.class);
                 required = annotation.required();
                 fieldLocale = annotation.locale();
                 fieldWriteLocale = annotation.writeLocaleEqualsReadLocale()
@@ -205,15 +207,15 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
                 capture = annotation.capture();
                 format = annotation.format();
 
-                CsvConverter converter = determineConverter(field, elementType, fieldLocale, fieldWriteLocale, splitConverter);
+                CsvConverter converter = determineConverter(localField, elementType, fieldLocale, fieldWriteLocale, splitConverter);
                 fieldMap.put(annotation.position(), new BeanFieldSplit<>(
-                        field, required, errorLocale, converter, splitOn,
+                        localType, localField, required, errorLocale, converter, splitOn,
                         writeDelimiter, collectionType, capture, format));
             }
 
             // Then check for a multi-column annotation
-            else if (field.isAnnotationPresent(CsvBindAndJoinByPosition.class)) {
-                CsvBindAndJoinByPosition annotation = field.getAnnotation(CsvBindAndJoinByPosition.class);
+            else if (localField.isAnnotationPresent(CsvBindAndJoinByPosition.class)) {
+                CsvBindAndJoinByPosition annotation = localField.getAnnotation(CsvBindAndJoinByPosition.class);
                 required = annotation.required();
                 fieldLocale = annotation.locale();
                 fieldWriteLocale = annotation.writeLocaleEqualsReadLocale()
@@ -225,14 +227,14 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
                 capture = annotation.capture();
                 format = annotation.format();
 
-                CsvConverter converter = determineConverter(field, elementType, fieldLocale, fieldWriteLocale, joinConverter);
+                CsvConverter converter = determineConverter(localField, elementType, fieldLocale, fieldWriteLocale, joinConverter);
                 fieldMap.putComplex(annotation.position(), new BeanFieldJoinIntegerIndex<>(
-                        field, required, errorLocale, converter, mapType, capture, format));
+                        localType, localField, required, errorLocale, converter, mapType, capture, format));
             }
 
             // Then it must be a bind by position.
             else {
-                CsvBindByPosition annotation = field.getAnnotation(CsvBindByPosition.class);
+                CsvBindByPosition annotation = localField.getAnnotation(CsvBindByPosition.class);
                 required = annotation.required();
                 fieldLocale = annotation.locale();
                 fieldWriteLocale = annotation.writeLocaleEqualsReadLocale()
@@ -240,43 +242,46 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
                         : annotation.writeLocale();
                 capture = annotation.capture();
                 format = annotation.format();
-                CsvConverter converter = determineConverter(field, field.getType(), fieldLocale, fieldWriteLocale, null);
+                CsvConverter converter = determineConverter(localField, localField.getType(), fieldLocale, fieldWriteLocale, null);
 
                 fieldMap.put(annotation.position(), new BeanFieldSingleValue<>(
-                        field, required, errorLocale, converter, capture, format));
+                        localType, localField, required, errorLocale, converter, capture, format));
             }
         }
     }
 
     @Override
-    protected void loadUnadornedFieldMap(List<Field> fields) {
-        for(Field field : fields) {
-            CsvConverter converter = determineConverter(field, field.getType(), null, null, null);
-            int[] indices = headerIndex.getByName(field.getName());
+    protected void loadUnadornedFieldMap(ListValuedMap<Class<?>, Field> fields) {
+        for(Map.Entry<Class<?>, Field> classAndField : fields.entries()) {
+            Class<?> localType = classAndField.getKey();
+            Field localField = classAndField.getValue();
+            CsvConverter converter = determineConverter(localField, localField.getType(), null, null, null);
+            int[] indices = headerIndex.getByName(localField.getName());
             if(indices.length != 0) {
                 fieldMap.put(indices[0], new BeanFieldSingleValue<>(
-                        field, false, errorLocale, converter, null, null));
+                        localType, localField, false, errorLocale, converter, null, null));
             }
         }
     }
 
     /**
-     * Partitions all non-synthetic fields of the bean type being processed
-     * into annotated and non-annotated fields.
-     *
-     * @return A map in which all annotated fields are mapped under
-     * {@link Boolean#TRUE}, and all non-annotated fields are mapped under
-     * {@link Boolean#FALSE}.
+     * Returns a set of the annotations that are used for binding in this
+     * mapping strategy.
+     * <p>In this mapping strategy, those are currently:<ul>
+     *     <li>{@link CsvBindByPosition}</li>
+     *     <li>{@link CsvCustomBindByPosition}</li>
+     *     <li>{@link CsvBindAndJoinByPosition}</li>
+     *     <li>{@link CsvBindAndSplitByPosition}</li>
+     * </ul></p>
      */
     @Override
-    protected Map<Boolean, List<Field>> partitionFields() {
-        return Stream.of(FieldUtils.getAllFields(getType()))
-                .filter(f -> !f.isSynthetic())
-                .collect(Collectors.partitioningBy(
-                        f -> f.isAnnotationPresent(CsvBindByPosition.class)
-                                || f.isAnnotationPresent(CsvCustomBindByPosition.class)
-                                || f.isAnnotationPresent(CsvBindAndJoinByPosition.class)
-                                || f.isAnnotationPresent(CsvBindAndSplitByPosition.class)));
+    protected Set<Class<? extends Annotation>> getBindingAnnotations() {
+        // With Java 9 this can be done more easily with Set.of()
+        return new HashSet<>(Arrays.asList(
+                CsvBindByPosition.class,
+                CsvCustomBindByPosition.class,
+                CsvBindAndJoinByPosition.class,
+                CsvBindAndSplitByPosition.class));
     }
 
     @Override

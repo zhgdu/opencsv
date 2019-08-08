@@ -47,7 +47,11 @@ public class BeanFieldSplit<T, I> extends AbstractBeanField<T, I> {
     
     /**
      * The only valid constructor.
-     * 
+     *
+     * @param type The type of the class in which this field is found. This is
+     *             the type as instantiated by opencsv, and not necessarily the
+     *             type in which the field is declared in the case of
+     *             inheritance.
      * @param field A {@link java.lang.reflect.Field} object.
      * @param required Whether or not this field is required in input
      * @param errorLocale The errorLocale to use for error messages.
@@ -61,13 +65,13 @@ public class BeanFieldSplit<T, I> extends AbstractBeanField<T, I> {
      *               If {@code null} or empty, it is ignored.
      */
     public BeanFieldSplit(
-            Field field, boolean required, Locale errorLocale,
+            Class<?> type, Field field, boolean required, Locale errorLocale,
             CsvConverter converter, String splitOn, String writeDelimiter,
             Class<? extends Collection> collectionType, String capture,
             String format) {
         
         // Simple assignments
-        super(field, required, errorLocale, converter);
+        super(type, field, required, errorLocale, converter);
         this.writeDelimiter = writeDelimiter;
         this.writeFormat = format;
         
@@ -151,7 +155,8 @@ public class BeanFieldSplit<T, I> extends AbstractBeanField<T, I> {
      * conversion.
      * 
      * @see ConverterPrimitiveTypes#convertToRead(java.lang.String) 
-     * @see ConverterDate#convertToRead(java.lang.String) 
+     * @see ConverterDate#convertToRead(java.lang.String)
+     * @see ConverterNumber#convertToRead(String) 
      */
     // The rest of the Javadoc is inherited
     @Override

@@ -99,6 +99,11 @@ one includes headers and the other doesn't. Possibly to convert between headerle
 input and output with headers. Further use cases are left as an exercise for the
 reader.
 
+opencsv always produces (on reading from a CSV file) and consumes (on writing
+to a CSV file) one bean type. You may wish to split the input/output across
+multiple bean types. If this is the case for you, the annotation CsvRecurse is
+available.
+
 Most of the more detailed documentation on using annotations is in the section
 on reading data. The use of annotations applies equally well to writing data,
 though; the annotations define a two-way mapping between bean fields and fields

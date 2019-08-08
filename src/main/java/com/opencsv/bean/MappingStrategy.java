@@ -23,6 +23,7 @@ import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Locale;
 
 /**
@@ -88,6 +89,8 @@ public interface MappingStrategy<T> {
      *   be accessed and used as needed
      * @throws IllegalAccessException Generally, if some part of the bean cannot
      *   be accessed and used as needed
+     * @throws InvocationTargetException Generally, if some part of the bean cannot
+     *   be accessed and used as needed
      * @throws CsvRequiredFieldEmptyException If the input for a field defined
      *   as required is empty
      * @throws CsvDataTypeMismatchException If conversion of the input to a
@@ -99,8 +102,8 @@ public interface MappingStrategy<T> {
      */
     T populateNewBean(String[] line)
             throws InstantiationException, IllegalAccessException,
-            CsvRequiredFieldEmptyException, CsvDataTypeMismatchException,
-            CsvConstraintViolationException;
+            InvocationTargetException, CsvRequiredFieldEmptyException,
+            CsvDataTypeMismatchException, CsvConstraintViolationException;
     
     /**
      * Sets the locale for all error messages.

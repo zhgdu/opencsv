@@ -7,6 +7,8 @@ package com.opencsv.exceptions;
  * @since 5.0
  */
 public class CsvValidationException extends CsvException {
+    private static final long serialVersionUID = 1L;
+
     /**
      * Default constructor.
      */

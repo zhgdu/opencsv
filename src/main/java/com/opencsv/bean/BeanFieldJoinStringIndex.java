@@ -34,6 +34,10 @@ public class BeanFieldJoinStringIndex<T> extends BeanFieldJoin<T, String> {
     /**
      * Creates a new instance.
      *
+     * @param type The type of the class in which this field is found. This is
+     *             the type as instantiated by opencsv, and not necessarily the
+     *             type in which the field is declared in the case of
+     *             inheritance.
      * @param field       The bean field this object represents
      * @param required    Whether or not a value is always required for this field
      * @param errorLocale The locale to use for error messages
@@ -47,10 +51,10 @@ public class BeanFieldJoinStringIndex<T> extends BeanFieldJoin<T, String> {
      *                    If {@code null} or empty, it is ignored.
      */
     public BeanFieldJoinStringIndex(
-            Field field, boolean required, Locale errorLocale,
+            Class<?> type, Field field, boolean required, Locale errorLocale,
             CsvConverter converter, Class<? extends MultiValuedMap> mapType,
             String capture, String format) {
-        super(field, required, errorLocale, converter, mapType, capture, format);
+        super(type, field, required, errorLocale, converter, mapType, capture, format);
     }
 
     @Override

@@ -52,6 +52,11 @@ public class BeanFieldSingleValue<T, I> extends AbstractBeanField<T, I> {
     
     /**
      * Simply calls the same constructor in the base class.
+     *
+     * @param type The type of the class in which this field is found. This is
+     *             the type as instantiated by opencsv, and not necessarily the
+     *             type in which the field is declared in the case of
+     *             inheritance.
      * @param field A {@link java.lang.reflect.Field} object.
      * @param required Whether or not this field is required in input
      * @param errorLocale The errorLocale to use for error messages.
@@ -60,12 +65,12 @@ public class BeanFieldSingleValue<T, I> extends AbstractBeanField<T, I> {
      * @param capture See {@link CsvBindByName#capture()}
      * @param format The format string used for packaging values to be written.
      *               If {@code null} or empty, it is ignored.
-     * @see AbstractBeanField#AbstractBeanField(java.lang.reflect.Field, boolean, java.util.Locale, com.opencsv.bean.CsvConverter) 
+     * @see AbstractBeanField#AbstractBeanField(Class, Field, boolean, Locale, CsvConverter)
      */
-    public BeanFieldSingleValue(Field field, boolean required,
+    public BeanFieldSingleValue(Class<?> type, Field field, boolean required,
                                 Locale errorLocale, CsvConverter converter,
                                 String capture, String format) {
-        super(field, required, errorLocale, converter);
+        super(type, field, required, errorLocale, converter);
         this.capture = OpencsvUtils.compilePatternAtLeastOneGroup(
                 capture, 0, BeanFieldSingleValue.class, this.errorLocale);
         this.writeFormat = format;

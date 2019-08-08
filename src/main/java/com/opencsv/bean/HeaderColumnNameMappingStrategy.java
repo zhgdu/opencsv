@@ -1,15 +1,12 @@
 package com.opencsv.bean;
 
+import org.apache.commons.collections4.ListValuedMap;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.reflect.FieldUtils;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.*;
 
 /*
  * Copyright 2007 Kyle Miller.
@@ -47,33 +44,38 @@ public class HeaderColumnNameMappingStrategy<T> extends HeaderNameBaseMappingStr
      * relevant annotation is found on a member variable.</p>
      */
     @Override
-    protected void loadAnnotatedFieldMap(List<Field> fields) {
+    protected void loadAnnotatedFieldMap(ListValuedMap<Class<?>, Field> fields) {
         boolean required;
 
-        for (Field field : fields) {
+        for (Map.Entry<Class<?>, Field> classField : fields.entries()) {
+            Class<?> localType = classField.getKey();
+            Field localField = classField.getValue();
             String columnName, locale, writeLocale, capture, format;
 
             // Always check for a custom converter first.
-            if (field.isAnnotationPresent(CsvCustomBindByName.class)) {
-                CsvCustomBindByName annotation = field.getAnnotation(CsvCustomBindByName.class);
+            if (localField.isAnnotationPresent(CsvCustomBindByName.class)) {
+                CsvCustomBindByName annotation = localField
+                        .getAnnotation(CsvCustomBindByName.class);
                 columnName = annotation.column().toUpperCase().trim();
                 if(StringUtils.isEmpty(columnName)) {
-                    columnName = field.getName().toUpperCase();
+                    columnName = localField.getName().toUpperCase();
                 }
                 @SuppressWarnings("unchecked")
-                Class<? extends AbstractBeanField<T, String>> converter = (Class<? extends AbstractBeanField<T, String>>)field
+                Class<? extends AbstractBeanField<T, String>> converter = (Class<? extends AbstractBeanField<T, String>>)localField
                         .getAnnotation(CsvCustomBindByName.class)
                         .converter();
                 BeanField<T, String> bean = instantiateCustomConverter(converter);
-                bean.setField(field);
+                bean.setType(localType);
+                bean.setField(localField);
                 required = annotation.required();
                 bean.setRequired(required);
                 fieldMap.put(columnName, bean);
             }
 
             // Then check for a collection
-            else if(field.isAnnotationPresent(CsvBindAndSplitByName.class)) {
-                CsvBindAndSplitByName annotation = field.getAnnotation(CsvBindAndSplitByName.class);
+            else if(localField.isAnnotationPresent(CsvBindAndSplitByName.class)) {
+                CsvBindAndSplitByName annotation = localField
+                        .getAnnotation(CsvBindAndSplitByName.class);
                 required = annotation.required();
                 columnName = annotation.column().toUpperCase().trim();
                 locale = annotation.locale();
@@ -87,23 +89,30 @@ public class HeaderColumnNameMappingStrategy<T> extends HeaderNameBaseMappingStr
                 capture = annotation.capture();
                 format = annotation.format();
 
-                CsvConverter converter = determineConverter(field, elementType, locale, writeLocale, splitConverter);
+                CsvConverter converter = determineConverter(
+                        localField, elementType, locale,
+                        writeLocale, splitConverter);
                 if (StringUtils.isEmpty(columnName)) {
-                    fieldMap.put(field.getName().toUpperCase(),
+                    fieldMap.put(localField.getName().toUpperCase(),
                             new BeanFieldSplit<>(
-                                    field, required, errorLocale, converter,
-                                    splitOn, writeDelimiter, collectionType,
-                                    capture, format));
+                                    localType,
+                                    localField, required,
+                                    errorLocale, converter, splitOn,
+                                    writeDelimiter, collectionType, capture,
+                                    format));
                 } else {
                     fieldMap.put(columnName, new BeanFieldSplit<>(
-                            field, required, errorLocale, converter, splitOn,
-                            writeDelimiter, collectionType, capture, format));
+                            localType,
+                            localField, required, errorLocale,
+                            converter, splitOn, writeDelimiter, collectionType,
+                            capture, format));
                 }
             }
 
             // Then for a multi-column annotation
-            else if(field.isAnnotationPresent(CsvBindAndJoinByName.class)) {
-                CsvBindAndJoinByName annotation = field.getAnnotation(CsvBindAndJoinByName.class);
+            else if(localField.isAnnotationPresent(CsvBindAndJoinByName.class)) {
+                CsvBindAndJoinByName annotation = localField
+                        .getAnnotation(CsvBindAndJoinByName.class);
                 required = annotation.required();
                 String columnRegex = annotation.column();
                 locale = annotation.locale();
@@ -115,22 +124,27 @@ public class HeaderColumnNameMappingStrategy<T> extends HeaderNameBaseMappingStr
                 capture = annotation.capture();
                 format = annotation.format();
 
-                CsvConverter converter = determineConverter(field, elementType, locale, writeLocale, joinConverter);
+                CsvConverter converter = determineConverter(
+                        localField, elementType, locale,
+                        writeLocale, joinConverter);
                 if (StringUtils.isEmpty(columnRegex)) {
-                    fieldMap.putComplex(field.getName(),
+                    fieldMap.putComplex(localField.getName(),
                             new BeanFieldJoinStringIndex<>(
-                                    field, required, errorLocale, converter,
-                                    mapType, capture, format));
+                                    localType,
+                                    localField, required,
+                                    errorLocale, converter, mapType, capture,
+                                    format));
                 } else {
                     fieldMap.putComplex(columnRegex, new BeanFieldJoinStringIndex<>(
-                            field, required, errorLocale, converter, mapType,
-                            capture, format));
+                            localType,
+                            localField, required, errorLocale,
+                            converter, mapType, capture, format));
                 }
             }
 
             // Otherwise it must be CsvBindByName.
             else {
-                CsvBindByName annotation = field.getAnnotation(CsvBindByName.class);
+                CsvBindByName annotation = localField.getAnnotation(CsvBindByName.class);
                 required = annotation.required();
                 columnName = annotation.column().toUpperCase().trim();
                 locale = annotation.locale();
@@ -138,36 +152,44 @@ public class HeaderColumnNameMappingStrategy<T> extends HeaderNameBaseMappingStr
                         ? locale : annotation.writeLocale();
                 capture = annotation.capture();
                 format = annotation.format();
-                CsvConverter converter = determineConverter(field, field.getType(), locale, writeLocale, null);
+                CsvConverter converter = determineConverter(
+                        localField,
+                        localField.getType(), locale,
+                        writeLocale, null);
 
                 if (StringUtils.isEmpty(columnName)) {
-                    fieldMap.put(field.getName().toUpperCase(),
-                            new BeanFieldSingleValue<>(field, required,
+                    fieldMap.put(localField.getName().toUpperCase(),
+                            new BeanFieldSingleValue<>(
+                                    localType,
+                                    localField, required,
                                     errorLocale, converter, capture, format));
                 } else {
                     fieldMap.put(columnName, new BeanFieldSingleValue<>(
-                            field, required, errorLocale, converter, capture, format));
+                            localType,
+                            localField, required, errorLocale,
+                            converter, capture, format));
                 }
             }
         }
     }
 
     /**
-     * Partitions all non-synthetic fields of the bean type being processed
-     * into annotated and non-annotated fields.
-     *
-     * @return A map in which all annotated fields are mapped under
-     * {@link Boolean#TRUE}, and all non-annotated fields are mapped under
-     * {@link Boolean#FALSE}.
+     * Returns a set of the annotations that are used for binding in this
+     * mapping strategy.
+     * <p>In this mapping strategy, those are currently:<ul>
+     *     <li>{@link CsvBindByName}</li>
+     *     <li>{@link CsvCustomBindByName}</li>
+     *     <li>{@link CsvBindAndJoinByName}</li>
+     *     <li>{@link CsvBindAndSplitByName}</li>
+     * </ul></p>
      */
     @Override
-    protected Map<Boolean, List<Field>> partitionFields() {
-        return Stream.of(FieldUtils.getAllFields(getType()))
-                .filter(f -> !f.isSynthetic())
-                .collect(Collectors.partitioningBy(
-                        f -> f.isAnnotationPresent(CsvBindByName.class)
-                                || f.isAnnotationPresent(CsvCustomBindByName.class)
-                                || f.isAnnotationPresent(CsvBindAndSplitByName.class)
-                                || f.isAnnotationPresent(CsvBindAndJoinByName.class)));
+    protected Set<Class<? extends Annotation>> getBindingAnnotations() {
+        // With Java 9 this can be done more easily with Set.of()
+        return new HashSet<>(Arrays.asList(
+                CsvBindByName.class,
+                CsvCustomBindByName.class,
+                CsvBindAndSplitByName.class,
+                CsvBindAndJoinByName.class));
     }
 }

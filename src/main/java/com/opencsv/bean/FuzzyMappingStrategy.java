@@ -2,12 +2,16 @@ package com.opencsv.bean;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+import org.apache.commons.collections4.ListValuedMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.similarity.LevenshteinDistance;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -30,7 +34,7 @@ public class FuzzyMappingStrategy<T> extends HeaderColumnNameMappingStrategy<T> 
      * question.
      */
     @Override
-    protected void loadUnadornedFieldMap(List<Field> fields) {}
+    protected void loadUnadornedFieldMap(ListValuedMap<Class<?>, Field> fields) {}
 
     @Override
     public void captureHeader(CSVReader reader) throws IOException, CsvRequiredFieldEmptyException {
@@ -43,16 +47,16 @@ public class FuzzyMappingStrategy<T> extends HeaderColumnNameMappingStrategy<T> 
                 .collect(Collectors.toSet());
 
         // Find all non-annotated fields
-        final List<Field> unusedFields = partitionFields().get(Boolean.FALSE);
+        final ListValuedMap<Class<?>, Field> unusedFields = partitionFields().get(Boolean.FALSE);
 
         // Calculate distances and sort
         LevenshteinDistance levenshtein = LevenshteinDistance.getDefaultInstance();
         List<FuzzyComparison> comparisons = new LinkedList<>();
         unusedHeaders.forEach(h -> {
-            unusedFields.forEach(f -> {
+            unusedFields.entries().forEach(f -> {
                 comparisons.add(new FuzzyComparison(
-                        levenshtein.apply(h.toUpperCase(), f.getName().toUpperCase()),
-                        h, f));
+                        levenshtein.apply(h.toUpperCase(), f.getValue().getName().toUpperCase()),
+                        h, f.getKey(), f.getValue()));
             });
         });
         comparisons.sort(null);
@@ -65,7 +69,8 @@ public class FuzzyMappingStrategy<T> extends HeaderColumnNameMappingStrategy<T> 
             CsvConverter converter = determineConverter(
                     fc.field, fc.field.getType(), null, null, null);
             fieldMap.put(fc.header.toUpperCase(), new BeanFieldSingleValue<>(
-                    fc.field, false, errorLocale, converter, null, null));
+                    fc.type, fc.field, false, errorLocale, converter, null,
+                    null));
 
             // Remove any other comparisons for the header or field
             comparisons.removeIf(e ->
@@ -82,11 +87,13 @@ public class FuzzyMappingStrategy<T> extends HeaderColumnNameMappingStrategy<T> 
 
         final Integer distance;
         final String header;
+        final Class<?> type;
         final Field field;
 
-        FuzzyComparison(Integer distance, String header, Field field) {
+        FuzzyComparison(Integer distance, String header, Class<?> type, Field field) {
             this.distance = distance;
             this.header = header;
+            this.type = type;
             this.field = field;
         }
 

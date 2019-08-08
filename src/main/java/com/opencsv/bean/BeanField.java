@@ -23,6 +23,25 @@ import java.util.Locale;
 public interface BeanField<T, I> {
 
     /**
+     * Gets the type of the bean this field is attached to.
+     * This is necessary because the declaring class as given by the field
+     * itself may be a superclass of the class that is instantiated during bean
+     * population.
+     *
+     * @return The type of the bean this field is attached to
+     * @since 5.0
+     */
+    Class<?> getType();
+
+    /**
+     * Sets the type of the bean this field is attached to.
+     *
+     * @param type The type that is instantiated when this field is used
+     * @since 5.0
+     */
+    void setType(Class<?> type);
+
+    /**
      * Sets the field to be processed.
      *
      * @param field Which field is being populated
@@ -73,21 +92,21 @@ public interface BeanField<T, I> {
      * @throws CsvConstraintViolationException When the internal structure of
      *                                         data would be violated by the data in the CSV file
      */
-    void setFieldValue(T bean, String value, String header)
+    void setFieldValue(Object bean, String value, String header)
             throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException,
             CsvConstraintViolationException;
     
     /**
      * Gets the contents of the selected field of the given bean.
      * This method performs no conversions of any kind, but simply gets the
-     * value of the desired field using introspection if an accessor method is
+     * value of the desired field using an accessor method if one is
      * available and reflection if one is not.
      * 
      * @param bean Object containing the field to be read
      * @return The value of the field in the given bean
      * @since 4.2
      */
-    Object getFieldValue(T bean);
+    Object getFieldValue(Object bean);
     
     /**
      * Given the value of a bean field and an index into that value, determine
@@ -116,7 +135,7 @@ public interface BeanField<T, I> {
      * passed in and converts it to one or more strings.
      * This method is used to write beans back out to a CSV file, and should
      * ideally provide an accurate representation of the field such that it is
-     * roundtrip equivalent. That is to say, this method should write data out
+     * round trip equivalent. That is to say, this method should write data out
      * just as it would expect to read the data in.
      * 
      * @param bean The bean holding the field to be written
@@ -138,7 +157,7 @@ public interface BeanField<T, I> {
      *   but is currently empty
      * @since 3.9
      */
-    String[] write(T bean, I index) throws CsvDataTypeMismatchException,
+    String[] write(Object bean, I index) throws CsvDataTypeMismatchException,
             CsvRequiredFieldEmptyException;
     
     /**

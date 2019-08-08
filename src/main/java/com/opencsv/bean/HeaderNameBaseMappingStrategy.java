@@ -4,16 +4,22 @@ import com.opencsv.CSVReader;
 import com.opencsv.ICSVParser;
 import com.opencsv.exceptions.CsvBadConverterException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+import org.apache.commons.collections4.ListValuedMap;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
 
+/**
+ * This class serves as a location to collect code common to a mapping strategy
+ * that maps header names to member variables.
+ *
+ * @param <T> The type of bean being created or written
+ * @author Andrew Rucker Jones
+ * @since 5.0
+ */
 abstract public class HeaderNameBaseMappingStrategy<T> extends AbstractMappingStrategy<String, String, ComplexFieldMapEntry<String, String, T>, T> {
 
     /**
@@ -110,11 +116,12 @@ abstract public class HeaderNameBaseMappingStrategy<T> extends AbstractMappingSt
      * the header name of the input.
      */
     @Override
-    protected void loadUnadornedFieldMap(List<Field> fields) {
-        for(Field field : fields) {
-            CsvConverter converter = determineConverter(field, field.getType(), null, null, null);
-            fieldMap.put(field.getName().toUpperCase(), new BeanFieldSingleValue<>(
-                    field, false, errorLocale, converter, null, null));
+    protected void loadUnadornedFieldMap(ListValuedMap<Class<?>, Field> fields) {
+        for(Map.Entry<Class<?>, Field> classFieldEntry : fields.entries()) {
+            CsvConverter converter = determineConverter(classFieldEntry.getValue(), classFieldEntry.getValue().getType(), null, null, null);
+            fieldMap.put(classFieldEntry.getValue().getName().toUpperCase(), new BeanFieldSingleValue<>(
+                    classFieldEntry.getKey(), classFieldEntry.getValue(),
+                    false, errorLocale, converter, null, null));
         }
     }
 

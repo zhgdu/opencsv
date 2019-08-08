@@ -67,13 +67,28 @@ out as a map:
 5.0 is a major release because it breaks backward compatibility. What do you get
 for that? Here is a list of the improvements in opencsv 5.0.
 
-   * CsvToBean now has a stream() method to allow you to gracefully continue processing your beans if you so choose. Since it bypasses internal copying to a new list, it saves a smidgen of time and space.
+   * CsvToBean now has a stream() method to allow you to gracefully continue
+   processing your beans if you so choose. Since it bypasses internal copying
+   to a new list, it saves a smidgen of time and space.
    * Similarly, StatefulBeanToCsv now accepts a Stream to a new write() method.
-   * Full support for the Java 8 Time API is included. Conversion to and from all JDK-types that implement TemporalAccessor is included.
-   * In all annotations that accepted a conversion locale, it is now possible to stipulate a different conversion locale for writing than the one used for reading.
-   * Similarly, @CsvDate can now take a different format for writing than reading.
-   * Similarly, @CsvNumber can now take a different format for writing than reading.
-   * A new mapping strategy (FuzzyMappingStrategy) for reading into beans that uses a fuzzy matching algorithm between header names and member variable names to reduce your burden in annotating beans.
+   * Full support for the Java 8 Time API is included. Conversion to and from
+   all JDK-types that implement TemporalAccessor is included.
+   * In all annotations that accepted a conversion locale, it is now possible
+   to stipulate a different conversion locale for writing than the one used for
+   reading.
+   * Similarly, @CsvDate and @CsvNumber can now take a different format for
+   writing than reading.
+   * A new mapping strategy (FuzzyMappingStrategy) for reading into beans that
+   uses a fuzzy matching algorithm between header names and member variable
+   names to reduce your burden in annotating beans.
+   * The ability to split mappings from input/output columns to member
+   variables of multiple embedded beans has been added through the annotation
+   @CsvRecurse. One root bean is still necessary.
+   * As a byproduct of refactoring the mapping strategies, there is now a base
+   class for mapping strategies that map header names:
+   HeaderNameBaseMappingStrategy. If you have derived a mapping strategy from
+   HeaderColumnNameMappingStrategy or HeaderColumnNameTranslateMappingStrategy,
+   it might be advantageous to you to use this base class.
 
 Here are the things you can expect to encounter during an upgrade and what to
 do about them.
@@ -83,7 +98,7 @@ do about them.
    ** All non-essential constructors and CsvToBean.parse() methods have been removed. Please use the builder classes instead.
    ** IterableCSVToBean and IterableCSVToBeanBuilder have both been removed. CsvToBean itself is iterable; use it instead.
    ** Scads of methods that had to do with the internal implementation details of a mapping strategy have been removed from the interface MappingStrategy.
-      You probably never needed these anyway, if you wrote your own mapping strategy.
+      You probably never needed these anyway if you wrote your own mapping strategy.
    ** The custom converter SplitOnWhitespace has been removed. Use the "split" parameter to the annotation in question.
    * Writing non-annotated beans now produces capitalized headers like the rest of opencsv.
    * Introspection has been replaced with Reflection. As a result, writing beans no longer fails if a getter is not available.
@@ -98,6 +113,16 @@ do about them.
    ** CSVReaderHeaderAware
    *** readNext
    *** readMap
+   * Method signatures have changed in AbstractBeanField. If you have
+   overridden some of the more basic methods in this class, you may have to
+   change your methods appropriately. This will not affect ordinary custom
+   converters.
+   * Method signatures have changed in AbstractMappingStrategy, and one new
+   abstract method has been added. If you derive a mapping strategy directly
+   from AbstractMappingStrategy, you will have to change your method signatures
+   accordingly, if you overrode any of the affected methods, and you will need
+   to implement loadUnadornedFieldMap() to create the input/output to member
+   variable mapping in the absence of binding annotations.
 
 And we have a new list of things that we have deprecated and plan to remove in
 6.0, as well as what you can do about it.

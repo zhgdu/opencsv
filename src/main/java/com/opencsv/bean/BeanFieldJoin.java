@@ -52,7 +52,11 @@ abstract public class BeanFieldJoin<T, I> extends BeanFieldSingleValue<T, I> {
     
     /**
      * Creates a new instance.
-     * 
+     *
+     * @param type The type of the class in which this field is found. This is
+     *             the type as instantiated by opencsv, and not necessarily the
+     *             type in which the field is declared in the case of
+     *             inheritance.
      * @param field The bean field this object represents
      * @param required Whether or not a value is always required for this field
      * @param errorLocale The locale to use for error messages
@@ -66,12 +70,12 @@ abstract public class BeanFieldJoin<T, I> extends BeanFieldSingleValue<T, I> {
      *               If {@code null} or empty, it is ignored.
      */
     public BeanFieldJoin(
-            Field field, boolean required, Locale errorLocale,
+            Class<?> type, Field field, boolean required, Locale errorLocale,
             CsvConverter converter, Class<? extends MultiValuedMap> mapType,
             String capture, String format) {
         
         // Simple assignments
-        super(field, required, errorLocale, converter, capture, format);
+        super(type, field, required, errorLocale, converter, capture, format);
         
         // Check that we really have a collection
         if(!MultiValuedMap.class.isAssignableFrom(field.getType())) {
@@ -148,7 +152,7 @@ abstract public class BeanFieldJoin<T, I> extends BeanFieldSingleValue<T, I> {
      */
     // The rest of the Javadoc is inherited
     @Override
-    protected void assignValueToField(T bean, Object obj, String header)
+    protected void assignValueToField(Object bean, Object obj, String header)
             throws CsvDataTypeMismatchException {
 
         // Find and use getter and setter methods if available

@@ -698,6 +698,92 @@ a slick way of converting booleans.
 The corresponding annotations for custom converters based on column position are
 also provided.
 
+====== Recursion into subordinate beans
+
+Sometimes we want to split the input into a hierarchy of beans instead of
+having it all in one flat bean. We can do this with the annotation @CsvRecurse.
+
+Let's say we have the following input:
+
+----
+title,author given name,author surname,publisher,date
+Space Opera 2.0,Andrew,Jones,NoWay Publishers,3019
+----
+
+We could put all of this in one bean, of course, but we could also create the
+following beans:
+
+[source,java]
+----
+public class Book {
+    @CsvBindByName
+    private String title;
+
+    @CsvRecurse
+    private Author author;
+
+    @CsvRecurse
+    private PublishingInformation publish;
+
+    // Accessor methods go here.
+}
+
+public class Author {
+    @CsvBindByName(column = "author given name")
+    private String givenName;
+
+    @CsvBindByName(column = "author surname")
+    private String surname;
+
+    // Accessor methods go here.
+}
+
+public class PublishingInformation {
+    @CsvBindByName
+    private String publisher;
+
+    @CsvBindByName
+    @CsvDate("yyyy")
+    private Year date;
+
+    // Accessor methods go here.
+}
+----
+
+This way, your data can be hierarchical.
+
+If you want to split the data among completely unrelated beans, create a
+containing bean for the beans you actually need, thus:
+
+[source,java]
+----
+public class Container {
+    @CsvRecurse
+    private BeanTheFirst bean1;
+
+    @CsvRecurse
+    private BeanTheSecond bean2;
+
+    @CsvRecurse
+    private BeanTheThird bean3;
+
+    // Accessor methods go here.
+}
+----
+
+Then simply extract the subordinate beans you need after parsing.
+
+opencsv will instantiate the entire hierarchy of subordinate beans while
+reading data in, even if it does not need a subordinate bean for a particular
+dataset because all associated input fields are empty. opencsv will, however,
+always check first to see if the subordinate bean has already been created (by
+the constructor of the enclosing bean), and will not replace it if it exists.
+As a result, any subordinate beans must either have an accessible nullary
+constructor, or they must be created by the enclosing bean.
+
+Access to subordinate beans is accomplished the same way it is in the rest of
+opencsv: accessor methods where available, and Reflection otherwise.
+
 ===== Reading into beans without annotations
 
 If annotations are anathema to you, you can bypass them with carefully
