@@ -57,8 +57,7 @@ abstract public class HeaderNameBaseMappingStrategy<T> extends AbstractMappingSt
                                     .getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
                                     .getString("matching"),
                             fme.getName());
-                }
-                else {
+                } else {
                     requiredHeaderNames[i] = fme.getName();
                 }
                 requiredFields.add(fme.getField().getField());

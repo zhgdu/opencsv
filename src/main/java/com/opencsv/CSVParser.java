@@ -213,10 +213,7 @@ public class CSVParser extends AbstractCSVParser {
         while (!sfc.isEmptyInput()) {
             final char c = sfc.takeInput();
             if (c == this.escape) {
-                if (isNextCharacterEscapable(nextLine, inQuotes(inQuotes), sfc.i - 1)) {
-                    sfc.takeInput();
-                    sfc.appendPrev();
-                }
+                handleEscapeCharacter(nextLine, sfc, inQuotes);
             } else if (c == quotechar) {
                 if (isNextCharacterEscapedQuote(nextLine, inQuotes(inQuotes), sfc.i - 1)) {
                     sfc.takeInput();
@@ -229,21 +226,7 @@ public class CSVParser extends AbstractCSVParser {
                     }
 
                     // the tricky case of an embedded quote in the middle: a,bc"d"ef,g
-                    if (!strictQuotes) {
-                        final int i = sfc.i;
-                        if (i > BEGINNING_OF_LINE //not on the beginning of the line
-                                && nextLine.charAt(i - 2) != this.separator //not at the beginning of an escape sequence
-                                && nextLine.length() > (i) &&
-                                nextLine.charAt(i) != this.separator //not at the	end of an escape sequence
-                                ) {
-
-                            if (ignoreLeadingWhiteSpace && !sfc.isEmptyOutput() && StringUtils.isWhitespace(sfc.peekOutput())) {
-                                sfc.clearOutput();
-                            } else {
-                                sfc.appendPrev();
-                            }
-                        }
-                    }
+                    handleQuoteCharButNotStrictQuotes(nextLine, sfc);
                 }
                 inField = !inField;
             } else if (c == separator && !(inQuotes && !ignoreQuotations)) {
@@ -282,6 +265,31 @@ public class CSVParser extends AbstractCSVParser {
         tokensOnLastCompleteLine = tokensOnThisLine.size();
         return tokensOnThisLine.toArray(new String[tokensOnThisLine.size()]);
 
+    }
+
+    private void handleQuoteCharButNotStrictQuotes(String nextLine, StringFragmentCopier sfc) {
+        if (!strictQuotes) {
+            final int i = sfc.i;
+            if (i > BEGINNING_OF_LINE //not on the beginning of the line
+                    && nextLine.charAt(i - 2) != this.separator //not at the beginning of an escape sequence
+                    && nextLine.length() > (i) &&
+                    nextLine.charAt(i) != this.separator //not at the	end of an escape sequence
+            ) {
+
+                if (ignoreLeadingWhiteSpace && !sfc.isEmptyOutput() && StringUtils.isWhitespace(sfc.peekOutput())) {
+                    sfc.clearOutput();
+                } else {
+                    sfc.appendPrev();
+                }
+            }
+        }
+    }
+
+    private void handleEscapeCharacter(String nextLine, StringFragmentCopier sfc, boolean inQuotes) {
+        if (isNextCharacterEscapable(nextLine, inQuotes(inQuotes), sfc.i - 1)) {
+            sfc.takeInput();
+            sfc.appendPrev();
+        }
     }
 
     private String convertEmptyToNullIfNeeded(String s, boolean fromQuotedField) {

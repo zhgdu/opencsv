@@ -2,6 +2,7 @@ package com.opencsv;
 
 import com.opencsv.exceptions.CsvValidationException;
 import com.opencsv.validators.LineValidatorAggregator;
+import com.opencsv.validators.RowValidatorAggregator;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -45,11 +46,13 @@ public class CSVReaderHeaderAware extends CSVReader {
      * @param multilineLimit Allow the user to define the limit to the number of lines in a multiline record. Less than one means no limit.
      * @param errorLocale    Set the locale for error messages. If null, the default locale is used.
      * @param lineValidatorAggregator contains all the custom defined line validators.
+     * @param rowValidatorAggregator  contains all the custom defined row validators.
      * @throws IOException   If bad things happen while initializing the header
      */
     CSVReaderHeaderAware(Reader reader, int skipLines, ICSVParser parser, boolean keepCR, boolean verifyReader,
-                         int multilineLimit, Locale errorLocale, LineValidatorAggregator lineValidatorAggregator) throws IOException {
-        super(reader, skipLines, parser, keepCR, verifyReader, multilineLimit, errorLocale, lineValidatorAggregator);
+                         int multilineLimit, Locale errorLocale, LineValidatorAggregator lineValidatorAggregator,
+                         RowValidatorAggregator rowValidatorAggregator) throws IOException {
+        super(reader, skipLines, parser, keepCR, verifyReader, multilineLimit, errorLocale, lineValidatorAggregator, rowValidatorAggregator);
         initializeHeader();
     }
 

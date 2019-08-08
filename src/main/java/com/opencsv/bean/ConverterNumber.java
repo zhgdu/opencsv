@@ -74,30 +74,7 @@ public class ConverterNumber extends AbstractCsvConverter {
         }
 
         // Set up the read formatter
-        NumberFormat nf = NumberFormat.getInstance(ObjectUtils.defaultIfNull(this.locale, Locale.getDefault(Locale.Category.FORMAT)));
-        if(!(nf instanceof DecimalFormat)) {
-            throw new CsvBadConverterException(
-                    ConverterNumber.class,
-                    ResourceBundle.getBundle(
-                            ICSVParser.DEFAULT_BUNDLE_NAME,
-                            this.errorLocale)
-                            .getString("numberformat.not.decimalformat"));
-        }
-        readFormatter = (DecimalFormat) nf;
-
-        try {
-            readFormatter.applyLocalizedPattern(readFormat);
-        } catch (IllegalArgumentException e) {
-            CsvBadConverterException csve = new CsvBadConverterException(
-                    ConverterNumber.class,
-                    String.format(ResourceBundle.getBundle(
-                            ICSVParser.DEFAULT_BUNDLE_NAME,
-                            this.errorLocale)
-                            .getString("invalid.number.pattern"),
-                            readFormat));
-            csve.initCause(e);
-            throw csve;
-        }
+        readFormatter = createDecimalFormat(readFormat, this.locale);
 
         // Account for BigDecimal and BigInteger, which require special
         // processing
@@ -136,8 +113,12 @@ public class ConverterNumber extends AbstractCsvConverter {
         }
 
         // Set up the write formatter
-        nf = NumberFormat.getInstance(ObjectUtils.defaultIfNull(this.writeLocale, Locale.getDefault(Locale.Category.FORMAT)));
-        if(!(nf instanceof DecimalFormat)) {
+        writeFormatter = createDecimalFormat(writeFormat, this.writeLocale);
+    }
+
+    private DecimalFormat createDecimalFormat(String format, Locale locale) {
+        NumberFormat nf = NumberFormat.getInstance(ObjectUtils.defaultIfNull(locale, Locale.getDefault(Locale.Category.FORMAT)));
+        if (!(nf instanceof DecimalFormat)) {
             throw new CsvBadConverterException(
                     ConverterNumber.class,
                     ResourceBundle.getBundle(
@@ -145,10 +126,10 @@ public class ConverterNumber extends AbstractCsvConverter {
                             this.errorLocale)
                             .getString("numberformat.not.decimalformat"));
         }
-        writeFormatter = (DecimalFormat) nf;
+        DecimalFormat formatter = (DecimalFormat) nf;
 
         try {
-            writeFormatter.applyLocalizedPattern(writeFormat);
+            formatter.applyLocalizedPattern(format);
         } catch (IllegalArgumentException e) {
             CsvBadConverterException csve = new CsvBadConverterException(
                     ConverterNumber.class,
@@ -156,10 +137,12 @@ public class ConverterNumber extends AbstractCsvConverter {
                             ICSVParser.DEFAULT_BUNDLE_NAME,
                             this.errorLocale)
                                     .getString("invalid.number.pattern"),
-                            writeFormat));
+                            format));
             csve.initCause(e);
             throw csve;
         }
+
+        return formatter;
     }
 
     @Override
