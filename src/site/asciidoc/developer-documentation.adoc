@@ -84,6 +84,9 @@ for that? Here is a list of the improvements in opencsv 5.0.
    * The ability to split mappings from input/output columns to member
    variables of multiple embedded beans has been added through the annotation
    @CsvRecurse. One root bean is still necessary.
+   * If you write beans to a CSV output using the header name mapping strategy
+   without annotations, opencsv will now ignore any field named
+   "serialVersionUID" as long as the bean class implements Serializable.
    * As a byproduct of refactoring the mapping strategies, there is now a base
    class for mapping strategies that map header names:
    HeaderNameBaseMappingStrategy. If you have derived a mapping strategy from

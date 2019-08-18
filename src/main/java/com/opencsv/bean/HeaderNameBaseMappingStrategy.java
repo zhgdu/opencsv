@@ -9,6 +9,7 @@ import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.util.*;
 
@@ -117,10 +118,12 @@ abstract public class HeaderNameBaseMappingStrategy<T> extends AbstractMappingSt
     @Override
     protected void loadUnadornedFieldMap(ListValuedMap<Class<?>, Field> fields) {
         for(Map.Entry<Class<?>, Field> classFieldEntry : fields.entries()) {
-            CsvConverter converter = determineConverter(classFieldEntry.getValue(), classFieldEntry.getValue().getType(), null, null, null);
-            fieldMap.put(classFieldEntry.getValue().getName().toUpperCase(), new BeanFieldSingleValue<>(
-                    classFieldEntry.getKey(), classFieldEntry.getValue(),
-                    false, errorLocale, converter, null, null));
+            if(!(Serializable.class.isAssignableFrom(classFieldEntry.getKey()) && "serialVersionUID".equals(classFieldEntry.getValue().getName()))) {
+                CsvConverter converter = determineConverter(classFieldEntry.getValue(), classFieldEntry.getValue().getType(), null, null, null);
+                fieldMap.put(classFieldEntry.getValue().getName().toUpperCase(), new BeanFieldSingleValue<>(
+                        classFieldEntry.getKey(), classFieldEntry.getValue(),
+                        false, errorLocale, converter, null, null));
+            }
         }
     }
 
