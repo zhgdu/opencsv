@@ -7,8 +7,6 @@ public class Serial implements Serializable {
     private int testInt;
     private String testString;
 
-    public Serial() {}
-
     public Serial(int testInt, String testString) {
         this.testInt = testInt;
         this.testString = testString;

@@ -95,7 +95,7 @@ public class FieldMapByName<T> extends AbstractFieldMap<String, String, RegexToB
             missingRequiredHeaders.add(new FieldMapByNameEntry<T>(s, simpleMap.get(s), false));
         }
         for(ComplexFieldMapEntry<String, String, T> r : requiredRegexList) {
-            missingRequiredHeaders.add(new FieldMapByNameEntry<T>(r.getInitializer().toString(), r.getBeanField(), true));
+            missingRequiredHeaders.add(new FieldMapByNameEntry<T>(r.getInitializer(), r.getBeanField(), true));
         }
         
         return missingRequiredHeaders;
@@ -157,7 +157,7 @@ public class FieldMapByName<T> extends AbstractFieldMap<String, String, RegexToB
         
         // Sort and return
         headerList.sort(writeOrder);
-        return headerList.toArray(new String[headerList.size()]);
+        return headerList.toArray(new String[0]);
     }
 
     /**

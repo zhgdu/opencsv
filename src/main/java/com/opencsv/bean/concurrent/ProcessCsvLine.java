@@ -23,7 +23,6 @@ import com.opencsv.exceptions.*;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -109,9 +108,7 @@ public class ProcessCsvLine<T> implements Runnable {
     /**
      * Creates a single object from a line from the CSV file.
      * @return Object containing the values.
-     * @throws IllegalAccessException Thrown on error creating bean.
-     * @throws InstantiationException Thrown on error creating bean.
-     * @throws InvocationTargetException Thrown on error creating bean.
+     * @throws CsvBeanIntrospectionException Thrown on error creating bean.
      * @throws CsvBadConverterException If a custom converter cannot be
      *   initialized properly
      * @throws CsvDataTypeMismatchException If the source data cannot be
@@ -122,8 +119,7 @@ public class ProcessCsvLine<T> implements Runnable {
      *   data would be violated by the data in the CSV file
      */
     private T processLine()
-            throws IllegalAccessException,
-            InstantiationException, InvocationTargetException,
+            throws CsvBeanIntrospectionException,
             CsvBadConverterException, CsvDataTypeMismatchException,
             CsvRequiredFieldEmptyException, CsvConstraintViolationException {
         return mapper.populateNewBean(line);

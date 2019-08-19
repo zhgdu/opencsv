@@ -109,11 +109,17 @@ abstract public class HeaderNameBaseMappingStrategy<T> extends AbstractMappingSt
     /**
      * Creates a map of fields in the bean to be processed that have no
      * annotations.
-     * This method is called by {@link #loadFieldMap()} when absolutely no
+     * <p>This method is called by {@link #loadFieldMap()} when absolutely no
      * annotations that are relevant for this mapping strategy are found in the
      * type of bean being processed. It is then assumed that every field is to
      * be included, and that the name of the member variable must exactly match
-     * the header name of the input.
+     * the header name of the input.</p>
+     * <p>Two exceptions are made to the rule that everything is written:<ol>
+     *     <li>Any field annotated with {@link CsvIgnoreOnWrite} will be
+     *     ignored on writing</li>
+     *     <li>Any field named "serialVersionUID" will be ignored if the
+     *     enclosing class implements {@link java.io.Serializable}.</li>
+     * </ol></p>
      */
     @Override
     protected void loadUnadornedFieldMap(ListValuedMap<Class<?>, Field> fields) {

@@ -230,14 +230,19 @@ public class RecursionTest {
     @Test
     public void testEmbeddedBeanNoNullaryConstructor() {
         try {
-            new CsvToBeanBuilder<EmbeddedBeanNoNullaryConstructor>(new StringReader(DATA))
+            CsvToBean<EmbeddedBeanNoNullaryConstructor> csvToBean = new CsvToBeanBuilder<EmbeddedBeanNoNullaryConstructor>(new StringReader(DATA))
                     .withType(EmbeddedBeanNoNullaryConstructor.class)
                     .build();
+            csvToBean.parse();
             fail("Exception should have been thrown.");
-        } catch (CsvBeanIntrospectionException e) {
+        } catch (RuntimeException e) {
             assertFalse(StringUtils.isBlank(e.getMessage()));
-            assertNull(e.getField());
-            assertNull(e.getBean());
+            assertTrue(e.getCause() instanceof CsvBeanIntrospectionException);
+            CsvBeanIntrospectionException csve = (CsvBeanIntrospectionException)e.getCause();
+            assertFalse(StringUtils.isBlank(csve.getMessage()));
+            assertNull(csve.getField());
+            assertNull(csve.getBean());
+            assertNotNull(csve.getCause());
         }
     }
 

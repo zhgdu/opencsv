@@ -5,8 +5,6 @@ public class NonSerial {
     private int testInt;
     private String testString;
 
-    public NonSerial() {}
-
     public NonSerial(int testInt, String testString) {
         this.testInt = testInt;
         this.testString = testString;

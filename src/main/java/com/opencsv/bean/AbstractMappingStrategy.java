@@ -162,24 +162,31 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
      * Implementation will return a bean of the type of object being mapped.
      *
      * @return A new instance of the class being mapped.
-     * @throws InstantiationException Thrown on error creating object.
-     * @throws IllegalAccessException Thrown on error creating object.
+     * @throws CsvBeanIntrospectionException Thrown on error creating object.
      * @throws IllegalStateException If the type of the bean has not been
      *   initialized through {@link #setType(java.lang.Class)}
-     * @throws InvocationTargetException Thrown on error creating object.
      */
     protected Map<Class<?>, Object> createBean()
-            throws InstantiationException, IllegalAccessException,
-            IllegalStateException, InvocationTargetException {
+            throws CsvBeanIntrospectionException, IllegalStateException {
         if(type == null) {
             throw new IllegalStateException(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("type.unset"));
         }
 
         // Create the root bean and all beans underneath it
         Map<Class<?>, Object> instanceMap = new HashMap<>();
-        T rootBean = type.newInstance();
-        instanceMap.put(type, rootBean);
-        createSubordinateBeans(recursiveTypeTree, instanceMap, rootBean);
+        try {
+            T rootBean = type.newInstance();
+            instanceMap.put(type, rootBean);
+            createSubordinateBeans(recursiveTypeTree, instanceMap, rootBean);
+        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            CsvBeanIntrospectionException csve = new CsvBeanIntrospectionException(
+                    ResourceBundle.getBundle(
+                            ICSVParser.DEFAULT_BUNDLE_NAME,
+                            errorLocale)
+                            .getString("bean.instantiation.impossible"));
+            csve.initCause(e);
+            throw csve;
+        }
 
         return instanceMap;
     }
@@ -294,8 +301,7 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
     @SuppressWarnings("unchecked")
     @Override
     public T populateNewBean(String[] line)
-            throws InstantiationException, IllegalAccessException,
-            InvocationTargetException, CsvRequiredFieldEmptyException,
+            throws CsvBeanIntrospectionException, CsvRequiredFieldEmptyException,
             CsvDataTypeMismatchException, CsvConstraintViolationException {
         verifyLineLength(line.length);
         Map<Class<?>, Object> beanTree = createBean();
@@ -316,18 +322,6 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
     public void setType(Class<? extends T> type) throws CsvBadConverterException {
         this.type = type;
         loadFieldMap();
-        try {
-            createBean();
-        }
-        catch(InstantiationException | IllegalAccessException | IllegalStateException | InvocationTargetException e) {
-            CsvBeanIntrospectionException csve = new CsvBeanIntrospectionException(
-                    ResourceBundle.getBundle(
-                            ICSVParser.DEFAULT_BUNDLE_NAME,
-                            errorLocale)
-                            .getString("bean.instantiation.impossible"));
-            csve.initCause(e);
-            throw csve;
-        }
     }
 
     /**

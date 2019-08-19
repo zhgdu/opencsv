@@ -11,6 +11,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class IgnoreTest {
 
+    /**
+     * Tests that the field "serialVersionUID" <em>is</em> written if the bean
+     * does not implement {@link java.io.Serializable}.
+     * <p>Also incidentally tests that beans that opencsv cannot instantiate
+     * can still be written. Yeah, I actually broke that once.</p>
+     * @throws CsvException Never
+     */
     @Test
     public void testSerialVersionUIDNonSerializable() throws CsvException {
         NonSerial bean = new NonSerial(2, "3");

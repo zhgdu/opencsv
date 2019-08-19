@@ -17,13 +17,9 @@ package com.opencsv.bean;
  */
 
 import com.opencsv.CSVReader;
-import com.opencsv.exceptions.CsvBadConverterException;
-import com.opencsv.exceptions.CsvConstraintViolationException;
-import com.opencsv.exceptions.CsvDataTypeMismatchException;
-import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+import com.opencsv.exceptions.*;
 
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Locale;
 
 /**
@@ -53,7 +49,7 @@ public interface MappingStrategy<T> {
      * Implementations of this method must return an array of column headers
      * based on the contents of the mapping strategy.
      * If no header can or should be generated, an array of zero length must
-     * be returned, and not null.
+     * be returned, and not {@code null}.
      * @param bean One fully populated bean from which the header can be derived.
      *   This is important in the face of joining and splitting. If we have a
      *   MultiValuedMap as a field that is the target for a join on reading, that
@@ -85,11 +81,7 @@ public interface MappingStrategy<T> {
      * 
      * @param line A line of input returned from {@link com.opencsv.CSVReader}
      * @return A bean containing the converted information from the input
-     * @throws InstantiationException Generally, if some part of the bean cannot
-     *   be accessed and used as needed
-     * @throws IllegalAccessException Generally, if some part of the bean cannot
-     *   be accessed and used as needed
-     * @throws InvocationTargetException Generally, if some part of the bean cannot
+     * @throws CsvBeanIntrospectionException Generally, if some part of the bean cannot
      *   be accessed and used as needed
      * @throws CsvRequiredFieldEmptyException If the input for a field defined
      *   as required is empty
@@ -101,8 +93,7 @@ public interface MappingStrategy<T> {
      * @since 4.2
      */
     T populateNewBean(String[] line)
-            throws InstantiationException, IllegalAccessException,
-            InvocationTargetException, CsvRequiredFieldEmptyException,
+            throws CsvBeanIntrospectionException, CsvRequiredFieldEmptyException,
             CsvDataTypeMismatchException, CsvConstraintViolationException;
     
     /**
