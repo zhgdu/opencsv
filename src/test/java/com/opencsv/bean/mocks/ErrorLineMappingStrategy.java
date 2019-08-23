@@ -19,6 +19,7 @@ import com.opencsv.CSVReader;
 import com.opencsv.bean.BeanField;
 import com.opencsv.bean.MappingStrategy;
 import com.opencsv.exceptions.CsvBadConverterException;
+import com.opencsv.exceptions.CsvBeanIntrospectionException;
 import org.apache.commons.lang3.ArrayUtils;
 
 import java.beans.PropertyDescriptor;
@@ -38,8 +39,8 @@ public class ErrorLineMappingStrategy<T> implements MappingStrategy<T> {
     public void setType(Class type) throws CsvBadConverterException {}
 
     @Override
-    public T populateNewBean(String[] line) throws InstantiationException {
-       throw new InstantiationException("this is a test Exception");
+    public T populateNewBean(String[] line) throws CsvBeanIntrospectionException {
+       throw new CsvBeanIntrospectionException("This is a test exception.");
     }
 
     @Override
