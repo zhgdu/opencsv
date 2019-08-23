@@ -17,6 +17,7 @@ package com.opencsv.bean;
  */
 
 import com.opencsv.bean.mocks.MockBean;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import java.io.StringReader;
@@ -50,6 +51,30 @@ public class HeaderColumnNameTranslateMappingStrategyTest {
       assertEquals("kyle", bean.getName());
       assertEquals("123456", bean.getOrderNumber());
       assertEquals("emp123", bean.getId());
+   }
+
+   @Test
+   @DisplayName("parse the csv file with only a subset of columns and fields.")
+   public void testParseWithSubset() {
+      String s = "n,o,foo\n" +
+              "kyle,123456,emp123\n" +
+              "jimmy,abcnum,cust09878";
+      HeaderColumnNameTranslateMappingStrategy<MockBean> strat = new HeaderColumnNameTranslateMappingStrategy<>();
+      strat.setType(MockBean.class);
+      Map<String, String> map = new HashMap<>();
+      map.put("n", "name");
+      map.put("o", "orderNumber");
+      strat.setColumnMapping(map);
+
+      CsvToBean<MockBean> csv = new CsvToBeanBuilder<MockBean>(new StringReader(s))
+              .withMappingStrategy(strat).build();
+      List<MockBean> list = csv.parse();
+      assertNotNull(list);
+      assertEquals(2, list.size());
+      MockBean bean = list.get(0);
+      assertEquals("kyle", bean.getName());
+      assertEquals("123456", bean.getOrderNumber());
+      assertNull(bean.getId());
    }
 
    @Test
