@@ -46,7 +46,15 @@ import java.util.*;
  * @since 4.2
  */
 abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C extends ComplexFieldMapEntry<I, K, T>, T> implements MappingStrategy<T> {
-    
+
+    /**
+     * Set of classes where recursion is not allowed.   Using HashSet because, given the large number of types, the
+     * contains method is quicker than an Array or ArrayList (Granted the number where Set is more efficient is different
+     * per Java release and system configuration).  And being a Set we are noting that each value is unique.
+     */
+    private static final Set<Class> FORBIDDEN_CLASSES_FOR_RECURSION = new HashSet<>(Arrays.asList(Byte.TYPE, Short.TYPE,
+            Integer.TYPE, Float.TYPE, Double.TYPE, Boolean.TYPE, Long.TYPE, Character.TYPE));
+
     /** This is the class of the bean to be manipulated. */
     protected Class<? extends T> type;
     
@@ -367,10 +375,7 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
     protected RecursiveType loadRecursiveClasses(Class<?> newType, Set<Class<?>> encounteredTypes) {
 
         // We cannot recurse into primitive types
-        if(Byte.TYPE.equals(newType) || Short.TYPE.equals(newType)
-                || Integer.TYPE.equals(newType) || Float.TYPE.equals(newType)
-                || Double.TYPE.equals(newType) || Boolean.TYPE.equals(newType)
-                || Long.TYPE.equals(newType) || Character.TYPE.equals(newType)) {
+        if (FORBIDDEN_CLASSES_FOR_RECURSION.contains(newType)) {
             throw new CsvRecursionException(
                     ResourceBundle.getBundle(
                             ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
