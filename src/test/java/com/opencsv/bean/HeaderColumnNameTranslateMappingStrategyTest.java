@@ -77,6 +77,32 @@ public class HeaderColumnNameTranslateMappingStrategyTest {
       assertNull(bean.getId());
    }
 
+    @Test
+    @DisplayName("Show that even if there are column field name matches they will not be populated if not in the name translate map.")
+    public void onlyConvertWhatIsInTheMap() {
+        String s = "n,o,foo,name,id,orderNumber,num,doubleNum\n" +
+                "kyle,123456,emp123,aName,aId,aOrderNumber,22,3.14\n" +
+                "jimmy,abcnum,cust09878,bName,bId,bOrderNumber,44,8.3";
+        HeaderColumnNameTranslateMappingStrategy<MockBean> strat = new HeaderColumnNameTranslateMappingStrategy<>();
+        strat.setType(MockBean.class);
+        Map<String, String> map = new HashMap<>();
+        map.put("n", "name");
+        map.put("o", "orderNumber");
+        strat.setColumnMapping(map);
+
+        CsvToBean<MockBean> csv = new CsvToBeanBuilder<MockBean>(new StringReader(s))
+                .withMappingStrategy(strat).build();
+        List<MockBean> list = csv.parse();
+        assertNotNull(list);
+        assertEquals(2, list.size());
+        MockBean bean = list.get(0);
+        assertEquals("kyle", bean.getName());
+        assertEquals("123456", bean.getOrderNumber());
+        assertNull(bean.getId());
+        assertEquals(0, bean.getNum());
+        assertEquals(0.0, bean.getDoubleNum(), 0.01);
+    }
+
    @Test
    public void getColumnNameReturnsNullIfColumnNumberIsTooLarge() {
       String s = "n,o,foo\n" +
