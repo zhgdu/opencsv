@@ -56,6 +56,7 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
      * contains method is quicker than an Array or ArrayList (Granted the number where Set is more efficient is different
      * per Java release and system configuration).  And being a Set we are noting that each value is unique.
      */
+    // This is easier in Java 9 with Set.of()
     private static final Set<Class> FORBIDDEN_CLASSES_FOR_RECURSION = new HashSet<>(Arrays.asList(Byte.TYPE, Short.TYPE,
             Integer.TYPE, Float.TYPE, Double.TYPE, Boolean.TYPE, Long.TYPE, Character.TYPE));
 
