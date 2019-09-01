@@ -18,6 +18,8 @@ package com.opencsv.bean;
 import com.opencsv.ICSVParser;
 import com.opencsv.exceptions.*;
 import org.apache.commons.collections4.ListValuedMap;
+import org.apache.commons.collections4.MapIterator;
+import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -28,6 +30,8 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * This class collects as many generally useful parts of the implementation
@@ -63,6 +67,9 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
      * with {@link CsvRecurse}.
      */
     private RecursiveType recursiveTypeTree;
+
+    /** Storage for all manually excluded class/field pairs. */
+    private MultiValuedMap<Class<?>, Field> ignoredFields = new ArrayListValuedHashMap<>();
 
     /** Locale for error messages. */
     protected Locale errorLocale = Locale.getDefault();
@@ -124,8 +131,10 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
     abstract protected void loadUnadornedFieldMap(ListValuedMap<Class<?>, Field> fields);
 
     /**
-     * Creates an empty binding type-specific field map that can be filled in
+     * Creates an empty binding-type-specific field map that can be filled in
      * later steps.
+     * <p>This method may be called multiple times and must erase any state
+     * information from previous calls.</p>
      * @since 5.0
      */
     abstract protected void initializeFieldMap();
@@ -306,7 +315,7 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
         verifyLineLength(line.length);
         Map<Class<?>, Object> beanTree = createBean();
         for (int col = 0; col < line.length; col++) {
-                setFieldValue(beanTree, line[col], col);
+            setFieldValue(beanTree, line[col], col);
         }
         return (T)beanTree.get(type);
     }
@@ -322,6 +331,48 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
     public void setType(Class<? extends T> type) throws CsvBadConverterException {
         this.type = type;
         loadFieldMap();
+    }
+
+    @Override
+    public void ignoreFields(MultiValuedMap<Class<?>, Field> fields)  throws IllegalArgumentException {
+
+        // Check input for consistency
+        if(fields == null) {
+            ignoredFields = new ArrayListValuedHashMap<>();
+        }
+        else {
+            ignoredFields = fields;
+            MapIterator<Class<?>, Field> it = ignoredFields.mapIterator();
+            it.forEachRemaining(type -> {
+                final Field f = it.getValue();
+                if(type == null || f == null
+                        || !f.getDeclaringClass().isAssignableFrom(type)) {
+                    throw new IllegalArgumentException(ResourceBundle.getBundle(
+                            ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
+                            .getString("ignore.field.inconsistent"));
+                }
+            });
+        }
+
+        // Reload field map
+        if(this.type != null) {
+            loadFieldMap();
+        }
+    }
+
+    /**
+     * Filters all fields that opencsv has been instructed to ignore and
+     * returns a list of the rest.
+     * @param type The class from which {@code fields} come. This must be the
+     *             class as opencsv would seek to instantiate it, which in the
+     *             case of inheritance is not necessarily the declaring class.
+     * @param fields The fields to be filtered
+     * @return A list of fields that exist for opencsv
+     */
+    private List<Field> filterIgnoredFields(final Class<?> type, Field[] fields) {
+        return Stream.of(fields)
+                .filter(f -> !ignoredFields.containsMapping(type, f) && !f.isAnnotationPresent(CsvIgnore.class))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -387,7 +438,7 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
 
         // Find types to recurse through
         RecursiveType localRecursiveTypeTree = new RecursiveType(newType);
-        for(Field f : FieldUtils.getFieldsWithAnnotation(newType, CsvRecurse.class)) {
+        for(Field f : filterIgnoredFields(newType, FieldUtils.getFieldsWithAnnotation(newType, CsvRecurse.class))) {
 
             // Types that are recursed into cannot also be bound
             Set<Class<? extends Annotation>> bindingAnnotations = getBindingAnnotations();
@@ -417,8 +468,8 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
      *                          in the new representation. This collection will
      *                          be added to and is the result of this method.
      */
-    private static void assembleCompleteFieldList(RecursiveType root, final ListValuedMap<Class<?>, Field> encounteredFields) {
-        encounteredFields.putAll(root.type, FieldUtils.getAllFieldsList(root.type));
+    private void assembleCompleteFieldList(RecursiveType root, final ListValuedMap<Class<?>, Field> encounteredFields) {
+        encounteredFields.putAll(root.type, filterIgnoredFields(root.type, FieldUtils.getAllFields(root.type)));
         root.getRecursiveMembers().values().forEach(f -> assembleCompleteFieldList(f, encounteredFields));
     }
 

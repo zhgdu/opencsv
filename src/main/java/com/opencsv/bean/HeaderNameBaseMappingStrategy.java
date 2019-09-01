@@ -115,7 +115,7 @@ abstract public class HeaderNameBaseMappingStrategy<T> extends AbstractMappingSt
      * be included, and that the name of the member variable must exactly match
      * the header name of the input.</p>
      * <p>Two exceptions are made to the rule that everything is written:<ol>
-     *     <li>Any field annotated with {@link CsvIgnoreOnWrite} will be
+     *     <li>Any field annotated with {@link CsvIgnore} will be
      *     ignored on writing</li>
      *     <li>Any field named "serialVersionUID" will be ignored if the
      *     enclosing class implements {@link java.io.Serializable}.</li>

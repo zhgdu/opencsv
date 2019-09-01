@@ -18,9 +18,13 @@ package com.opencsv.bean;
 import com.opencsv.CSVWriter;
 import com.opencsv.ICSVParser;
 import com.opencsv.ICSVWriter;
+import org.apache.commons.collections4.ListValuedMap;
+import org.apache.commons.collections4.MultiValuedMap;
+import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.io.Writer;
+import java.lang.reflect.Field;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -45,14 +49,8 @@ public class StatefulBeanToCsvBuilder<T> {
     private boolean orderedResults = true;
     private Locale errorLocale = Locale.getDefault();
     private boolean applyQuotesToAll = true;
+    private final ListValuedMap<Class<?>, Field> ignoredFields = new ArrayListValuedHashMap<>();
     
-    /** The nullary constructor may never be used. */
-    private StatefulBeanToCsvBuilder() {
-        throw new IllegalStateException(String.format(
-                ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME).getString("nullary.constructor.not.allowed"),
-                getClass().getName()));
-    }
-
     /**
      * Default constructor - Being stateful the writer is required by the builder at the start and not added in later.
      *
@@ -185,6 +183,32 @@ public class StatefulBeanToCsvBuilder<T> {
         this.applyQuotesToAll = applyQuotesToAll;
         return this;
     }
+
+    /**
+     * Adds a {@link Field} to the list of fields opencsv should ignore
+     * completely.
+     * <p>May be called as many times as necessary.</p>
+     * @param type The class opencsv will encounter the field in during
+     *             processing. In the case of inheritance, this may not be the
+     *             declaring class.
+     * @param field The field opencsv is to ignore
+     * @return {@code this}
+     * @throws IllegalArgumentException If one of the parameters is
+     * {@code null} or {@code field} cannot be found in {@code type}.
+     * @since 5.0
+     * @see MappingStrategy#ignoreFields(MultiValuedMap)
+     */
+    public StatefulBeanToCsvBuilder<T> withIgnoreField(Class<?> type, Field field) throws IllegalArgumentException {
+        if(type != null && field != null && field.getDeclaringClass().isAssignableFrom(type)) {
+            ignoredFields.put(type, field);
+        }
+        else {
+            throw new IllegalArgumentException(ResourceBundle.getBundle(
+                    ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
+                    .getString("ignore.field.inconsistent"));
+        }
+        return this;
+    }
     
     /**
      * Builds a StatefulBeanToCsv from the information provided, filling in
@@ -194,10 +218,12 @@ public class StatefulBeanToCsvBuilder<T> {
     public StatefulBeanToCsv<T> build() {
         StatefulBeanToCsv<T> sbtcsv;
         if (writer != null) {
-            sbtcsv = new StatefulBeanToCsv<>(escapechar, lineEnd, mappingStrategy,
-                    quotechar, separator, throwExceptions, writer, applyQuotesToAll);
+            sbtcsv = new StatefulBeanToCsv<>(escapechar, lineEnd,
+                    mappingStrategy, quotechar, separator, throwExceptions,
+                    writer, applyQuotesToAll, ignoredFields);
         } else {
-            sbtcsv = new StatefulBeanToCsv<>(mappingStrategy, throwExceptions, applyQuotesToAll, csvWriter);
+            sbtcsv = new StatefulBeanToCsv<>(mappingStrategy, throwExceptions,
+                    applyQuotesToAll, csvWriter, ignoredFields);
         }
 
         sbtcsv.setOrderedResults(orderedResults);
