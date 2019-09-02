@@ -92,11 +92,14 @@ public interface MappingStrategy<T> {
      * @throws CsvConstraintViolationException If the value provided for a field
      *   would in some way compromise the logical integrity of the data as a
      *   whole
+     * @throws CsvValidationException If a user-supplied validator determines
+     * that the input is invalid
      * @since 4.2
      */
     T populateNewBean(String[] line)
             throws CsvBeanIntrospectionException, CsvRequiredFieldEmptyException,
-            CsvDataTypeMismatchException, CsvConstraintViolationException, CsvValidationException;
+            CsvDataTypeMismatchException, CsvConstraintViolationException,
+            CsvValidationException;
     
     /**
      * Sets the locale for all error messages.

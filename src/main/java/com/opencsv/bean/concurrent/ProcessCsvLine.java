@@ -117,11 +117,14 @@ public class ProcessCsvLine<T> implements Runnable {
      *   the input file
      * @throws CsvConstraintViolationException When the internal structure of
      *   data would be violated by the data in the CSV file
+     * @throws CsvValidationException If a user-supplied validator declares the
+     *   data to be invalid
      */
     private T processLine()
             throws CsvBeanIntrospectionException,
             CsvBadConverterException, CsvDataTypeMismatchException,
-            CsvRequiredFieldEmptyException, CsvConstraintViolationException, CsvValidationException {
+            CsvRequiredFieldEmptyException, CsvConstraintViolationException,
+            CsvValidationException {
         return mapper.populateNewBean(line);
     }
 }

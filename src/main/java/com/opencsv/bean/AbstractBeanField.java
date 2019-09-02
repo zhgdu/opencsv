@@ -172,7 +172,10 @@ abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
             StringValidator stringValidator = validator.validator().newInstance();
             stringValidator.validate(value);
         } catch (InstantiationException | IllegalAccessException e) {
-            throw new CsvValidationException(String.format("Error instantiating validator %s for field %s", validator.validator().getName(), field.getName()));
+            throw new CsvValidationException(String.format(
+                    ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
+                            .getString("validator.instantiation.impossible"),
+                    validator.validator().getName(), field.getName()));
         }
     }
 

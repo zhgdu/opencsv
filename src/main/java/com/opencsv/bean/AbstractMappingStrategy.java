@@ -320,7 +320,8 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
     @Override
     public T populateNewBean(String[] line)
             throws CsvBeanIntrospectionException, CsvRequiredFieldEmptyException,
-            CsvDataTypeMismatchException, CsvConstraintViolationException, CsvValidationException {
+            CsvDataTypeMismatchException, CsvConstraintViolationException,
+            CsvValidationException {
         verifyLineLength(line.length);
         Map<Class<?>, Object> beanTree = createBean();
         for (int col = 0; col < line.length; col++) {
@@ -567,6 +568,8 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
      *                                         input datum in the CSV file
      * @throws CsvConstraintViolationException When the internal structure of
      *                                         data would be violated by the data in the CSV file
+     * @throws CsvValidationException If a user-supplied validator determines
+     * that the input is invalid
      * @since 4.2
      */
     protected void setFieldValue(Map<Class<?>, Object> beanTree, String value, int column)

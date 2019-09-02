@@ -17,15 +17,18 @@ public @interface PreAssignmentValidator {
     /**
      * Returns the validator that will validate the string.
      *
-     * @return the class of the validator that will validate the bean field string value.
+     * @return The class of the validator that will validate the bean field
+     * string value
      */
     Class<? extends StringValidator> validator();
 
     /**
-     * This is used to store additional information needed by the StringValidator - IE a regex string that will be
+     * This is used to store additional information needed by the
+     * {@link StringValidator}.
+     * This could, for example, contain a regular expression that will be
      * applied to the data.
      *
-     * @return - parameter string required by the String Validator
+     * @return Parameter string required by the {@link StringValidator}
      */
     String paramString() default "";
 }

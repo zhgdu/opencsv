@@ -92,6 +92,8 @@ public interface BeanField<T, I> {
      *                                         input datum in the CSV file
      * @throws CsvConstraintViolationException When the internal structure of
      *                                         data would be violated by the data in the CSV file
+     * @throws CsvValidationException If a user-supplied validator determines
+     * that the input is invalid
      */
     void setFieldValue(Object bean, String value, String header)
             throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException,
