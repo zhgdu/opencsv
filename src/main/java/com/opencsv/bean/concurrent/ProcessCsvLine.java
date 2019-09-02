@@ -121,7 +121,7 @@ public class ProcessCsvLine<T> implements Runnable {
     private T processLine()
             throws CsvBeanIntrospectionException,
             CsvBadConverterException, CsvDataTypeMismatchException,
-            CsvRequiredFieldEmptyException, CsvConstraintViolationException {
+            CsvRequiredFieldEmptyException, CsvConstraintViolationException, CsvValidationException {
         return mapper.populateNewBean(line);
     }
 }

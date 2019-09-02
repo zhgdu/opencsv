@@ -3,6 +3,7 @@ package com.opencsv.bean;
 import com.opencsv.exceptions.CsvConstraintViolationException;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+import com.opencsv.exceptions.CsvValidationException;
 
 import java.lang.reflect.Field;
 import java.util.Locale;
@@ -94,7 +95,7 @@ public interface BeanField<T, I> {
      */
     void setFieldValue(Object bean, String value, String header)
             throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException,
-            CsvConstraintViolationException;
+            CsvConstraintViolationException, CsvValidationException;
     
     /**
      * Gets the contents of the selected field of the given bean.

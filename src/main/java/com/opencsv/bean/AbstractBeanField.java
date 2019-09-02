@@ -16,10 +16,9 @@
 package com.opencsv.bean;
 
 import com.opencsv.ICSVParser;
-import com.opencsv.exceptions.CsvBeanIntrospectionException;
-import com.opencsv.exceptions.CsvConstraintViolationException;
-import com.opencsv.exceptions.CsvDataTypeMismatchException;
-import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
+import com.opencsv.bean.validators.PreAssignmentValidator;
+import com.opencsv.bean.validators.StringValidator;
+import com.opencsv.exceptions.*;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -151,7 +150,7 @@ abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
     @Override
     public final void setFieldValue(Object bean, String value, String header)
             throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException,
-            CsvConstraintViolationException {
+            CsvConstraintViolationException, CsvValidationException {
         if (required && StringUtils.isBlank(value)) {
             throw new CsvRequiredFieldEmptyException(
                     bean.getClass(), field,
@@ -159,7 +158,22 @@ abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
                             field.getName()));
         }
 
+        PreAssignmentValidator[] validators = field.getAnnotationsByType(PreAssignmentValidator.class);
+
+        for (PreAssignmentValidator validator : validators) {
+            validateValue(validator, value);
+        }
+
         assignValueToField(bean, convert(value), header);
+    }
+
+    private void validateValue(PreAssignmentValidator validator, String value) throws CsvValidationException {
+        try {
+            StringValidator stringValidator = validator.validator().newInstance();
+            stringValidator.validate(value);
+        } catch (InstantiationException | IllegalAccessException e) {
+            throw new CsvValidationException(String.format("Error instantiating validator %s for field %s", validator.validator().getName(), field.getName()));
+        }
     }
 
     @Override

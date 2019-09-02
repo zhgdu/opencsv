@@ -310,7 +310,7 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
     @Override
     public T populateNewBean(String[] line)
             throws CsvBeanIntrospectionException, CsvRequiredFieldEmptyException,
-            CsvDataTypeMismatchException, CsvConstraintViolationException {
+            CsvDataTypeMismatchException, CsvConstraintViolationException, CsvValidationException {
         verifyLineLength(line.length);
         Map<Class<?>, Object> beanTree = createBean();
         for (int col = 0; col < line.length; col++) {
@@ -519,7 +519,7 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
      */
     protected void setFieldValue(Map<Class<?>, Object> beanTree, String value, int column)
             throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException,
-            CsvConstraintViolationException {
+            CsvConstraintViolationException, CsvValidationException {
         BeanField<T, K> beanField = findField(column);
         if (beanField != null) {
             Object subordinateBean = beanTree.get(beanField.getType());

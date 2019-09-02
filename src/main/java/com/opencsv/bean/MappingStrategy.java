@@ -94,7 +94,7 @@ public interface MappingStrategy<T> {
      */
     T populateNewBean(String[] line)
             throws CsvBeanIntrospectionException, CsvRequiredFieldEmptyException,
-            CsvDataTypeMismatchException, CsvConstraintViolationException;
+            CsvDataTypeMismatchException, CsvConstraintViolationException, CsvValidationException;
     
     /**
      * Sets the locale for all error messages.
