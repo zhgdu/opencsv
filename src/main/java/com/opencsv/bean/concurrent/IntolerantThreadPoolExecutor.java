@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -153,12 +154,11 @@ class IntolerantThreadPoolExecutor<T> extends ThreadPoolExecutor {
         // Prepare results. Checking for this map to be != null makes the
         // compiler feel better than checking that the accumulator is not null.
         // This is to differentiate between the ordered and unordered cases.
-        if(resultantBeansMap != null) {
-             return resultantBeansMap.values().stream();
-        }
-        return resultQueue.stream()
-                .filter(Objects::nonNull)
-                .map(OrderedObject::getElement);
+        return resultantBeansMap != null ?
+                resultantBeansMap.values().stream() :
+                resultQueue.stream()
+                        .filter(Objects::nonNull)
+                        .map(OrderedObject::getElement);
     }
 
     /**
@@ -170,16 +170,12 @@ class IntolerantThreadPoolExecutor<T> extends ThreadPoolExecutor {
      * @return All exceptions captured
      */
     public List<CsvException> getCapturedExceptions() {
-        if(thrownExceptionsMap != null) {
-            return new ArrayList<>(thrownExceptionsMap.values());
-        }
-        List<CsvException> capturedExceptions = new ArrayList<>(thrownExceptionsQueue.size());
-        OrderedObject<CsvException> oocsve;
-        while(!thrownExceptionsQueue.isEmpty()) {
-            oocsve = thrownExceptionsQueue.poll();
-            if(oocsve != null) {capturedExceptions.add(oocsve.getElement());}
-        }
-        return capturedExceptions;
+        return thrownExceptionsMap == null ?
+                thrownExceptionsQueue.stream()
+                        .filter(Objects::nonNull)
+                        .map(OrderedObject::getElement)
+                        .collect(Collectors.toList()) :
+                new ArrayList<>(thrownExceptionsMap.values());
     }
 
     @Override
