@@ -28,8 +28,26 @@ public interface StringValidator {
      * invalid.
      *
      * @param value String to be validated
+     * @param fieldName Name of the field in the bean.  This will be used in the CsvValidationException
+     *                  if the value is not valid.
      * @throws CsvValidationException If the input is invalid. Should contain a
      * message describing the error.
      */
-    void validate(String value) throws CsvValidationException;
+    void validate(String value, String fieldName) throws CsvValidationException;
+
+    /**
+     * This allows the validator extending StringValidator to be used by multiple fields
+     * by allowing you to pass in data for the validator to be used.  For example, forbidden
+     * characters, regex expressions.
+     * <p>
+     * If the validator needs multiple parameters then you will need to combine them into a single string
+     * using some sort of delimeter, say a comma, and parse them out using some library that allows
+     * you to parse such strings <BG>.
+     * <p>
+     * If the validator does not need a value then just create an empty method like the MustStartWithACapitalLetter
+     * used by the BeanFieldValidatorTest.
+     *
+     * @param value information used by the validator to validate the string.
+     */
+    void setParameterString(String value);
 }

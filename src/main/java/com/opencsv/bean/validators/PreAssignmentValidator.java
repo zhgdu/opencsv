@@ -14,6 +14,7 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface PreAssignmentValidator {
+
     /**
      * Returns the validator that will validate the string.
      *

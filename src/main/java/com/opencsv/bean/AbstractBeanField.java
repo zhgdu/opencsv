@@ -170,7 +170,10 @@ abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
     private void validateValue(PreAssignmentValidator validator, String value) throws CsvValidationException {
         try {
             StringValidator stringValidator = validator.validator().newInstance();
-            stringValidator.validate(value);
+            if (Objects.nonNull(validator.paramString())) {
+                stringValidator.setParameterString(validator.paramString());
+            }
+            stringValidator.validate(value, field.getName());
         } catch (InstantiationException | IllegalAccessException e) {
             throw new CsvValidationException(String.format(
                     ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
