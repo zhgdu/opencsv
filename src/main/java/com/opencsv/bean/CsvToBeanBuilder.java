@@ -17,9 +17,13 @@ package com.opencsv.bean;
 
 import com.opencsv.*;
 import com.opencsv.enums.CSVReaderNullFieldIndicator;
+import org.apache.commons.collections4.ListValuedMap;
+import org.apache.commons.collections4.MultiValuedMap;
+import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.io.Reader;
+import java.lang.reflect.Field;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -114,6 +118,9 @@ public class CsvToBeanBuilder<T> {
 
    /** @see com.opencsv.bean.CsvToBean#verifiers */
    private final List<BeanVerifier<T>> verifiers = new LinkedList<>();
+
+   /** @see  com.opencsv.bean.AbstractMappingStrategy#ignoredFields */
+   private final ListValuedMap<Class<?>, Field> ignoredFields = new ArrayListValuedHashMap<>();
    
    /**
     * Constructor with the one parameter that is most definitely mandatory, and
@@ -175,9 +182,14 @@ public class CsvToBeanBuilder<T> {
         if(filter != null) { bean.setFilter(filter); }
         bean.setVerifiers(verifiers);
         
-        // Now find the mapping strategy.
+        // Now find the mapping strategy and ignore irrelevant fields.
+        // It's possible the mapping strategy has already been primed, so only
+        // pass on our data if the user actually gave us something.
         if(mappingStrategy == null) {
             mappingStrategy = OpencsvUtils.determineMappingStrategy(type, errorLocale);
+        }
+        if(!ignoredFields.isEmpty()) {
+            mappingStrategy.ignoreFields(ignoredFields);
         }
         bean.setMappingStrategy(mappingStrategy);
 
@@ -444,6 +456,32 @@ public class CsvToBeanBuilder<T> {
     public CsvToBeanBuilder<T> withVerifier(BeanVerifier<T> verifier) {
         if(verifier != null) {
             verifiers.add(verifier);
+        }
+        return this;
+    }
+
+    /**
+     * Adds a {@link Field} to the list of fields opencsv should ignore
+     * completely.
+     * <p>May be called as many times as necessary.</p>
+     * @param type The class opencsv will encounter the field in during
+     *             processing. In the case of inheritance, this may not be the
+     *             declaring class.
+     * @param field The field opencsv is to ignore
+     * @return {@code this}
+     * @throws IllegalArgumentException If one of the parameters is
+     * {@code null} or {@code field} cannot be found in {@code type}.
+     * @since 5.0
+     * @see MappingStrategy#ignoreFields(MultiValuedMap)
+     */
+    public CsvToBeanBuilder<T> withIgnoreField(Class<?> type, Field field) throws IllegalArgumentException {
+        if(type != null && field != null && field.getDeclaringClass().isAssignableFrom(type)) {
+            ignoredFields.put(type, field);
+        }
+        else {
+            throw new IllegalArgumentException(ResourceBundle.getBundle(
+                    ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
+                    .getString("ignore.field.inconsistent"));
         }
         return this;
     }

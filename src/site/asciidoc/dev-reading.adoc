@@ -897,7 +897,7 @@ burdensome annotating for obvious mappings.
 Since this matching strategy only makes sense for reading, it is not supported
 for writing, but it should behave exactly as HeaderColumnNameMappingStrategy.
 
-===== Skipping, filtering and verifying
+===== Skipping, filtering, verifying, and ignoring
 With some input it can be helpful to skip the first few lines. opencsv provides
 for this need with CsvToBeanBuilder.withSkipLines(), which ultimately is used on
 the appropriate constructor for CSVReader, if you would prefer to do everything
@@ -928,3 +928,12 @@ considered an error for the surrounding logic, CsvConstraintViolationException
 may be thrown. Incidentally, though it is a well-kept secret, the bean passed
 to a BeanVerifier is not a copy, so any changes made to the bean will be kept.
 This is a way to get a postprocessor for beans into opencsv.
+
+Ignoring applies to fields in beans, and can be achieved via annotation or
+method call. If a bean you are manipulating (for reading or writing) includes
+fields that you want opencsv to ignore (even if they already bear binding
+annotations from opencsv), you can add @CsvIgnore to them and opencsv will
+skip them in all reading and writing operations. If you have no source control
+over the beans you use, you can use the withIgnoreField() method of the
+appropriate builder or the ignoreFields() method of the mapping strategy to
+achieve the same effect.

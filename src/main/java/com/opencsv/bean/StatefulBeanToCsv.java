@@ -18,18 +18,24 @@ package com.opencsv.bean;
 import com.opencsv.CSVWriter;
 import com.opencsv.ICSVParser;
 import com.opencsv.ICSVWriter;
-import com.opencsv.bean.concurrent.*;
+import com.opencsv.bean.concurrent.BeanExecutor;
+import com.opencsv.bean.concurrent.OrderedObject;
+import com.opencsv.bean.concurrent.ProcessCsvBean;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import com.opencsv.exceptions.CsvRuntimeException;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.iterators.PeekingIterator;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.io.Writer;
+import java.lang.reflect.Field;
 import java.util.*;
-import java.util.concurrent.*;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.stream.Stream;
 
 /**
@@ -66,6 +72,7 @@ public class StatefulBeanToCsv<T> {
     private BeanExecutor<T> executor = null;
     private Locale errorLocale = Locale.getDefault();
     private boolean applyQuotesToAll;
+    private final MultiValuedMap<Class<?>, Field> ignoredFields;
 
     /**
      * Constructor used when supplying a Writer instead of a CsvWriter class.
@@ -81,10 +88,12 @@ public class StatefulBeanToCsv<T> {
      *                         via {@link #getCapturedExceptions()}.
      * @param writer           A {@link java.io.Writer} for writing the beans as a CSV to
      * @param applyQuotesToAll Whether all output fields should be quoted
+     * @param ignoredFields The fields to ignore during processing. May be {@code null}.
      */
     StatefulBeanToCsv(char escapechar, String lineEnd,
                       MappingStrategy<T> mappingStrategy, char quotechar, char separator,
-                      boolean throwExceptions, Writer writer, boolean applyQuotesToAll) {
+                      boolean throwExceptions, Writer writer, boolean applyQuotesToAll,
+                      MultiValuedMap<Class<?>, Field> ignoredFields) {
         this.escapechar = escapechar;
         this.lineEnd = lineEnd;
         this.mappingStrategy = mappingStrategy;
@@ -93,6 +102,7 @@ public class StatefulBeanToCsv<T> {
         this.throwExceptions = throwExceptions;
         this.writer = writer;
         this.applyQuotesToAll = applyQuotesToAll;
+        this.ignoredFields = ignoredFields;
     }
 
     /**
@@ -105,8 +115,12 @@ public class StatefulBeanToCsv<T> {
      *                         via {@link #getCapturedExceptions()}.
      * @param applyQuotesToAll Whether all output fields should be quoted
      * @param csvWriter        An user-supplied {@link com.opencsv.ICSVWriter} for writing beans to a CSV output
+     * @param ignoredFields The fields to ignore during processing. May be {@code null}.
      */
-    public StatefulBeanToCsv(MappingStrategy<T> mappingStrategy, boolean throwExceptions, boolean applyQuotesToAll, ICSVWriter csvWriter) {
+    public StatefulBeanToCsv(MappingStrategy<T> mappingStrategy,
+                             boolean throwExceptions, boolean applyQuotesToAll,
+                             ICSVWriter csvWriter,
+                             MultiValuedMap<Class<?>, Field> ignoredFields) {
         this.mappingStrategy = mappingStrategy;
         this.throwExceptions = throwExceptions;
         this.applyQuotesToAll = applyQuotesToAll;
@@ -117,6 +131,7 @@ public class StatefulBeanToCsv<T> {
         this.quotechar = NO_CHARACTER;
         this.separator = NO_CHARACTER;
         this.writer = null;
+        this.ignoredFields = ignoredFields;
     }
 
     /**
@@ -135,7 +150,14 @@ public class StatefulBeanToCsv<T> {
 
         // Determine mapping strategy
         if (mappingStrategy == null) {
-            mappingStrategy = OpencsvUtils.<T>determineMappingStrategy((Class<T>) bean.getClass(), errorLocale);
+            mappingStrategy = OpencsvUtils.determineMappingStrategy((Class<T>) bean.getClass(), errorLocale);
+        }
+
+        // Ignore fields. It's possible the mapping strategy has already been
+        // primed, so only pass on our data if the user actually gave us
+        // something.
+        if(!ignoredFields.isEmpty()) {
+            mappingStrategy.ignoreFields(ignoredFields);
         }
 
         // Build CSVWriter

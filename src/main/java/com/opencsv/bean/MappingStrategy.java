@@ -18,8 +18,10 @@ package com.opencsv.bean;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.*;
+import org.apache.commons.collections4.MultiValuedMap;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.Locale;
 
 /**
@@ -118,6 +120,43 @@ public interface MappingStrategy<T> {
      *   safe to catch this exception and ignore it.
      */
     void setType(Class<? extends T> type) throws CsvBadConverterException;
+
+    /**
+     * When processing a bean for reading or writing, ignore the given fields
+     * from the given classes completely, including all annotations and
+     * requirements.
+     * <p>This method has two compelling applications:<ol>
+     *     <li>If you are not able to modify the source code of the beans you
+     *     use, or</li>
+     *     <li>If you use a mapping strategy without annotations and want to
+     *     exclude a small number of fields from a bean with a large number of
+     *     fields.</li>
+     * </ol></p>
+     * <p>Calling this method overwrites the fields passed in from any previous
+     * calls. It is legal to call this method before calling
+     * {@link #setType(Class)}, and it may be more efficient to do so.</p>
+     * <p>Caution must be exercised with this method when letting opencsv
+     * automatically determine the mapping strategy. When a field is ignored,
+     * opencsv pretends it does not exist at all. If, for instance, all fields
+     * annotated with opencsv binding annotations are ignored, opencsv will
+     * automatically switch to {@link HeaderColumnNameMappingStrategy} and
+     * assume header names exactly match field names.</p>
+     * <p>An implementation of this interface is not required to implement this
+     * method. The default implementation throws
+     * {@link UnsupportedOperationException}.</p>
+     * @param fields All fields to be ignored, mapped from the classes of which
+     *               they are members. These are the classes as opencsv
+     *               encounters them, not necessarily the declaring classes if
+     *               any fields are inherited. May be {@code null}.
+     * @throws IllegalArgumentException If any entry in the map has a
+     * {@code null} key, a {@code null} value, or if the value is not a field
+     * in the class represented by the key
+     * @since 5.0
+     * @see CsvIgnore
+     */
+    default void ignoreFields(MultiValuedMap<Class<?>, Field> fields) throws IllegalArgumentException {
+        throw new UnsupportedOperationException();
+    }
    
     /**
      * Transmutes a bean instance into an array of {@link String}s to be written

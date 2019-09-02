@@ -87,6 +87,12 @@ for that? Here is a list of the improvements in opencsv 5.0.
    * If you write beans to a CSV output using the header name mapping strategy
    without annotations, opencsv will now ignore any field named
    "serialVersionUID" as long as the bean class implements Serializable.
+   * You can now instruct opencsv to ignore fields. This can be accomplished
+   with the new annotation @CsvIgnore, or, if you do not have source control
+   over the beans you use, with MappingStrategy.ignoreFields(). This last has a
+   default implementation in the MappingStrategy interface that throws an
+   UnsupportedOperationException, and all relevant builders include methods for
+   feeding this information to the mapping strategy.
    * As a byproduct of refactoring the mapping strategies, there is now a base
    class for mapping strategies that map header names:
    HeaderNameBaseMappingStrategy. If you have derived a mapping strategy from
@@ -126,6 +132,10 @@ do about them.
    accordingly, if you overrode any of the affected methods, and you will need
    to implement loadUnadornedFieldMap() to create the input/output to member
    variable mapping in the absence of binding annotations.
+   * The two constructors for StatefulBeanToCsv have a new parameter: the
+   fields to ignore. If you are calling these directly instead of using the
+   builders we provide, you will have to add the last argument. If you are
+   not ignoring any fields, simply pass in null.
 
 And we have a new list of things that we have deprecated and plan to remove in
 6.0, as well as what you can do about it.
