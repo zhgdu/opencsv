@@ -1,5 +1,6 @@
 package com.opencsv.bean.validators;
 
+import com.opencsv.bean.BeanField;
 import com.opencsv.exceptions.CsvValidationException;
 
 /**
@@ -28,13 +29,13 @@ public interface StringValidator {
      * invalid.
      *
      * @param value String to be validated
-     * @param fieldName Name of the field in the bean.  This will be used in
+     * @param field Name of the field in the bean.  This will be used in
      *                  the {@link CsvValidationException} if the value is not
      *                  valid.
      * @throws CsvValidationException If the input is invalid. Should contain a
      * message describing the error.
      */
-    void validate(String value, String fieldName) throws CsvValidationException;
+    void validate(String value, BeanField field) throws CsvValidationException;
 
     /**
      * This allows the validator extending {@link StringValidator} to be used
@@ -45,7 +46,7 @@ public interface StringValidator {
      * <p>If the validator needs multiple parameters, then you will need to
      * combine them into a single string using some sort of delimiter, say a
      * comma, and parse them out using some library that allows you to parse
-     * such strings.</p>
+     * such strings 😁.</p>
      * <p>If the validator does not need a value then just create an empty
      * method like the MustStartWithACapitalLetter validator used by the
      * BeanFieldValidatorTest.</p>

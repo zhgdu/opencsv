@@ -1,6 +1,10 @@
 package com.opencsv.bean.validators;
 
+import com.opencsv.ICSVParser;
+import com.opencsv.bean.BeanField;
 import com.opencsv.exceptions.CsvValidationException;
+
+import java.util.ResourceBundle;
 
 /**
  *
@@ -24,9 +28,10 @@ public class MustMatchRegexExpression implements StringValidator {
     }
 
     @Override
-    public void validate(String value, String fieldName) throws CsvValidationException {
+    public void validate(String value, BeanField field) throws CsvValidationException {
         if (!isValid(value)) {
-            throw new CsvValidationException(String.format("Field %s value \"%s\" did not match expected format of %s", fieldName, value, regex));
+            throw new CsvValidationException(String.format(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, field.getErrorLocale())
+                    .getString("validator.regex.mismatch"), field.getField().getName(), value, regex));
         }
     }
 

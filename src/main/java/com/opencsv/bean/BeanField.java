@@ -170,4 +170,13 @@ public interface BeanField<T, I> {
      * @since 4.0
      */
     void setErrorLocale(Locale errorLocale);
+
+    /**
+     * Returns the error locale for the beans.   Used by the opencsv provided validators
+     * to populate the error messages they generate.
+     *
+     * @return Locale for error messages.
+     * @since 5.0
+     */
+    Locale getErrorLocale();
 }

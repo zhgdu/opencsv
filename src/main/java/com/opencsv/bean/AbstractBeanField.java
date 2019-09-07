@@ -148,6 +148,11 @@ abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
     }
 
     @Override
+    public Locale getErrorLocale() {
+        return this.errorLocale;
+    }
+
+    @Override
     public final void setFieldValue(Object bean, String value, String header)
             throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException,
             CsvConstraintViolationException, CsvValidationException {
@@ -173,7 +178,7 @@ abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
             if (Objects.nonNull(validator.paramString())) {
                 stringValidator.setParameterString(validator.paramString());
             }
-            stringValidator.validate(value, field.getName());
+            stringValidator.validate(value, this);
         } catch (InstantiationException | IllegalAccessException e) {
             throw new CsvValidationException(String.format(
                     ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
