@@ -17,6 +17,7 @@ package com.opencsv;
  */
 
 import com.opencsv.exceptions.*;
+import com.opencsv.processor.RowProcessor;
 import com.opencsv.stream.reader.LineReader;
 import com.opencsv.validators.LineValidatorAggregator;
 import com.opencsv.validators.RowValidatorAggregator;
@@ -73,6 +74,7 @@ public class CSVReader implements Closeable, Iterable<String[]> {
 
     private final LineValidatorAggregator lineValidatorAggregator;
     private final RowValidatorAggregator rowValidatorAggregator;
+    private final RowProcessor rowProcessor;
 
     /**
      * Constructs CSVReader using defaults for all parameters.
@@ -94,16 +96,15 @@ public class CSVReader implements Closeable, Iterable<String[]> {
                 DEFAULT_MULTILINE_LIMIT,
                 Locale.getDefault(),
                 new LineValidatorAggregator(),
-                new RowValidatorAggregator()
-        );
+                new RowValidatorAggregator(),
+                null);
     }
 
     /**
      * Constructs CSVReader with supplied CSVParser.
      * <p>This constructor sets all necessary parameters for CSVReader, and
      * intentionally has package access so only the builder can use it.</p>
-     *
-     * @param reader         The reader to an underlying CSV source
+     *  @param reader         The reader to an underlying CSV source
      * @param line           The number of lines to skip before reading
      * @param icsvParser     The parser to use to parse input
      * @param keepCR         True to keep carriage returns in data read, false otherwise
@@ -112,9 +113,11 @@ public class CSVReader implements Closeable, Iterable<String[]> {
      * @param errorLocale    Set the locale for error messages. If null, the default locale is used.
      * @param lineValidatorAggregator contains all the custom defined line validators.
      * @param rowValidatorAggregator contains all the custom defined row validators.
+     * @param rowProcessor   Custom row processor to run on all columns on a csv record.
      */
     CSVReader(Reader reader, int line, ICSVParser icsvParser, boolean keepCR, boolean verifyReader, int multilineLimit,
-              Locale errorLocale, LineValidatorAggregator lineValidatorAggregator, RowValidatorAggregator rowValidatorAggregator) {
+              Locale errorLocale, LineValidatorAggregator lineValidatorAggregator, RowValidatorAggregator rowValidatorAggregator,
+              RowProcessor rowProcessor) {
         this.br =
                 (reader instanceof BufferedReader ?
                         (BufferedReader) reader :
@@ -128,6 +131,7 @@ public class CSVReader implements Closeable, Iterable<String[]> {
         this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
         this.lineValidatorAggregator = lineValidatorAggregator;
         this.rowValidatorAggregator = rowValidatorAggregator;
+        this.rowProcessor = rowProcessor;
     }
 
     /**
@@ -213,7 +217,8 @@ public class CSVReader implements Closeable, Iterable<String[]> {
     /**
      * Reads the next line from the buffer and converts to a string array.
      *
-     * @param validateData - run the custom validations on the data.  You would not want to run validations on header data.
+     * @param validateData - run the custom validations and processors on the data.  You would not want to run
+     *                       validations and/or processors on header data.
      * @return A string array with each comma-separated element as a separate
      * entry, or null if there is no more input.
      * @throws IOException            If bad things happen during the read
@@ -297,6 +302,9 @@ public class CSVReader implements Closeable, Iterable<String[]> {
     protected String[] validateResult(String[] result, long lineStartOfRow, boolean useRowValidators) throws CsvValidationException {
         if (result != null) {
             if (useRowValidators) {
+                if (rowProcessor != null) {
+                    rowProcessor.processRow(result);
+                }
                 try {
                     rowValidatorAggregator.validate(result);
                 } catch (CsvValidationException cve) {

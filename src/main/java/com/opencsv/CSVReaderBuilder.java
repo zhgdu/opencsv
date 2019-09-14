@@ -17,6 +17,7 @@ package com.opencsv;
 
 
 import com.opencsv.enums.CSVReaderNullFieldIndicator;
+import com.opencsv.processor.RowProcessor;
 import com.opencsv.validators.LineValidator;
 import com.opencsv.validators.LineValidatorAggregator;
 import com.opencsv.validators.RowValidator;
@@ -61,6 +62,7 @@ public class CSVReaderBuilder {
     private Locale errorLocale = Locale.getDefault();
     private LineValidatorAggregator lineValidatorAggregator = new LineValidatorAggregator();
     private RowValidatorAggregator rowValidatorAggregator = new RowValidatorAggregator();
+    private RowProcessor rowProcessor = null;
 
     /**
      * Sets the reader to an underlying CSV source.
@@ -143,7 +145,8 @@ public class CSVReaderBuilder {
      */
     public CSVReader build() {
         final ICSVParser parser = getOrCreateCsvParser();
-        return new CSVReader(reader, skipLines, parser, keepCR, verifyReader, multilineLimit, errorLocale, lineValidatorAggregator, rowValidatorAggregator);
+        return new CSVReader(reader, skipLines, parser, keepCR, verifyReader, multilineLimit, errorLocale,
+                lineValidatorAggregator, rowValidatorAggregator, rowProcessor);
     }
 
     /**
@@ -261,6 +264,7 @@ public class CSVReaderBuilder {
 
     /**
      * Adds a LineValidator to the CSVReader.
+     * Multiple LineValidators can be added with multiple calls.
      *
      * @param lineValidator LineValidator to inject.
      * @return this
@@ -273,6 +277,7 @@ public class CSVReaderBuilder {
 
     /**
      * Adds a RowValidator to the CSVReader.
+     * Multiple RowValidators can be added with multiple calls.
      *
      * @param rowValidator RowValidator to inject
      * @return this
@@ -280,6 +285,20 @@ public class CSVReaderBuilder {
      */
     public CSVReaderBuilder withRowValidator(RowValidator rowValidator) {
         rowValidatorAggregator.addValidator(rowValidator);
+        return this;
+    }
+
+    /**
+     * Adds a RowProcessor to the CSVReader.
+     * Only a single RowProcessor can be added so multiple calls will overwrite
+     * the previously set RowProcessor.
+     *
+     * @param rowProcessor - RowProcessor to inject
+     * @return this
+     * @since 5.0
+     */
+    public CSVReaderBuilder withRowProcessor(RowProcessor rowProcessor) {
+        this.rowProcessor = rowProcessor;
         return this;
     }
 }

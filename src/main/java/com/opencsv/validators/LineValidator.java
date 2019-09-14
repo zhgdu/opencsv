@@ -16,6 +16,9 @@ public interface LineValidator {
     /**
      * Performs the validation check on the string and returns the result.
      *
+     * While not called directly in opencsv it is in the interface to provide an easy way to
+     * test if the validator is function properly.
+     *
      * @param line - string to be validated.
      * @return true if the line is valid, false otherwise.
      */

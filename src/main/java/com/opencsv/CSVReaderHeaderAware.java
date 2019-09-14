@@ -52,7 +52,7 @@ public class CSVReaderHeaderAware extends CSVReader {
     CSVReaderHeaderAware(Reader reader, int skipLines, ICSVParser parser, boolean keepCR, boolean verifyReader,
                          int multilineLimit, Locale errorLocale, LineValidatorAggregator lineValidatorAggregator,
                          RowValidatorAggregator rowValidatorAggregator) throws IOException {
-        super(reader, skipLines, parser, keepCR, verifyReader, multilineLimit, errorLocale, lineValidatorAggregator, rowValidatorAggregator);
+        super(reader, skipLines, parser, keepCR, verifyReader, multilineLimit, errorLocale, lineValidatorAggregator, rowValidatorAggregator, null);
         initializeHeader();
     }
 
