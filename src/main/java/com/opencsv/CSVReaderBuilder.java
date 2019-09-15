@@ -117,11 +117,11 @@ public class CSVReaderBuilder {
      * Sets the number of lines to skip before reading.
      *
      * @param skipLines The number of lines to skip before reading.
-     * @return The CSVReaderBuilder with skipLines set.
+     * @return {@code this}
      */
     public CSVReaderBuilder withSkipLines(
             final int skipLines) {
-        this.skipLines = skipLines <= 0 ? 0 : skipLines;
+        this.skipLines = Math.max(skipLines, 0);
         return this;
     }
 
@@ -130,7 +130,7 @@ public class CSVReaderBuilder {
      * Sets the parser to use to parse the input.
      *
      * @param icsvParser The parser to use to parse the input.
-     * @return The CSVReaderBuilder with the CSVParser set.
+     * @return {@code this}
      */
     public CSVReaderBuilder withCSVParser(
             final ICSVParser icsvParser) {
@@ -153,7 +153,7 @@ public class CSVReaderBuilder {
      * Sets if the reader will keep or discard carriage returns.
      *
      * @param keepCR True to keep carriage returns, false to discard.
-     * @return The CSVReaderBuilder based on the set criteria.
+     * @return {@code this}
      */
     public CSVReaderBuilder withKeepCarriageReturn(boolean keepCR) {
         this.keepCR = keepCR;
@@ -163,7 +163,8 @@ public class CSVReaderBuilder {
     /**
      * Returns if the reader built will keep or discard carriage returns.
      *
-     * @return True if the reader built will keep carriage returns, false otherwise.
+     * @return {@code true} if the reader built will keep carriage returns,
+     * {@code false} otherwise
      */
     protected boolean keepCarriageReturn() {
         return this.keepCR;
@@ -191,7 +192,7 @@ public class CSVReaderBuilder {
      * <p>The default value is true.</p>
      *
      * @param verifyReader True if CSVReader should verify reader before each read, false otherwise.
-     * @return The CSVReaderBuilder based on this criteria.
+     * @return {@code this}
      */
     public CSVReaderBuilder withVerifyReader(boolean verifyReader) {
         this.verifyReader = verifyReader;
@@ -209,7 +210,7 @@ public class CSVReaderBuilder {
      * Checks to see if it should treat a field with two separators, two quotes, or both as a null field.
      *
      * @param indicator CSVReaderNullFieldIndicator set to what should be considered a null field.
-     * @return The CSVReaderBuilder based on this criteria.
+     * @return {@code this}
      */
     public CSVReaderBuilder withFieldAsNull(CSVReaderNullFieldIndicator indicator) {
         this.nullFieldIndicator = indicator;
@@ -222,7 +223,7 @@ public class CSVReaderBuilder {
      *
      * @param multilineLimit No more than this number of lines is allowed in a
      *                       single input record. The default is {@link CSVReader#DEFAULT_MULTILINE_LIMIT}.
-     * @return The CSVReaderBuilder based on this criteria.
+     * @return {@code this}
      */
     public CSVReaderBuilder withMultilineLimit(int multilineLimit) {
         this.multilineLimit = multilineLimit;
@@ -233,7 +234,7 @@ public class CSVReaderBuilder {
      * Sets the locale for all error messages.
      *
      * @param errorLocale Locale for error messages
-     * @return this
+     * @return {@code this}
      * @since 4.0
      */
     public CSVReaderBuilder withErrorLocale(Locale errorLocale) {
@@ -267,7 +268,7 @@ public class CSVReaderBuilder {
      * Multiple LineValidators can be added with multiple calls.
      *
      * @param lineValidator LineValidator to inject.
-     * @return this
+     * @return {@code this}
      * @since 5.0
      */
     public CSVReaderBuilder withLineValidator(LineValidator lineValidator) {
@@ -280,7 +281,7 @@ public class CSVReaderBuilder {
      * Multiple RowValidators can be added with multiple calls.
      *
      * @param rowValidator RowValidator to inject
-     * @return this
+     * @return {@code this}
      * @since 5.0
      */
     public CSVReaderBuilder withRowValidator(RowValidator rowValidator) {
@@ -293,8 +294,8 @@ public class CSVReaderBuilder {
      * Only a single RowProcessor can be added so multiple calls will overwrite
      * the previously set RowProcessor.
      *
-     * @param rowProcessor - RowProcessor to inject
-     * @return this
+     * @param rowProcessor RowProcessor to inject
+     * @return {@code this}
      * @since 5.0
      */
     public CSVReaderBuilder withRowProcessor(RowProcessor rowProcessor) {

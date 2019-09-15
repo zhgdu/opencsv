@@ -104,7 +104,7 @@ public class CSVReader implements Closeable, Iterable<String[]> {
      * Constructs CSVReader with supplied CSVParser.
      * <p>This constructor sets all necessary parameters for CSVReader, and
      * intentionally has package access so only the builder can use it.</p>
-     *  @param reader         The reader to an underlying CSV source
+     * @param reader         The reader to an underlying CSV source
      * @param line           The number of lines to skip before reading
      * @param icsvParser     The parser to use to parse input
      * @param keepCR         True to keep carriage returns in data read, false otherwise
@@ -217,12 +217,13 @@ public class CSVReader implements Closeable, Iterable<String[]> {
     /**
      * Reads the next line from the buffer and converts to a string array.
      *
-     * @param validateData - run the custom validations and processors on the data.  You would not want to run
-     *                       validations and/or processors on header data.
+     * @param validateData Run the custom validations and processors on the
+     *                     data. You would not want to run validations and/or
+     *                     processors on header data.
      * @return A string array with each comma-separated element as a separate
      * entry, or null if there is no more input.
      * @throws IOException            If bad things happen during the read
-     * @throws CsvValidationException If a user defined valdators fail.
+     * @throws CsvValidationException If a user defined validators fail
      */
     private String[] readNext(boolean validateData) throws IOException, CsvValidationException {
         
