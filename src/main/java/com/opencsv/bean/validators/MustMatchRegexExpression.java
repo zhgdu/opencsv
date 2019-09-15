@@ -30,7 +30,7 @@ public class MustMatchRegexExpression implements StringValidator {
     @Override
     public void validate(String value, BeanField field) throws CsvValidationException {
         if (!isValid(value)) {
-            throw new CsvValidationException(String.format(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, field.getErrorLocale())
+            throw new CsvValidationException(String.format(ResourceBundle.getBundle("mustMatchRegex", field.getErrorLocale())
                     .getString("validator.regex.mismatch"), field.getField().getName(), value, regex));
         }
     }
