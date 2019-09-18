@@ -228,6 +228,7 @@ public class ConverterDate extends AbstractCsvConverter {
             return (readDtf, s) -> readDtf.parse(s, OffsetDateTime::from);
         } else if (OffsetTime.class.equals(type)) {
             return (readDtf, s) -> readDtf.parse(s, OffsetTime::from);
+            // Once we support Java 13, we must add support for the new Japanese era Reiwa
         } else if (ThaiBuddhistEra.class.equals(type)) {
             return (readDtf, s) -> ThaiBuddhistEra.of(readDtf.parse(s).get(ChronoField.ERA));
         } else if (Year.class.equals(type)) {
