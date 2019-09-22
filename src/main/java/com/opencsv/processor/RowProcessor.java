@@ -13,9 +13,6 @@ package com.opencsv.processor;
  * <p>NOTE - Because of the potential problems a bad processor can cause we
  * will close down any bug reports created for opencsv where a RowProcessor is
  * involved with the recommendation they be reopened as a support request.</p>
- * <p>TODO come up with a good example of a RowProcessor</p>
- * <p>TODO write a test to show if quotes and escape characters have been
- * processed at point processor is called.</p>
  *
  * @author Scott Conway
  * @since 5.0

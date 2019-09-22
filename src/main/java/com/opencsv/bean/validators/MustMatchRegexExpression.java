@@ -1,6 +1,5 @@
 package com.opencsv.bean.validators;
 
-import com.opencsv.ICSVParser;
 import com.opencsv.bean.BeanField;
 import com.opencsv.exceptions.CsvValidationException;
 

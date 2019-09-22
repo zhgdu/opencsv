@@ -16,6 +16,8 @@
 package com.opencsv.bean;
 
 import com.opencsv.ICSVParser;
+import com.opencsv.bean.processor.PreAssignmentProcessor;
+import com.opencsv.bean.processor.StringProcessor;
 import com.opencsv.bean.validators.PreAssignmentValidator;
 import com.opencsv.bean.validators.StringValidator;
 import com.opencsv.exceptions.*;
@@ -163,6 +165,12 @@ abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
                             field.getName()));
         }
 
+        PreAssignmentProcessor[] processors = field.getAnnotationsByType(PreAssignmentProcessor.class);
+
+        for (PreAssignmentProcessor processor : processors) {
+            value = preProcessValue(processor, value);
+        }
+
         PreAssignmentValidator[] validators = field.getAnnotationsByType(PreAssignmentValidator.class);
 
         for (PreAssignmentValidator validator : validators) {
@@ -170,6 +178,21 @@ abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
         }
 
         assignValueToField(bean, convert(value), header);
+    }
+
+    private String preProcessValue(PreAssignmentProcessor processor, String value) throws CsvValidationException {
+        try {
+            StringProcessor stringProcessor = processor.processor().newInstance();
+            if (Objects.nonNull(processor.paramString())) {
+                stringProcessor.setParameterString(processor.paramString());
+            }
+            return stringProcessor.processString(value);
+        } catch (InstantiationException | IllegalAccessException e) {
+            throw new CsvValidationException(String.format(
+                    ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
+                            .getString("validator.instantiation.impossible"),
+                    processor.processor().getName(), field.getName()));
+        }
     }
 
     private void validateValue(PreAssignmentValidator validator, String value) throws CsvValidationException {
