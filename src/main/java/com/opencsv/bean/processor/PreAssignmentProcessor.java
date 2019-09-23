@@ -25,7 +25,7 @@ public @interface PreAssignmentProcessor {
     /**
      * This is used to store additional information needed by the
      * {@link StringProcessor}.
-     * This could, for example, could be a default value so the same processor
+     * This could, for example, be a default value so the same processor
      * could be used by different fields.
      *
      * @return Parameter string required by the {@link StringProcessor}

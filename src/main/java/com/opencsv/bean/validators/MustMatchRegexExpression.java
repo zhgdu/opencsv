@@ -6,11 +6,11 @@ import com.opencsv.exceptions.CsvValidationException;
 import java.util.ResourceBundle;
 
 /**
- * <p>This is a validator that due to the addition of the parameter allows the validation of multiple different types
+ * <p>This is a validator that, due to the addition of the parameter, allows the validation of multiple different types
  * of input.  The paramString must be a valid regular expression.  The MustMatchRegularExpression validator will
- * do call the String matches method of the string to be converted and the regular expression string and if
+ * the {@link String#matches(String)} method on the string to be converted and the regular expression string and if
  * the two do not match then a {@link CsvValidationException} will be thrown.</p>
- * <p>Because this is validating the string BEFORE it is parsed/converted the capture settings
+ * <p>Because this is validating the string <em>before</em> it is parsed/converted, the capture settings
  * of the string must be taken into account.</p>
  * <p>Examples:</p>
  * <pre>

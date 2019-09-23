@@ -10,7 +10,7 @@ of user defined validation to give opencsv the best of both worlds.
 By allowing integration, developers can inject validations for their specific requirements
 without adding performance overhead and an unnecessary burden to the users who do not need them.
 
-*NOTE - Because a badly coded or malformed validator can cause the failure to process the csv file any bug reports written about validators will be closed with the suggestion that they be reopened as Support Requests.
+*NOTE - Because a badly coded or malformed validator can cause failure to process the csv file, any bug reports written about validators will be closed with the suggestion that they be reopened as support requests.
 We are glad to help you with opencsv and the integration of your validators with opencsv but the bugs in the validators you write are NOT bugs with opencsv.
 That and we have unit tests with all types of validators so we know the validator integration works as designed.
 Feel free to look at our unit tests if you are having issues with the validators.*
@@ -20,7 +20,7 @@ Feel free to look at our unit tests if you are having issues with the validators
 The LineValidator interface is for the creation of validators upon a single line from the Reader before it is processed.
 A LineValidator should only be used when your csv records take one and only one line (no carriage returns or new line characters in any of the fields) and any of the existing validations do not work for you - like the multiLineLimit that is set in the CSVReaderBuilder.
 
-Here is a sample Validator we created as a unit test.
+Here is a sample Validator we created as a unit test:
 
 [source,java]
 ----
@@ -56,7 +56,7 @@ public class LineDoesNotHaveForbiddenString implements LineValidator {
 }
 ----
 
-And here is how it is integrated with opencsv
+And here is how it is integrated with opencsv:
 
 [source,java]
 ====
@@ -85,9 +85,9 @@ And here is how it is integrated with opencsv
 
 The RowValidator interface is for the creation of validators for an array of Strings that are supplied by the CSVReader after they have been processed.
 RowValidators should only be used if you have a very good understanding and control of the data being being processed, like the positions of the columns in the csv file.
-If you do not know the order then RowValidator needs to be generic enough such that it can be applied to every element in the row.
+If you do not know the order, then RowValidator needs to be generic enough such that it can be applied to every element in the row.
 
-Here is an example of the integration of RowValidator with opencsv.
+Here is an example of the integration of RowValidator with opencsv:
 
 [source,java]
 ====

@@ -19,8 +19,8 @@ package com.opencsv.bean.processor;
  */
 public interface StringProcessor {
     /**
-     * Method that contains the code that will transform a string into the value that will be validated and
-     * converted into bean field.
+     * Method that contains the code that will transform a string into the
+     * value that will be validated and converted into the bean field.
      *
      * @param value {@link String} to be processed
      * @return The processed {@link String}
@@ -32,7 +32,7 @@ public interface StringProcessor {
      * by multiple fields by allowing you to pass in data for the processor to
      * be used.
      * <p>The data could be a default value or whatever the custom processor
-     * requries to convert the data.</p>
+     * requires to convert the data.</p>
      * <p>If the processor needs multiple parameters, then you will need to
      * combine them into a single string using some sort of delimiter, say a
      * comma, and parse them out using some library that allows you to parse
