@@ -10,3 +10,108 @@ of user defined validation to give opencsv the best of both worlds.
 By allowing integration, developers can inject validations for their specific requirements
 without adding performance overhead and an unnecessary burden to the users who do not need them.
 
+*NOTE - Because a badly coded or malformed validator can cause the failure to process the csv file any bug reports written about validators will be closed with the suggestion that they be reopened as Support Requests.
+We are glad to help you with opencsv and the integration of your validators with opencsv but the bugs in the validators you write are NOT bugs with opencsv.
+That and we have unit tests with all types of validators so we know the validator integration works as designed.
+Feel free to look at our unit tests if you are having issues with the validators.*
+
+==== LineValidator
+
+The LineValidator interface is for the creation of validators upon a single line from the Reader before it is processed.
+A LineValidator should only be used when your csv records take one and only one line (no carriage returns or new line characters in any of the fields) and any of the existing validations do not work for you - like the multiLineLimit that is set in the CSVReaderBuilder.
+
+Here is a sample Validator we created as a unit test.
+
+[source,java]
+----
+public class LineDoesNotHaveForbiddenString implements LineValidator {
+
+    private final String FORBIDDEN_STRING;
+    private final String MESSAGE;
+
+    public LineDoesNotHaveForbiddenString(String forbiddenString) {
+        this.FORBIDDEN_STRING = forbiddenString;
+        this.MESSAGE = "Line should not contain " + forbiddenString;
+    }
+
+    @Override
+    public boolean isValid(String line) {
+        if (line == null || FORBIDDEN_STRING == null) {
+            return true;
+        }
+
+        return !line.contains(FORBIDDEN_STRING);
+    }
+
+    @Override
+    public void validate(String line) throws CsvValidationException {
+        if (!isValid(line)) {
+            throw new CsvValidationException(MESSAGE);
+        }
+    }
+
+    String getMessage() {
+        return MESSAGE;
+    }
+}
+----
+
+And here is how it is integrated with opencsv
+
+[source,java]
+====
+   private static final String BAD = "bad";
+   private static final String AWFUL = "awful";
+   private LineDoesNotHaveForbiddenString lineDoesNotHaveBadString;
+   private LineDoesNotHaveForbiddenString lineDoesNotHaveAwfulString;
+
+   @DisplayName("CSVReader with LineValidator with bad string")
+   @Test
+   public void readerWithLineValidatorWithBadString() throws IOException {
+      String lines = "a,b,c\nd,bad,f\n";
+      StringReader stringReader = new StringReader(lines);
+      CSVReaderBuilder builder = new CSVReaderBuilder(stringReader);
+      CSVReader csvReader = builder
+                .withLineValidator(lineDoesNotHaveAwfulString)
+                .withLineValidator(lineDoesNotHaveBadString)
+                .build();
+      assertThrows(CsvValidationException.class, () -> {
+            List<String[]> rows = csvReader.readAll();
+        });
+    }
+====
+
+==== RowValidator
+
+The RowValidator interface is for the creation of validators for an array of Strings that are supplied by the CSVReader after they have been processed.
+RowValidators should only be used if you have a very good understanding and control of the data being being processed, like the positions of the columns in the csv file.
+If you do not know the order then RowValidator needs to be generic enough such that it can be applied to every element in the row.
+
+Here is an example of the integration of RowValidator with opencsv.
+
+[source,java]
+====
+    private static final Function<String[], Boolean> ROW_MUST_HAVE_THREE_COLUMNS = (x) -> {
+        return x.length == 3;
+    };
+    private static final RowValidator THREE_COLUMNS_ROW_VALIDATOR = new RowFunctionValidator(ROW_MUST_HAVE_THREE_COLUMNS, "Row must have three columns!");
+
+    @DisplayName("CSVReader populates line number of exception thrown by RowValidatorAggregator")
+    @Test
+    public void readerWithRowValidatorExceptionContainsLineNumber() {
+        String lines = "a,b,c\nd,f\n";
+        StringReader stringReader = new StringReader(lines);
+        CSVReaderBuilder builder = new CSVReaderBuilder(stringReader);
+        CSVReader csvReader = builder
+                .withRowValidator(THREE_COLUMNS_ROW_VALIDATOR)
+                .build();
+        try {
+            List<String[]> rows = csvReader.readAll();
+            fail("Expected a CsvValidationException to be thrown!");
+        } catch (CsvValidationException cve) {
+            assertEquals(2, cve.getLineNumber());
+        } catch (Exception e) {
+            fail("Caught an exception other than CsvValidationException!", e);
+        }
+    }
+====
