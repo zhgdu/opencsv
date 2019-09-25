@@ -2,8 +2,8 @@
 
 === Processors and Validators
 
-While it always has, and always will be, our position that opencsv should be configurable enough to process almost all csv files but be extensible so that users can write their own parsers, mappers for the situations where it cannot.
-But over the last couple of years a number of feature requests, support requests or feature/support requests disguised as bug reports have made us realize that extensibility is not enough and we should allow hooks to allow for the _integration_ of user defined code to allow users another route for customization.
+It has always been, and always will be, our position that opencsv should be configurable enough to process almost all csv files but be extensible so that users can write their own parsers and mappers for the situations where it cannot.
+However, over the last couple of years a number of feature requests, support requests or feature/support requests disguised as bug reports have made us realize that extensibility is not enough and we should allow hooks to allow for the _integration_ of user defined code to allow users another route for customization.
 So we have added hooks for validators and processors.
 
 Validators allow for the injection of code to provide additional checks of data over and above what opencsv provides.
@@ -93,6 +93,20 @@ Here is a crude diagram of csv data showing where the different types of validat
                           v
                  +--------+--------+
                  |       Bean      |
+                 +--------+--------+
+                          |
+                          v
+                 +--------+--------+
+                 |                 |  data inconsistent  +---------------------------------+
+                 |                 +-------------------->| CsvConstraintViolationException |
+                 |   BeanVerifier  |                     +---------------------------------+
+                 |                 |  data unwanted      +-------+
+                 |                 +-------------------->| false |
+                 +--------+--------+                     +-------+
+                          |
+                          v
+                 +--------+--------+
+                 |     User code   |
                  +--------+--------+
 
 
