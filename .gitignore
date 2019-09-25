@@ -11,3 +11,4 @@ nbactions.xml
 .project
 .settings/
 .java-version
+*.cache

@@ -1,21 +1,108 @@
-=== Validators
+:imagesdir: images
 
-While it always has, and always will be, our position that opencsv should do just enough
-validation to prove that it is working with a CSV file and leave any further validation
-to the developer so as to allow opencsv to work for as broad a developer base as possible,
-over the last couple of years a number of feature requests, support requests and feature
-requests disguised as bug reports have made us realize that we should allow for the _integration_
-of user defined validation to give opencsv the best of both worlds.
+=== Processors and Validators
 
-By allowing integration, developers can inject validations for their specific requirements
+While it always has, and always will be, our position that opencsv should be configurable enough to process almost all csv files but be extensible so that users can write their own parsers, mappers for the situations where it cannot.
+But over the last couple of years a number of feature requests, support requests or feature/support requests disguised as bug reports have made us realize that extensibility is not enough and we should allow hooks to allow for the _integration_ of user defined code to allow users another route for customization.
+So we have added hooks for validators and processors.
+
+Validators allow for the injection of code to provide additional checks of data over and above what opencsv provides.
+
+Processors allow for the injection of code to modify the data.
+
+By allowing integration, developers can inject code for their specific requirements
 without adding performance overhead and an unnecessary burden to the users who do not need them.
 
-*NOTE - Because a badly coded or malformed validator can cause failure to process the csv file, any bug reports written about validators will be closed with the suggestion that they be reopened as support requests.
+*NOTE - Because a badly coded or malformed validator/processor can cause failure to process the csv file, any bug reports written about validators will be closed with the suggestion that they be reopened as support requests.
 We are glad to help you with opencsv and the integration of your validators with opencsv but the bugs in the validators you write are NOT bugs with opencsv.
 That and we have unit tests with all types of validators so we know the validator integration works as designed.
-Feel free to look at our unit tests if you are having issues with the validators.*
+Feel free to look at our unit tests if you are having issues with the validators or processors.*
 
-==== LineValidator
+Here is a crude diagram of csv data showing where the different types of validators and processors are called.
+
+[ditaa]
+....
+                   +-------------+
+                   |     CSV     |
+                   |   source    |
+                   +------+------+
+                          |
+                          |
+                          v
+                   +------+------+
+               +-->+ Java Reader |
+               |   +------+------+
+               |          |
+               |          |
+               |          v
+          More |  +-------+--------+   fails    +------------------------+
+           to  |  | Line Validator +----------->| CSVValidationException |
+          read |  +-------+--------+            +------------------------+
+               |          |
+               |          |
+               |          v
+               |   +-------------+
+               |   |  ICSVParser |
+               +---+      &      |
+                   |  CSVReader  |
+                   +------+------+
+                          |
+                          |
+                          v
+                  +-------+-------+
+                  |  RowProcessor |
+                  +-------+-------+
+                          |
+                          |
+                          v
+                  +-------+--------+   fails    +------------------------+
+                  | Row Validator  +----------->| CSVValidationException |
+                  +-------+--------+            +------------------------+
+                          |
+                          |
+                          v
+                  +-------+-------+  done    +-------+
+                  |    String[]   +--------->| Yay!! |
+                  +-------+-------+          +-------+
+                          |
+                     Want |
+                  objects |
+                          v
+                 +--------+---------+
+                 |  MappingStrategy |
+                 +--------+---------+
+                          |
+                          |
+                          v
+             +------------+------------+
+             |  PreAssignmentProcessor |
+             +------------+------------+
+                          |
+                          |
+                          v
+             +------------+--------------+   fails   +------------------------+
+             |  PreAssignmentValidator   +---------->| CSVValidationException |
+             +------------+--------------+           +------------------------+
+                          |
+                          |
+                          v
+                  +-------+-------+
+                  |    CsvToBean  +
+                  +-------+-------+
+                          |
+                          v
+                 +--------+--------+
+                 |       Bean      |
+                 +--------+--------+
+
+
+....
+
+==== Validators
+
+Validators allow users to create their own rules for validating data.
+
+===== LineValidator
 
 The LineValidator interface is for the creation of validators upon a single line from the Reader before it is processed.
 A LineValidator should only be used when your csv records take one and only one line (no carriage returns or new line characters in any of the fields) and any of the existing validations do not work for you - like the multiLineLimit that is set in the CSVReaderBuilder.
@@ -81,7 +168,7 @@ And here is how it is integrated with opencsv:
     }
 ====
 
-==== RowValidator
+===== RowValidator
 
 The RowValidator interface is for the creation of validators for an array of Strings that are supplied by the CSVReader after they have been processed.
 RowValidators should only be used if you have a very good understanding and control of the data being being processed, like the positions of the columns in the csv file.
