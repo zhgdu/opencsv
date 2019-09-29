@@ -160,7 +160,7 @@ public class LineDoesNotHaveForbiddenString implements LineValidator {
 And here is how it is integrated with opencsv:
 
 [source,java]
-====
+----
    private static final String BAD = "bad";
    private static final String AWFUL = "awful";
    private LineDoesNotHaveForbiddenString lineDoesNotHaveBadString;
@@ -180,7 +180,7 @@ And here is how it is integrated with opencsv:
             List<String[]> rows = csvReader.readAll();
         });
     }
-====
+----
 
 ===== RowValidator
 
@@ -191,7 +191,7 @@ If you do not know the order, then RowValidator needs to be generic enough such 
 Here is an example of the integration of RowValidator with opencsv:
 
 [source,java]
-====
+----
     private static final Function<String[], Boolean> ROW_MUST_HAVE_THREE_COLUMNS = (x) -> {
         return x.length == 3;
     };
@@ -215,4 +215,129 @@ Here is an example of the integration of RowValidator with opencsv:
             fail("Caught an exception other than CsvValidationException!", e);
         }
     }
+----
+
+===== StringValidator and PreAssignmentValidator
+
+The StringValidator allows for the validation of a String prior to the conversion and assignment to a field in a bean.
+Of all the validators this is the most precise as the user knows the precise string that is going to be assigned to a given field and thus the only reason to make a validator generic is for reusability across multiple types of fields.
+
+A StringValidator is assigned to a field using the PreAssignmentValidator annotation.
+
+Example
+
+[source]
+====
+    @PreAssignmentValidator(validator = MustMatchRegexExpression.class, paramString = "^[0-9]{3,6}$")
+    @CsvBindByName(column = "id")
+    private int beanId;
+====
+
+==== Processors
+
+Processors allow for the modification of data, typically for the removal of undesired data or changing the defaults (empty string to null for example).
+Great care must be taken to ensure that the Processors written are fully tested as a malformed processor can make the data unusable.
+Because of the dangers posed by the processor there is no LineProcessor, only RowProcessor and PreAssignmentProcessor.
+
+===== RowProcessor
+
+RowProcessors take the array of String that is the entire row and will process it.
+It is up to the user to decide if only specific elements or the entire row is processed.
+The processColumnItem is currently not used directly in opencsv but was put in the interface directly in hopes that the implementors will use it when creating unit tests to verify their processors work correctly.
+
+Below is an example RowProcessor used in the opencsv unit tests.
+
+[source,java]
+----
+ public class BlankColumnsBecomeNull implements RowProcessor {
+
+    @Override
+    public String processColumnItem(String column) {
+        if (column == null || !column.isEmpty()) {
+            return column;
+        } else {
+            return null;
+        }
+    }
+
+    @Override
+    public void processRow(String[] row) {
+        for (int i = 0; i < row.length; i++) {
+            row[i] = processColumnItem(row[i]);
+        }
+    }
+ }
+----
+
+And here is a test that shows the usage of the RowProcessor.
+
+[source,java]
+----
+    private static RowProcessor ROW_PROCESSOR = new BlankColumnsBecomeNull();
+    private static final String LINES = "a,, \n, ,\n";
+
+    @DisplayName("CSVReader with RowProcessor with good string")
+    @Test
+    public void readerWithRowProcessor() throws IOException, CsvException {
+
+        StringReader stringReader = new StringReader(LINES);
+        CSVReaderBuilder builder = new CSVReaderBuilder(stringReader);
+
+        CSVReader csvReader = builder
+                .withRowProcessor(ROW_PROCESSOR)
+                .build();
+
+        List<String[]> rows = csvReader.readAll();
+        assertEquals(2, rows.size());
+
+        String[] row1 = rows.get(0);
+        assertEquals(3, row1.length);
+        assertEquals("a", row1[0]);
+        assertNull(row1[1]);
+        assertEquals(" ", row1[2]);
+
+        String[] row2 = rows.get(1);
+        assertEquals(3, row2.length);
+        assertNull(row2[0]);
+        assertEquals(" ", row2[1]);
+        assertNull(row2[2]);
+    }
+----
+
+===== StringProcessor and PreAssignmentProcessor
+
+The StringProcessor allows for the processing of a String prior to the conversion and assignment to a field in a bean.
+Because the user knows the precise string that is going to be processed for a given field and thus the only reason to make a StringProcessor generic is for reusability across multiple types of fields.
+
+A StringProcessor is assigned to a field using the PreAssignmentProcessor annotation.
+
+Example
+
+[source,java]
+----
+public class ConvertEmptyOrBlankStringsToDefault implements StringProcessor {
+    String defaultValue;
+
+    @Override
+    public String processString(String value) {
+        if (value == null || value.trim().isEmpty()) {
+            return defaultValue;
+        }
+        return value;
+    }
+
+    @Override
+    public void setParameterString(String value) {
+        defaultValue = value;
+    }
+}
+----
+
+And an example of its use:
+
+[source]
+====
+    @PreAssignmentProcessor(processor = ConvertEmptyOrBlankStringsToDefault.class, paramString = "31415926")
+    @CsvBindByName(column = "big number", capture = "^[A-Za-z ]*value: (.*)$", format = "value: %s")
+    private long bigNumber;
 ====
