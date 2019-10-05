@@ -149,7 +149,6 @@
                                 <groupId>org.junit.vintage</groupId>
                                 <artifactId>junit-vintage-engine</artifactId>
                                 <version>${junit.version}</version>
-                                <scope>test</scope>
                             </dependency>
                         </dependencies>
                     </plugin>
@@ -215,7 +214,6 @@
                                 <groupId>org.junit.vintage</groupId>
                                 <artifactId>junit-vintage-engine</artifactId>
                                 <version>${junit.version}</version>
-                                <scope>test</scope>
                             </dependency>
                         </dependencies>
                     </plugin>
