@@ -94,6 +94,13 @@ There are two performance choices left in your hands:
 . Time vs. memory: The classic trade-off. If memory is not a problem, read using CsvToBean.parse() or CsvToBean.stream(), which will read all beans at once and are multi-threaded. If your memory is limited, use CsvToBean.iterator() and iterate over the input. Only one bean is read at a time, making multi-threading impossible and slowing down reading, but only one object is in memory at a time (assuming you process and release the object for the garbage collector immediately).
 . Ordered vs. unordered. opencsv preserves the order of the data given to it by default. Maintaining order when using parallel programming requires some extra effort which means extra CPU time. If order does not matter to you, use CsvToBeanBuilder.withOrderedResults(false). The performance benefit is not large, but it is measurable. The ordering or lack thereof applies to data as well as any captured exceptions.
 
+Let it be mentioned here that although the authors of opencsv aren't thrilled
+about the idea of using Java 8's Optional for accessor methods (that is,
+returning an Optional of your real data type from a getter or requiring an
+Optional of your real data type for a setter), we do support it as long as the
+actual field in your bean is not an Optional, but rather whatever data type the
+Optional wraps. If your getter returns an empty Optional, opencsv uses null.
+
 The bean work was begun by Kyle Miller and extended by Tom Squires and Andrew Jones.
 
 ===== Annotations

@@ -63,6 +63,8 @@ written to the output and the order of any exceptions captured during processing
 do not matter to you, use StatefulBeanToCsv.withOrderedResults(false) to obtain
 slightly better performance.
 
+Again, just as in reading into beans, Java 8's Optional is supported.
+
 ===== Changing the write order
 If you do nothing, the order of the columns on writing will be ascending
 according to position for column index-based mappings, and ascending according
