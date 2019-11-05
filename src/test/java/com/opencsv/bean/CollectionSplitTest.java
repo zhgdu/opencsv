@@ -21,6 +21,7 @@ import com.opencsv.bean.mocks.join.ErrorCode;
 import com.opencsv.bean.mocks.join.IdAndErrorSplitByName;
 import com.opencsv.bean.mocks.join.IdAndErrorSplitByPosition;
 import com.opencsv.bean.mocks.split.*;
+import com.opencsv.enums.CSVReaderNullFieldIndicator;
 import com.opencsv.exceptions.CsvBadConverterException;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvException;
@@ -125,7 +126,21 @@ public class CollectionSplitTest {
         assertEquals(6, listType.size());
         assertEquals("[2, 2, 1, 3, 3, 3]", listType.toString());
     }
-    
+
+    @Test
+    public void testNullCollection() throws IOException {
+        List<DerivedMockBeanCollectionSplit> beanList = new CsvToBeanBuilder<DerivedMockBeanCollectionSplit>(new FileReader("src/test/resources/testnullcollections.csv"))
+                .withType(DerivedMockBeanCollectionSplit.class)
+                .withFieldAsNull(CSVReaderNullFieldIndicator.BOTH)
+                .build().parse();
+        assertEquals(1, beanList.size());
+        DerivedMockBeanCollectionSplit bean = beanList.get(0);
+
+        List<Integer> listType = bean.getListType();
+        assertTrue(listType instanceof LinkedList);
+        assertEquals(0, listType.size());
+    }
+
     @Test
     public void testGoodCollectionTypeSet() throws IOException {
         List<DerivedMockBeanCollectionSplit> beanList = new CsvToBeanBuilder<DerivedMockBeanCollectionSplit>(new FileReader("src/test/resources/testgoodcollections.csv"))

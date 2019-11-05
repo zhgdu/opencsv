@@ -87,7 +87,7 @@ public class BeanFieldSingleValue<T, I> extends AbstractBeanField<T, I> {
     @Override
     protected Object convert(String value) throws CsvDataTypeMismatchException, CsvConstraintViolationException {
         String convertValue = value;
-        if(capture != null) {
+        if(capture != null && value != null) {
             Matcher m = capture.matcher(value);
             if(m.matches()) {
                 convertValue = m.group(1);

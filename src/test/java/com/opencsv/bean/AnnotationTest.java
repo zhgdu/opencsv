@@ -18,6 +18,7 @@ package com.opencsv.bean;
 import com.opencsv.CSVReader;
 import com.opencsv.bean.customconverter.BadIntConverter;
 import com.opencsv.bean.mocks.*;
+import com.opencsv.enums.CSVReaderNullFieldIndicator;
 import com.opencsv.exceptions.*;
 import org.apache.commons.beanutils.ConversionException;
 import org.junit.jupiter.api.AfterEach;
@@ -118,6 +119,23 @@ public class AnnotationTest {
         strat.setType(AnnotatedMockBeanFull.class);
         FileReader fin = new FileReader("src/test/resources/testinputfullgood.csv");
         testGoodData(strat, fin, true);
+    }
+
+    @Test
+    public void testCaptureWithNullField() throws FileNotFoundException {
+        HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat =
+                new HeaderColumnNameMappingStrategy<>();
+        strat.setType(AnnotatedMockBeanFull.class);
+        FileReader fin = new FileReader("src/test/resources/testinputfullgood.csv");
+        List<AnnotatedMockBeanFull> beanList = new CsvToBeanBuilder<AnnotatedMockBeanFull>(fin)
+                .withSeparator(';')
+                .withMappingStrategy(strat)
+                .withFieldAsNull(CSVReaderNullFieldIndicator.BOTH)
+                .build().parse();
+        assertNotNull(beanList);
+        assertEquals(2, beanList.size());
+        AnnotatedMockBeanFull bean = beanList.get(1);
+        assertNull(bean.getBoolWrapped());
     }
 
     /**

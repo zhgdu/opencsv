@@ -17,6 +17,7 @@ package com.opencsv.bean;
 
 import com.opencsv.bean.customconverter.BadCollectionConverter;
 import com.opencsv.bean.mocks.join.*;
+import com.opencsv.enums.CSVReaderNullFieldIndicator;
 import com.opencsv.exceptions.CsvBadConverterException;
 import com.opencsv.exceptions.CsvBeanIntrospectionException;
 import com.opencsv.exceptions.CsvException;
@@ -777,9 +778,23 @@ public class JoinTest {
         GoodJoinByNameAnnotations bean = beans.get(0);
         assertNotNull(bean.getMap4());
         assertEquals(1, bean.getMap4().size());
-        assertNull(bean.getMap4().get("converted").toArray(new String[1])[0]);
+        assertNull(bean.getMap4().get("converted").toArray(new Integer[1])[0]);
     }
-    
+
+    @Test
+    public void testReadNullOptionalFieldValueOnly() throws IOException {
+        List<GoodJoinByNameAnnotations> beans = new CsvToBeanBuilder<GoodJoinByNameAnnotations>(new FileReader("src/test/resources/testinputjoinbynameoptionalvaluemissing.csv"))
+                .withType(GoodJoinByNameAnnotations.class)
+                .withFieldAsNull(CSVReaderNullFieldIndicator.BOTH)
+                .build().parse();
+        assertNotNull(beans);
+        assertEquals(1, beans.size());
+        GoodJoinByNameAnnotations bean = beans.get(0);
+        assertNotNull(bean.getMap4());
+        assertEquals(1, bean.getMap4().size());
+        assertNull(bean.getMap4().get("converted").toArray(new Integer[1])[0]);
+    }
+
     @Test
     public void testReadEmptyOptionalFieldHeader() throws IOException {
         List<GoodJoinByNameAnnotations> beans = new CsvToBeanBuilder<GoodJoinByNameAnnotations>(new FileReader("src/test/resources/testinputjoinbynameoptionalheadermissing.csv"))

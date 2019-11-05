@@ -24,6 +24,7 @@ import org.apache.commons.collections4.Bag;
 import org.apache.commons.collections4.SortedBag;
 import org.apache.commons.collections4.bag.HashBag;
 import org.apache.commons.collections4.bag.TreeBag;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Field;
@@ -176,7 +177,7 @@ public class BeanFieldSplit<T, I> extends AbstractBeanField<T, I> {
             throw csve;
         }
         
-        String[] splitValues = splitOn.split(value);
+        String[] splitValues = value == null ? ArrayUtils.EMPTY_STRING_ARRAY : splitOn.split(value);
         for(String s : splitValues) {
             if(capture != null) {
                 Matcher m = capture.matcher(s);

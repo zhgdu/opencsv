@@ -276,7 +276,7 @@ public class CsvToBeanTest {
         assertEquals("\ttest string of everything!", bean.getStringClass());
         assertTrue(bean.getBoolWrapped());
         assertFalse(bean.isBoolPrimitive());
-        assertTrue(bean.getByteWrappedDefaultLocale() == 1);
+        assertEquals(1, (byte) bean.getByteWrappedDefaultLocale());
         // Nothing else really matters
     }
 
