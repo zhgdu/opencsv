@@ -664,7 +664,7 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
                 }
             }
         }
-        return contents.toArray(new String[0]);
+        return contents.toArray(ArrayUtils.EMPTY_STRING_ARRAY);
     }
 
     /**

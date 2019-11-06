@@ -1,6 +1,7 @@
 package com.opencsv;
 
 import com.opencsv.enums.CSVReaderNullFieldIndicator;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -176,7 +177,7 @@ public class RFC4180Parser extends AbstractCSVParser {
         } else if (nextLine.lastIndexOf(separator) == nextLine.length() - 1) {
             elements.add("");
         }
-        return elements.toArray(new String[elements.size()]);
+        return elements.toArray(ArrayUtils.EMPTY_STRING_ARRAY);
     }
 
     private boolean lastElementStartedWithQuoteButDidNotEndInOne(List<String> elements) {

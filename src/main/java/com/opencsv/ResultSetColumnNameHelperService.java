@@ -166,6 +166,6 @@ public class ResultSetColumnNameHelperService extends ResultSetHelperService imp
         return Stream.of(columnNames)
                 .map(c -> realColumnValues[columnNamePositionMap.get(c)])
                 .collect(Collectors.toList())
-                .toArray(new String[columnNames.length]);
+                .toArray(ArrayUtils.EMPTY_STRING_ARRAY);
     }
 }

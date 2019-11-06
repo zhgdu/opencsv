@@ -17,6 +17,7 @@ package com.opencsv;
  */
 
 import com.opencsv.enums.CSVReaderNullFieldIndicator;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -263,7 +264,7 @@ public class CSVParser extends AbstractCSVParser {
         }
 
         tokensOnLastCompleteLine = tokensOnThisLine.size();
-        return tokensOnThisLine.toArray(new String[0]);
+        return tokensOnThisLine.toArray(ArrayUtils.EMPTY_STRING_ARRAY);
 
     }
 
