@@ -1,10 +1,21 @@
 package com.opencsv;
+/*
+This file has been modified by Kevin Kußmaul.
+Modifications Copyright (c) 2019 Kevin Kußmaul
+ADD methods:
+  Optional<IOException> getException()
+  to get the exception stored by ICSVWriter, AbstractCSVWriter or CSVWriter
+
+  void resetError()
+  to reset the exception stored by ICSVWriter, AbstractCSVWriter or CSVWriter
+ */
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Optional;
 
 /**
  * The AbstractCSVWriter was created to prevent duplication of code between the CSVWriter and the
@@ -114,6 +125,26 @@ public abstract class AbstractCSVWriter implements ICSVWriter {
 
         flushQuietly();  // checkError in the PrintWriter class flushes the buffer so we shall too.
         return exception != null;
+    }
+
+    /**
+     * Get latest exception.
+     * NOTE: This does not return exception which are caught by underlying writer or stream.
+     *
+     * @return the optional latest IOException thrown.
+     */
+    @Override
+    public Optional<IOException> getException() {
+        return Optional.ofNullable(exception);
+    }
+
+    /**
+     * Set the exception back to null to be able to check for the next exception
+     * using {@link AbstractCSVWriter#checkError()}.
+     */
+    @Override
+    public void resetError() {
+        exception = null;
     }
 
     @Override

@@ -15,6 +15,16 @@ package com.opencsv;
  limitations under the License.
  */
 
+/*
+This file has been modified by Kevin Kußmaul.
+Modifications Copyright (c) 2019 Kevin Kußmaul
+ADD Test-Cases:
+    getExceptionReturnsException()
+    getExceptionReturnsExceptionUsingPrintWriter()
+    resetException()
+    resetError()
+ */
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
@@ -741,5 +751,91 @@ public class CSVWriterTest {
       csvWriter.close();
 
       assertTrue(csvWriter.checkError());
+   }
+
+   @Test
+   public void getExceptionReturnsException() throws IOException {
+      Writer writer = mock(Writer.class);
+      AbstractCSVWriter csvWriter = spy(new CSVWriter(writer));
+
+      String exceptionMessage = "Exception on writing csv";
+      IOException ioException = new IOException(exceptionMessage);
+      doThrow(ioException).when(csvWriter).writeNext(any(String[].class), anyBoolean(), any(StringBuilder.class));
+
+      csvWriter.writeNext(SIMPLE_STRING_ARRAY);
+
+      csvWriter.close();
+
+      verify(csvWriter).writeNext(any(String[].class), anyBoolean(), any(StringBuilder.class));
+
+      Optional<IOException> storedException = csvWriter.getException();
+      assertEquals("Expected Exception is not returned by getException", ioException, storedException.orElse(null));
+   }
+
+   @Test
+   public void getExceptionReturnsExceptionUsingPrintWriter() throws IOException {
+      Writer writer = mock(Writer.class);
+      PrintWriter printWriter = new PrintWriter(writer);
+      AbstractCSVWriter csvWriter = spy(new CSVWriter(printWriter));
+
+      String exceptionMessage = "Exception on writing csv";
+      IOException ioException = new IOException(exceptionMessage);
+      doThrow(ioException).when(csvWriter).writeNext(any(String[].class), anyBoolean(), any(StringBuilder.class));
+
+      csvWriter.writeNext(SIMPLE_STRING_ARRAY);
+
+      csvWriter.close();
+
+      verify(csvWriter).writeNext(any(String[].class), anyBoolean(), any(StringBuilder.class));
+
+      Optional<IOException> storedException = csvWriter.getException();
+      assertEquals("Expected Exception is not returned by getException", ioException, storedException.orElse(null));
+   }
+
+   @Test
+   public void resetException() throws IOException {
+      Writer writer = mock(Writer.class);
+      doThrow(IOException.class).when(writer).write(anyString(), anyInt(), anyInt());
+      AbstractCSVWriter csvWriter = spy(new CSVWriter(writer));
+
+      String exceptionMessage = "Exception on writing csv";
+      IOException ioException = new IOException(exceptionMessage);
+      doThrow(ioException).when(csvWriter).writeNext(any(String[].class), anyBoolean(), any(StringBuilder.class));
+
+      csvWriter.writeNext(SIMPLE_STRING_ARRAY);
+
+      Optional<IOException> storedException = csvWriter.getException();
+      assertEquals("Expected Exception is not returned by getException", ioException, storedException.orElse(null));
+
+      csvWriter.resetError();
+
+      assertFalse("Exception has not been removed", csvWriter.getException().isPresent());
+
+      csvWriter.close();
+
+      verify(csvWriter).writeNext(any(String[].class), anyBoolean(), any(StringBuilder.class));
+   }
+
+   @Test
+   public void resetError() throws IOException {
+      Writer writer = mock(Writer.class);
+      doThrow(IOException.class).when(writer).write(anyString(), anyInt(), anyInt());
+      AbstractCSVWriter csvWriter = spy(new CSVWriter(writer));
+
+      String exceptionMessage = "Exception on writing csv";
+      IOException ioException = new IOException(exceptionMessage);
+      doThrow(ioException).when(csvWriter).writeNext(any(String[].class), anyBoolean(), any(StringBuilder.class));
+
+      csvWriter.writeNext(SIMPLE_STRING_ARRAY);
+
+      assertTrue("Error has not occurred initially", csvWriter.checkError());
+
+      csvWriter.resetError();
+
+      assertFalse("Error has not been removed", csvWriter.checkError());
+
+      csvWriter.close();
+
+      verify(csvWriter).writeNext(any(String[].class), anyBoolean(), any(StringBuilder.class));
    }
 }
