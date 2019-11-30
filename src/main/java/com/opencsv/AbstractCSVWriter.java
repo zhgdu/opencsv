@@ -111,8 +111,15 @@ public abstract class AbstractCSVWriter implements ICSVWriter {
             PrintWriter pw = (PrintWriter) writer;
             return pw.checkError();
         }
-
-        flushQuietly();  // checkError in the PrintWriter class flushes the buffer so we shall too.
+        if (exception != null) {  // we don't want to lose the original exception
+            flushQuietly();  // checkError in the PrintWriter class flushes the buffer so we shall too.
+        } else {
+            try {
+                flush();
+            } catch (IOException ioe) {
+                exception = ioe;
+            }
+        }
         return exception != null;
     }
 
