@@ -26,6 +26,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.*;
 import java.nio.charset.CharacterCodingException;
+import java.nio.charset.MalformedInputException;
 import java.util.*;
 import java.util.zip.ZipException;
 
@@ -50,10 +51,10 @@ public class CSVReader implements Closeable, Iterable<String[]> {
      */
     public static final int DEFAULT_MULTILINE_LIMIT = 0;
 
-    private static final List<Class<? extends IOException>> PASSTHROUGH_EXCEPTIONS =
+    protected static final List<Class<? extends IOException>> PASSTHROUGH_EXCEPTIONS =
             Arrays.asList(CharacterCodingException.class, CharConversionException.class,
                     UnsupportedEncodingException.class, UTFDataFormatException.class,
-                    ZipException.class, FileNotFoundException.class);
+                    ZipException.class, FileNotFoundException.class, MalformedInputException.class);
 
     public static final int READ_AHEAD_LIMIT = Character.SIZE / Byte.SIZE;
     private static final int MAX_WIDTH = 100;
@@ -380,6 +381,7 @@ public class CSVReader implements Closeable, Iterable<String[]> {
      * UnsupportedEncodingException
      * UTFDataFormatException
      * ZipException
+     * MalformedInputException
      *
      * @return True if the reader can no longer be read from.
      * @throws IOException - if verified reader is true certain IOExceptions will still be passed out
