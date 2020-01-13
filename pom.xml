@@ -315,7 +315,8 @@
                         </requires>
                         <!-- optional site-wide AsciiDoc attributes -->
                         <attributes>
-                            <imagesdir>${project.build.directory}/site/images</imagesdir>
+                            <imagesoutdir>${project.build.directory}/site/images</imagesoutdir>
+                            <imagesdir>./images</imagesdir>
                             <icons>font</icons>
                             <source-highlighter>coderay</source-highlighter>
                             <coderay-css>style</coderay-css>
