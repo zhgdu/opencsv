@@ -590,7 +590,7 @@ public class CSVWriterTest {
       assertEquals("v1,v2,v3\n", result);
       assertEquals(1, linesWritten);
    }
-   
+
    @Test
    public void testMultiLineResultSetWithoutHeaders() throws SQLException, IOException {
       String[] header = {"Foo", "Bar", "baz"};
@@ -717,19 +717,19 @@ public class CSVWriterTest {
    public void testIOException() throws IOException {
       Writer writer = mock(Writer.class);
       doThrow(IOException.class).when(writer).write(anyString());
-      
+
       // Using writeNext()
       ICSVWriter csvWriter = new CSVWriter(writer);
       csvWriter.writeNext(SIMPLE_STRING_ARRAY);
       csvWriter.close();
       assertTrue(csvWriter.checkError());
-      
+
       // Using writeAll(Iterable<String[]>, boolean)
       csvWriter = new CSVWriter(writer);
       csvWriter.writeAll(Collections.singletonList(SIMPLE_STRING_ARRAY), false);
       csvWriter.close();
       assertTrue(csvWriter.checkError());
-      
+
       // Using writeAll(Iterable<String[]>)
       csvWriter = new CSVWriter(writer);
       csvWriter.writeAll(Collections.singletonList(SIMPLE_STRING_ARRAY));
