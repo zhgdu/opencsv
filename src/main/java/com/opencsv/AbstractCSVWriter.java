@@ -3,7 +3,7 @@ package com.opencsv;
 This file has been modified by Kevin Kußmaul.
 Modifications Copyright (c) 2019 Kevin Kußmaul
 ADD methods:
-  Optional<IOException> getException()
+  IOException getException()
   to get the exception stored by ICSVWriter, AbstractCSVWriter or CSVWriter
 
   void resetError()
@@ -15,7 +15,6 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Optional;
 
 /**
  * The AbstractCSVWriter was created to prevent duplication of code between the CSVWriter and the
@@ -131,11 +130,11 @@ public abstract class AbstractCSVWriter implements ICSVWriter {
      * Get latest exception.
      * NOTE: This does not return exception which are caught by underlying writer or stream.
      *
-     * @return the optional latest IOException thrown.
+     * @return the latest IOException thrown, or null.
      */
     @Override
-    public Optional<IOException> getException() {
-        return Optional.ofNullable(exception);
+    public IOException getException() {
+        return exception;
     }
 
     /**

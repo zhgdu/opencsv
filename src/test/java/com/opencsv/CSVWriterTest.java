@@ -768,8 +768,8 @@ public class CSVWriterTest {
 
       verify(csvWriter).writeNext(any(String[].class), anyBoolean(), any(StringBuilder.class));
 
-      Optional<IOException> storedException = csvWriter.getException();
-      assertEquals("Expected Exception is not returned by getException", ioException, storedException.orElse(null));
+      IOException storedException = csvWriter.getException();
+      assertEquals("Expected Exception is not returned by getException", ioException, storedException);
    }
 
    @Test
@@ -788,8 +788,8 @@ public class CSVWriterTest {
 
       verify(csvWriter).writeNext(any(String[].class), anyBoolean(), any(StringBuilder.class));
 
-      Optional<IOException> storedException = csvWriter.getException();
-      assertEquals("Expected Exception is not returned by getException", ioException, storedException.orElse(null));
+      IOException storedException = csvWriter.getException();
+      assertEquals("Expected Exception is not returned by getException", ioException, storedException);
    }
 
    @Test
@@ -804,12 +804,12 @@ public class CSVWriterTest {
 
       csvWriter.writeNext(SIMPLE_STRING_ARRAY);
 
-      Optional<IOException> storedException = csvWriter.getException();
-      assertEquals("Expected Exception is not returned by getException", ioException, storedException.orElse(null));
+      IOException storedException = csvWriter.getException();
+      assertEquals("Expected Exception is not returned by getException", ioException, storedException);
 
       csvWriter.resetError();
 
-      assertFalse("Exception has not been removed", csvWriter.getException().isPresent());
+      assertNull("Exception has not been removed", csvWriter.getException());
 
       csvWriter.close();
 

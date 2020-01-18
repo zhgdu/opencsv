@@ -3,7 +3,7 @@ package com.opencsv;
 This file has been modified by Kevin Kußmaul.
 Modifications Copyright (c) 2019 Kevin Kußmaul
 ADD methods:
-  Optional<IOException> getException()
+  IOException getException()
   to get the exception stored by ICSVWriter, AbstractCSVWriter or CSVWriter
 
   void resetError()
@@ -188,7 +188,7 @@ public interface ICSVWriter extends Closeable, Flushable {
      * @return the latest IOException encountered in the print stream either on the underlying
      * output stream or during a format conversion.
      */
-    Optional<IOException> getException();
+    IOException getException();
 
     /**
      * Set the error back to null to be able to check for the next error
