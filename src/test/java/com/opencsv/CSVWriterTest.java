@@ -15,16 +15,6 @@ package com.opencsv;
  limitations under the License.
  */
 
-/*
-This file has been modified by Kevin Kußmaul.
-Modifications Copyright (c) 2019 Kevin Kußmaul
-ADD Test-Cases:
-    getExceptionReturnsException()
-    getExceptionReturnsExceptionUsingPrintWriter()
-    resetException()
-    resetError()
- */
-
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.invocation.InvocationOnMock;
