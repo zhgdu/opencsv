@@ -1,4 +1,14 @@
 package com.opencsv;
+/*
+This file has been modified by Kevin Kußmaul.
+Modifications Copyright (c) 2019 Kevin Kußmaul
+ADD methods:
+  IOException getException()
+  to get the exception stored by ICSVWriter, AbstractCSVWriter or CSVWriter
+
+  void resetError()
+  to reset the exception stored by ICSVWriter, AbstractCSVWriter or CSVWriter
+ */
 
 import java.io.Closeable;
 import java.io.Flushable;
@@ -6,6 +16,7 @@ import java.io.IOException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * This interface defines all the behavior of a csv writer class.
@@ -170,6 +181,20 @@ public interface ICSVWriter extends Closeable, Flushable {
      *          conversion.
      */
     boolean checkError();
+
+    /**
+     * Get latest exception.
+     *
+     * @return the latest IOException encountered in the print stream either on the underlying
+     * output stream or during a format conversion.
+     */
+    IOException getException();
+
+    /**
+     * Set the error back to null to be able to check for the next error
+     * using {@link ICSVWriter#checkError()}.
+     */
+    void resetError();
 
     /**
      * Sets the result service.
