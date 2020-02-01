@@ -42,7 +42,9 @@ public class CSVReader implements Closeable, Iterable<String[]> {
     // context size in the exception message
     static final int CONTEXT_MULTILINE_EXCEPTION_MESSAGE_SIZE = 100;
 
-    /** The default line to start reading. */
+    /**
+     * The default line to start reading.
+     */
     public static final int DEFAULT_SKIP_LINES = 0;
 
     /**
@@ -52,9 +54,10 @@ public class CSVReader implements Closeable, Iterable<String[]> {
     public static final int DEFAULT_MULTILINE_LIMIT = 0;
 
     protected static final List<Class<? extends IOException>> PASSTHROUGH_EXCEPTIONS =
-            Arrays.asList(CharacterCodingException.class, CharConversionException.class,
-                    UnsupportedEncodingException.class, UTFDataFormatException.class,
-                    ZipException.class, FileNotFoundException.class, MalformedInputException.class);
+            Collections.unmodifiableList(
+                    Arrays.asList(CharacterCodingException.class, CharConversionException.class,
+                            UnsupportedEncodingException.class, UTFDataFormatException.class,
+                            ZipException.class, FileNotFoundException.class, MalformedInputException.class));
 
     public static final int READ_AHEAD_LIMIT = Character.SIZE / Byte.SIZE;
     private static final int MAX_WIDTH = 100;
@@ -105,16 +108,17 @@ public class CSVReader implements Closeable, Iterable<String[]> {
      * Constructs CSVReader with supplied CSVParser.
      * <p>This constructor sets all necessary parameters for CSVReader, and
      * intentionally has package access so only the builder can use it.</p>
-     * @param reader         The reader to an underlying CSV source
-     * @param line           The number of lines to skip before reading
-     * @param icsvParser     The parser to use to parse input
-     * @param keepCR         True to keep carriage returns in data read, false otherwise
-     * @param verifyReader   True to verify reader before each read, false otherwise
-     * @param multilineLimit Allow the user to define the limit to the number of lines in a multiline record. Less than one means no limit.
-     * @param errorLocale    Set the locale for error messages. If null, the default locale is used.
+     *
+     * @param reader                  The reader to an underlying CSV source
+     * @param line                    The number of lines to skip before reading
+     * @param icsvParser              The parser to use to parse input
+     * @param keepCR                  True to keep carriage returns in data read, false otherwise
+     * @param verifyReader            True to verify reader before each read, false otherwise
+     * @param multilineLimit          Allow the user to define the limit to the number of lines in a multiline record. Less than one means no limit.
+     * @param errorLocale             Set the locale for error messages. If null, the default locale is used.
      * @param lineValidatorAggregator contains all the custom defined line validators.
-     * @param rowValidatorAggregator contains all the custom defined row validators.
-     * @param rowProcessor   Custom row processor to run on all columns on a csv record.
+     * @param rowValidatorAggregator  contains all the custom defined row validators.
+     * @param rowProcessor            Custom row processor to run on all columns on a csv record.
      */
     CSVReader(Reader reader, int line, ICSVParser icsvParser, boolean keepCR, boolean verifyReader, int multilineLimit,
               Locale errorLocale, LineValidatorAggregator lineValidatorAggregator, RowValidatorAggregator rowValidatorAggregator,
@@ -170,7 +174,7 @@ public class CSVReader implements Closeable, Iterable<String[]> {
      *
      * @return A List of String[], with each String[] representing a line of the
      * file.
-     * @throws IOException If bad things happen during the read
+     * @throws IOException  If bad things happen during the read
      * @throws CsvException - if there is a failed validator.
      */
     public List<String[]> readAll() throws IOException, CsvException {
@@ -191,7 +195,7 @@ public class CSVReader implements Closeable, Iterable<String[]> {
      *
      * @return A string array with each comma-separated element as a separate
      * entry, or null if there is no more input.
-     * @throws IOException If bad things happen during the read
+     * @throws IOException            If bad things happen during the read
      * @throws CsvValidationException If a user-defined validator fails
      */
     public String[] readNext() throws IOException, CsvValidationException {
@@ -227,10 +231,10 @@ public class CSVReader implements Closeable, Iterable<String[]> {
      * @throws CsvValidationException If a user defined validators fail
      */
     private String[] readNext(boolean validateData) throws IOException, CsvValidationException {
-        
+
         // If someone already peeked, we have the previously read, parsed, and
         // validated data
-        if(peekedLine != null) {
+        if (peekedLine != null) {
             String[] l = peekedLine;
             peekedLine = null;
             return l;
@@ -260,8 +264,8 @@ public class CSVReader implements Closeable, Iterable<String[]> {
 
                 // just to avoid out of index
                 // to get the whole context use CsvMultilineLimitBrokenException::getContext()
-                if(context.length()> CONTEXT_MULTILINE_EXCEPTION_MESSAGE_SIZE){
-                     context = context.substring(0, CONTEXT_MULTILINE_EXCEPTION_MESSAGE_SIZE);
+                if (context.length() > CONTEXT_MULTILINE_EXCEPTION_MESSAGE_SIZE) {
+                    context = context.substring(0, CONTEXT_MULTILINE_EXCEPTION_MESSAGE_SIZE);
                 }
 
                 String messageFormat = ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("multiline.limit.broken");
@@ -295,8 +299,8 @@ public class CSVReader implements Closeable, Iterable<String[]> {
     /**
      * Increments the number of records read if the result passed in is not null.
      *
-     * @param result The result of the read operation
-     * @param lineStartOfRow Line number that the row started on
+     * @param result           The result of the read operation
+     * @param lineStartOfRow   Line number that the row started on
      * @param useRowValidators Run custom defined row validators, if any exists.
      * @return Result that was passed in.
      * @throws CsvValidationException if there is a validation error caught by a custom RowValidator.
@@ -321,7 +325,8 @@ public class CSVReader implements Closeable, Iterable<String[]> {
 
     /**
      * For multi-line records this method combines the current result with the result from previous read(s).
-     * @param buffer Previous data read for this record
+     *
+     * @param buffer   Previous data read for this record
      * @param lastRead Latest data read for this record.
      * @return String array with union of the buffer and lastRead arrays.
      */
@@ -336,7 +341,7 @@ public class CSVReader implements Closeable, Iterable<String[]> {
      * Reads the next line from the file.
      *
      * @return The next line from the file without trailing newline, or null if
-     *   there is no more input.
+     * there is no more input.
      * @throws IOException If bad things happen during the read
      */
     protected String getNextLine() throws IOException {
@@ -364,6 +369,7 @@ public class CSVReader implements Closeable, Iterable<String[]> {
 
     /**
      * Only useful for tests.
+     *
      * @return The maximum number of lines allowed in a multiline record.
      */
     public int getMultilineLimit() {
@@ -374,7 +380,7 @@ public class CSVReader implements Closeable, Iterable<String[]> {
      * Checks to see if the file is closed.
      * Certain IOExceptions will be passed out as they are indicative of a real problem not that the file
      * has already been closed.  These excpetions are:
-     *
+     * <p>
      * CharacterCodingException
      * CharConversionException
      * FileNotFoundException
@@ -385,7 +391,7 @@ public class CSVReader implements Closeable, Iterable<String[]> {
      *
      * @return True if the reader can no longer be read from.
      * @throws IOException - if verified reader is true certain IOExceptions will still be passed out
-     * as they are indicative of a problem not end of file.
+     *                     as they are indicative of a problem not end of file.
      */
     protected boolean isClosed() throws IOException {
         if (!verifyReader) {
@@ -417,6 +423,7 @@ public class CSVReader implements Closeable, Iterable<String[]> {
 
     /**
      * Creates an Iterator for processing the CSV data.
+     *
      * @return A String[] iterator.
      */
     @Override
@@ -467,8 +474,8 @@ public class CSVReader implements Closeable, Iterable<String[]> {
      * With a CSVReader constructed like so:<br>
      * <code>
      * CSVReader c = builder.withCSVParser(new CSVParser())<br>
-     *                      .withSkipLines(2)<br>
-     *                      .build();<br>
+     * .withSkipLines(2)<br>
+     * .build();<br>
      * </code><br>
      * The initial call to getLinesRead() will be 0. After the first call to
      * readNext() then getLinesRead() will return 3 (because the header was read).
@@ -499,8 +506,8 @@ public class CSVReader implements Closeable, Iterable<String[]> {
      * With a CSVReader constructed like so:<br>
      * <code>
      * CSVReader c = builder.withCSVParser(new CSVParser())<br>
-     *                      .withSkipLines(2)<br>
-     *                      .build();<br>
+     * .withSkipLines(2)<br>
+     * .build();<br>
      * </code><br>
      * The initial call to getRecordsRead() will be 0. After the first call to
      * readNext() then getRecordsRead() will return 1. After the second call to
@@ -525,29 +532,31 @@ public class CSVReader implements Closeable, Iterable<String[]> {
 
     /**
      * Skip a given number of lines.
+     *
      * @param numberOfLinesToSkip The number of lines to skip
-     * @since 4.2
      * @throws IOException If anything bad happens when reading the file
+     * @since 4.2
      */
     public void skip(int numberOfLinesToSkip) throws IOException {
         for (int j = 0; j < numberOfLinesToSkip; j++) {
             readNextSilently();
         }
     }
-    
+
     /**
      * Sets the locale for all error messages.
+     *
      * @param errorLocale Locale for error messages. If null, the default locale
-     *   is used.
+     *                    is used.
      * @since 4.2
      */
     public void setErrorLocale(Locale errorLocale) {
         this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
-        if(parser != null) {
+        if (parser != null) {
             parser.setErrorLocale(this.errorLocale);
         }
     }
-    
+
     /**
      * Returns the next line from the input without removing it from the
      * CSVReader and not running any validators.
@@ -556,13 +565,13 @@ public class CSVReader implements Closeable, Iterable<String[]> {
      * advances the cursor position in the input. The first call to
      * {@link #readNext()} after calling this method will return the same line
      * this method does.
-     * 
+     *
      * @return The next line from the input, or null if there are no more lines
      * @throws IOException If bad things happen during the read operation
      * @since 4.2
      */
     public String[] peek() throws IOException {
-        if(peekedLine == null) {
+        if (peekedLine == null) {
             peekedLine = readNextSilently();
         }
         return peekedLine;
