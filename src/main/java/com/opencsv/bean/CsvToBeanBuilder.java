@@ -104,23 +104,40 @@ public class CsvToBeanBuilder<T> {
    /** @see com.opencsv.CSVParser#ignoreQuotations */
    private Boolean ignoreQuotations = null;
 
-   /** @see HeaderColumnNameMappingStrategy#type */
-   private Class<? extends T> type = null;
-   
-   /** @see com.opencsv.CSVReader#multilineLimit */
-   private Integer multilineLimit = null;
-   
-   /** @see com.opencsv.bean.CsvToBean#orderedResults */
-   private boolean orderedResults = true;
-   
-   /** @see com.opencsv.bean.CsvToBean#errorLocale */
-   private Locale errorLocale = Locale.getDefault();
+    /**
+     * @see HeaderColumnNameMappingStrategy#type
+     */
+    private Class<? extends T> type = null;
 
-   /** @see com.opencsv.bean.CsvToBean#verifiers */
-   private final List<BeanVerifier<T>> verifiers = new LinkedList<>();
+    /**
+     * @see com.opencsv.CSVReader#multilineLimit
+     */
+    private Integer multilineLimit = null;
 
-   /** @see  com.opencsv.bean.AbstractMappingStrategy#ignoredFields */
-   private final ListValuedMap<Class<?>, Field> ignoredFields = new ArrayListValuedHashMap<>();
+    /**
+     * @see com.opencsv.bean.CsvToBean#orderedResults
+     */
+    private boolean orderedResults = true;
+
+    /**
+     * @see com.opencsv.bean.CsvToBean#ignoreEmptyLines
+     */
+    private boolean ignoreEmptyLines = false;
+
+    /**
+     * @see com.opencsv.bean.CsvToBean#errorLocale
+     */
+    private Locale errorLocale = Locale.getDefault();
+
+    /**
+     * @see com.opencsv.bean.CsvToBean#verifiers
+     */
+    private final List<BeanVerifier<T>> verifiers = new LinkedList<>();
+
+    /**
+     * @see com.opencsv.bean.AbstractMappingStrategy#ignoredFields
+     */
+    private final ListValuedMap<Class<?>, Field> ignoredFields = new ArrayListValuedHashMap<>();
    
    /**
     * Constructor with the one parameter that is most definitely mandatory, and
@@ -196,6 +213,7 @@ public class CsvToBeanBuilder<T> {
         // The error locale comes at the end so it can be propagated through all
         // of the components of CsvToBean, rendering the error locale homogeneous.
         bean.setErrorLocale(errorLocale);
+        bean.setIgnoreEmptyLines(ignoreEmptyLines);
 
         return bean;
     }
@@ -475,14 +493,23 @@ public class CsvToBeanBuilder<T> {
      * @see MappingStrategy#ignoreFields(MultiValuedMap)
      */
     public CsvToBeanBuilder<T> withIgnoreField(Class<?> type, Field field) throws IllegalArgumentException {
-        if(type != null && field != null && field.getDeclaringClass().isAssignableFrom(type)) {
+        if (type != null && field != null && field.getDeclaringClass().isAssignableFrom(type)) {
             ignoredFields.put(type, field);
-        }
-        else {
+        } else {
             throw new IllegalArgumentException(ResourceBundle.getBundle(
                     ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
                     .getString("ignore.field.inconsistent"));
         }
+        return this;
+    }
+
+    /**
+     * @param ignore Please see the "See Also" section
+     * @return {@code this}
+     * @see CsvToBean#ignoreEmptyLines
+     */
+    public CsvToBeanBuilder<T> withIgnoreEmptyLine(boolean ignore) {
+        this.ignoreEmptyLines = ignore;
         return this;
     }
 }

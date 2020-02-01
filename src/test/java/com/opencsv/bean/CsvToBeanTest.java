@@ -26,6 +26,10 @@ public class CsvToBeanTest {
             "kyle,abc123456,123\n" +
             "jimmy,def098765,456 ";
 
+    private static final String TEST_STRING_WITH_BLANK_LINES = "name,orderNumber,num\n" +
+            "kyle,abc123456,123\n\n\n" +
+            "jimmy,def098765,456";
+
     private static final String TEST_STRING_WITHOUT_MANDATORY_FIELD = "name,orderNumber,num\n" +
             "kyle,abc123456,123\n" +
             "jimmy,def098765,";
@@ -75,8 +79,24 @@ public class CsvToBeanTest {
     public void parseBeanWithNoAnnotations() {
         HeaderColumnNameMappingStrategy<MockBean> strategy = new HeaderColumnNameMappingStrategy<>();
         strategy.setType(MockBean.class);
-        List<MockBean> beanList =new CsvToBeanBuilder<MockBean>(new StringReader(TEST_STRING))
+        List<MockBean> beanList = new CsvToBeanBuilder<MockBean>(new StringReader(TEST_STRING))
                 .withMappingStrategy(strategy)
+                .withFilter(null)
+                .build().parse(); // Extra arguments for code coverage
+
+        assertEquals(2, beanList.size());
+        assertTrue(beanList.contains(createMockBean("kyle", "abc123456", 123)));
+        assertTrue(beanList.contains(createMockBean("jimmy", "def098765", 456)));
+    }
+
+    @DisplayName("Blank lines are ignored when withIgnoreEmptyLine is set to true.")
+    @Test
+    public void parseBeanWithIgnoreEmptyLines() {
+        HeaderColumnNameMappingStrategy<MockBean> strategy = new HeaderColumnNameMappingStrategy<>();
+        strategy.setType(MockBean.class);
+        List<MockBean> beanList = new CsvToBeanBuilder<MockBean>(new StringReader(TEST_STRING_WITH_BLANK_LINES))
+                .withMappingStrategy(strategy)
+                .withIgnoreEmptyLine(true)
                 .withFilter(null)
                 .build().parse(); // Extra arguments for code coverage
 

@@ -80,8 +80,10 @@ public class CsvToBean<T> implements Iterable<T> {
      * of beans.
      */
     private LineExecutor<T> executor;
-    
-    /** The errorLocale for error messages. */
+
+    /**
+     * The errorLocale for error messages.
+     */
     private Locale errorLocale = Locale.getDefault();
 
     /**
@@ -91,6 +93,13 @@ public class CsvToBean<T> implements Iterable<T> {
     private List<BeanVerifier<T>> verifiers = Collections.<BeanVerifier<T>>emptyList();
 
     /**
+     * When an empty line is encountered (not part of the data) then it is ignored.   By default this is false
+     * which means an exception is thrown if there are required fields or the number of fields do not match the number
+     * of headers.
+     */
+    private boolean ignoreEmptyLines = false;
+
+    /**
      * Default constructor.
      */
     public CsvToBean() {
@@ -98,18 +107,26 @@ public class CsvToBean<T> implements Iterable<T> {
 
     private void submitAllBeans() throws IOException, InterruptedException, CsvValidationException {
         while (null != (line = csvReader.readNext())) {
+            if (isRecordEmpty(line) && ignoreEmptyLines) {
+                continue;
+            }
             lineProcessed = csvReader.getLinesRead();
             executor.submitLine(lineProcessed, mappingStrategy, filter,
                     verifiers, line, throwExceptions);
         }
         executor.complete();
     }
-    
+
+    private boolean isRecordEmpty(String[] line) {
+        return line == null || line.length == 0 || (line.length == 1 && line[0].isEmpty());
+    }
+
     /**
      * Parses the input based on parameters already set through other methods.
+     *
      * @return A list of populated beans based on the input
      * @throws IllegalStateException If either MappingStrategy or CSVReader is
-     *   not specified
+     *                               not specified
      * @see #stream()
      * @see #iterator()
      */
@@ -291,7 +308,16 @@ public class CsvToBean<T> implements Iterable<T> {
         prepareToReadInput();
         return new CsvToBeanIterator();
     }
-    
+
+    /**
+     * Ignores any blank lines in the data that are not part of a field.
+     *
+     * @param ignoreEmptyLines - true to ignore empty lines, false otherwise
+     */
+    public void setIgnoreEmptyLines(boolean ignoreEmptyLines) {
+        this.ignoreEmptyLines = ignoreEmptyLines;
+    }
+
     /**
      * A private inner class for implementing an iterator for the input data.
      */
@@ -318,6 +344,9 @@ public class CsvToBean<T> implements Iterable<T> {
             // Read a line
             bean = null;
             while(bean == null && null != (line = csvReader.readNext())) {
+                if (isRecordEmpty(line) && ignoreEmptyLines) {
+                    continue;
+                }
                 lineProcessed = csvReader.getLinesRead();
                 // Create a bean
                 ProcessCsvLine<T> proc = new ProcessCsvLine<>(
@@ -326,10 +355,9 @@ public class CsvToBean<T> implements Iterable<T> {
                         throwExceptions);
                 proc.run();
 
-                if(!thrownExceptionsQueue.isEmpty()) {
+                if (!thrownExceptionsQueue.isEmpty()) {
                     processException();
-                }
-                else {
+                } else {
                     // No exception, so there really must always be a bean
                     // . . . unless it was filtered
                     OrderedObject<T> o = resultantBeansQueue.poll();
