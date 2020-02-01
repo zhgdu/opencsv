@@ -288,9 +288,7 @@ public class CsvToBeanBuilder<T> {
      * @see CsvToBean#setFilter(com.opencsv.bean.CsvToBeanFilter)
      * @param filter Please see the "See Also" section
      * @return {@code this}
-     * @deprecated Please use {@link #withVerifier(BeanVerifier)} instead.
      */
-    @Deprecated
     public CsvToBeanBuilder<T> withFilter(CsvToBeanFilter filter) {
         this.filter = filter;
         return this;

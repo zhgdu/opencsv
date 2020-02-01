@@ -50,9 +50,9 @@ public class CsvToBeanAsIteratorTest {
         return new CSVReader(reader);
     }
 
-    @Deprecated
+    // This class is an example where you would want to use the BeanVerifier instead as the position of
+    // the number could be different if you are getting data from different sources.
     private class FilterSmallNumbers implements CsvToBeanFilter {
-
         @Override
         public boolean allowLine(String[] line) {
             return Integer.parseInt(line[2].trim()) > 200;
