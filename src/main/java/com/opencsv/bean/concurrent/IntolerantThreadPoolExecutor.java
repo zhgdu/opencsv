@@ -15,14 +15,14 @@
  */
 package com.opencsv.bean.concurrent;
 
+import com.opencsv.ICSVParser;
 import com.opencsv.exceptions.CsvException;
+import org.apache.commons.lang3.ObjectUtils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.*;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * This ThreadPoolExecutor automatically shuts down on any failed thread.
@@ -39,7 +39,9 @@ import java.util.stream.Stream;
  * <li>Submit tasks. This is not intended to be done directly to this class, but
  * rather to one of the submission methods of the derived classes.</li>
  * <li>{@link #complete()}</li>
- * <li>{@link #resultStream()}</li>
+ * <li>The results are had by creating a {@link java.util.stream.Stream} out of
+ * the executor itself. This is most easily done with
+ * {@link java.util.stream.StreamSupport#stream(Spliterator, boolean)}</li>
  * <li>Possibly {@link #getCapturedExceptions()}</li></ol></p>
  * <p>The execution structure of this class is:
  * <ol><li>The main thread (outside of this executor) parses input and passes
@@ -58,7 +60,7 @@ import java.util.stream.Stream;
  * @author Andrew Rucker Jones
  * @since 4.0
  */
-class IntolerantThreadPoolExecutor<T> extends ThreadPoolExecutor {
+class IntolerantThreadPoolExecutor<T> extends ThreadPoolExecutor implements Spliterator<T> {
 
     /** A queue of the beans created. */
     protected final BlockingQueue<OrderedObject<T>> resultQueue = new LinkedBlockingQueue<>();
@@ -75,11 +77,17 @@ class IntolerantThreadPoolExecutor<T> extends ThreadPoolExecutor {
     /** A separate thread that accumulates and orders results. */
     protected AccumulateCsvResults<T> accumulateThread = null;
 
+    /** A list of the ordinals of data records still to be expected by the accumulator. */
+    protected final SortedSet<Long> expectedRecords = new ConcurrentSkipListSet<>();
+
     /**
      * Determines whether resulting data sets have to be in the same order as
      * the input.
      */
     private final boolean orderedResults;
+
+    /** The locale for error messages. */
+    protected final Locale errorLocale;
 
     /** The exception that caused this Executor to stop executing. */
     private Throwable terminalException;
@@ -89,12 +97,14 @@ class IntolerantThreadPoolExecutor<T> extends ThreadPoolExecutor {
      * any thread throws an exception.
      * Threads never time out and the queue for inbound work is unbounded.
      * @param orderedResults Whether order should be preserved in the results
+     * @param errorLocale The errorLocale to use for error messages.
      */
-    IntolerantThreadPoolExecutor(boolean orderedResults) {
+    IntolerantThreadPoolExecutor(boolean orderedResults, Locale errorLocale) {
         super(Runtime.getRuntime().availableProcessors(),
                 Runtime.getRuntime().availableProcessors(), Long.MAX_VALUE,
                 TimeUnit.NANOSECONDS, new LinkedBlockingQueue<>());
         this.orderedResults = orderedResults;
+        this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
     }
 
     /**
@@ -114,8 +124,8 @@ class IntolerantThreadPoolExecutor<T> extends ThreadPoolExecutor {
 
             // Start the process for accumulating results and cleaning up
             accumulateThread = new AccumulateCsvResults<>(
-                    resultQueue, thrownExceptionsQueue, resultantBeansMap,
-                    thrownExceptionsMap);
+                    resultQueue, thrownExceptionsQueue, expectedRecords,
+                    resultantBeansMap, thrownExceptionsMap);
             accumulateThread.start();
         }
     }
@@ -132,7 +142,7 @@ class IntolerantThreadPoolExecutor<T> extends ThreadPoolExecutor {
      */
     public void complete() throws InterruptedException {
         // Normal termination
-        super.shutdown();
+        shutdown();
         awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS); // Wait indefinitely
         if(accumulateThread != null) {
             accumulateThread.setMustStop(true);
@@ -144,21 +154,6 @@ class IntolerantThreadPoolExecutor<T> extends ThreadPoolExecutor {
             // Trigger a catch in the calling method
             throw new RejectedExecutionException();
         }
-    }
-
-    /**
-     * Returns the results of conversion as a {@link java.util.stream.Stream}.
-     * @return A {@link java.util.stream.Stream} of results
-     */
-    public Stream<T> resultStream() {
-        // Prepare results. Checking for this map to be != null makes the
-        // compiler feel better than checking that the accumulator is not null.
-        // This is to differentiate between the ordered and unordered cases.
-        return resultantBeansMap != null ?
-                resultantBeansMap.values().stream() :
-                resultQueue.stream()
-                        .filter(Objects::nonNull)
-                        .map(OrderedObject::getElement);
     }
 
     /**
@@ -185,7 +180,7 @@ class IntolerantThreadPoolExecutor<T> extends ThreadPoolExecutor {
         }
         return super.shutdownNow();
     }
-    
+
     /**
      * Shuts the Executor down if the thread ended in an exception.
      * @param r {@inheritDoc}
@@ -216,5 +211,173 @@ class IntolerantThreadPoolExecutor<T> extends ThreadPoolExecutor {
      */
     public Throwable getTerminalException() {
         return terminalException;
+    }
+
+    /**
+     * Checks whether exceptions are available that should halt processing.
+     * This is the case with unrecoverable errors, such as parsing the input,
+     * or if exceptions in conversion should be thrown by request of the user.
+     */
+    protected void checkExceptions() {
+        if(terminalException != null) {
+            if(terminalException instanceof CsvException) {
+                CsvException csve = (CsvException) terminalException;
+                throw new RuntimeException(String.format(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("parsing.error.linenumber"),
+                        csve.getLineNumber(), String.join(",", csve.getLine())), csve);
+            }
+            throw new RuntimeException(terminalException);
+        }
+    }
+
+    private boolean isConversionComplete() {
+        return isTerminated() && (accumulateThread == null || !accumulateThread.isAlive());
+    }
+
+    /**
+     * Determines whether more conversion results can be expected.
+     * Since {@link Spliterator}s have no way of indicating that they don't
+     * have a result at the moment, but might in the future, we must ensure
+     * that every call to {@link #tryAdvance(Consumer)} or {@link #trySplit()}
+     * only returns {@code null} if the entire conversion apparatus has shut
+     * down and all result queues are cleared. Thus, this method waits until
+     * either that is true, or there is truly at least one result that can be
+     * returned to users of the {@link Spliterator} interface.
+     *
+     * @return {@code false} if conversion is complete and no more results
+     *   can ever be expected out of this {@link Spliterator}, {@code true}
+     *   otherwise. If {@code true} is returned, it is guaranteed that at
+     *   least one result is available immediately to the caller.
+     */
+    private boolean areMoreResultsAvailable() {
+        // If an exception has been thrown that needs to be passed on,
+        // throw it here.
+        checkExceptions();
+
+        // Check conditions for completion
+        boolean elementFound = false;
+        while(!elementFound && !isConversionComplete()) {
+            if(accumulateThread == null) {
+                if(resultQueue.isEmpty()) {
+                    Thread.yield();
+                }
+                else {
+                    elementFound = true;
+                }
+            }
+            else {
+                if(resultantBeansMap.isEmpty()) {
+                    Thread.yield();
+                }
+                else {
+                    elementFound = true;
+                }
+            }
+
+            // If an exception has been thrown that needs to be passed on,
+            // throw it here.
+            checkExceptions();
+        }
+
+        return accumulateThread == null ? !resultQueue.isEmpty() : !resultantBeansMap.isEmpty();
+    }
+
+    @Override
+    public boolean tryAdvance(Consumer<? super T> action) {
+        T bean = null;
+
+        if (areMoreResultsAvailable()) {
+            // Since we are now guaranteed to have a result, we don't
+            // really have to do all of the null checking below, but
+            // better safe than sorry.
+            if(accumulateThread == null) {
+                OrderedObject<T> orderedObject = resultQueue.poll();
+                if(orderedObject != null) {
+                    bean = orderedObject.getElement();
+                }
+            }
+            else {
+                Map.Entry<Long, T> mapEntry = resultantBeansMap.pollFirstEntry();
+                if(mapEntry != null) {
+                    bean = mapEntry.getValue();
+                }
+            }
+            if(bean != null) {
+                action.accept(bean);
+            }
+        }
+
+        return bean != null;
+    }
+
+    // WARNING! This code is untested because I have no way of telling the JDK
+    // streaming code how to do its job.
+    @Override
+    public Spliterator<T> trySplit() {
+        Spliterator<T> s = null;
+
+        // Check if all threads are through
+        if(areMoreResultsAvailable()) {
+            if(isConversionComplete()) {
+                // Return everything we have
+                if(accumulateThread == null) {
+                    s = resultQueue.stream().map(OrderedObject::getElement).spliterator();
+                }
+                else {
+                    s = resultantBeansMap.values().spliterator();
+                }
+            }
+            else {
+                int size;
+                ArrayList<T> c;
+                if(accumulateThread == null) {
+                    // May seem like an odd implementation, but we can't use
+                    // resultQueue.drainTo() because bulk operations are not
+                    // thread-safe. So, we have to poll each object individually.
+                    // We don't want to use a LinkedList for the Spliterator
+                    // because another split would presumably be inefficient. With
+                    // an ArrayList, on the other hand, we have to make sure we
+                    // avoid a costly resize operation.
+                    size = resultQueue.size();
+                    c = new ArrayList<>(size);
+                    for(int i = 0; i < size; i++) {
+                        // Result guaranteed to exist through areMoreResultsAvailable()
+                        OrderedObject<T> orderedObject = resultQueue.poll();
+                        if(orderedObject != null) {
+                            c.add(orderedObject.getElement());
+                        }
+
+                    }
+                }
+                else {
+                    size = resultantBeansMap.size();
+                    c = new ArrayList<>(size);
+                    for(int i = 0; i < size; i++) {
+                        Map.Entry<Long, T> mapEntry = resultantBeansMap.pollFirstEntry();
+                        if(mapEntry != null) {
+                            c.add(mapEntry.getValue());
+                        }
+                    }
+                }
+                s = c.spliterator();
+            }
+        }
+
+        return s;
+    }
+
+    // WARNING! This code is untested because I have no way of telling the JDK
+    // streaming code how to do its job.
+    @Override
+    public long estimateSize() {
+        return accumulateThread == null ? resultQueue.size() : resultantBeansMap.size();
+    }
+
+    @Override
+    public int characteristics() {
+        int characteristics = Spliterator.CONCURRENT | Spliterator.NONNULL;
+        if(accumulateThread != null) {
+            characteristics |= Spliterator.ORDERED;
+        }
+        return characteristics;
     }
 }

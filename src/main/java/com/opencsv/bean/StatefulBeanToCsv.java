@@ -37,6 +37,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * This class writes beans out in CSV format to a {@link java.io.Writer},
@@ -287,7 +288,7 @@ public class StatefulBeanToCsv<T> {
             beforeFirstWrite(firstBean);
         }
 
-        executor = new BeanExecutor<>(orderedResults);
+        executor = new BeanExecutor<>(orderedResults, errorLocale);
         executor.prepare();
 
         // Process the beans
@@ -321,7 +322,8 @@ public class StatefulBeanToCsv<T> {
         }
 
         capturedExceptions.addAll(executor.getCapturedExceptions());
-        executor.resultStream().forEach(l -> csvwriter.writeNext(l, applyQuotesToAll));
+        StreamSupport.stream(executor, false)
+                .forEach(l -> csvwriter.writeNext(l, applyQuotesToAll));
     }
 
     /**

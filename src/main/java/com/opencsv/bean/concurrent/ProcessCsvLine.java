@@ -23,10 +23,7 @@ import com.opencsv.exceptions.*;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.ListIterator;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 
 /**
@@ -44,6 +41,7 @@ public class ProcessCsvLine<T> implements Runnable {
     private final String[] line;
     private final BlockingQueue<OrderedObject<T>> resultantBeanQueue;
     private final BlockingQueue<OrderedObject<CsvException>> thrownExceptionsQueue;
+    private final SortedSet<Long> expectedRecords;
     private final boolean throwExceptions;
 
     /**
@@ -57,6 +55,9 @@ public class ProcessCsvLine<T> implements Runnable {
      * @param resultantBeanQueue A queue in which to place the bean created
      * @param thrownExceptionsQueue A queue in which to place a thrown
      *   exception, if one is thrown
+     * @param expectedRecords A list of outstanding record numbers so gaps
+     *                        in ordering due to filtered input or exceptions
+     *                        while converting can be detected.
      * @param throwExceptions Whether exceptions should be thrown, ending
      *   processing, or suppressed and saved for later processing
      */
@@ -65,7 +66,7 @@ public class ProcessCsvLine<T> implements Runnable {
             List<BeanVerifier<T>> verifiers, String[] line,
             BlockingQueue<OrderedObject<T>> resultantBeanQueue,
             BlockingQueue<OrderedObject<CsvException>> thrownExceptionsQueue,
-            boolean throwExceptions) {
+            SortedSet<Long> expectedRecords, boolean throwExceptions) {
         this.lineNumber = lineNumber;
         this.mapper = mapper;
         this.filter = filter;
@@ -73,6 +74,7 @@ public class ProcessCsvLine<T> implements Runnable {
         this.line = ArrayUtils.clone(line);
         this.resultantBeanQueue = resultantBeanQueue;
         this.thrownExceptionsQueue = thrownExceptionsQueue;
+        this.expectedRecords = expectedRecords;
         this.throwExceptions = throwExceptions;
     }
 
@@ -91,8 +93,15 @@ public class ProcessCsvLine<T> implements Runnable {
                             resultantBeanQueue,
                             new OrderedObject<>(lineNumber, obj));
                 }
+                else {
+                    expectedRecords.remove(lineNumber);
+                }
+            }
+            else {
+                expectedRecords.remove(lineNumber);
             }
         } catch (CsvException e) {
+            expectedRecords.remove(lineNumber);
             e.setLineNumber(lineNumber);
             e.setLine(line);
             if (throwExceptions) {
@@ -101,6 +110,7 @@ public class ProcessCsvLine<T> implements Runnable {
             OpencsvUtils.queueRefuseToAcceptDefeat(thrownExceptionsQueue,
                     new OrderedObject<>(lineNumber, e));
         } catch (Exception e) {
+            expectedRecords.remove(lineNumber);
             throw new RuntimeException(e);
         }
     }

@@ -18,11 +18,8 @@ package com.opencsv.bean;
 
 import com.opencsv.CSVReader;
 import com.opencsv.ICSVParser;
-import com.opencsv.bean.concurrent.LineExecutor;
-import com.opencsv.bean.concurrent.OrderedObject;
-import com.opencsv.bean.concurrent.ProcessCsvLine;
+import com.opencsv.bean.concurrent.*;
 import com.opencsv.exceptions.CsvException;
-import com.opencsv.exceptions.CsvMalformedLineException;
 import com.opencsv.exceptions.CsvValidationException;
 import org.apache.commons.lang3.ObjectUtils;
 
@@ -30,9 +27,9 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.RejectedExecutionException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * Converts CSV data to objects.
@@ -69,12 +66,6 @@ public class CsvToBean<T> implements Iterable<T> {
      */
     private boolean orderedResults = true;
     
-    /** Counts how many records have been read from the input. */
-    private long lineProcessed;
-    
-    /** Stores the result of parsing a line of input. */
-    private String[] line;
-    
     /**
      * The {@link java.util.concurrent.ExecutorService} for parallel processing
      * of beans.
@@ -93,9 +84,11 @@ public class CsvToBean<T> implements Iterable<T> {
     private List<BeanVerifier<T>> verifiers = Collections.<BeanVerifier<T>>emptyList();
 
     /**
-     * When an empty line is encountered (not part of the data) then it is ignored.   By default this is false
-     * which means an exception is thrown if there are required fields or the number of fields do not match the number
-     * of headers.
+     * When an empty line is encountered (not part of the data) then it is
+     * ignored.
+     * By default this is {@code false}, which means an exception is thrown if
+     * there are required fields or the number of fields do not match the
+     * number of headers.
      */
     private boolean ignoreEmptyLines = false;
 
@@ -103,22 +96,6 @@ public class CsvToBean<T> implements Iterable<T> {
      * Default constructor.
      */
     public CsvToBean() {
-    }
-
-    private void submitAllBeans() throws IOException, InterruptedException, CsvValidationException {
-        while (null != (line = csvReader.readNext())) {
-            if (isRecordEmpty(line) && ignoreEmptyLines) {
-                continue;
-            }
-            lineProcessed = csvReader.getLinesRead();
-            executor.submitLine(lineProcessed, mappingStrategy, filter,
-                    verifiers, line, throwExceptions);
-        }
-        executor.complete();
-    }
-
-    private boolean isRecordEmpty(String[] line) {
-        return line == null || line.length == 0 || (line.length == 1 && line[0].isEmpty());
     }
 
     /**
@@ -149,34 +126,12 @@ public class CsvToBean<T> implements Iterable<T> {
      */
     public Stream<T> stream() throws IllegalStateException {
         prepareToReadInput();
-        executor = new LineExecutor<>(orderedResults);
+        CompleteFileReader<T> completeFileReader = new CompleteFileReader<>(
+                csvReader, filter, ignoreEmptyLines,
+                mappingStrategy, throwExceptions, verifiers);
+        executor = new LineExecutor<T>(orderedResults, errorLocale, completeFileReader);
         executor.prepare();
-
-        // Parse through each line of the file
-        try {
-            submitAllBeans();
-        } catch(RejectedExecutionException e) {
-            // An exception in one of the bean creation threads prompted the
-            // executor service to shutdown before we were done.
-            if(executor.getTerminalException() instanceof CsvException) {
-                CsvException csve = (CsvException)executor.getTerminalException();
-                throw new RuntimeException(String.format(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("parsing.error.linenumber"),
-                        csve.getLineNumber(), String.join(",", csve.getLine())), csve);
-            }
-            throw new RuntimeException(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("parsing.error"), executor.getTerminalException());
-        } catch (CsvMalformedLineException cmle) {
-            // Exception during parsing. Always unrecoverable.
-            executor.shutdownNow();
-            throw new RuntimeException(String.format(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("parsing.error.full"),
-                    cmle.getLineNumber(), cmle.getContext()), cmle);
-        } catch (Exception e) {
-            // Exception during parsing. Always unrecoverable.
-            executor.shutdownNow();
-            throw new RuntimeException(String.format(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("parsing.error.full"),
-                    lineProcessed, Arrays.toString(line)), e);
-        }
-        
-        return executor.resultStream();
+        return StreamSupport.stream(executor, false);
     }
 
     /**
@@ -284,10 +239,6 @@ public class CsvToBean<T> implements Iterable<T> {
         } catch (Exception e) {
             throw new RuntimeException(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("header.error"), e);
         }
-        
-        // Reset to beginning values
-        lineProcessed = 0;
-        line = null;
     }
     
     /**
@@ -310,7 +261,7 @@ public class CsvToBean<T> implements Iterable<T> {
     /**
      * Ignores any blank lines in the data that are not part of a field.
      *
-     * @param ignoreEmptyLines - true to ignore empty lines, false otherwise
+     * @param ignoreEmptyLines {@code true} to ignore empty lines, {@code false} otherwise
      */
     public void setIgnoreEmptyLines(boolean ignoreEmptyLines) {
         this.ignoreEmptyLines = ignoreEmptyLines;
@@ -322,6 +273,9 @@ public class CsvToBean<T> implements Iterable<T> {
     private class CsvToBeanIterator implements Iterator<T> {
         private BlockingQueue<OrderedObject<T>> resultantBeansQueue;
         private BlockingQueue<OrderedObject<CsvException>> thrownExceptionsQueue;
+        private final SingleLineReader lineReader = new SingleLineReader(csvReader, ignoreEmptyLines);
+        private String[] line = null;
+        private long lineProcessed = 0;
         private T bean;
         
         CsvToBeanIterator() {
@@ -341,16 +295,14 @@ public class CsvToBean<T> implements Iterable<T> {
         private void readLineWithPossibleError() throws IOException, CsvValidationException {
             // Read a line
             bean = null;
-            while(bean == null && null != (line = csvReader.readNext())) {
-                if (isRecordEmpty(line) && ignoreEmptyLines) {
-                    continue;
-                }
-                lineProcessed = csvReader.getLinesRead();
+            while(bean == null && null != (line = lineReader.readNextLine())) {
+                lineProcessed = lineReader.getLinesRead();
+
                 // Create a bean
                 ProcessCsvLine<T> proc = new ProcessCsvLine<>(
                         lineProcessed, mappingStrategy, filter, verifiers,
                         line, resultantBeansQueue, thrownExceptionsQueue,
-                        throwExceptions);
+                        new TreeSet<>(), throwExceptions);
                 proc.run();
 
                 if (!thrownExceptionsQueue.isEmpty()) {
