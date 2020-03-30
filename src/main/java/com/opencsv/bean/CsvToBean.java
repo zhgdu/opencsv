@@ -18,7 +18,14 @@ package com.opencsv.bean;
 
 import com.opencsv.CSVReader;
 import com.opencsv.ICSVParser;
-import com.opencsv.bean.concurrent.*;
+import com.opencsv.bean.concurrent.CompleteFileReader;
+import com.opencsv.bean.concurrent.LineExecutor;
+import com.opencsv.bean.concurrent.ProcessCsvLine;
+import com.opencsv.bean.concurrent.SingleLineReader;
+import com.opencsv.bean.exceptionhandler.CsvExceptionHandler;
+import com.opencsv.bean.exceptionhandler.ExceptionHandlerQueue;
+import com.opencsv.bean.exceptionhandler.ExceptionHandlerThrow;
+import com.opencsv.bean.util.OrderedObject;
 import com.opencsv.exceptions.CsvException;
 import com.opencsv.exceptions.CsvValidationException;
 import org.apache.commons.lang3.ObjectUtils;
@@ -55,10 +62,9 @@ public class CsvToBean<T> implements Iterable<T> {
     private CsvToBeanFilter filter = null;
 
     /**
-     * Determines whether or not exceptions should be thrown during parsing or
-     * collected for later examination through {@link #getCapturedExceptions()}.
+     * Determines how exceptions thrown during processing will be handled.
      */
-    private boolean throwExceptions = true;
+    private CsvExceptionHandler exceptionHandler = new ExceptionHandlerThrow();
     
     /**
      * Determines whether resulting data sets have to be in the same order as
@@ -128,7 +134,7 @@ public class CsvToBean<T> implements Iterable<T> {
         prepareToReadInput();
         CompleteFileReader<T> completeFileReader = new CompleteFileReader<>(
                 csvReader, filter, ignoreEmptyLines,
-                mappingStrategy, throwExceptions, verifiers);
+                mappingStrategy, exceptionHandler, verifiers);
         executor = new LineExecutor<T>(orderedResults, errorLocale, completeFileReader);
         executor.prepare();
         return StreamSupport.stream(executor, false);
@@ -136,10 +142,11 @@ public class CsvToBean<T> implements Iterable<T> {
 
     /**
      * Returns the list of all exceptions that would have been thrown during the
-     * import, but were suppressed by setting {@link #throwExceptions} to
-     * {@code false}.
+     * import, but were queued by the exception handler.
      *
      * @return The list of exceptions captured while processing the input file
+     * @see #setExceptionHandler(CsvExceptionHandler)
+     * @see #setThrowExceptions(boolean) 
      */
     public List<CsvException> getCapturedExceptions() {
         // The exceptions are stored in different places, dependent on
@@ -175,12 +182,45 @@ public class CsvToBean<T> implements Iterable<T> {
     /**
      * Determines whether errors during import should be thrown or kept in a
      * list for later retrieval via {@link #getCapturedExceptions()}.
+     * <p>This is a convenience function and is maintained for backwards
+     * compatibility. Passing in {@code true} is equivalent to
+     * {@code setExceptionHandler(new ExceptionHandlerThrow())}
+     * and {@code false} is equivalent to
+     * {@code setExceptionHandler(new ExceptionHandlerQueue())}</p>
+     * <p>Please note that if both this method and
+     * {@link #setExceptionHandler(CsvExceptionHandler)} are called,
+     * the last call wins.</p>
      *
      * @param throwExceptions Whether or not to throw exceptions during
      *   processing
+     * @see #setExceptionHandler(CsvExceptionHandler)
      */
     public void setThrowExceptions(boolean throwExceptions) {
-        this.throwExceptions = throwExceptions;
+        if(throwExceptions) {
+            exceptionHandler = new ExceptionHandlerThrow();
+        }
+        else {
+            exceptionHandler = new ExceptionHandlerQueue();
+        }
+    }
+
+    /**
+     * Sets the handler for recoverable exceptions raised during processing of
+     * records.
+     * <p>If neither this method nor {@link #setThrowExceptions(boolean)} is
+     * called, the default exception handler is
+     * {@link ExceptionHandlerThrow}.</p>
+     * <p>Please note that if both this method and
+     * {@link #setThrowExceptions(boolean)} are called, the last call wins.</p>
+     *
+     * @param handler The exception handler to be used. If {@code null},
+     *                this method does nothing.
+     * @since 5.2
+     */
+    public void setExceptionHandler(CsvExceptionHandler handler) {
+        if(handler != null) {
+            exceptionHandler = handler;
+        }
     }
     
     /**
@@ -302,7 +342,7 @@ public class CsvToBean<T> implements Iterable<T> {
                 ProcessCsvLine<T> proc = new ProcessCsvLine<>(
                         lineProcessed, mappingStrategy, filter, verifiers,
                         line, resultantBeansQueue, thrownExceptionsQueue,
-                        new TreeSet<>(), throwExceptions);
+                        new TreeSet<>(), exceptionHandler);
                 proc.run();
 
                 if (!thrownExceptionsQueue.isEmpty()) {

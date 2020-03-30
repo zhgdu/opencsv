@@ -16,7 +16,9 @@
 package com.opencsv.bean.concurrent;
 
 import com.opencsv.ICSVParser;
+import com.opencsv.bean.util.OrderedObject;
 import com.opencsv.exceptions.CsvException;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.util.*;
@@ -177,6 +179,11 @@ class IntolerantThreadPoolExecutor<T> extends ThreadPoolExecutor implements Spli
     public List<Runnable> shutdownNow() {
         if(accumulateThread != null) {
             accumulateThread.setMustStop(true);
+            try {
+                accumulateThread.join();
+            } catch (InterruptedException e) {
+                // Do nothing. Best faith effort.
+            }
         }
         return super.shutdownNow();
     }
@@ -223,7 +230,7 @@ class IntolerantThreadPoolExecutor<T> extends ThreadPoolExecutor implements Spli
             if(terminalException instanceof CsvException) {
                 CsvException csve = (CsvException) terminalException;
                 throw new RuntimeException(String.format(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("parsing.error.linenumber"),
-                        csve.getLineNumber(), String.join(",", csve.getLine())), csve);
+                        csve.getLineNumber(), String.join(",", ObjectUtils.defaultIfNull(csve.getLine(), ArrayUtils.EMPTY_STRING_ARRAY))), csve);
             }
             throw new RuntimeException(terminalException);
         }

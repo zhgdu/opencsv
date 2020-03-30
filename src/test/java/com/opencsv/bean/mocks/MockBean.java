@@ -22,6 +22,16 @@ public class MockBean {
    private int num;
    private double doubleNum;
 
+   public MockBean() {}
+
+   public MockBean(String name, String id, String orderNumber, int num, double doubleNum) {
+      this.name = name;
+      this.id = id;
+      this.orderNumber = orderNumber;
+      this.num = num;
+      this.doubleNum = doubleNum;
+   }
+
    public String getId() {
       return id;
    }

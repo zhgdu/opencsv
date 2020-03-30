@@ -15,6 +15,7 @@
  */
 package com.opencsv.bean.concurrent;
 
+import com.opencsv.bean.util.OrderedObject;
 import com.opencsv.exceptions.CsvException;
 
 import java.util.SortedSet;

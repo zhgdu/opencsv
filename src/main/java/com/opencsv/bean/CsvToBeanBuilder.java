@@ -16,6 +16,10 @@
 package com.opencsv.bean;
 
 import com.opencsv.*;
+import com.opencsv.bean.exceptionhandler.CsvExceptionHandler;
+import com.opencsv.bean.exceptionhandler.ExceptionHandlerQueue;
+import com.opencsv.bean.exceptionhandler.ExceptionHandlerThrow;
+import com.opencsv.bean.util.OpencsvUtils;
 import com.opencsv.enums.CSVReaderNullFieldIndicator;
 import org.apache.commons.collections4.ListValuedMap;
 import org.apache.commons.collections4.MultiValuedMap;
@@ -72,7 +76,7 @@ public class CsvToBeanBuilder<T> {
    private CsvToBeanFilter filter = null;
    
    /** @see CsvToBean#throwExceptions */
-   private boolean throwExceptions = true;
+   private CsvExceptionHandler exceptionHandler = new ExceptionHandlerThrow();
    
    /** @see com.opencsv.CSVParser#nullFieldIndicator */
    private CSVReaderNullFieldIndicator nullFieldIndicator = null;
@@ -194,7 +198,7 @@ public class CsvToBeanBuilder<T> {
         }
 
         // Set variables in CsvToBean itself
-        bean.setThrowExceptions(throwExceptions);
+        bean.setExceptionHandler(exceptionHandler);
         bean.setOrderedResults(orderedResults);
         if(filter != null) { bean.setFilter(filter); }
         bean.setVerifiers(verifiers);
@@ -296,11 +300,38 @@ public class CsvToBeanBuilder<T> {
 
     /**
      * @see CsvToBean#setThrowExceptions(boolean)
+     * @see #withExceptionHandler(CsvExceptionHandler)
      * @param throwExceptions Please see the "See Also" section
      * @return {@code this}
      */
     public CsvToBeanBuilder<T> withThrowExceptions(boolean throwExceptions) {
-        this.throwExceptions = throwExceptions;
+        if(throwExceptions) {
+            this.exceptionHandler = new ExceptionHandlerThrow();
+        }
+        else {
+            this.exceptionHandler = new ExceptionHandlerQueue();
+        }
+        return this;
+    }
+
+    /**
+     * Sets the handler for recoverable exceptions raised during processing of
+     * records.
+     * <p>If neither this method nor {@link #withThrowExceptions(boolean)} is
+     * called, the default exception handler is
+     * {@link ExceptionHandlerThrow}.</p>
+     * <p>Please note that if both this method and
+     * {@link #withThrowExceptions(boolean)} are called, the last call wins.</p>
+     *
+     * @param exceptionHandler The exception handler to be used. If {@code null},
+     *                this method does nothing.
+     * @return {@code this}
+     * @since 5.2
+     */
+    public CsvToBeanBuilder<T> withExceptionHandler(CsvExceptionHandler exceptionHandler) {
+        if(exceptionHandler != null) {
+            this.exceptionHandler = exceptionHandler;
+        }
         return this;
     }
     

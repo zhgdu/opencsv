@@ -10,6 +10,8 @@ import java.io.IOException;
  * This class exists to isolate the logic for reading a single line of input
  * that is common to {@link CsvToBean#iterator()} and {@link CompleteFileReader}.
  * It is not meant for end user consumption.
+ * @author Andrew Rucker Jones
+ * @since 5.2
  */
 public class SingleLineReader {
     protected final CSVReader csvReader;

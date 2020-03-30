@@ -19,8 +19,11 @@ import com.opencsv.CSVWriter;
 import com.opencsv.ICSVParser;
 import com.opencsv.ICSVWriter;
 import com.opencsv.bean.concurrent.BeanExecutor;
-import com.opencsv.bean.concurrent.OrderedObject;
+import com.opencsv.bean.util.OrderedObject;
 import com.opencsv.bean.concurrent.ProcessCsvBean;
+import com.opencsv.bean.exceptionhandler.CsvExceptionHandler;
+import com.opencsv.bean.exceptionhandler.ExceptionHandlerThrow;
+import com.opencsv.bean.util.OpencsvUtils;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
@@ -67,7 +70,7 @@ public class StatefulBeanToCsv<T> {
     private MappingStrategy<T> mappingStrategy;
     private final Writer writer;
     private ICSVWriter csvwriter;
-    private boolean throwExceptions;
+    private CsvExceptionHandler exceptionHandler;
     private List<CsvException> capturedExceptions = new ArrayList<>();
     private boolean orderedResults = true;
     private BeanExecutor<T> executor = null;
@@ -84,23 +87,21 @@ public class StatefulBeanToCsv<T> {
      * @param mappingStrategy  The mapping strategy to use when writing a CSV file
      * @param quotechar        The quote character to use when writing a CSV file
      * @param separator        The field separator to use when writing a CSV file
-     * @param throwExceptions  Whether or not exceptions should be thrown while
-     *                         writing the CSV file. If not, they are collected and can be retrieved
-     *                         via {@link #getCapturedExceptions()}.
+     * @param exceptionHandler Determines the exception handling behavior
      * @param writer           A {@link java.io.Writer} for writing the beans as a CSV to
      * @param applyQuotesToAll Whether all output fields should be quoted
      * @param ignoredFields The fields to ignore during processing. May be {@code null}.
      */
     StatefulBeanToCsv(char escapechar, String lineEnd,
                       MappingStrategy<T> mappingStrategy, char quotechar, char separator,
-                      boolean throwExceptions, Writer writer, boolean applyQuotesToAll,
+                      CsvExceptionHandler exceptionHandler, Writer writer, boolean applyQuotesToAll,
                       MultiValuedMap<Class<?>, Field> ignoredFields) {
         this.escapechar = escapechar;
         this.lineEnd = lineEnd;
         this.mappingStrategy = mappingStrategy;
         this.quotechar = quotechar;
         this.separator = separator;
-        this.throwExceptions = throwExceptions;
+        this.exceptionHandler = exceptionHandler;
         this.writer = writer;
         this.applyQuotesToAll = applyQuotesToAll;
         this.ignoredFields = ignoredFields;
@@ -111,19 +112,17 @@ public class StatefulBeanToCsv<T> {
      * with a user-supplied {@link com.opencsv.ICSVWriter} class.
      *
      * @param mappingStrategy  The mapping strategy to use when writing a CSV file
-     * @param throwExceptions  Whether or not exceptions should be thrown while
-     *                         writing the CSV file. If not, they are collected and can be retrieved
-     *                         via {@link #getCapturedExceptions()}.
+     * @param exceptionHandler Determines the exception handling behavior
      * @param applyQuotesToAll Whether all output fields should be quoted
      * @param csvWriter        An user-supplied {@link com.opencsv.ICSVWriter} for writing beans to a CSV output
      * @param ignoredFields The fields to ignore during processing. May be {@code null}.
      */
     public StatefulBeanToCsv(MappingStrategy<T> mappingStrategy,
-                             boolean throwExceptions, boolean applyQuotesToAll,
+                             CsvExceptionHandler exceptionHandler, boolean applyQuotesToAll,
                              ICSVWriter csvWriter,
                              MultiValuedMap<Class<?>, Field> ignoredFields) {
         this.mappingStrategy = mappingStrategy;
-        this.throwExceptions = throwExceptions;
+        this.exceptionHandler = exceptionHandler;
         this.applyQuotesToAll = applyQuotesToAll;
         this.csvwriter = csvWriter;
 
@@ -200,7 +199,7 @@ public class StatefulBeanToCsv<T> {
             BlockingQueue<OrderedObject<CsvException>> thrownExceptionsQueue = new ArrayBlockingQueue<>(1);
             ProcessCsvBean<T> proc = new ProcessCsvBean<>(++lineNumber,
                     mappingStrategy, bean, resultantLineQueue,
-                    thrownExceptionsQueue, throwExceptions);
+                    thrownExceptionsQueue, new TreeSet<>(), exceptionHandler);
             try {
                 proc.run();
             } catch (RuntimeException re) {
@@ -241,7 +240,7 @@ public class StatefulBeanToCsv<T> {
         while (beans.hasNext()) {
             T bean = beans.next();
             if (bean != null) {
-                executor.submitBean(++lineNumber, mappingStrategy, bean, throwExceptions);
+                executor.submitBean(++lineNumber, mappingStrategy, bean, exceptionHandler);
             }
         }
         executor.complete();
@@ -320,8 +319,10 @@ public class StatefulBeanToCsv<T> {
             throw new RuntimeException(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
                     .getString("error.writing.beans"), e);
         }
+        finally {
+            capturedExceptions.addAll(executor.getCapturedExceptions());
+        }
 
-        capturedExceptions.addAll(executor.getCapturedExceptions());
         StreamSupport.stream(executor, false)
                 .forEach(l -> csvwriter.writeNext(l, applyQuotesToAll));
     }
@@ -359,9 +360,11 @@ public class StatefulBeanToCsv<T> {
     /**
      * @return Whether or not exceptions are thrown. If they are not thrown,
      * they are captured and returned later via {@link #getCapturedExceptions()}.
+     * @deprecated There is simply no need for this method.
      */
+    @Deprecated
     public boolean isThrowExceptions() {
-        return throwExceptions;
+        return exceptionHandler instanceof ExceptionHandlerThrow;
     }
 
     /**

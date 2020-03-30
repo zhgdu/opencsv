@@ -18,7 +18,9 @@ package com.opencsv.bean.concurrent;
 import com.opencsv.bean.BeanVerifier;
 import com.opencsv.bean.CsvToBeanFilter;
 import com.opencsv.bean.MappingStrategy;
-import com.opencsv.bean.OpencsvUtils;
+import com.opencsv.bean.util.OpencsvUtils;
+import com.opencsv.bean.exceptionhandler.CsvExceptionHandler;
+import com.opencsv.bean.util.OrderedObject;
 import com.opencsv.exceptions.*;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -42,7 +44,7 @@ public class ProcessCsvLine<T> implements Runnable {
     private final BlockingQueue<OrderedObject<T>> resultantBeanQueue;
     private final BlockingQueue<OrderedObject<CsvException>> thrownExceptionsQueue;
     private final SortedSet<Long> expectedRecords;
-    private final boolean throwExceptions;
+    private final CsvExceptionHandler exceptionHandler;
 
     /**
      * The only constructor for creating a bean out of a line of input.
@@ -58,15 +60,15 @@ public class ProcessCsvLine<T> implements Runnable {
      * @param expectedRecords A list of outstanding record numbers so gaps
      *                        in ordering due to filtered input or exceptions
      *                        while converting can be detected.
-     * @param throwExceptions Whether exceptions should be thrown, ending
-     *   processing, or suppressed and saved for later processing
+     * @param exceptionHandler The handler for exceptions thrown during record
+     *                         processing
      */
     public ProcessCsvLine(
             long lineNumber, MappingStrategy<? extends T> mapper, CsvToBeanFilter filter,
             List<BeanVerifier<T>> verifiers, String[] line,
             BlockingQueue<OrderedObject<T>> resultantBeanQueue,
             BlockingQueue<OrderedObject<CsvException>> thrownExceptionsQueue,
-            SortedSet<Long> expectedRecords, boolean throwExceptions) {
+            SortedSet<Long> expectedRecords, CsvExceptionHandler exceptionHandler) {
         this.lineNumber = lineNumber;
         this.mapper = mapper;
         this.filter = filter;
@@ -75,7 +77,7 @@ public class ProcessCsvLine<T> implements Runnable {
         this.resultantBeanQueue = resultantBeanQueue;
         this.thrownExceptionsQueue = thrownExceptionsQueue;
         this.expectedRecords = expectedRecords;
-        this.throwExceptions = throwExceptions;
+        this.exceptionHandler = exceptionHandler;
     }
 
     @Override
@@ -102,13 +104,8 @@ public class ProcessCsvLine<T> implements Runnable {
             }
         } catch (CsvException e) {
             expectedRecords.remove(lineNumber);
-            e.setLineNumber(lineNumber);
             e.setLine(line);
-            if (throwExceptions) {
-                throw new RuntimeException(e);
-            }
-            OpencsvUtils.queueRefuseToAcceptDefeat(thrownExceptionsQueue,
-                    new OrderedObject<>(lineNumber, e));
+            OpencsvUtils.handleException(e, lineNumber, exceptionHandler, thrownExceptionsQueue);
         } catch (Exception e) {
             expectedRecords.remove(lineNumber);
             throw new RuntimeException(e);

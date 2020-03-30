@@ -55,15 +55,26 @@ operation in a production environment. They occur during reading or writing.
 The unchecked errors are typically the result of incorrect programming and
 should not be thrown in a production environment with well-tested code.
 
-opencsv gives you two options for handling the checked exceptions both while
-reading and while writing. You may either choose to have all exceptions thrown
-and handle these, or you may choose to have them collected so you can inspect
-and deal with them after parsing. If you don't have them collected, the first
-error in the input file will force a cessation of parsing. The default is to
-throw exceptions.
+opencsv gives you flexible options for handling exceptions. At the core of
+exception handling in opencsv is the interface
+com.opencsv.bean.exceptionhandler.CsvExceptionHandler. This interface allows
+you to
 
-To change exception handling, simply use CsvToBeanBuilder.withThrowExceptions()
-for reading and StatefulBeanToCsvBuilder.withThrowExceptions() for writing, then
+* throw an exception, either the one that requires processing, or a new
+exception, if you are so inclined. This will lead to an immediate cessation
+of processing. This is the default behavior.
+* queue an exception for later retrieval and inspection through
+getCapturedExceptions() in CsvToBean or StatefulBeanToCsv. This can be the
+original exception or a new one, if you are so inclined.
+* ignore the exception by returning null from the exception handler.
+
+A series of exception handlers are provided in the same package as the
+interface mentioned above. Please see the documentation for these classes
+for what opencsv can do without extension and for inspiration for your own
+exception handlers.
+
+To change exception handling, simply use CsvToBeanBuilder.withExceptionHandler()
+for reading and StatefulBeanToCsvBuilder.withExceptionsHandler() for writing, then
 collect the results after data processing with CsvToBean.getCapturedExceptions()
 for reading and StatefulBeanToCsv.getCapturedExceptions() for writing.
 

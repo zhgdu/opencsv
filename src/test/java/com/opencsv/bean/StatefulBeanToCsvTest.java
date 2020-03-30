@@ -16,6 +16,7 @@
 package com.opencsv.bean;
 
 import com.opencsv.ICSVWriter;
+import com.opencsv.TestUtils;
 import com.opencsv.bean.mocks.*;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvException;
@@ -75,36 +76,6 @@ public class StatefulBeanToCsvTest {
         Locale.setDefault(systemLocale);
     }
 
-    private ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> createTwoGoodBeans()
-            throws IOException {
-        List<AnnotatedMockBeanFull> beans = new CsvToBeanBuilder<AnnotatedMockBeanFull>(
-                new FileReader("src/test/resources/testinputwriteposfullgood.csv"))
-                .withType(AnnotatedMockBeanFull.class).withSeparator(';').build().parse();
-        return new ImmutablePair<>(beans.get(0), beans.get(1));
-    }
-    
-    private ImmutablePair<AnnotatedMockBeanCustom, AnnotatedMockBeanCustom> createTwoGoodCustomBeans()
-            throws IOException {
-        List<AnnotatedMockBeanCustom> beans = new CsvToBeanBuilder<AnnotatedMockBeanCustom>(
-                new FileReader("src/test/resources/testinputwritecustomposfullgood.csv"))
-                .withType(AnnotatedMockBeanCustom.class).withSeparator(';').build().parse();
-        return new ImmutablePair<>(beans.get(0), beans.get(1));
-    }
-    
-    private ImmutablePair<AnnotatedMockBeanFullDerived, AnnotatedMockBeanFullDerived> createTwoGoodDerivedBeans()
-            throws IOException {
-        HeaderColumnNameMappingStrategy<AnnotatedMockBeanFullDerived> strat = new HeaderColumnNameMappingStrategy<>();
-        strat.setType(AnnotatedMockBeanFullDerived.class);
-        List<AnnotatedMockBeanFullDerived> beans = new CsvToBeanBuilder<AnnotatedMockBeanFullDerived>(
-                new FileReader("src/test/resources/testinputderivedgood.csv"))
-                .withType(AnnotatedMockBeanFullDerived.class)
-                .withSeparator(';')
-                .withMappingStrategy(strat)
-                .build()
-                .parse();
-        return new ImmutablePair<>(beans.get(0), beans.get(1));
-    }
-    
     /**
      * Test of writing a single bean.
      * This also incidentally covers the following conditions because of the
@@ -125,7 +96,7 @@ public class StatefulBeanToCsvTest {
      */
     @Test
     public void writeSingleBeanNoQuotes() throws IOException, CsvException {
-        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
+        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = TestUtils.createTwoGoodBeans();
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv<AnnotatedMockBeanFull> btcsv = new StatefulBeanToCsvBuilder<AnnotatedMockBeanFull>(writer)
                 .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
@@ -146,7 +117,7 @@ public class StatefulBeanToCsvTest {
      */
     @Test
     public void writeSingleOptionallyQuotedBean() throws IOException, CsvException {
-        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
+        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = TestUtils.createTwoGoodBeans();
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv<AnnotatedMockBeanFull> btcsv = new StatefulBeanToCsvBuilder<AnnotatedMockBeanFull>(writer)
                 .withSeparator(';')
@@ -161,7 +132,7 @@ public class StatefulBeanToCsvTest {
 
     @Test
     public void writeSingleQuotedBean() throws IOException, CsvException {
-        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
+        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = TestUtils.createTwoGoodBeans();
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv<AnnotatedMockBeanFull> btcsv = new StatefulBeanToCsvBuilder<AnnotatedMockBeanFull>(writer)
                 .withApplyQuotesToAll(false)
@@ -184,7 +155,7 @@ public class StatefulBeanToCsvTest {
      */
     @Test
     public void writeMultipleBeansOrdered() throws IOException, CsvException {
-        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
+        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = TestUtils.createTwoGoodBeans();
         List<AnnotatedMockBeanFull> beanList = new ArrayList<>();
         beanList.add(beans.left); beanList.add(beans.right);
         StringWriter writer = new StringWriter();
@@ -204,7 +175,7 @@ public class StatefulBeanToCsvTest {
      */
     @Test
     public void writeMultipleBeansOrderedWithIterator() throws IOException, CsvException {
-        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
+        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = TestUtils.createTwoGoodBeans();
         List<AnnotatedMockBeanFull> beanList = new ArrayList<>();
         beanList.add(beans.left);
         beanList.add(beans.right);
@@ -225,7 +196,7 @@ public class StatefulBeanToCsvTest {
      */
     @Test
     public void writeMultipleBeansOrderedFromStream() throws IOException, CsvException {
-        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
+        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = TestUtils.createTwoGoodBeans();
         List<AnnotatedMockBeanFull> beanList = new ArrayList<>();
         beanList.add(beans.left);
         beanList.add(beans.right);
@@ -246,7 +217,7 @@ public class StatefulBeanToCsvTest {
      */
     @Test
     public void writeMultipleBeansUnordered() throws IOException, CsvException {
-        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
+        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = TestUtils.createTwoGoodBeans();
         List<AnnotatedMockBeanFull> beanList = new ArrayList<>();
         beanList.add(beans.left); beanList.add(beans.right);
         StringWriter writer = new StringWriter();
@@ -268,7 +239,7 @@ public class StatefulBeanToCsvTest {
      */
     @Test
     public void writeMultipleBeansUnorderedWithIterator() throws IOException, CsvException {
-        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
+        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = TestUtils.createTwoGoodBeans();
         List<AnnotatedMockBeanFull> beanList = new ArrayList<>();
         beanList.add(beans.left);
         beanList.add(beans.right);
@@ -291,7 +262,7 @@ public class StatefulBeanToCsvTest {
      */
     @Test
     public void writeMixedSingleMultipleBeans() throws IOException, CsvException {
-        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
+        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = TestUtils.createTwoGoodBeans();
         List<AnnotatedMockBeanFull> beanList = new ArrayList<>();
         beanList.add(beans.left); beanList.add(beans.right);
         StringWriter writer = new StringWriter();
@@ -313,7 +284,7 @@ public class StatefulBeanToCsvTest {
      */
     @Test
     public void writeMixedSingleMultipleBeansWithIterator() throws IOException, CsvException {
-        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
+        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = TestUtils.createTwoGoodBeans();
         List<AnnotatedMockBeanFull> beanList = new ArrayList<>();
         beanList.add(beans.left);
         beanList.add(beans.right);
@@ -338,7 +309,7 @@ public class StatefulBeanToCsvTest {
      */
     @Test
     public void writeOptionalFieldsWithNull() throws IOException, CsvException {
-        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
+        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = TestUtils.createTwoGoodBeans();
         beans.left.setFloatWrappedDefaultLocale(null);
         beans.left.setCalDefaultLocale(null);
         StringWriter writer = new StringWriter();
@@ -359,7 +330,7 @@ public class StatefulBeanToCsvTest {
      */
     @Test
     public void writeOptionalNonContiguousField() throws IOException, CsvException {
-        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
+        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = TestUtils.createTwoGoodBeans();
         beans.left.setColumnDoesntExist(EXTRA_STRING_FOR_WRITING);
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv<AnnotatedMockBeanFull> btcsv = new StatefulBeanToCsvBuilder<AnnotatedMockBeanFull>(writer)
@@ -381,7 +352,7 @@ public class StatefulBeanToCsvTest {
      */
     @Test
     public void writeSpecifiedStrategy() throws IOException, CsvException {
-        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
+        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = TestUtils.createTwoGoodBeans();
         StringWriter writer = new StringWriter();
         HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat = new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanFull.class);
@@ -453,7 +424,7 @@ public class StatefulBeanToCsvTest {
      */
     @Test
     public void writeDerivedSubclass() throws IOException, CsvException {
-        ImmutablePair<AnnotatedMockBeanFullDerived, AnnotatedMockBeanFullDerived> derivedList = createTwoGoodDerivedBeans();
+        ImmutablePair<AnnotatedMockBeanFullDerived, AnnotatedMockBeanFullDerived> derivedList = TestUtils.createTwoGoodDerivedBeans();
         StringWriter writer = new StringWriter();
         HeaderColumnNameMappingStrategy<AnnotatedMockBeanFullDerived> strat = new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanFullDerived.class);
@@ -474,7 +445,7 @@ public class StatefulBeanToCsvTest {
      */
     @Test
     public void writeDerivedSuperclass() throws IOException, CsvException {
-        ImmutablePair<AnnotatedMockBeanFullDerived, AnnotatedMockBeanFullDerived> derivedList = createTwoGoodDerivedBeans();
+        ImmutablePair<AnnotatedMockBeanFullDerived, AnnotatedMockBeanFullDerived> derivedList = TestUtils.createTwoGoodDerivedBeans();
         StringWriter writer = new StringWriter();
         HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat = new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanFull.class);
@@ -529,7 +500,7 @@ public class StatefulBeanToCsvTest {
      */
     @Test
     public void writeNullRequiredWrappedPrimitive() throws IOException, CsvException, NoSuchFieldException {
-        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
+        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = TestUtils.createTwoGoodBeans();
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv<AnnotatedMockBeanFull> sbtcsv = new StatefulBeanToCsvBuilder<AnnotatedMockBeanFull>(writer)
                 .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
@@ -557,7 +528,7 @@ public class StatefulBeanToCsvTest {
      */
     @Test
     public void writeNullRequiredCustom() throws IOException, CsvException, NoSuchFieldException {
-        ImmutablePair<AnnotatedMockBeanCustom, AnnotatedMockBeanCustom> beans = createTwoGoodCustomBeans();
+        ImmutablePair<AnnotatedMockBeanCustom, AnnotatedMockBeanCustom> beans = TestUtils.createTwoGoodCustomBeans();
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv<AnnotatedMockBeanCustom> sbtcsv = new StatefulBeanToCsvBuilder<AnnotatedMockBeanCustom>(writer)
                 .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
@@ -586,13 +557,12 @@ public class StatefulBeanToCsvTest {
      */
     @Test
     public void writeManyFirstBeanIsBad() throws IOException, CsvException, NoSuchFieldException {
-        ImmutablePair<AnnotatedMockBeanCustom, AnnotatedMockBeanCustom> beans = createTwoGoodCustomBeans();
+        ImmutablePair<AnnotatedMockBeanCustom, AnnotatedMockBeanCustom> beans = TestUtils.createTwoGoodCustomBeans();
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv<AnnotatedMockBeanCustom> sbtcsv = new StatefulBeanToCsvBuilder<AnnotatedMockBeanCustom>(writer)
                 .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
                 .withThrowExceptions(true)
                 .build();
-        assertTrue(sbtcsv.isThrowExceptions());
         beans.left.setRequiredWithCustom(null); // required
         List<AnnotatedMockBeanCustom> beanList = new ArrayList<>(1000);
         beanList.add(beans.left);
@@ -617,13 +587,12 @@ public class StatefulBeanToCsvTest {
      */
     @Test
     public void writeManyWithIteratorFirstBeanIsBad() throws IOException, CsvException, NoSuchFieldException {
-        ImmutablePair<AnnotatedMockBeanCustom, AnnotatedMockBeanCustom> beans = createTwoGoodCustomBeans();
+        ImmutablePair<AnnotatedMockBeanCustom, AnnotatedMockBeanCustom> beans = TestUtils.createTwoGoodCustomBeans();
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv<AnnotatedMockBeanCustom> sbtcsv = new StatefulBeanToCsvBuilder<AnnotatedMockBeanCustom>(writer)
                 .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
                 .withThrowExceptions(true)
                 .build();
-        assertTrue(sbtcsv.isThrowExceptions());
         beans.left.setRequiredWithCustom(null); // required
         List<AnnotatedMockBeanCustom> beanList = new ArrayList<>(1000);
         beanList.add(beans.left);
@@ -649,7 +618,7 @@ public class StatefulBeanToCsvTest {
      */
     @Test
     public void writeBadBeanUnorderedCaptureExceptions() throws IOException, CsvException, NoSuchFieldException {
-        ImmutablePair<AnnotatedMockBeanCustom, AnnotatedMockBeanCustom> beans = createTwoGoodCustomBeans();
+        ImmutablePair<AnnotatedMockBeanCustom, AnnotatedMockBeanCustom> beans = TestUtils.createTwoGoodCustomBeans();
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv<AnnotatedMockBeanCustom> sbtcsv = new StatefulBeanToCsvBuilder<AnnotatedMockBeanCustom>(writer)
                 .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
@@ -683,7 +652,7 @@ public class StatefulBeanToCsvTest {
      */
     @Test
     public void writeWithIteratorBadBeanUnorderedCaptureExceptions() throws IOException, CsvException, NoSuchFieldException {
-        ImmutablePair<AnnotatedMockBeanCustom, AnnotatedMockBeanCustom> beans = createTwoGoodCustomBeans();
+        ImmutablePair<AnnotatedMockBeanCustom, AnnotatedMockBeanCustom> beans = TestUtils.createTwoGoodCustomBeans();
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv<AnnotatedMockBeanCustom> sbtcsv = new StatefulBeanToCsvBuilder<AnnotatedMockBeanCustom>(writer)
                 .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
@@ -718,7 +687,7 @@ public class StatefulBeanToCsvTest {
      */
     @Test
     public void writeNullRequiredDate() throws IOException, CsvException, NoSuchFieldException {
-        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
+        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = TestUtils.createTwoGoodBeans();
         beans.right.setDateDefaultLocale(null); // required
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv<AnnotatedMockBeanFull> sbtcsv = new StatefulBeanToCsvBuilder<AnnotatedMockBeanFull>(writer)
@@ -747,7 +716,7 @@ public class StatefulBeanToCsvTest {
      */
     @Test
     public void readCapturedExceptionsIsDestructive() throws IOException, CsvException {
-        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
+        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = TestUtils.createTwoGoodBeans();
         beans.left.setByteWrappedSetLocale(null); // required
         beans.right.setDateDefaultLocale(null); // required
         StringWriter writer = new StringWriter();
@@ -769,7 +738,7 @@ public class StatefulBeanToCsvTest {
      */
     @Test
     public void multipleWritesCapturedExceptions() throws IOException, CsvException {
-        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
+        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = TestUtils.createTwoGoodBeans();
         beans.left.setByteWrappedSetLocale(null); // required
         beans.right.setDateDefaultLocale(null); // required
         StringWriter writer = new StringWriter();
@@ -842,7 +811,7 @@ public class StatefulBeanToCsvTest {
      */
     @Test
     public void writeCustomByPosition() throws IOException, CsvException {
-        ImmutablePair<AnnotatedMockBeanCustom, AnnotatedMockBeanCustom> beans = createTwoGoodCustomBeans();
+        ImmutablePair<AnnotatedMockBeanCustom, AnnotatedMockBeanCustom> beans = TestUtils.createTwoGoodCustomBeans();
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv<AnnotatedMockBeanCustom> btcsv = new StatefulBeanToCsvBuilder<AnnotatedMockBeanCustom>(writer)
                 .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
@@ -862,7 +831,7 @@ public class StatefulBeanToCsvTest {
      */
     @Test
     public void writeCustomByName() throws IOException, CsvException {
-        ImmutablePair<AnnotatedMockBeanCustom, AnnotatedMockBeanCustom> beans = createTwoGoodCustomBeans();
+        ImmutablePair<AnnotatedMockBeanCustom, AnnotatedMockBeanCustom> beans = TestUtils.createTwoGoodCustomBeans();
         StringWriter writer = new StringWriter();
         HeaderColumnNameMappingStrategy<AnnotatedMockBeanCustom> strat = new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanCustom.class);
@@ -887,7 +856,7 @@ public class StatefulBeanToCsvTest {
      */
     @Test
     public void writeCustomByNameWithIterator() throws IOException, CsvException {
-        ImmutablePair<AnnotatedMockBeanCustom, AnnotatedMockBeanCustom> beans = createTwoGoodCustomBeans();
+        ImmutablePair<AnnotatedMockBeanCustom, AnnotatedMockBeanCustom> beans = TestUtils.createTwoGoodCustomBeans();
         StringWriter writer = new StringWriter();
         HeaderColumnNameMappingStrategy<AnnotatedMockBeanCustom> strat = new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanCustom.class);
@@ -913,7 +882,7 @@ public class StatefulBeanToCsvTest {
      */
     @Test
     public void writeEmptyFieldWithConvertGermanToBooleanRequired() throws IOException, CsvException {
-        ImmutablePair<AnnotatedMockBeanCustom, AnnotatedMockBeanCustom> beans = createTwoGoodCustomBeans();
+        ImmutablePair<AnnotatedMockBeanCustom, AnnotatedMockBeanCustom> beans = TestUtils.createTwoGoodCustomBeans();
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv<AnnotatedMockBeanCustom> btcsv = new StatefulBeanToCsvBuilder<AnnotatedMockBeanCustom>(writer)
                 .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
@@ -937,7 +906,7 @@ public class StatefulBeanToCsvTest {
         strat.setType(AnnotatedMockBeanFull.class);
         strat.setColumnMapping();
         strat.setColumnOrderOnWrite(Comparator.reverseOrder());
-        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
+        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = TestUtils.createTwoGoodBeans();
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv<AnnotatedMockBeanFull> btcsv = new StatefulBeanToCsvBuilder<AnnotatedMockBeanFull>(writer)
                 .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
@@ -953,7 +922,7 @@ public class StatefulBeanToCsvTest {
         ColumnPositionMappingStrategy<AnnotatedMockBeanFull> strat = new ColumnPositionMappingStrategy<>();
         strat.setColumnOrderOnWrite(Comparator.reverseOrder());
         strat.setType(AnnotatedMockBeanFull.class);
-        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
+        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = TestUtils.createTwoGoodBeans();
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv<AnnotatedMockBeanFull> btcsv = new StatefulBeanToCsvBuilder<AnnotatedMockBeanFull>(writer)
                 .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
@@ -969,7 +938,7 @@ public class StatefulBeanToCsvTest {
         ColumnPositionMappingStrategy<AnnotatedMockBeanFull> strat = new ColumnPositionMappingStrategy<>();
         strat.setColumnOrderOnWrite(null);
         strat.setType(AnnotatedMockBeanFull.class);
-        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
+        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = TestUtils.createTwoGoodBeans();
         StringWriter writer = new StringWriter();
         StatefulBeanToCsv<AnnotatedMockBeanFull> btcsv = new StatefulBeanToCsvBuilder<AnnotatedMockBeanFull>(writer)
                 .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
@@ -982,7 +951,7 @@ public class StatefulBeanToCsvTest {
 
     @Test
     public void writeDifferentOrderNameTypeFirst() throws IOException, CsvException {
-        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
+        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = TestUtils.createTwoGoodBeans();
         StringWriter writer = new StringWriter();
         HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat = new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanFull.class);
@@ -998,7 +967,7 @@ public class StatefulBeanToCsvTest {
 
     @Test
     public void writeDifferentOrderNameTypeLast() throws IOException, CsvException {
-        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
+        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = TestUtils.createTwoGoodBeans();
         StringWriter writer = new StringWriter();
         HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat = new HeaderColumnNameMappingStrategy<>();
         strat.setColumnOrderOnWrite(new SFirstCollator());
@@ -1014,7 +983,7 @@ public class StatefulBeanToCsvTest {
 
     @Test
     public void writeNullOrderName() throws IOException, CsvException {
-        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = createTwoGoodBeans();
+        ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = TestUtils.createTwoGoodBeans();
         StringWriter writer = new StringWriter();
         HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat = new HeaderColumnNameMappingStrategy<>();
         strat.setColumnOrderOnWrite(null);

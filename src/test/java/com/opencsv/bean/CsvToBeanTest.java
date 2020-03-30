@@ -85,8 +85,8 @@ public class CsvToBeanTest {
                 .build().parse(); // Extra arguments for code coverage
 
         assertEquals(2, beanList.size());
-        assertTrue(beanList.contains(createMockBean("kyle", "abc123456", 123)));
-        assertTrue(beanList.contains(createMockBean("jimmy", "def098765", 456)));
+        assertTrue(beanList.contains(new MockBean("kyle", null, "abc123456", 123, 0.0)));
+        assertTrue(beanList.contains(new MockBean("jimmy", null, "def098765", 456, 0.0)));
     }
 
     @DisplayName("Blank lines are ignored when withIgnoreEmptyLine is set to true.")
@@ -101,16 +101,8 @@ public class CsvToBeanTest {
                 .build().parse(); // Extra arguments for code coverage
 
         assertEquals(2, beanList.size());
-        assertTrue(beanList.contains(createMockBean("kyle", "abc123456", 123)));
-        assertTrue(beanList.contains(createMockBean("jimmy", "def098765", 456)));
-    }
-
-    private MockBean createMockBean(String name, String orderNumber, int num) {
-        MockBean mockBean = new MockBean();
-        mockBean.setName(name);
-        mockBean.setOrderNumber(orderNumber);
-        mockBean.setNum(num);
-        return mockBean;
+        assertTrue(beanList.contains(new MockBean("kyle", null, "abc123456", 123, 0.0)));
+        assertTrue(beanList.contains(new MockBean("jimmy", null, "def098765", 456, 0.0)));
     }
 
     @Test
@@ -162,9 +154,7 @@ public class CsvToBeanTest {
     public void throwIllegalStateWhenOnlyReaderIsSpecifiedToParseWithoutArguments() {
         CsvToBean csvtb = new CsvToBean();
         csvtb.setCsvReader(new CSVReader(new StringReader(TEST_STRING)));
-        Assertions.assertThrows(IllegalStateException.class, () -> {
-            csvtb.parse();
-        });
+        Assertions.assertThrows(IllegalStateException.class, csvtb::parse);
     }
 
     @Test
@@ -173,9 +163,7 @@ public class CsvToBeanTest {
         HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat = new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanFull.class);
         csvtb.setMappingStrategy(strat);
-        Assertions.assertThrows(IllegalStateException.class, () -> {
-            csvtb.parse();
-        });
+        Assertions.assertThrows(IllegalStateException.class, csvtb::parse);
     }
 
     @Test

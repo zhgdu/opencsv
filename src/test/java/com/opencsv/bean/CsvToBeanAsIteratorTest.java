@@ -52,7 +52,7 @@ public class CsvToBeanAsIteratorTest {
 
     // This class is an example where you would want to use the BeanVerifier instead as the position of
     // the number could be different if you are getting data from different sources.
-    private class FilterSmallNumbers implements CsvToBeanFilter {
+    private static class FilterSmallNumbers implements CsvToBeanFilter {
         @Override
         public boolean allowLine(String[] line) {
             return Integer.parseInt(line[2].trim()) > 200;
@@ -62,7 +62,7 @@ public class CsvToBeanAsIteratorTest {
     @Test
     public void throwRuntimeExceptionWhenExceptionIsThrown() {
         CsvToBean<Object> bean = new CsvToBean<>();
-        bean.setMappingStrategy(new ErrorHeaderMappingStrategy());
+        bean.setMappingStrategy(new ErrorHeaderMappingStrategy<>());
         bean.setCsvReader(createReader());
         Assertions.assertThrows(RuntimeException.class, () -> {
             for (Object o : bean) {
@@ -73,7 +73,7 @@ public class CsvToBeanAsIteratorTest {
     @Test
     public void throwRuntimeExceptionLineWhenExceptionIsThrown() {
         CsvToBean<Object> bean = new CsvToBean<>();
-        bean.setMappingStrategy(new ErrorLineMappingStrategy());
+        bean.setMappingStrategy(new ErrorLineMappingStrategy<>());
         bean.setCsvReader(createReader());
         Assertions.assertThrows(RuntimeException.class, () -> {
             for (Object o : bean) {
@@ -91,9 +91,9 @@ public class CsvToBeanAsIteratorTest {
 
         Iterator<MockBean> it = bean.iterator();
         assertTrue(it.hasNext());
-        assertEquals(createMockBean("kyle", "abc123456", 123), it.next());
+        assertEquals(new MockBean("kyle", null, "abc123456", 123, 0.0), it.next());
         assertTrue(it.hasNext());
-        assertEquals(createMockBean("jimmy", "def098765", 456), it.next());
+        assertEquals(new MockBean("jimmy", null, "def098765", 456, 0.0), it.next());
         assertFalse(it.hasNext());
         try {
             it.next();
@@ -111,17 +111,7 @@ public class CsvToBeanAsIteratorTest {
         bean.setCsvReader(createReader());
 
         Iterator<MockBean> it = bean.iterator();
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
-            it.remove();
-        });
-    }
-
-    private MockBean createMockBean(String name, String orderNumber, int num) {
-        MockBean mockBean = new MockBean();
-        mockBean.setName(name);
-        mockBean.setOrderNumber(orderNumber);
-        mockBean.setNum(num);
-        return mockBean;
+        Assertions.assertThrows(UnsupportedOperationException.class, it::remove);
     }
 
     @Test
@@ -154,18 +144,14 @@ public class CsvToBeanAsIteratorTest {
     @Test
     public void throwIllegalStateWhenParseWithoutArgumentsIsCalled() {
         CsvToBean csvtb = new CsvToBean();
-        Assertions.assertThrows(IllegalStateException.class, () -> {
-            csvtb.iterator();
-        });
+        Assertions.assertThrows(IllegalStateException.class, csvtb::iterator);
     }
 
     @Test
     public void throwIllegalStateWhenOnlyReaderIsSpecifiedToParseWithoutArguments() {
         CsvToBean csvtb = new CsvToBean();
         csvtb.setCsvReader(new CSVReader(new StringReader(TEST_STRING)));
-        Assertions.assertThrows(IllegalStateException.class, () -> {
-            csvtb.iterator();
-        });
+        Assertions.assertThrows(IllegalStateException.class, csvtb::iterator);
     }
 
     @Test
@@ -174,9 +160,7 @@ public class CsvToBeanAsIteratorTest {
         HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat = new HeaderColumnNameMappingStrategy<>();
         strat.setType(AnnotatedMockBeanFull.class);
         csvtb.setMappingStrategy(strat);
-        Assertions.assertThrows(IllegalStateException.class, () -> {
-            csvtb.iterator();
-        });
+        Assertions.assertThrows(IllegalStateException.class, csvtb::iterator);
     }
 
     @Test

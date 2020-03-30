@@ -4,6 +4,7 @@ import com.opencsv.ICSVParser;
 import com.opencsv.bean.BeanVerifier;
 import com.opencsv.bean.CsvToBeanFilter;
 import com.opencsv.bean.MappingStrategy;
+import com.opencsv.bean.exceptionhandler.CsvExceptionHandler;
 import com.opencsv.exceptions.CsvMalformedLineException;
 
 import java.util.Arrays;
@@ -75,12 +76,13 @@ public class LineExecutor<T> extends IntolerantThreadPoolExecutor<T> {
      *   May be null.
      * @param verifiers The list of verifiers to run on beans after creation
      * @param line The line of input to be transformed into a bean
-     * @param throwExceptions Whether exceptions should be thrown or captured
-     *   for later processing
+     * @param exceptionHandler The handler for exceptions thrown during record
+     *                         processing
      */
     public void submitLine(
             long lineNumber, MappingStrategy<? extends T> mapper, CsvToBeanFilter filter,
-            List<BeanVerifier<T>> verifiers, String[] line, boolean throwExceptions) {
+            List<BeanVerifier<T>> verifiers, String[] line,
+            CsvExceptionHandler exceptionHandler) {
         if (accumulateThread != null) {
             expectedRecords.add(lineNumber);
         }
@@ -88,7 +90,7 @@ public class LineExecutor<T> extends IntolerantThreadPoolExecutor<T> {
             execute(new ProcessCsvLine<>(
                     lineNumber, mapper, filter, verifiers, line,
                     resultQueue, thrownExceptionsQueue,
-                    expectedRecords, throwExceptions));
+                    expectedRecords, exceptionHandler));
         } catch (Exception e) {
             if(accumulateThread != null) {
                 expectedRecords.remove(lineNumber);

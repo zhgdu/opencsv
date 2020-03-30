@@ -16,6 +16,7 @@
 package com.opencsv.bean;
 
 import com.opencsv.ICSVParser;
+import com.opencsv.bean.util.OpencsvUtils;
 import com.opencsv.exceptions.CsvBadConverterException;
 import com.opencsv.exceptions.CsvConstraintViolationException;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
