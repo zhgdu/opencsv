@@ -93,7 +93,7 @@ public class ExceptionHandlerTest {
             assertEquals(1, csve.getLineNumber() % 10);
             List<CsvException> capturedExceptions = ctb.getCapturedExceptions();
             assertNotNull(capturedExceptions);
-            assertEquals(3, capturedExceptions.size());
+            assertFalse(capturedExceptions.isEmpty());
         }
     }
 
@@ -171,7 +171,7 @@ public class ExceptionHandlerTest {
             assertEquals(1, csve.getLineNumber() % 10);
             List<CsvException> capturedExceptions = b2csv.getCapturedExceptions();
             assertNotNull(capturedExceptions);
-            assertEquals(3, capturedExceptions.size());
+            assertFalse(capturedExceptions.isEmpty());
         }
     }
 }

@@ -241,7 +241,7 @@
                                     <pluginExecutionFilter>
                                         <groupId>org.codehaus.gmavenplus</groupId>
                                         <artifactId>gmavenplus-plugin</artifactId>
-                                        <versionRange>[1.6.1,)</versionRange>
+                                        <versionRange>[1.8.1,)</versionRange>
                                         <goals>
                                             <goal>addTestSources</goal>
                                             <goal>generateTestStubs</goal>
