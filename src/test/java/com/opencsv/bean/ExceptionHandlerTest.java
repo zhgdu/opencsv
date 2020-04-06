@@ -146,7 +146,7 @@ public class ExceptionHandlerTest {
     /**
      * Tests writing with a non-standard exception handler.
      * <p>Also incidentally tests:<ul>
-     * <li>The "ignore then throw" exception handler.</li>
+     * <li>The "queue then throw" exception handler.</li>
      * </ul></p>
      *
      * @throws IOException                  Never
@@ -183,7 +183,7 @@ public class ExceptionHandlerTest {
     /**
      * Tests writing with a non-standard exception handler.
      * <p>Also incidentally tests:<ul>
-     * <li>The "ignore then throw" exception handler.</li>
+     * <li>The "queue then throw" exception handler.</li>
      * </ul></p>
      *
      * @throws IOException                  Never
