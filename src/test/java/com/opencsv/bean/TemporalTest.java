@@ -220,14 +220,27 @@ public class TemporalTest {
 
         List<CsvException> exceptions = csvToBean.getCapturedExceptions();
         assertNotNull(exceptions);
-        assertEquals(3, exceptions.size());
-        CsvException csve = exceptions.get(1); // Yes, we want the second one, because that's the one that should be unparsable for any version of Java
+        assertEquals(5, exceptions.size());
+
+        // The exception we're looking for could be the third or fourth
+        assertTrue(verifyEraException(exceptions.get(2), 4, era)
+                || verifyEraException(exceptions.get(3), 5, era)
+                || verifyEraException(exceptions.get(4), 6, era));
+    }
+
+    private boolean verifyEraException(CsvException csve, long lineNumber, Class<? extends Era> era) {
+        boolean assertionPassed = true;
         assertTrue(csve instanceof CsvDataTypeMismatchException);
         CsvDataTypeMismatchException dtmm = (CsvDataTypeMismatchException) csve;
         assertNotNull(dtmm.getCause());
-        assertEquals(3, dtmm.getLineNumber());
+        if(lineNumber != dtmm.getLineNumber()) {
+            assertionPassed = false;
+        }
         assertNotNull(dtmm.getSourceObject());
-        assertEquals(era, dtmm.getDestinationClass());
+        if(!era.equals(dtmm.getDestinationClass())) {
+            assertionPassed = false;
+        }
+        return assertionPassed;
     }
 
     /**
@@ -247,10 +260,20 @@ public class TemporalTest {
                 .withThrowExceptions(false)
                 .build();
         List<AnnotatedMockBeanTemporal> beans = csvToBean.parse();
-        // Java 8 disagrees with Java 9 and beyond about what the name of the current Buddhist era is,
-        // so we have six lines of input, three for Java 8, three for Java 9 and beyond, that are
-        // identical except for the name of the Thai Buddhist era.
-        assertEquals(3, csvToBean.getCapturedExceptions().size());
+        // Different Java versions disagree about names of eras.
+        // For Java 8:
+        //   Current Thai Buddhist era = "B.E."
+        //   Japanese eras = "Showa" and "Taisho"
+        // For Java 9 through 12:
+        //   Current Thai Buddhist era = "BE"
+        //   Japanese eras = "Showa" and "Taisho"
+        // For Java 13+:
+        //   Current Thai Buddhist era = "BE"
+        //   Japanese eras = "Shōwa" and "Taishō"
+        // Thus we have three lines of input for every combination and any
+        // given version of Java will accept three and throw exceptions for the
+        // other six.
+        assertEquals(6, csvToBean.getCapturedExceptions().size());
         verifyBeans(beans);
     }
 
@@ -262,10 +285,20 @@ public class TemporalTest {
                 .withThrowExceptions(false)
                 .build();
         List<AnnotatedMockBeanTemporal> beans = csvToBean.parse();
-        // Java 8 disagrees with Java 9 and beyond about what the name of the current Buddhist era is,
-        // so we have six lines of input, three for Java 8, three for Java 9 and beyond, that are
-        // identical except for the name of the Thai Buddhist era.
-        assertEquals(3, csvToBean.getCapturedExceptions().size());
+        // Different Java versions disagree about names of eras.
+        // For Java 8:
+        //   Current Thai Buddhist era = "B.E."
+        //   Japanese eras = "Showa" and "Taisho"
+        // For Java 9 through 12:
+        //   Current Thai Buddhist era = "BE"
+        //   Japanese eras = "Showa" and "Taisho"
+        // For Java 13+:
+        //   Current Thai Buddhist era = "BE"
+        //   Japanese eras = "Shōwa" and "Taishō"
+        // Thus we have three lines of input for every combination and any
+        // given version of Java will accept three and throw exceptions for the
+        // other six.
+        assertEquals(6, csvToBean.getCapturedExceptions().size());
         verifyBeans(beans);
     }
 
@@ -288,8 +321,8 @@ public class TemporalTest {
                 .build();
         beanToCsv.write(Arrays.asList(pair.left, pair.right));
         Pattern p = Pattern.compile("CHRONOLOCALDATE,CHRONOLOCALDATELOCALE,CHRONOLOCALDATETIME,CHRONOLOCALDATETIMELOCALE,CHRONOZONEDDATETIME,CHRONOZONEDDATETIMELOCALE,DAYOFWEEK,DAYOFWEEKLOCALE,ERA,ERALOCALE,HIJRAHDATE,HIJRAHDATELOCALE,HIJRAHERA,HIJRAHERALOCALE,INSTANT,INSTANTLOCALE,ISOERA,ISOERALOCALE,JAPANESEDATE,JAPANESEDATELOCALE,JAPANESEERA,JAPANESEERALOCALE,LOCALDATE,LOCALDATELOCALE,LOCALDATETIME,LOCALDATETIMELOCALE,LOCALTIME,LOCALTIMELOCALE,MINGUODATE,MINGUODATELOCALE,MINGUOERA,MINGUOERALOCALE,MONTH,MONTHDAY,MONTHDAYLOCALE,MONTHLOCALE,OFFSETDATETIME,OFFSETDATETIMELOCALE,OFFSETTIME,OFFSETTIMELOCALE,TEMPORAL,TEMPORALACCESSOR,TEMPORALACCESSORLOCALE,TEMPORALLOCALE,THAIBUDDHISTDATE,THAIBUDDHISTDATELOCALE,THAIBUDDHISTERA,THAIBUDDHISTERALOCALE,YEAR,YEARLOCALE,YEARMONTH,YEARMONTHLOCALE,ZONEDDATETIME,ZONEDDATETIMELOCALE,ZONEOFFSET,ZONEOFFSETLOCALE\n" +
-                "AD 1978 January 16,n\\. Chr\\. 1978 Januar 16,AD 1978 January 18 06 02 35,n\\. Chr\\. 1978 Januar 18 06 02 35,AD 1978 January 20 06 02 35 EST,n\\. Chr\\. 1978 Januar 20 06 02 35 EST,Tue,Di\\.?,AD,n\\. Chr\\.,AH 1398 Safar 06,AH 1398 Safar 06,AD,n\\. Chr\\.,1978 January 25 11 02 35,1978 1月 25 11 02 35,AD,n\\. Chr\\.,Showa 53 January 15,Showa 53 Januar 15,AD,n\\. Chr\\.,AD 1978 January 17,n\\. Chr\\. 1978 Januar 17,AD 1978 January 19 06 02 35,n\\. Chr\\. 1978 Januar 19 06 02 35,06 02 35,06 02 35,Before R\\.O\\.C\\. 67 January 15,Before R\\.O\\.C\\. 67 Januar 15,BC,v\\. Chr\\.,January,28,28,Januar,1978-January-29T06:02:35\\+00:30,1978-Januar-29T06:02:35\\+00:30,06:02:35\\+00:30,06:02:35\\+00:30,AD 1978 January 21 06 02 35 EST,Anno Domini 1978 January 15 06 02 35 EST,n\\. Chr\\. 1978 Januar 15 06 02 35 EST,n\\. Chr\\. 1978 Januar 21 06 02 35 EST,B\\.?E\\.? 2521 January 15,B\\.?E\\.? 2521 Januar 15,AD,n\\. Chr\\.,1978,1978,1978 January,1978 Januar,Showa 0053 January 03 06 02 35 Z,n\\. Chr\\. 1978 Januar 03 06 02 35 Z,\\+01:00,\\+01:00\n" +
-                "AD 1978 May 16,n\\. Chr\\. 1978 Mai 16,AD 1978 May 18 06 02 35,n\\. Chr\\. 1978 Mai 18 06 02 35,AD 1978 May 20 06 02 35 EDT,n\\. Chr\\. 1978 Mai 20 06 02 35 EDT,Wed,Mi\\.?,AD,n\\. Chr\\.,AH 1398 Safar 06,AH 1398 Safar 06,AD,n\\. Chr\\.,1978 May 25 10 02 35,1978 5月 25 10 02 35,AD,n\\. Chr\\.,Showa 53 May 15,Showa 53 Mai 15,AD,n\\. Chr\\.,AD 1978 May 17,n\\. Chr\\. 1978 Mai 17,AD 1978 May 19 06 02 35,n\\. Chr\\. 1978 Mai 19 06 02 35,06 02 35,06 02 35,Before R\\.O\\.C\\. 67 May 15,Before R\\.O\\.C\\. 67 Mai 15,BC,v\\. Chr\\.,May,28,28,Mai,1978-May-29T06:02:35\\+00:30,1978-Mai-29T06:02:35\\+00:30,06:02:35\\+00:30,06:02:35\\+00:30,AD 1978 May 21 06 02 35 EDT,Anno Domini 1978 May 15 06 02 35 EDT,n\\. Chr\\. 1978 Mai 15 06 02 35 EDT,n\\. Chr\\. 1978 Mai 21 06 02 35 EDT,B\\.?E\\.? 2521 May 15,B\\.?E\\.? 2521 Mai 15,AD,n\\. Chr\\.,1978,1978,1978 May,1978 Mai,Showa 0053 May 03 06 02 35 Z,n\\. Chr\\. 1978 Mai 03 06 02 35 Z,\\+01:00,\\+01:00\n");
+                "AD 1978 January 16,n\\. Chr\\. 1978 Januar 16,AD 1978 January 18 06 02 35,n\\. Chr\\. 1978 Januar 18 06 02 35,AD 1978 January 20 06 02 35 EST,n\\. Chr\\. 1978 Januar 20 06 02 35 EST,Tue,Di\\.?,AD,n\\. Chr\\.,AH 1398 Safar 06,AH 1398 Safar 06,AD,n\\. Chr\\.,1978 January 25 11 02 35,1978 1月 25 11 02 35,AD,n\\. Chr\\.,Sh(o|ō)wa 53 January 15,Sh(o|ō)wa 53 Januar 15,AD,n\\. Chr\\.,AD 1978 January 17,n\\. Chr\\. 1978 Januar 17,AD 1978 January 19 06 02 35,n\\. Chr\\. 1978 Januar 19 06 02 35,06 02 35,06 02 35,Before R\\.O\\.C\\. 67 January 15,Before R\\.O\\.C\\. 67 Januar 15,BC,v\\. Chr\\.,January,28,28,Januar,1978-January-29T06:02:35\\+00:30,1978-Januar-29T06:02:35\\+00:30,06:02:35\\+00:30,06:02:35\\+00:30,AD 1978 January 21 06 02 35 EST,Anno Domini 1978 January 15 06 02 35 EST,n\\. Chr\\. 1978 Januar 15 06 02 35 EST,n\\. Chr\\. 1978 Januar 21 06 02 35 EST,B\\.?E\\.? 2521 January 15,B\\.?E\\.? 2521 Januar 15,AD,n\\. Chr\\.,1978,1978,1978 January,1978 Januar,Sh(o|ō)wa 0053 January 03 06 02 35 Z,n\\. Chr\\. 1978 Januar 03 06 02 35 Z,\\+01:00,\\+01:00\n" +
+                "AD 1978 May 16,n\\. Chr\\. 1978 Mai 16,AD 1978 May 18 06 02 35,n\\. Chr\\. 1978 Mai 18 06 02 35,AD 1978 May 20 06 02 35 EDT,n\\. Chr\\. 1978 Mai 20 06 02 35 EDT,Wed,Mi\\.?,AD,n\\. Chr\\.,AH 1398 Safar 06,AH 1398 Safar 06,AD,n\\. Chr\\.,1978 May 25 10 02 35,1978 5月 25 10 02 35,AD,n\\. Chr\\.,Sh(o|ō)wa 53 May 15,Sh(o|ō)wa 53 Mai 15,AD,n\\. Chr\\.,AD 1978 May 17,n\\. Chr\\. 1978 Mai 17,AD 1978 May 19 06 02 35,n\\. Chr\\. 1978 Mai 19 06 02 35,06 02 35,06 02 35,Before R\\.O\\.C\\. 67 May 15,Before R\\.O\\.C\\. 67 Mai 15,BC,v\\. Chr\\.,May,28,28,Mai,1978-May-29T06:02:35\\+00:30,1978-Mai-29T06:02:35\\+00:30,06:02:35\\+00:30,06:02:35\\+00:30,AD 1978 May 21 06 02 35 EDT,Anno Domini 1978 May 15 06 02 35 EDT,n\\. Chr\\. 1978 Mai 15 06 02 35 EDT,n\\. Chr\\. 1978 Mai 21 06 02 35 EDT,B\\.?E\\.? 2521 May 15,B\\.?E\\.? 2521 Mai 15,AD,n\\. Chr\\.,1978,1978,1978 May,1978 Mai,Sh(o|ō)wa 0053 May 03 06 02 35 Z,n\\. Chr\\. 1978 Mai 03 06 02 35 Z,\\+01:00,\\+01:00\n");
         assertTrue(p.matcher(w.toString()).matches());
     }
 
@@ -301,8 +334,8 @@ public class TemporalTest {
                 .withApplyQuotesToAll(false)
                 .build();
         beanToCsv.write(Arrays.asList(pair.left, pair.right));
-        Pattern p = Pattern.compile("Anno Domini 1978 January 15 06 02 35 EST,n\\. Chr\\. 1978 Januar 15 06 02 35 EST,AD 1978 January 16,n\\. Chr\\. 1978 Januar 16,AD 1978 January 17,n\\. Chr\\. 1978 Januar 17,AD 1978 January 18 06 02 35,n\\. Chr\\. 1978 Januar 18 06 02 35,AD 1978 January 19 06 02 35,n\\. Chr\\. 1978 Januar 19 06 02 35,AD 1978 January 20 06 02 35 EST,n\\. Chr\\. 1978 Januar 20 06 02 35 EST,AD 1978 January 21 06 02 35 EST,n\\. Chr\\. 1978 Januar 21 06 02 35 EST,AD,n\\. Chr\\.,AD,n\\. Chr\\.,Tue,Di\\.?,AH 1398 Safar 06,AH 1398 Safar 06,AD,n\\. Chr\\.,1978 January 25 11 02 35,1978 1月 25 11 02 35,Showa 53 January 15,Showa 53 Januar 15,AD,n\\. Chr\\.,06 02 35,06 02 35,Before R\\.O\\.C\\. 67 January 15,Before R\\.O\\.C\\. 67 Januar 15,BC,v\\. Chr\\.,January,Januar,28,28,1978-January-29T06:02:35\\+00:30,1978-Januar-29T06:02:35\\+00:30,06:02:35\\+00:30,06:02:35\\+00:30,B\\.?E\\.? 2521 January 15,B\\.?E\\.? 2521 Januar 15,AD,n\\. Chr\\.,1978,1978,1978 January,1978 Januar,\\+01:00,\\+01:00,Showa 0053 January 03 06 02 35 Z,n\\. Chr\\. 1978 Januar 03 06 02 35 Z\n" +
-                "Anno Domini 1978 May 15 06 02 35 EDT,n\\. Chr\\. 1978 Mai 15 06 02 35 EDT,AD 1978 May 16,n\\. Chr\\. 1978 Mai 16,AD 1978 May 17,n\\. Chr\\. 1978 Mai 17,AD 1978 May 18 06 02 35,n\\. Chr\\. 1978 Mai 18 06 02 35,AD 1978 May 19 06 02 35,n\\. Chr\\. 1978 Mai 19 06 02 35,AD 1978 May 20 06 02 35 EDT,n\\. Chr\\. 1978 Mai 20 06 02 35 EDT,AD 1978 May 21 06 02 35 EDT,n\\. Chr\\. 1978 Mai 21 06 02 35 EDT,AD,n\\. Chr\\.,AD,n\\. Chr\\.,Wed,Mi\\.?,AH 1398 Safar 06,AH 1398 Safar 06,AD,n\\. Chr\\.,1978 May 25 10 02 35,1978 5月 25 10 02 35,Showa 53 May 15,Showa 53 Mai 15,AD,n\\. Chr\\.,06 02 35,06 02 35,Before R\\.O\\.C\\. 67 May 15,Before R\\.O\\.C\\. 67 Mai 15,BC,v\\. Chr\\.,May,Mai,28,28,1978-May-29T06:02:35\\+00:30,1978-Mai-29T06:02:35\\+00:30,06:02:35\\+00:30,06:02:35\\+00:30,B\\.?E\\.? 2521 May 15,B\\.?E\\.? 2521 Mai 15,AD,n\\. Chr\\.,1978,1978,1978 May,1978 Mai,\\+01:00,\\+01:00,Showa 0053 May 03 06 02 35 Z,n\\. Chr\\. 1978 Mai 03 06 02 35 Z\n");
+        Pattern p = Pattern.compile("Anno Domini 1978 January 15 06 02 35 EST,n\\. Chr\\. 1978 Januar 15 06 02 35 EST,AD 1978 January 16,n\\. Chr\\. 1978 Januar 16,AD 1978 January 17,n\\. Chr\\. 1978 Januar 17,AD 1978 January 18 06 02 35,n\\. Chr\\. 1978 Januar 18 06 02 35,AD 1978 January 19 06 02 35,n\\. Chr\\. 1978 Januar 19 06 02 35,AD 1978 January 20 06 02 35 EST,n\\. Chr\\. 1978 Januar 20 06 02 35 EST,AD 1978 January 21 06 02 35 EST,n\\. Chr\\. 1978 Januar 21 06 02 35 EST,AD,n\\. Chr\\.,AD,n\\. Chr\\.,Tue,Di\\.?,AH 1398 Safar 06,AH 1398 Safar 06,AD,n\\. Chr\\.,1978 January 25 11 02 35,1978 1月 25 11 02 35,Sh(o|ō)wa 53 January 15,Sh(o|ō)wa 53 Januar 15,AD,n\\. Chr\\.,06 02 35,06 02 35,Before R\\.O\\.C\\. 67 January 15,Before R\\.O\\.C\\. 67 Januar 15,BC,v\\. Chr\\.,January,Januar,28,28,1978-January-29T06:02:35\\+00:30,1978-Januar-29T06:02:35\\+00:30,06:02:35\\+00:30,06:02:35\\+00:30,B\\.?E\\.? 2521 January 15,B\\.?E\\.? 2521 Januar 15,AD,n\\. Chr\\.,1978,1978,1978 January,1978 Januar,\\+01:00,\\+01:00,Sh(o|ō)wa 0053 January 03 06 02 35 Z,n\\. Chr\\. 1978 Januar 03 06 02 35 Z\n" +
+                "Anno Domini 1978 May 15 06 02 35 EDT,n\\. Chr\\. 1978 Mai 15 06 02 35 EDT,AD 1978 May 16,n\\. Chr\\. 1978 Mai 16,AD 1978 May 17,n\\. Chr\\. 1978 Mai 17,AD 1978 May 18 06 02 35,n\\. Chr\\. 1978 Mai 18 06 02 35,AD 1978 May 19 06 02 35,n\\. Chr\\. 1978 Mai 19 06 02 35,AD 1978 May 20 06 02 35 EDT,n\\. Chr\\. 1978 Mai 20 06 02 35 EDT,AD 1978 May 21 06 02 35 EDT,n\\. Chr\\. 1978 Mai 21 06 02 35 EDT,AD,n\\. Chr\\.,AD,n\\. Chr\\.,Wed,Mi\\.?,AH 1398 Safar 06,AH 1398 Safar 06,AD,n\\. Chr\\.,1978 May 25 10 02 35,1978 5月 25 10 02 35,Sh(o|ō)wa 53 May 15,Sh(o|ō)wa 53 Mai 15,AD,n\\. Chr\\.,06 02 35,06 02 35,Before R\\.O\\.C\\. 67 May 15,Before R\\.O\\.C\\. 67 Mai 15,BC,v\\. Chr\\.,May,Mai,28,28,1978-May-29T06:02:35\\+00:30,1978-Mai-29T06:02:35\\+00:30,06:02:35\\+00:30,06:02:35\\+00:30,B\\.?E\\.? 2521 May 15,B\\.?E\\.? 2521 Mai 15,AD,n\\. Chr\\.,1978,1978,1978 May,1978 Mai,\\+01:00,\\+01:00,Sh(o|ō)wa 0053 May 03 06 02 35 Z,n\\. Chr\\. 1978 Mai 03 06 02 35 Z\n");
         assertTrue(p.matcher(w.toString()).matches());
     }
 
@@ -395,52 +428,62 @@ public class TemporalTest {
     }
 
     @Test
-    public void testIsoEraUnparsable() {
+    public void testIsoEraUnparseable() {
         verifyEras(
                 "BC,AH,Taisho,Before R.O.C.,B.E.\n" + // For Java 8
-                        "BC,AH,Taisho,Before R.O.C.,BE\n" + // For Java 9 and beyond
+                        "BC,AH,Taisho,Before R.O.C.,BE\n" + // For Java 9 through 12
+                        "BC,AH,Taishō,Before R.O.C.,BE\n" + // For Java 13 and beyond
                         "unparsable,AH,Taisho,Before R.O.C.,B.E.\n" + // Intentionally broken but otherwise parsable for Java 8
-                        "unparsable,AH,Taisho,Before R.O.C.,BE", // Intentionally broken but otherwise parsable for Java 9 and beyond
+                        "unparsable,AH,Taisho,Before R.O.C.,BE\n" + // Intentionally broken but otherwise parsable for Java 9 through 12
+                        "unparsable,AH,Taishō,Before R.O.C.,BE", // Intentionally broken but otherwise parsable for Java 13 and beyond
                 IsoEra.class);
     }
 
     @Test
-    public void testHijrahEraUnparsable() {
+    public void testHijrahEraUnparseable() {
         verifyEras(
                 "BC,AH,Taisho,Before R.O.C.,B.E.\n" + // For Java 8
-                        "BC,AH,Taisho,Before R.O.C.,BE\n" + // For Java 9 and beyond
+                        "BC,AH,Taisho,Before R.O.C.,BE\n" + // For Java 9 through 12
+                        "BC,AH,Taishō,Before R.O.C.,BE\n" + // For Java 13 and beyond
                         "BC,unparsable,Taisho,Before R.O.C.,B.E.\n" + // Intentionally broken but otherwise parsable for Java 8
-                        "BC,unparsable,Taisho,Before R.O.C.,BE", // Intentionally broken but otherwise parsable for Java 9 and beyond
+                        "BC,unparsable,Taisho,Before R.O.C.,BE\n" + // Intentionally broken but otherwise parsable for Java 9 through 12
+                        "BC,unparsable,Taishō,Before R.O.C.,BE", // Intentionally broken but otherwise parsable for Java 13 and beyond
                 HijrahEra.class);
     }
 
     @Test
-    public void testJapaneseEraUnparsable() {
+    public void testJapaneseEraUnparseable() {
         verifyEras(
                 "BC,AH,Taisho,Before R.O.C.,B.E.\n" + // For Java 8
-                        "BC,AH,Taisho,Before R.O.C.,BE\n" + // For Java 9 and beyond
+                        "BC,AH,Taisho,Before R.O.C.,BE\n" + // For Java 9 through 12
+                        "BC,AH,Taishō,Before R.O.C.,BE\n" + // For Java 13 and beyond
                         "BC,AH,unparsable,Before R.O.C.,B.E.\n" + // Intentionally broken but otherwise parsable for Java 8
-                        "BC,AH,unparsable,Before R.O.C.,BE", // Intentionally broken but otherwise parsable for Java 9 and beyond
+                        "BC,AH,unparsable,Before R.O.C.,BE\n" + // Intentionally broken but otherwise parsable for Java 9 and beyond
+                        "BC,AH,unparsable,Before R.O.C.,BE", // For symmetry
                 JapaneseEra.class);
     }
 
     @Test
-    public void testMinguoEraUnparsable() {
+    public void testMinguoEraUnparseable() {
         verifyEras(
                 "BC,AH,Taisho,Before R.O.C.,B.E.\n" + // For Java 8
-                        "BC,AH,Taisho,Before R.O.C.,BE\n" + // For Java 9 and beyond
+                        "BC,AH,Taisho,Before R.O.C.,BE\n" + // For Java 9 through 12
+                        "BC,AH,Taishō,Before R.O.C.,BE\n" + // For Java 13 and beyond
                         "BC,AH,Taisho,unparsable,B.E.\n" + // Intentionally broken but otherwise parsable for Java 8
-                        "BC,AH,Taisho,unparsable,BE", // Intentionally broken but otherwise parsable for Java 9 and beyond
+                        "BC,AH,Taisho,unparsable,BE\n" + // Intentionally broken but otherwise parsable for Java 9 through 12
+                        "BC,AH,Taishō,unparsable,BE", // Intentionally broken but otherwise parsable for Java 13 and beyond
                 MinguoEra.class);
     }
 
     @Test
-    public void testThaiBuddhistEraUnparsable() {
+    public void testThaiBuddhistEraUnparseable() {
         verifyEras(
                 "BC,AH,Taisho,Before R.O.C.,B.E.\n" + // For Java 8
-                        "BC,AH,Taisho,Before R.O.C.,BE\n" + // For Java 9 and beyond
-                        "BC,AH,Taisho,Before R.O.C.,unparsable\n" + // Intentionally broken
-                        "BC,AH,Taisho,Before R.O.C.,unparsable", // For symmetry
+                        "BC,AH,Taisho,Before R.O.C.,BE\n" + // For Java 9 through 12
+                        "BC,AH,Taishō,Before R.O.C.,BE\n" + // For Java 13 and beyond
+                        "BC,AH,Taisho,Before R.O.C.,unparsable\n" + // Intentionally broken but otherwise parseable for Java 8 through 12
+                        "BC,AH,Taishō,Before R.O.C.,unparsable\n" + // Intentionally broken but otherwise parseable for Java 13 and beyond
+                        "BC,AH,Taishō,Before R.O.C.,unparsable", // For symmetry
                 ThaiBuddhistEra.class);
     }
 

@@ -622,7 +622,7 @@ public class AnnotatedMockBeanFull {
      */
     @CsvBindByName(column = "date14", locale = "de-DE")
     @CsvBindByPosition(position = 46, locale = "de-DE")
-    @CsvDate("dd. MMM yyyy")
+    @CsvDate("dd. MMMM yyyy")
     private GregorianCalendar gcalFormatSetLocale;
 
     /**

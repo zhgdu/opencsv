@@ -1105,8 +1105,11 @@ public class AnnotationTest {
                 .withApplyQuotesToAll(false)
                 .withSeparator(';')
                 .build().write(bean);
-        assertEquals("primitivePlain;numberPlain;datePlain;primitiveSplit;numberSplit;dateSplit;primitiveJoinName;primitiveJoinName;numberJoinName;numberJoinName;dateJoinName;dateJoinName;redHerring\n" +
-                "123\u00A0404,404;123\u00A0505,505;01/août/2019;234\u00A0505,505 234\u00A0606,606;234\u00A0707,707 234\u00A0808,808;01/juin/2019 01/juil./2019;345\u00A0606,606;345\u00A0707,707;345\u00A0808,808;345\u00A0909,909;01/juil./2019;01/août/2019;456.707,707\n", w.toString());
+        // The first string is for Java < 13. The second string is for Java >= 13.
+        assertTrue(w.toString().equals("primitivePlain;numberPlain;datePlain;primitiveSplit;numberSplit;dateSplit;primitiveJoinName;primitiveJoinName;numberJoinName;numberJoinName;dateJoinName;dateJoinName;redHerring\n" +
+                "123\u00A0404,404;123\u00A0505,505;01/août/2019;234\u00A0505,505 234\u00A0606,606;234\u00A0707,707 234\u00A0808,808;01/juin/2019 01/juil./2019;345\u00A0606,606;345\u00A0707,707;345\u00A0808,808;345\u00A0909,909;01/juil./2019;01/août/2019;456.707,707\n")
+                || w.toString().equals("primitivePlain;numberPlain;datePlain;primitiveSplit;numberSplit;dateSplit;primitiveJoinName;primitiveJoinName;numberJoinName;numberJoinName;dateJoinName;dateJoinName;redHerring\n" +
+                "123\u202F404,404;123505,505\u00A0;01/août/2019;234\u202F505,505 234\u202F606,606;234707,707\u00A0 234808,808\u00A0;01/juin/2019 01/juil./2019;345\u202F606,606;345\u202F707,707;345808,808\u00A0;345909,909\u00A0;01/juil./2019;01/août/2019;456.707,707\n"));
     }
 
     @Test
@@ -1121,6 +1124,9 @@ public class AnnotationTest {
                 .withApplyQuotesToAll(false)
                 .withSeparator(';')
                 .build().write(bean);
-        assertEquals("123\u00A0404,404;123\u00A0505,505;01/août/2019;234\u00A0505,505 234\u00A0606,606;234\u00A0707,707 234\u00A0808,808;01/juin/2019 01/juil./2019;345\u00A0606,606;345\u00A0707,707;345\u00A0808,808;345\u00A0909,909;01/juil./2019;01/août/2019;456.707,707\n", w.toString());
+
+        // The first string is for Java < 13. The second string is for Java >= 13.
+        assertTrue(w.toString().equals("123\u00A0404,404;123\u00A0505,505;01/août/2019;234\u00A0505,505 234\u00A0606,606;234\u00A0707,707 234\u00A0808,808;01/juin/2019 01/juil./2019;345\u00A0606,606;345\u00A0707,707;345\u00A0808,808;345\u00A0909,909;01/juil./2019;01/août/2019;456.707,707\n")
+                || w.toString().equals("123\u202F404,404;123505,505\u00A0;01/août/2019;234\u202F505,505 234\u202F606,606;234707,707\u00A0 234808,808\u00A0;01/juin/2019 01/juil./2019;345\u202F606,606;345\u202f707,707;345808,808\u00A0;345909,909\u00A0;01/juil./2019;01/août/2019;456.707,707\n"));
     }
 }

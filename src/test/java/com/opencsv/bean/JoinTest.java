@@ -275,7 +275,7 @@ public class JoinTest {
         MultiValuedMap<Integer, String> map = bean.getMap();
         assertEquals(4, map.keySet().size());
         assertEquals("10", map.get(0).toArray(new String[1])[0]);
-        assertEquals("15. Dez 1978", map.get(1).toArray(new String[1])[0]);
+        assertEquals("15. Dezember 1978", map.get(1).toArray(new String[1])[0]);
         assertEquals("|20|", map.get(2).toArray(new String[1])[0]);
         assertEquals("|30|", map.get(3).toArray(new String[1])[0]);
         
@@ -285,7 +285,7 @@ public class JoinTest {
         map = bean.getMap();
         assertEquals(4, map.keySet().size());
         assertEquals("11", map.get(0).toArray(new String[1])[0]);
-        assertEquals("16. Dez 1978", map.get(1).toArray(new String[1])[0]);
+        assertEquals("16. Dezember 1978", map.get(1).toArray(new String[1])[0]);
         assertEquals("|21|", map.get(2).toArray(new String[1])[0]);
         assertEquals("|31|", map.get(3).toArray(new String[1])[0]);
         
@@ -295,7 +295,7 @@ public class JoinTest {
         map = bean.getMap();
         assertEquals(4, map.keySet().size());
         assertEquals("12", map.get(0).toArray(new String[1])[0]);
-        assertEquals("17. Dez 1978", map.get(1).toArray(new String[1])[0]);
+        assertEquals("17. Dezember 1978", map.get(1).toArray(new String[1])[0]);
         assertEquals("|22|", map.get(2).toArray(new String[1])[0]);
         assertEquals("|32|", map.get(3).toArray(new String[1])[0]);
     }
@@ -965,14 +965,14 @@ public class JoinTest {
         StringWriter w = new StringWriter();
         StatefulBeanToCsv<GoodJoinByNameAnnotations> btc = new StatefulBeanToCsvBuilder<GoodJoinByNameAnnotations>(w).build();
         btc.write(beanList);
-        assertTrue(Pattern.matches(
+        assertEquals(
                 "\"conversion\",\"conversion\",\"date1\",\"date2\",\"index\",\"index\",\"index\"\n"
-                + "\"x10.000\",\"x20.000\",\"15. Jan\\.? 1978\",\"07. Feb\\.? 2018\",\"1\",\"2\",\"3\"\n"
-                + "\"x10.001\",\"x20.002\",\"16. Jan\\.? 1978\",\"08. Feb\\.? 2018\",\"4\",\"5\",\"\"\n"
-                + "\"\",\"\",\"17. Jan\\.? 1978\",\"09. Feb\\.? 2018\",\"6\",\"7\",\"8\"\n"
-                + "\"\",\"\",\"18. Jan\\.? 1978\",\"10. Feb\\.? 2018\",\"10\",\"11\",\"12\"\n"
-                + "\"\",\"\",\"19. Jan\\.? 1978\",\"11. Feb\\.? 2018\",\"13\",\"14\",\"15\"\n",
-                w.toString()));
+                + "\"x10.000\",\"x20.000\",\"15. Januar 1978\",\"07. Februar 2018\",\"1\",\"2\",\"3\"\n"
+                + "\"x10.001\",\"x20.002\",\"16. Januar 1978\",\"08. Februar 2018\",\"4\",\"5\",\"\"\n"
+                + "\"\",\"\",\"17. Januar 1978\",\"09. Februar 2018\",\"6\",\"7\",\"8\"\n"
+                + "\"\",\"\",\"18. Januar 1978\",\"10. Februar 2018\",\"10\",\"11\",\"12\"\n"
+                + "\"\",\"\",\"19. Januar 1978\",\"11. Februar 2018\",\"13\",\"14\",\"15\"\n",
+                w.toString());
     }
     
     /**
