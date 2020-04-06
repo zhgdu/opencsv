@@ -35,15 +35,15 @@ import java.util.stream.Stream;
 /**
  * This class is meant to be a collection of general purpose static methods
  * useful in internal processing for opencsv.
- * 
+ *
  * @author Andrew Rucker Jones
  * @since 3.9
  */
 public final class OpencsvUtils {
-    
+
     /** This class can't be instantiated. */
     private OpencsvUtils() {}
-    
+
     /**
      * Determines which mapping strategy is appropriate for this bean.
      * The algorithm is:<ol>
@@ -54,7 +54,7 @@ public final class OpencsvUtils {
      * <li>Otherwise, {@link HeaderColumnNameMappingStrategy} is chosen. If
      * annotations are present, they will be used, otherwise the field names
      * will be used as the column names.</li></ol>
-     * 
+     *
      * @param <T> The type of the bean for which the mapping strategy is sought
      * @param type The class of the bean for which the mapping strategy is sought
      * @param errorLocale The locale to use for all error messages. If null, the
@@ -77,7 +77,7 @@ public final class OpencsvUtils {
         mappingStrategy.setType(type);
         return mappingStrategy;
     }
-    
+
     /**
      * I find it annoying that when I want to queue something in a blocking
      * queue, the thread might be interrupted and I have to try again; this
@@ -117,13 +117,14 @@ public final class OpencsvUtils {
         CsvException capturedException = null;
         try {
             capturedException = exceptionHandler.handleException(e);
-        }
-        catch(CsvException csve) {
+        } catch (CsvException csve) {
+            capturedException = csve;
             throw new RuntimeException(csve);
-        }
-        if(capturedException != null) {
-            queueRefuseToAcceptDefeat(queue,
-                    new OrderedObject<>(lineNumber, capturedException));
+        } finally {
+            if (capturedException != null) {
+                queueRefuseToAcceptDefeat(queue,
+                        new OrderedObject<>(lineNumber, capturedException));
+            }
         }
     }
 
