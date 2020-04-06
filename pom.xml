@@ -427,6 +427,7 @@
                 <version>${maven.javadoc.version}</version>
                 <configuration>
                     <doclint>none</doclint>
+                    <source>8</source>
                     <!--<javadocExecutable>${java.home}/bin/javadoc</javadocExecutable>-->
                 </configuration>
                 <executions>
