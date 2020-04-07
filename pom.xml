@@ -9,10 +9,6 @@
     <description>A simple library for reading and writing CSV in Java</description>
     <url>http://opencsv.sf.net</url>
 
-    <prerequisites>
-        <maven>3.5.0</maven>
-    </prerequisites>
-
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.surefire.version>2.22.2</maven.surefire.version>
@@ -137,7 +133,6 @@
                                 <include>**/*Spec.java</include>
                                 <include>**/*Test.java</include>
                             </includes>
-                            <runOrder>random</runOrder>
                         </configuration>
                         <dependencies>
                             <dependency>
@@ -175,7 +170,6 @@
                             <excludes>
                                 <exclude>**/*PerformanceTest.java</exclude>
                             </excludes>
-                            <runOrder>random</runOrder>
                         </configuration>
                         <dependencies>
                             <dependency>
@@ -205,7 +199,6 @@
                             <includes>
                                 <include>**/*PerformanceTest.java</include>
                             </includes>
-                            <runOrder>random</runOrder>
                         </configuration>
                         <dependencies>
                             <dependency>
@@ -394,7 +387,6 @@
                         <include>**/*Spec.java</include>
                         <include>**/*Test.java</include>
                     </includes>
-                    <runOrder>random</runOrder>
                 </configuration>
                 <dependencies>
                     <dependency>
