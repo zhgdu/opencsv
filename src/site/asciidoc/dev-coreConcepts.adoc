@@ -39,7 +39,7 @@ you can use the three-argument constructor:
 
 or for reading with annotations:
 
-[source, java]
+[source,java]
 ----
      CsvToBean csvToBean = new CsvToBeanBuilder(new FileReader("yourfile.csv"))
        .withSeparator('\t').withQuoteChar('\'').build();
@@ -47,46 +47,40 @@ or for reading with annotations:
 
 ==== Error handling
 
-opencsv uses structured exception handling, including checked and unchecked
-exceptions. The checked exceptions are typically errors in input data and do
-not have to impede further parsing. They could occur at any time during normal
-operation in a production environment. They occur during reading or writing.
+Opencsv uses structured exception handling, including checked and unchecked exceptions.
+The checked exceptions are typically errors in input data and do not have to impede further parsing.
+They could occur at any time during normal operation in a production environment.
+They occur during reading or writing.
 
-The unchecked errors are typically the result of incorrect programming and
-should not be thrown in a production environment with well-tested code.
+The unchecked errors are typically the result of incorrect programming and should not be thrown in a production environment with well-tested code.
 
-opencsv gives you flexible options for handling exceptions. At the core of
-exception handling in opencsv is the interface
-com.opencsv.bean.exceptionhandler.CsvExceptionHandler. This interface allows
-you to
+Opencsv gives you flexible options for handling exceptions.
+At the core of exception handling in opencsv is the interface com.opencsv.bean.exceptionhandler.CsvExceptionHandler.
+This interface allows you to
 
-* throw an exception, either the one that requires processing, or a new
-exception, if you are so inclined. This will lead to an immediate cessation
-of processing. This is the default behavior.
-* queue an exception for later retrieval and inspection through
-getCapturedExceptions() in CsvToBean or StatefulBeanToCsv. This can be the
-original exception or a new one, if you are so inclined.
-* ignore the exception by returning null from the exception handler.
+* Throw an exception, either the one that requires processing, or a new exception, if you are so inclined.
+This will lead to an immediate cessation of processing.
+This is the default behavior.
+* Queue an exception for later retrieval and inspection through getCapturedExceptions() in CsvToBean or StatefulBeanToCsv.
+This can be the original exception or a new one, if you are so inclined.
+* Ignore the exception by returning null from the exception handler.
 
-A series of exception handlers are provided in the same package as the
-interface mentioned above. Please see the documentation for these classes
-for what opencsv can do without extension and for inspiration for your own
-exception handlers.
+A series of exception handlers are provided in the same package as the interface mentioned above.
+Please see the documentation for these classes for what opencsv can do without extension and for inspiration for your own exception handlers.
 
-To change exception handling, simply use CsvToBeanBuilder.withExceptionHandler()
-for reading and StatefulBeanToCsvBuilder.withExceptionsHandler() for writing, then
-collect the results after data processing with CsvToBean.getCapturedExceptions()
-for reading and StatefulBeanToCsv.getCapturedExceptions() for writing.
+To change exception handling, simply use CsvToBeanBuilder.withExceptionHandler() for reading and StatefulBeanToCsvBuilder.withExceptionsHandler() for writing, then collect the results after data processing with CsvToBean.getCapturedExceptions() for reading and StatefulBeanToCsv.getCapturedExceptions() for writing.
+
+Note: because opencsv is multithreaded by default then the getCapturedExceptions() method in CsvToBean and StatefulBeanToCsv can potentially return more exceptions than expected.
+As any threads still active when another thread throws an exception is allowed to finish.
+And if those threads throws exceptions as well then they are handled as well.
 
 ==== Annotations
 
-The most powerful mechanism opencsv has for reading and writing CSV files involves
-defining beans that the fields of the CSV file can be mapped to and from, and
-annotating the fields of these beans so opencsv can do the rest. In brief, these
-annotations are:
+The most powerful mechanism opencsv has for reading and writing CSV files involves defining beans that the fields of the CSV file can be mapped to and from, and annotating the fields of these beans so opencsv can do the rest.
+In brief, these annotations are:
 
-   * CsvBindByName: Maps a bean field to a field in the CSV file based on the name of the header for that field in the CSV input.
-   * CsvBindByPosition: Maps a bean field to a field in the CSV file based on the numerical position of the field in the CSV input.
+* CsvBindByName: Maps a bean field to a field in the CSV file based on the name of the header for that field in the CSV input.
+* CsvBindByPosition: Maps a bean field to a field in the CSV file based on the numerical position of the field in the CSV input.
    * CsvBindAndSplitByName: Maps a Collection-based bean field to a field in the CSV file based on the name of the header for that field in the CSV input.
    * CsvBindAndSplitByPosition: Maps a Collection-based bean field to a field in the CSV file based on the numerical position of the field in the CSV input.
    * CsvBindAndJoinByName: Maps multiple input columns in the CSV file to one bean field based on the name of the headers for those fields in the CSV input.
