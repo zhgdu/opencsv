@@ -14,15 +14,16 @@ import com.opencsv.exceptions.CsvException;
 public interface CsvExceptionHandler {
 
     /**
-     * Determines how opencsv will handle exceptions that crop up during
+     * <p>Determines how opencsv will handle exceptions that crop up during
      * bean creation or writing.
-     * <p>There are three ways of dealing with an exception:<ol>
+     * There are three ways of dealing with an exception:</p>
+     * <ol>
      *     <li>Ignore the exception. In this case, return {@code null}.</li>
      *     <li>Queue the exception. In this case, return either the original
      *     exception thrown, or a new exception that meets your needs better.</li>
      *     <li>Halt processing by throwing the exception. In this case, throw
      *     the exception or a new exception that meets your needs better.</li>
-     * </ol></p>
+     * </ol>
      * <p>Please be cautioned: Due to the multi-threaded nature of opencsv's
      * conversion routines, there is no guarantee that the exception thrown,
      * if your chosen error handler throws exceptions, is the error in the

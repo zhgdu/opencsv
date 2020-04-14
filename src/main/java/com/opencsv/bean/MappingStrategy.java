@@ -125,16 +125,18 @@ public interface MappingStrategy<T> {
     void setType(Class<? extends T> type) throws CsvBadConverterException;
 
     /**
-     * When processing a bean for reading or writing, ignore the given fields
+     * <p>
+     *     When processing a bean for reading or writing, ignore the given fields
      * from the given classes completely, including all annotations and
      * requirements.
-     * <p>This method has two compelling applications:<ol>
+     * This method has two compelling applications:</p>
+     * <ol>
      *     <li>If you are not able to modify the source code of the beans you
      *     use, or</li>
      *     <li>If you use a mapping strategy without annotations and want to
      *     exclude a small number of fields from a bean with a large number of
      *     fields.</li>
-     * </ol></p>
+     * </ol>
      * <p>Calling this method overwrites the fields passed in from any previous
      * calls. It is legal to call this method before calling
      * {@link #setType(Class)}, and it may be more efficient to do so.</p>

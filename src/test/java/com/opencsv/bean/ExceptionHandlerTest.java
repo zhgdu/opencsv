@@ -24,9 +24,10 @@ public class ExceptionHandlerTest {
 
     /**
      * Tests reading with an non-standard exception handler.
-     * <p>Also incidentally tests:<ul>
+     * <p>Also incidentally tests:</p>
+     * <ul>
      * <li>The "ignore" exception handler</li>
-     * </ul></p>
+     * </ul>
      *
      * @throws IOException Never
      */
@@ -101,9 +102,10 @@ public class ExceptionHandlerTest {
 
     /**
      * Tests writing with a non-standard exception handler.
-     * <p>Also incidentally tests:<ul>
+     * <p>Also incidentally tests:</p>
+     * <ul>
      * <li>The "ignore then throw" exception handler.</li>
-     * </ul></p>
+     * </ul>
      *
      * @throws IOException                  Never
      * @throws CsvDataTypeMismatchException Never
@@ -145,9 +147,10 @@ public class ExceptionHandlerTest {
 
     /**
      * Tests writing with a non-standard exception handler.
-     * <p>Also incidentally tests:<ul>
+     * <p>Also incidentally tests:</p>
+     * <ul>
      * <li>The "queue then throw" exception handler.</li>
-     * </ul></p>
+     * </ul>
      *
      * @throws IOException                  Never
      * @throws CsvDataTypeMismatchException Never
@@ -182,9 +185,10 @@ public class ExceptionHandlerTest {
 
     /**
      * Tests writing with a non-standard exception handler.
-     * <p>Also incidentally tests:<ul>
+     * <p>Also incidentally tests:</p>
+     * <ul>
      * <li>The "queue then throw" exception handler.</li>
-     * </ul></p>
+     * </ul>
      *
      * @throws IOException                  Never
      * @throws CsvDataTypeMismatchException Never
@@ -228,9 +232,10 @@ public class ExceptionHandlerTest {
 
     /**
      * Tests writing with a non-standard exception handler.
-     * <p>Also incidentally tests:<ul>
+     * <p>Also incidentally tests:</p>
+     * <ul>
      * <li>The "ignore then throw" exception handler.</li>
-     * </ul></p>
+     * </ul>
      *
      * @throws IOException                  Never
      * @throws CsvDataTypeMismatchException Never
