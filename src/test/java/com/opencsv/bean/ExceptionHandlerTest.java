@@ -96,7 +96,7 @@ public class ExceptionHandlerTest {
             assertEquals(1, csve.getLineNumber() % 10);
             List<CsvException> capturedExceptions = ctb.getCapturedExceptions();
             assertNotNull(capturedExceptions);
-            assertFalse(capturedExceptions.isEmpty());
+            assertFalse("Expected exceptions in the captured exceptions but there were none.", capturedExceptions.isEmpty());
         }
     }
 

@@ -110,7 +110,7 @@ public final class OpencsvUtils {
      * @param queue The queue for captured exceptions
      * @since 5.2
      */
-    public static void handleException(
+    public static synchronized void handleException(
             CsvException e, long lineNumber,
             CsvExceptionHandler exceptionHandler, BlockingQueue<OrderedObject<CsvException>> queue) {
         e.setLineNumber(lineNumber);
