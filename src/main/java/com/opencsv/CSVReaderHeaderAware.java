@@ -79,7 +79,7 @@ public class CSVReaderHeaderAware extends CSVReader {
             throw new IOException(String.format(
                     ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
                             .getString("header.data.mismatch.with.line.number"),
-                    getRecordsRead()));
+                    getRecordsRead(), headerIndex.size(), strings.length));
         }
 
         String[] response = new String[headerNames.length];
@@ -117,7 +117,7 @@ public class CSVReaderHeaderAware extends CSVReader {
             throw new IOException(String.format(
                     ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
                             .getString("header.data.mismatch.with.line.number"),
-                    getRecordsRead()));
+                    getRecordsRead(), headerIndex.size(), strings.length));
         }
 
         // This code cannot be done with a stream and Collectors.toMap()
