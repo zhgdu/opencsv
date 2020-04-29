@@ -90,9 +90,10 @@ public abstract class AbstractCsvConverter implements CsvConverter {
      * routine in a class derived from this one.
      * 
      * @param value The contents of the field currently being processed from the
-     *   bean to be written. Can be null if the field is not marked as required.
+     *   bean to be written. Can be {@code null} if the field is not marked as
+     *   required.
      * @return A string representation of the value of the field in question in
-     *   the bean passed in, or an empty string if {@code value} is null
+     *   the bean passed in, or an empty string if {@code value} is {@code null}
      * @throws CsvDataTypeMismatchException This implementation doesn't, but
      *   subclasses do, so it must be declared
      */

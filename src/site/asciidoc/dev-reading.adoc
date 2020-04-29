@@ -157,8 +157,8 @@ reading is a simple job:
 ----
 
 This will give you a list of the two beans as defined in the example input file.
-Note how type conversions to basic data types (wrapped and unwrapped primitives
-and Strings) occur automatically.
+Note how type conversions to basic data types (wrapped and unwrapped primitives,
+enumerations, and Strings) occur automatically.
 
 Input can get more complicated, though, and opencsv gives you the tools to deal
 with that. Let's start with the possibility that the header names can't be
@@ -252,11 +252,18 @@ The bean for these data would be:
 
 Besides that, the annotations behave the same as their header name counterparts.
 
+====== Enumerations
+
+Enumerations work exactly like regular primitive fields. There is only one more
+thing to say about them: input is checked against the declared values of the
+enumeration type **without regard to case**. On writing, the enumeration value
+will always be written exactly as declared.
+
 ====== Locales, dates, numbers
-We've considered primitives, but we haven't considered more complex yet common
-data types. We have also not considered locales other than the default locale
-or formatting options beyond those provided by a locale. Here we shall do all
-of this at the same time. Consider this input file:
+We've considered simple data types, but we haven't considered more complex yet
+common data types. We have also not considered locales other than the default
+locale or formatting options beyond those provided by a locale. Here we shall
+do all of this at the same time. Consider this input file:
 
 ----
      username,valid since,annual salary

@@ -21,6 +21,7 @@ import com.opencsv.bean.mocks.*;
 import com.opencsv.enums.CSVReaderNullFieldIndicator;
 import com.opencsv.exceptions.*;
 import org.apache.commons.beanutils.ConversionException;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -301,6 +302,7 @@ public class AnnotationTest {
             assertEquals(new GregorianCalendar(1978, 0, 15).getTimeInMillis(), bean.getGcalFormatDefaultLocale().getTimeInMillis());
             assertEquals(new GregorianCalendar(2018, 11, 13).getTimeInMillis(), bean.getGcalFormatSetLocale().getTimeInMillis());
             assertEquals(1.01, bean.getFloatBadLocale(), 0.001);
+            assertEquals(TestEnum.TEST1, bean.getTestEnum());
             assertNull(bean.getColumnDoesntExist());
             assertNull(bean.getUnmapped());
 
@@ -311,6 +313,7 @@ public class AnnotationTest {
             gc.set(Calendar.HOUR_OF_DAY, 16);
             assertEquals(gc.getTimeInMillis(), bean.getGcalDefaultLocale().getTimeInMillis());
             assertNull(bean.getCalDefaultLocale());
+            assertNull(bean.getTestEnum());
         }
         
         return beanList;
@@ -1128,5 +1131,23 @@ public class AnnotationTest {
         // The first string is for Java < 13. The second string is for Java >= 13.
         assertTrue(w.toString().equals("123\u00A0404,404;123\u00A0505,505;01/août/2019;234\u00A0505,505 234\u00A0606,606;234\u00A0707,707 234\u00A0808,808;01/juin/2019 01/juil./2019;345\u00A0606,606;345\u00A0707,707;345\u00A0808,808;345\u00A0909,909;01/juil./2019;01/août/2019;456.707,707\n")
                 || w.toString().equals("123\u202F404,404;123505,505\u00A0;01/août/2019;234\u202F505,505 234\u202F606,606;234707,707\u00A0 234808,808\u00A0;01/juin/2019 01/juil./2019;345\u202F606,606;345\u202f707,707;345808,808\u00A0;345909,909\u00A0;01/juil./2019;01/août/2019;456.707,707\n"));
+    }
+
+    @Test
+    public void testIllegalEnumValue() throws IOException {
+        try {
+            new CsvToBeanBuilder<AnnotatedMockBeanFull>(new FileReader("src/test/resources/testIllegalEnumValue.csv"))
+                    .withType(AnnotatedMockBeanFull.class)
+                    .withSeparator(';')
+                    .build().parse();
+        }
+        catch (RuntimeException e) {
+            assertTrue(e.getCause() instanceof CsvDataTypeMismatchException);
+            CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) e.getCause();
+            assertEquals(TestEnum.class, csve.getDestinationClass());
+            assertEquals("bogusEnumValue", csve.getSourceObject());
+            assertEquals(1L, csve.getLineNumber());
+            assertFalse(StringUtils.isEmpty(csve.getMessage()));
+        }
     }
 }

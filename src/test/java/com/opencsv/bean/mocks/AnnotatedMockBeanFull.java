@@ -733,6 +733,17 @@ public class AnnotatedMockBeanFull {
      * <p>Used for the following test cases, reading:</p>
      * <ul>
      * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
+     * </ul>
+     */
+    @CsvBindByName(column = "enum1", required = false)
+    @CsvBindByPosition(position = 50, required = false)
+    private TestEnum testEnum;
+
+    /**
+     * Field for annotation tests.
+     * <p>Used for the following test cases, reading:</p>
+     * <ul>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
      * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByPosition()}</li>
      * </ul>
      */
@@ -1178,4 +1189,7 @@ public class AnnotatedMockBeanFull {
         this.floatBadLocale = floatBadLocale;
     }
 
+    public TestEnum getTestEnum() {return testEnum;}
+
+    public void setTestEnum(TestEnum testEnum) {this.testEnum = testEnum;}
 }
