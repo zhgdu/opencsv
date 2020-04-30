@@ -210,7 +210,7 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
                 CsvConverter converter = determineConverter(localField, elementType, fieldLocale, fieldWriteLocale, splitConverter);
                 fieldMap.put(annotation.position(), new BeanFieldSplit<>(
                         localType, localField, required, errorLocale, converter, splitOn,
-                        writeDelimiter, collectionType, capture, format));
+                        writeDelimiter, collectionType, elementType, capture, format));
             }
 
             // Then check for a multi-column annotation

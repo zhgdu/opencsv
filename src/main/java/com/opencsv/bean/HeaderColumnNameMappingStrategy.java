@@ -98,14 +98,14 @@ public class HeaderColumnNameMappingStrategy<T> extends HeaderNameBaseMappingStr
                                     localType,
                                     localField, required,
                                     errorLocale, converter, splitOn,
-                                    writeDelimiter, collectionType, capture,
-                                    format));
+                                    writeDelimiter, collectionType,
+                                    elementType, capture, format));
                 } else {
                     fieldMap.put(columnName, new BeanFieldSplit<>(
                             localType,
                             localField, required, errorLocale,
                             converter, splitOn, writeDelimiter, collectionType,
-                            capture, format));
+                            elementType, capture, format));
                 }
             }
 

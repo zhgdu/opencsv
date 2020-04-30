@@ -261,7 +261,33 @@ public class CollectionSplitTest {
         assertEquals(3, nonparameterizedCollectionType.size());
         assertEquals("[1,2,3]", nonparameterizedCollectionType.toString());
     }
-    
+
+    /**
+     * Tests good things one can do with enumeration collections.
+     * <p>This includes:<ul>
+     *     <li>Variable declared as Set</li>
+     *     <li>Variable declared as Collection</li>
+     *     <li>Variable declared as EnumSet</li>
+     *     <li>Variable declared as Collection with collectionType EnumSet</li>
+     * </ul></p>
+     */
+    @Test
+    public void testGoodEnums() {
+        String input = "collectionEnum,setEnum,enumSetEnum,collectionEnumWithHint\nsplit1 split2,split2 split3,split3 split1,split1 split2\n";
+        List<AnnotatedEnumCollection> beans = new CsvToBeanBuilder<AnnotatedEnumCollection>(new StringReader(input))
+                .withType(AnnotatedEnumCollection.class).build().parse();
+        assertEquals(1, beans.size());
+        AnnotatedEnumCollection bean = beans.get(0);
+
+        List<SplitEnum> split1split2 = new ArrayList<>();
+        split1split2.add(SplitEnum.SPLIT1); split1split2.add(SplitEnum.Split2);
+        assertTrue(bean.getCollectionEnum() instanceof ArrayList);
+        assertEquals(split1split2, bean.getCollectionEnum());
+        assertEquals(EnumSet.of(SplitEnum.SPLIT1, SplitEnum.Split2), bean.getCollectionEnumWithHint());
+        assertEquals(EnumSet.of(SplitEnum.Split2, SplitEnum.split3), bean.getSetEnum());
+        assertEquals(EnumSet.of(SplitEnum.split3, SplitEnum.SPLIT1), bean.getEnumSetEnum());
+    }
+
     @Test
     public void testGoodCollectionHeaderMapping() throws IOException {
         List<DerivedMockBeanCollectionSplit> beanList = new CsvToBeanBuilder<DerivedMockBeanCollectionSplit>(new FileReader("src/test/resources/testgoodcollections.csv"))

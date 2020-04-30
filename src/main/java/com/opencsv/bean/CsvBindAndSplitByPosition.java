@@ -139,7 +139,9 @@ public @interface CsvBindAndSplitByPosition {
      * based on the interface of the bean field annotated. These are:
      * <ul><li>{@link java.util.ArrayList} for {@link java.util.Collection}</li>
      * <li>{@link java.util.ArrayList} for {@link java.util.List}</li>
-     * <li>{@link java.util.HashSet} for {@link java.util.Set}</li>
+     * <li>{@link java.util.HashSet} for {@link java.util.Set} unless
+     * {@link #elementType()} is an enumeration type, in which case
+     * {@link java.util.EnumSet} is used</li>
      * <li>{@link java.util.TreeSet} for {@link java.util.SortedSet}</li>
      * <li>{@link java.util.TreeSet} for {@link java.util.NavigableSet}</li>
      * <li>{@link java.util.ArrayDeque} for {@link java.util.Queue}</li>
