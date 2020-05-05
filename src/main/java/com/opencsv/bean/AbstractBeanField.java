@@ -167,17 +167,19 @@ abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
 
         PreAssignmentProcessor[] processors = field.getAnnotationsByType(PreAssignmentProcessor.class);
 
+        String fieldValue = value;
+
         for (PreAssignmentProcessor processor : processors) {
-            value = preProcessValue(processor, value);
+            fieldValue = preProcessValue(processor, fieldValue);
         }
 
         PreAssignmentValidator[] validators = field.getAnnotationsByType(PreAssignmentValidator.class);
 
         for (PreAssignmentValidator validator : validators) {
-            validateValue(validator, value);
+            validateValue(validator, fieldValue);
         }
 
-        assignValueToField(bean, convert(value), header);
+        assignValueToField(bean, convert(fieldValue), header);
     }
 
     private String preProcessValue(PreAssignmentProcessor processor, String value) throws CsvValidationException {
