@@ -40,6 +40,7 @@ public class CSVWriterBuilder {
     private Character separator;
     private Character quotechar;
     private Character escapechar;
+    private ResultSetHelper resultSetHelper;
     private String lineEnd = ICSVWriter.DEFAULT_LINE_END;
 
     /**
@@ -151,6 +152,17 @@ public class CSVWriterBuilder {
         if (escapechar == null) {
             escapechar = ICSVWriter.DEFAULT_ESCAPE_CHARACTER;
         }
-        return new CSVWriter(writer, separator, quotechar, escapechar, lineEnd);
+        ICSVWriter icsvWriter = new CSVWriter(writer, separator, quotechar, escapechar, lineEnd);
+
+        if (resultSetHelper != null) {
+            icsvWriter.setResultService(resultSetHelper);
+        }
+
+        return icsvWriter;
+    }
+
+    public CSVWriterBuilder withResultSetHelper(ResultSetHelper helper) {
+        this.resultSetHelper = helper;
+        return this;
     }
 }
