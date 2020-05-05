@@ -28,16 +28,16 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 /**
- * A very simple CSV parser released under a commercial-friendly license.
- * This just implements splitting a single line into fields.
+ * <p>A very simple CSV parser released under a commercial-friendly license.
+ * This just implements splitting a single line into fields.</p>
  *
- * The purpose of the CSVParser is to take a single string and parse it into
- * its elements based on the delimiter, quote and escape characters.
+ * <p>The purpose of the CSVParser is to take a single string and parse it into
+ * its elements based on the delimiter, quote and escape characters.</p>
  *
- * The CSVParser has grown organically based on user requests and does not truly match
+ * <p>The CSVParser has grown organically based on user requests and does not truly match
  * any current requirements (though it can be configured to match or come close).  There
  * is no plans to change this as it will break existing requirements.  Consider using
- * the RFC4180Parser for less configurability but closer match to the RFC4180 requirements.
+ * the RFC4180Parser for less configurability but closer match to the RFC4180 requirements.</p>
  *
  * @author Glen Smith
  * @author Rainer Pruy

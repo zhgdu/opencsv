@@ -17,6 +17,8 @@ import java.util.regex.Pattern;
  * <p>Another departure from the CSVParser is that there is only two constructors and only one is available publicly.
  * The intent is that if you want to create anything other than a default RFC4180Parser you should use the
  * CSVParserBuilder.  This way the code will not become cluttered with constructors as the CSVParser did.</p>
+ * <p>You can view the RFC4180 specification at <a href="https://tools.ietf.org/html/rfc4180">the Internet Engineering
+ * Task Force (IETF) website</a>.</p>
  * <p>Examples:</p>
  * {@code
  * ICSVParser parser = new RFC4180Parser();
