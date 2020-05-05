@@ -161,6 +161,13 @@ public class CSVWriterBuilder {
         return icsvWriter;
     }
 
+    /**
+     * Sets the ResultSetHelper that the ICSVWriter will use.  If it is not defined then it will not be set and will
+     * be up to the ICSVWriter to handle - CSVWriter will create one by default.
+     *
+     * @param helper ResultSetHelper to be injected into the ICSVWriter.
+     * @return The CSVWriterBuiilder with the ResultSetHelper set.
+     */
     public CSVWriterBuilder withResultSetHelper(ResultSetHelper helper) {
         this.resultSetHelper = helper;
         return this;
