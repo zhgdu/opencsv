@@ -202,7 +202,7 @@ public class CSVParser extends AbstractCSVParser {
             return null;
         }
 
-        final List<String> tokensOnThisLine = tokensOnLastCompleteLine <= 0 ? new ArrayList<>() : new ArrayList<>(tokensOnLastCompleteLine);
+        final List<String> tokensOnThisLine = tokensOnLastCompleteLine <= 0 ? new ArrayList<>() : new ArrayList<>((tokensOnLastCompleteLine + 1) * 2);
         final StringFragmentCopier sfc = new StringFragmentCopier(nextLine);
         boolean inQuotes = false;
         boolean fromQuotedField = false;
