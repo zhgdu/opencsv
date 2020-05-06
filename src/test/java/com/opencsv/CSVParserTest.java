@@ -56,6 +56,26 @@ public class CSVParserTest {
     }
 
     @Test
+    public void parseEscapingTheEscapeCharacter() throws IOException {
+        String[] nextLine = csvParser.parseLine("\"a\",\"b\\\\c\",\"d\"");
+        assertEquals(3, nextLine.length);
+        assertEquals("a", nextLine[0]);
+        assertEquals("b\\c", nextLine[1]);
+        assertEquals("d", nextLine[2]);
+        assertFalse(csvParser.isPending());
+    }
+
+    @Test
+    public void parseEscapingTheSeparatorCharacter() throws IOException {
+        String[] nextLine = csvParser.parseLine("\"a\",\"b\\,c\",\"d\"");
+        assertEquals(3, nextLine.length);
+        assertEquals("a", nextLine[0]);
+        assertEquals("b,c", nextLine[1]);
+        assertEquals("d", nextLine[2]);
+        assertFalse(csvParser.isPending());
+    }
+
+    @Test
     public void parseSimpleQuotedString() throws IOException {
 
         String[] nextLine = csvParser.parseLine("\"a\",\"b\",\"c\"");
@@ -376,13 +396,13 @@ public class CSVParserTest {
                 .withQuoteChar('\'')
                 .build();
 
-        String[] nextLine = csvParser.parseLine("865,0,'AmeriKKKa\\'s_Most_Wanted','',294,0,0,0.734338696798625,'20081002052147',242429208,18448");
+        String[] nextLine = csvParser.parseLine("865,0,'America\\'s_Most_Wanted','',294,0,0,0.734338696798625,'20081002052147',242429208,18448");
 
         assertEquals(11, nextLine.length);
 
         assertEquals("865", nextLine[0]);
         assertEquals("0", nextLine[1]);
-        assertEquals("AmeriKKKa's_Most_Wanted", nextLine[2]);
+        assertEquals("America's_Most_Wanted", nextLine[2]);
         assertEquals("", nextLine[3]);
         assertEquals("18448", nextLine[10]);
 
