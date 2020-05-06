@@ -36,7 +36,7 @@ public class CSVParserTest {
 
     @Test
     public void testParseLine() throws Exception {
-        String nextItem[] = csvParser.parseLine("This, is, a, test.");
+        String[] nextItem = csvParser.parseLine("This, is, a, test.");
         assertEquals(4, nextItem.length);
         assertEquals("This", nextItem[0]);
         assertEquals(" is", nextItem[1]);
@@ -674,7 +674,7 @@ public class CSVParserTest {
         CSVParserBuilder builder = new CSVParserBuilder();
         ICSVParser parser = builder.build();
 
-        String item[] = parser.parseLine(sb.toString());
+        String[] item = parser.parseLine(sb.toString());
 
         assertEquals(5, item.length);
         assertEquals("", item[0]);
@@ -694,7 +694,7 @@ public class CSVParserTest {
         CSVParserBuilder builder = new CSVParserBuilder();
         ICSVParser parser = builder.withFieldAsNull(CSVReaderNullFieldIndicator.EMPTY_SEPARATORS).build();
 
-        String item[] = parser.parseLine(sb.toString());
+        String[] item = parser.parseLine(sb.toString());
 
         assertEquals(5, item.length);
         assertNull(item[0]);
@@ -714,7 +714,7 @@ public class CSVParserTest {
         CSVParserBuilder builder = new CSVParserBuilder();
         ICSVParser parser = builder.withFieldAsNull(CSVReaderNullFieldIndicator.EMPTY_QUOTES).build();
 
-        String item[] = parser.parseLine(sb.toString());
+        String[] item = parser.parseLine(sb.toString());
 
         assertEquals(5, item.length);
         assertEquals("", item[0]);
@@ -734,7 +734,7 @@ public class CSVParserTest {
         CSVParserBuilder builder = new CSVParserBuilder();
         ICSVParser parser = builder.withFieldAsNull(CSVReaderNullFieldIndicator.BOTH).build();
 
-        String item[] = parser.parseLine(sb.toString());
+        String[] item = parser.parseLine(sb.toString());
 
         assertEquals(5, item.length);
         assertNull(item[0]);
@@ -816,13 +816,13 @@ public class CSVParserTest {
 
     @Test
     public void parseToLineApplyQuotesToAllIsFalse() {
-        String items[] = {"This", " is", " a", " test."};
+        String[] items = {"This", " is", " a", " test."};
         assertEquals("This, is, a, test.", csvParser.parseToLine(items, false));
     }
 
     @Test
     public void parseToLineApplyQuotesToAllIsTrue() {
-        String items[] = {"This", " is", " a", " test."};
+        String[] items = {"This", " is", " a", " test."};
         assertEquals("\"This\",\" is\",\" a\",\" test.\"", csvParser.parseToLine(items, true));
     }
 
@@ -830,7 +830,7 @@ public class CSVParserTest {
      * Test to check if we have a good detail in the error message when there
      * is a quote that wasn't closed (beginning of the field).
      * Check if the attributes of the CsvMultilineLimitBrokenException are set.
-     * @throws IOException
+     * @throws IOException Never
      */
     @Test
     public void testMultilineLimitBrokeErrorDetailWithQuoteBegin() throws IOException, CsvValidationException {
@@ -859,8 +859,8 @@ public class CSVParserTest {
             assertTrue(e.getMessage().contains(contextLabel));
 
             // checking the size of the context in the error message
-            assertTrue(e.getMessage().substring(contextPosition).length()==CSVReader.CONTEXT_MULTILINE_EXCEPTION_MESSAGE_SIZE
-                    +contextLabel.length());
+            assertEquals(e.getMessage().substring(contextPosition).length(), CSVReader.CONTEXT_MULTILINE_EXCEPTION_MESSAGE_SIZE
+                    + contextLabel.length());
 
         }
     }
@@ -869,7 +869,7 @@ public class CSVParserTest {
      * Test to check if we have a good detail in the error message when there
      * is a quote that wasn't closed (middle of the field).
      * Check if the attributes of the CsvMultilineLimitBrokenException are set.
-     * @throws IOException
+     * @throws IOException Never
      */
     @Test
     public void testMultilineLimitBrokeErrorDetailWithQuoteMiddle() throws IOException, CsvValidationException {
@@ -898,8 +898,8 @@ public class CSVParserTest {
             assertTrue(e.getMessage().contains(contextLabel));
 
             // checking the size of the context in the error message
-            assertTrue(e.getMessage().substring(contextPosition).length()==CSVReader.CONTEXT_MULTILINE_EXCEPTION_MESSAGE_SIZE
-                    +contextLabel.length());
+            assertEquals(e.getMessage().substring(contextPosition).length(), CSVReader.CONTEXT_MULTILINE_EXCEPTION_MESSAGE_SIZE
+                    + contextLabel.length());
 
         }
     }
@@ -908,7 +908,7 @@ public class CSVParserTest {
      * Test to check if we have a good detail in the error message when there
      * is a quote that wasn't closed (end of the field).
      * Check if the attributes of the CsvMultilineLimitBrokenException are set.
-     * @throws IOException
+     * @throws IOException Never
      */
     @Test
     public void testMultilineLimitBrokeErrorDetailWithQuoteEnd() throws IOException, CsvValidationException {
@@ -936,8 +936,8 @@ public class CSVParserTest {
             assertTrue(e.getMessage().contains(contextLabel));
 
             // checking the size of the context in the error message
-            assertTrue(e.getMessage().substring(contextPosition).length()==CSVReader.CONTEXT_MULTILINE_EXCEPTION_MESSAGE_SIZE
-                    +contextLabel.length());
+            assertEquals(e.getMessage().substring(contextPosition).length(), CSVReader.CONTEXT_MULTILINE_EXCEPTION_MESSAGE_SIZE
+                    + contextLabel.length());
 
         }
     }

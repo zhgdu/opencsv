@@ -165,9 +165,9 @@ public class CSVParser extends AbstractCSVParser {
     protected String convertToCsvValue(String value, boolean applyQuotestoAll) {
         String testValue = (value == null && !nullFieldIndicator.equals(CSVReaderNullFieldIndicator.NEITHER)) ? "" : value;
         StringBuilder builder = new StringBuilder(testValue == null ? MAX_SIZE_FOR_EMPTY_FIELD : (testValue.length() * 2));
-        boolean containsQuoteChar = testValue != null && testValue.contains(Character.toString(getQuotechar()));
-        boolean containsEscapeChar = testValue != null && testValue.contains(Character.toString(getEscape()));
-        boolean containsSeparatorChar = testValue != null && testValue.contains(Character.toString(getSeparator()));
+        boolean containsQuoteChar = StringUtils.contains(testValue, getQuotechar());
+        boolean containsEscapeChar = StringUtils.contains(testValue, getEscape());
+        boolean containsSeparatorChar = StringUtils.contains(testValue, getSeparator());
         boolean surroundWithQuotes = applyQuotestoAll || isSurroundWithQuotes(value, containsSeparatorChar);
 
         String convertedString = !containsQuoteChar ? testValue : testValue.replaceAll(Character.toString(getQuotechar()), Character.toString(getQuotechar()) + Character.toString(getQuotechar()));
