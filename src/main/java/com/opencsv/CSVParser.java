@@ -359,6 +359,10 @@ public class CSVParser extends AbstractCSVParser {
         return c == escape;
     }
 
+    private boolean isCharacterSeparator(char c) {
+        return c == separator;
+    }
+
     /**
      * Checks to see if the character passed in could be escapable.
      * Escapable characters for opencsv are the quotation character or the
@@ -368,7 +372,7 @@ public class CSVParser extends AbstractCSVParser {
      * @return True if the character could be escapable.
      */
     private boolean isCharacterEscapable(char c) {
-        return isCharacterQuoteCharacter(c) || isCharacterEscapeCharacter(c);
+        return isCharacterQuoteCharacter(c) || isCharacterEscapeCharacter(c) || isCharacterSeparator(c);
     }
 
     /**

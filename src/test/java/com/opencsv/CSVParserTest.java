@@ -76,6 +76,16 @@ public class CSVParserTest {
     }
 
     @Test
+    public void parseEscapingTheSeparatorCharacterWithoutQuotes() throws IOException {
+        String[] nextLine = csvParser.parseLine("a,b\\,c,d");
+        assertEquals(3, nextLine.length);
+        assertEquals("a", nextLine[0]);
+        assertEquals("b,c", nextLine[1]);
+        assertEquals("d", nextLine[2]);
+        assertFalse(csvParser.isPending());
+    }
+
+    @Test
     public void parseSimpleQuotedString() throws IOException {
 
         String[] nextLine = csvParser.parseLine("\"a\",\"b\",\"c\"");
