@@ -359,14 +359,20 @@ public class CSVParser extends AbstractCSVParser {
         return c == escape;
     }
 
+    /**
+     * Checks to see if the character is the defined separator.
+     *
+     * @param c Source character
+     * @return True if the character is the defined separator
+     */
     private boolean isCharacterSeparator(char c) {
         return c == separator;
     }
 
     /**
      * Checks to see if the character passed in could be escapable.
-     * Escapable characters for opencsv are the quotation character or the
-     * escape character.
+     * Escapable characters for opencsv are the quotation character, the
+     * escape character, and the separator.
      *
      * @param c Source character
      * @return True if the character could be escapable.
@@ -378,8 +384,11 @@ public class CSVParser extends AbstractCSVParser {
     /**
      * Checks to see if the character after the current index in a String is an
      * escapable character.
-     * Meaning the next character is either a quotation character or the escape
-     * char and you are inside quotes.
+     * <p>Meaning the next character is a quotation character, the escape
+     * char, or the separator and you are inside quotes.</p>
+     * <p>"Inside quotes" in this context is interpreted liberally. For
+     * instance, if quotes are not expected but we are inside a field, that
+     * still counts for the purposes of this method as being "in quotes".</p>
      *
      * Precondition: the current character is an escape.
      *
