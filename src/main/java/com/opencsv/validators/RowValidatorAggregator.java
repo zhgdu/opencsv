@@ -58,6 +58,10 @@ public class RowValidatorAggregator {
      * @throws CsvValidationException Thrown if the string is invalid.
      */
     public void validate(String[] row) throws CsvValidationException {
+        if (validators.isEmpty()) {
+          return;
+        }
+
         StringBuilder combinedExceptionMessage = new StringBuilder(CAPACITY);
 
         for (RowValidator validator : validators) {

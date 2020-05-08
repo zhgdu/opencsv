@@ -56,6 +56,10 @@ public class LineValidatorAggregator {
      * @throws CsvValidationException Thrown if the string is invalid
      */
     public void validate(String line) throws CsvValidationException {
+        if (validators.isEmpty()) {
+          return;
+        }
+
         StringBuilder combinedExceptionMessage = new StringBuilder(CAPACITY);
 
         for (LineValidator validator : validators) {
