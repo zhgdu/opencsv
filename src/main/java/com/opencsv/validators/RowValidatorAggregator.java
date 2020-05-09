@@ -14,7 +14,7 @@ import java.util.List;
  * @since 5.0
  */
 public class RowValidatorAggregator {
-    private static final int CAPACITY = 256;
+    private static final int CAPACITY = 512;
     private List<RowValidator> validators = new ArrayList<>();
 
     /**
@@ -62,17 +62,21 @@ public class RowValidatorAggregator {
           return;
         }
 
-        StringBuilder combinedExceptionMessage = new StringBuilder(CAPACITY);
+        StringBuilder combinedExceptionMessage = null;
 
         for (RowValidator validator : validators) {
             try {
                 validator.validate(row);
             } catch (CsvValidationException ex) {
+                if (combinedExceptionMessage == null) {
+                    int length = (ex.getMessage().length() + 2) * 3;
+                    combinedExceptionMessage = new StringBuilder(Math.max(length, CAPACITY));
+                }
                 combinedExceptionMessage.append(ex.getMessage()).append("\n");
             }
         }
 
-        if (combinedExceptionMessage.length() > 0) {
+        if (combinedExceptionMessage != null && combinedExceptionMessage.length() > 0) {
             throw new CsvValidationException(combinedExceptionMessage.toString());
         }
     }
