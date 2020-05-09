@@ -74,4 +74,13 @@ public class LineValidatorAggregator {
             throw new CsvValidationException(combinedExceptionMessage.toString());
         }
     }
+
+    /**
+     * Setter created for unit test.
+     *
+     * @param validators - list of validators to use.
+     */
+    void setValidators(List<LineValidator> validators) {
+        this.validators = validators;
+    }
 }

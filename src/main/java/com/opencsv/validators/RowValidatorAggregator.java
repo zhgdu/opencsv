@@ -76,4 +76,13 @@ public class RowValidatorAggregator {
             throw new CsvValidationException(combinedExceptionMessage.toString());
         }
     }
+
+    /**
+     * Setter created for unit test.
+     *
+     * @param validators - list of validators to use.
+     */
+    void setValidators(List<RowValidator> validators) {
+        this.validators = validators;
+    }
 }
