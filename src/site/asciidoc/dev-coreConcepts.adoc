@@ -65,21 +65,24 @@ This is the default behavior.
 This can be the original exception or a new one, if you are so inclined.
 * Ignore the exception by returning null from the exception handler.
 
-A series of exception handlers are provided in the same package as the interface mentioned above.
+A series of exception handlers is provided in the same package as the interface mentioned above.
 Please see the documentation for these classes for what opencsv can do without extension and for inspiration for your own exception handlers.
 
 To change exception handling, simply use CsvToBeanBuilder.withExceptionHandler() for reading and StatefulBeanToCsvBuilder.withExceptionsHandler() for writing, then collect the results after data processing with CsvToBean.getCapturedExceptions() for reading and StatefulBeanToCsv.getCapturedExceptions() for writing.
 
 ===== Warnings about multithreading
 
-Because opencsv is multithreaded by default then the getCapturedExceptions() method in CsvToBean and StatefulBeanToCsv can potentially return more exceptions than expected.
-As any threads still active when another thread throws an exception is allowed to finish.
-And if those threads throws exceptions as well then they are handled as well.
+Because opencsv is multithreaded by default, the getCapturedExceptions()
+method in CsvToBean and StatefulBeanToCsv can potentially return more
+exceptions than expected if a handler is used that collects a certain number
+of exceptions before throwing one; any threads still active when another thread throws
+an exception are allowed to finish. If those threads throw additional
+exceptions, they are handled as well.
 
-Another interesting side effect noted when testing under heavy load was that while the number of exceptions counted was correct the number of exceptions queued using the ExceptionHandlerQueueThenThrowAfter was different from the count!
-So if the actual contents of the exceptions is important then you are better off using an single threaded iterator and queueing the exceptions yourself than a multithreaded solution.
+Another interesting side effect noted when testing under heavy load was that while the number of exceptions counted was correct, the number of exceptions queued using the ExceptionHandlerQueueThenThrowAfter was different from the count!
+So if the actual contents of the exceptions are important, you are better off using CSVIterator, which runs single-threaded, and queueing the exceptions yourself.
 
-Just beware that the more threads your system has allocated and the heavier load on the system can increase the above mentioned issues.
+Just beware that more threads and heavier system load can increase the above-mentioned issues.
 
 ==== Annotations
 
