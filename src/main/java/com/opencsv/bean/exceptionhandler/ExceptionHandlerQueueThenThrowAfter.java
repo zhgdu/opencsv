@@ -5,8 +5,16 @@ import com.opencsv.exceptions.CsvException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * An exception handler that queues the first x exceptions, then throws any
- * further exceptions.
+ * <p>An exception handler that queues the first x exceptions, then throws any
+ * further exceptions.</p>
+ *
+ * <p><b>Note:</b> when testing this on systems with a high number of cores/threads under
+ * load we noted discrepancies between the number of exceptions counted and the
+ * number exceptions queued.   Synchronization alleviated some of the issues but not
+ * completely so if it is actually important to see the exceptions thrown then
+ * we would heavily recommend you use the single threaded iterator() in CsvToBean
+ * and collecting the exceptions yourself.</p>
+ *
  * @author Andrew Rucker Jones
  * @since 5.2
  */
