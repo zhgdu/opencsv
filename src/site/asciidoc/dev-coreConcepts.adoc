@@ -1,38 +1,34 @@
 === Core concepts
 
-There are a couple of concepts that most users of opencsv need to understand, and
-that apply equally to reading and writing.
+There are a couple of concepts that most users of opencsv need to understand, and that apply equally to reading and writing.
 
 ==== Configuration
 
-"CSV" stands for "comma-separated values", but life would be too simple if that
-were always true. Often the separator is a semicolon. Sometimes the separator
-character is included in the data for a field itself, so quotation characters
-are necessary. Those quotation characters could be included in the data also,
-so an escape character is necessary. All of these configuration options and more
-are given to the parser or the CSVWriter as necessary. Naturally, it's easier for
-you to give them to a builder and the builder passes them on to the right class.
+"CSV" stands for "comma-separated values", but life would be too simple if that were always true.
+Often the separator is a semicolon.
+Sometimes the separator character is included in the data for a field itself, so quotation characters are necessary.
+Those quotation characters could be included in the data also, so an escape character is necessary.
+All of these configuration options and more are given to the parser or the CSVWriter as necessary.
+Naturally, it's easier for you to give them to a builder and the builder passes them on to the right class.
 
-Say you're using a tab for your separator, you can do something like
-this:
+Say you're using a tab for your separator, you can do something like this:
 
-[source, java]
+[source,java]
 ----
      CSVReader reader = new CSVReader(new FileReader("yourfile.csv"), '\t');
 ----
 
 or for reading with annotations:
 
-[source, java]
+[source,java]
 ----
      CsvToBean csvToBean = new CsvToBeanBuilder(new FileReader("yourfile.csv"))
        .withSeparator('\t').build();
 ----
 
-And if you single-quoted your escaped characters rather than double-quoting them,
-you can use the three-argument constructor:
+And if you single-quoted your escaped characters rather than double-quoting them, you can use the three-argument constructor:
 
-[source, java]
+[source,java]
 ----
      CSVReader reader = new CSVReader(new FileReader("yourfile.csv"), '\t', '\'');
 ----
@@ -72,14 +68,10 @@ To change exception handling, simply use CsvToBeanBuilder.withExceptionHandler()
 
 ===== Warnings about multithreading
 
-Because opencsv is multithreaded by default, the getCapturedExceptions()
-method in CsvToBean and StatefulBeanToCsv can potentially return more
-exceptions than expected if a handler is used that collects a certain number
-of exceptions before throwing one; any threads still active when another thread throws
-an exception are allowed to finish. If those threads throw additional
-exceptions, they are handled as well.
+Because opencsv is multithreaded by default, the getCapturedExceptions() method in CsvToBean and StatefulBeanToCsv can potentially return more exceptions than expected if a handler is used that collects a certain number of exceptions before throwing one; any threads still active when another thread throws an exception are allowed to finish.
+If those threads throw additional exceptions, they are handled as well.
 
-Another interesting side effect noted when testing under heavy load was that while the number of exceptions counted was correct, the number of exceptions queued using the ExceptionHandlerQueueThenThrowAfter was different from the count!
+Another interesting side effect noted when testing under heavy load, I was running Folding@Home, was that while the number of exceptions counted was correct, the number of exceptions queued using the ExceptionHandlerQueueThenThrowAfter was different from the count!
 So if the actual contents of the exceptions are important, you are better off using CSVIterator, which runs single-threaded, and queueing the exceptions yourself.
 
 Just beware that more threads and heavier system load can increase the above-mentioned issues.
@@ -91,35 +83,32 @@ In brief, these annotations are:
 
 * CsvBindByName: Maps a bean field to a field in the CSV file based on the name of the header for that field in the CSV input.
 * CsvBindByPosition: Maps a bean field to a field in the CSV file based on the numerical position of the field in the CSV input.
-   * CsvBindAndSplitByName: Maps a Collection-based bean field to a field in the CSV file based on the name of the header for that field in the CSV input.
-   * CsvBindAndSplitByPosition: Maps a Collection-based bean field to a field in the CSV file based on the numerical position of the field in the CSV input.
-   * CsvBindAndJoinByName: Maps multiple input columns in the CSV file to one bean field based on the name of the headers for those fields in the CSV input.
-   * CsvBindAndJoinByPosition: Maps multiple input columns in the CSV file to one bean field based on the numerical positions of those fields in the CSV input.
-   * CsvDate: Must be applied to bean fields of date/time types for automatic conversion to work, and must be used in conjunction with one of the preceding six annotations.
-   * CsvNumber: May be applied to bean fields of a type derived from java.lang.Number, and when used must be used in conjunction with one of the first six annotations.
-   * CsvCustomBindByName: The same as CsvBindByName, but must provide its own data conversion class.
-   * CsvCustomBindByPosition: The same as CsvBindByPosition, but must provide its own data conversion class.
+* CsvBindAndSplitByName: Maps a Collection-based bean field to a field in the CSV file based on the name of the header for that field in the CSV input.
+* CsvBindAndSplitByPosition: Maps a Collection-based bean field to a field in the CSV file based on the numerical position of the field in the CSV input.
+* CsvBindAndJoinByName: Maps multiple input columns in the CSV file to one bean field based on the name of the headers for those fields in the CSV input.
+* CsvBindAndJoinByPosition: Maps multiple input columns in the CSV file to one bean field based on the numerical positions of those fields in the CSV input.
+* CsvDate: Must be applied to bean fields of date/time types for automatic conversion to work, and must be used in conjunction with one of the preceding six annotations.
+* CsvNumber: May be applied to bean fields of a type derived from java.lang.Number, and when used must be used in conjunction with one of the first six annotations.
+* CsvCustomBindByName: The same as CsvBindByName, but must provide its own data conversion class.
+* CsvCustomBindByPosition: The same as CsvBindByPosition, but must provide its own data conversion class.
 
 As you can infer, there are two strategies for annotating beans, depending on your input:
 
-   * Annotating by header name
-   * Annotating by column position
+* Annotating by header name
+* Annotating by column position
 
 It is possible to annotate bean fields both with header-based and position-based annotations.
-If you do, position-based annotations take precedence if the mapping strategy is
-automatically determined. To use the header-based annotations, you would need to
-instantiate and pass in a HeaderColumnNameMappingStrategy. When might this be
-useful? Possibly reading two different sources that provide the same data, but
-one includes headers and the other doesn't. Possibly to convert between headerless
-input and output with headers. Further use cases are left as an exercise for the
-reader.
+If you do, position-based annotations take precedence if the mapping strategy is automatically determined.
+To use the header-based annotations, you would need to instantiate and pass in a HeaderColumnNameMappingStrategy.
+When might this be useful?
+Possibly reading two different sources that provide the same data, but one includes headers and the other doesn't.
+Possibly to convert between headerless input and output with headers.
+Further use cases are left as an exercise for the reader.
 
-opencsv always produces (on reading from a CSV file) and consumes (on writing
-to a CSV file) one bean type. You may wish to split the input/output across
-multiple bean types. If this is the case for you, the annotation CsvRecurse is
-available.
+opencsv always produces (on reading from a CSV file) and consumes (on writing to a CSV file) one bean type.
+You may wish to split the input/output across multiple bean types.
+If this is the case for you, the annotation CsvRecurse is available.
 
-Most of the more detailed documentation on using annotations is in the section
-on reading data. The use of annotations applies equally well to writing data,
-though; the annotations define a two-way mapping between bean fields and fields
-in a CSV file. Writing is then simply reading in reverse.
+Most of the more detailed documentation on using annotations is in the section on reading data.
+The use of annotations applies equally well to writing data, though; the annotations define a two-way mapping between bean fields and fields in a CSV file.
+Writing is then simply reading in reverse.
