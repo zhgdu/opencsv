@@ -15,6 +15,7 @@ import java.util.List;
  */
 public class LineValidatorAggregator {
     private static final int CAPACITY = 512;
+    private static final int MULTIPLIER = 3;
     private List<LineValidator> validators = new ArrayList<>();
 
     /**
@@ -67,7 +68,7 @@ public class LineValidatorAggregator {
                 validator.validate(line);
             } catch (CsvValidationException ex) {
                 if (combinedExceptionMessage == null) {
-                    int length = (ex.getMessage().length() + 2) * 3;
+                    int length = (ex.getMessage().length() + 2) * MULTIPLIER;
                     combinedExceptionMessage = new StringBuilder(Math.max(length, CAPACITY));
                 }
                 combinedExceptionMessage.append(ex.getMessage()).append("\n");
