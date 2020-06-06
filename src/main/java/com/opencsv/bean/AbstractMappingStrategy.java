@@ -684,13 +684,10 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
      * @since 4.2
      */
     protected CsvConverter determineConverter(Field field,
-                                              Class<?> elementType, String cLocale, String cWwriteLocale,
+                                              Class<?> elementType, String locale, String writeLocale,
                                               Class<? extends AbstractCsvConverter> customConverter)
             throws CsvBadConverterException {
         CsvConverter converter;
-
-        String locale = cLocale == null ? null : cLocale.replace('_', '-');
-        String writeLocale = cWwriteLocale == null ? null : cWwriteLocale.replace('_', '-');
 
         // A custom converter always takes precedence if specified.
         if (customConverter != null && !customConverter.equals(AbstractCsvConverter.class)) {
