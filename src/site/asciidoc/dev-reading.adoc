@@ -152,7 +152,7 @@ Here we simply name the fields identically to the header names. After that,
 reading is a simple job:
 [source, java]
 ----
-     List<Visitors> beans = new CsvToBeanBuilder(FileReader("yourfile.csv"))
+     List<Visitors> beans = new CsvToBeanBuilder(new FileReader("yourfile.csv"))
        .withType(Visitors.class).build().parse();
 ----
 
@@ -870,7 +870,7 @@ And use this code for reading:
 ----
 MappingStrategy<MyBean> strategy = new FuzzyMappingStrategy<>();
 strategy.setType(MyBean.class);
-List<MyBean> beans = new CsvToBeanBuilder(FileReader("yourfile.csv"))
+List<MyBean> beans = new CsvToBeanBuilder(new FileReader("yourfile.csv"))
     .withMappingStrategy(strategy)
     .build()
     .parse();
