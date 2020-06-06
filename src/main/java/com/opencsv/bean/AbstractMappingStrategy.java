@@ -689,8 +689,8 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
             throws CsvBadConverterException {
         CsvConverter converter;
 
-        String locale = cLocale.replace('_', '-');
-        String writeLocale = cWwriteLocale.replace('_', '-');
+        String locale = cLocale == null ? null : cLocale.replace('_', '-');
+        String writeLocale = cWwriteLocale == null ? null : cWwriteLocale.replace('_', '-');
 
         // A custom converter always takes precedence if specified.
         if (customConverter != null && !customConverter.equals(AbstractCsvConverter.class)) {
