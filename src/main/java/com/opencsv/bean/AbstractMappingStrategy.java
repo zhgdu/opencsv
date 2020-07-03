@@ -379,7 +379,7 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
      * @param fields The fields to be filtered
      * @return A list of fields that exist for opencsv
      */
-    private List<Field> filterIgnoredFields(final Class<?> type, Field[] fields) {
+    protected List<Field> filterIgnoredFields(final Class<?> type, Field[] fields) {
         return Stream.of(fields)
                 .filter(f -> !ignoredFields.containsMapping(type, f) && !f.isAnnotationPresent(CsvIgnore.class))
                 .collect(Collectors.toList());
@@ -410,6 +410,16 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
     }
 
     /**
+     * @param type Class to be checked
+     * @return Whether the type may be recursed into ({@code false}), or
+     *   must be considered a leaf node for recursion ({@code true}). This
+     *   implementation considers the boxed primitives forbidden.
+     */
+    protected boolean isForbiddenClassForRecursion(Class<?> type) {
+        return FORBIDDEN_CLASSES_FOR_RECURSION.contains(type);
+    }
+
+    /**
      * Creates a tree of beans embedded in each other.
      * These are the member variables annotated with {@link CsvRecurse} and
      * their associated types. This method is used recursively.
@@ -428,7 +438,7 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
     protected RecursiveType loadRecursiveClasses(Class<?> newType, Set<Class<?>> encounteredTypes) {
 
         // We cannot recurse into primitive types
-        if (FORBIDDEN_CLASSES_FOR_RECURSION.contains(newType)) {
+        if (isForbiddenClassForRecursion(newType)) {
             throw new CsvRecursionException(
                     ResourceBundle.getBundle(
                             ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
@@ -750,7 +760,7 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
      * Encapsulates a bean type and all of the member variables that need to be
      * recursed into.
      */
-    private static class RecursiveType {
+    protected static class RecursiveType {
         private final Class<?> type;
         private final Map<FieldAccess<Object>, RecursiveType> recursiveMembers = new HashMap<>();
 
