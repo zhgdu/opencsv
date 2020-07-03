@@ -56,7 +56,7 @@ public class NumberMockHeader {
     @CsvNumber("0.0#E0")
     private float primitiveFloat;
 
-    @CsvBindByName(locale = "de_DE")
+    @CsvBindByName(locale = "de-DE")
     @CsvNumber("#0,0#%")
     private Float wrappedFloat;
 
