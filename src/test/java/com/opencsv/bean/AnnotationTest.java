@@ -303,6 +303,7 @@ public class AnnotationTest {
             assertEquals(new GregorianCalendar(2018, 11, 13).getTimeInMillis(), bean.getGcalFormatSetLocale().getTimeInMillis());
             assertEquals(1.01, bean.getFloatBadLocale(), 0.001);
             assertEquals(TestEnum.TEST1, bean.getTestEnum());
+            assertEquals(Currency.getInstance("EUR"), bean.getTestCurrency());
             assertNull(bean.getColumnDoesntExist());
             assertNull(bean.getUnmapped());
 
@@ -1146,6 +1147,24 @@ public class AnnotationTest {
             CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) e.getCause();
             assertEquals(TestEnum.class, csve.getDestinationClass());
             assertEquals("bogusEnumValue", csve.getSourceObject());
+            assertEquals(1L, csve.getLineNumber());
+            assertFalse(StringUtils.isEmpty(csve.getMessage()));
+        }
+    }
+
+    @Test
+    public void testIllegalCurrency() throws IOException {
+        try {
+            new CsvToBeanBuilder<AnnotatedMockBeanFull>(new FileReader("src/test/resources/testIllegalCurrency.csv"))
+                    .withType(AnnotatedMockBeanFull.class)
+                    .withSeparator(';')
+                    .build().parse();
+        }
+        catch (RuntimeException e) {
+            assertTrue(e.getCause() instanceof CsvDataTypeMismatchException);
+            CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) e.getCause();
+            assertEquals(Currency.class, csve.getDestinationClass());
+            assertEquals("illegalCurrency", csve.getSourceObject());
             assertEquals(1L, csve.getLineNumber());
             assertFalse(StringUtils.isEmpty(csve.getMessage()));
         }

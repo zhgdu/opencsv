@@ -25,6 +25,7 @@ import java.math.BigInteger;
 import java.sql.Time;
 import java.sql.Timestamp;
 import java.util.Calendar;
+import java.util.Currency;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
@@ -747,6 +748,18 @@ public class AnnotatedMockBeanFull {
      * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByPosition()}</li>
      * </ul>
      */
+    @CsvBindByName(column = "currency1", required = false)
+    @CsvBindByPosition(position = 51, required = false)
+    private Currency testCurrency;
+
+    /**
+     * Field for annotation tests.
+     * <p>Used for the following test cases, reading:</p>
+     * <ul>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
+     * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByPosition()}</li>
+     * </ul>
+     */
     @CsvBindByName(column = "itnogoodcolumnitverybad")
     @CsvBindByPosition(position = 100)
     private String columnDoesntExist;
@@ -1192,4 +1205,8 @@ public class AnnotatedMockBeanFull {
     public TestEnum getTestEnum() {return testEnum;}
 
     public void setTestEnum(TestEnum testEnum) {this.testEnum = testEnum;}
+
+    public Currency getTestCurrency() {return testCurrency;}
+
+    public void setTestCurrency(Currency testCurrency) {this.testCurrency = testCurrency;}
 }

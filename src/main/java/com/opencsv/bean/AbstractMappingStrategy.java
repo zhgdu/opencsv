@@ -739,17 +739,21 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
                     errorLocale, readFormat, writeFormat);
         }
 
-        // Otherwise it must be a primitive or enumeration
-        else {
-            if(elementType.isEnum()) {
-                converter = new ConverterEnum(
-                        elementType, locale, writeLocale, errorLocale);
-            }
-            else {
-                converter = new ConverterPrimitiveTypes(
-                        elementType, locale, writeLocale, errorLocale);
-            }
+        // or a Currency
+        else if (elementType.equals(java.util.Currency.class)){
+            converter = new ConverterCurrency(errorLocale);
         }
+
+        // Or an enumeration
+        else if(elementType.isEnum()) {
+            converter = new ConverterEnum(elementType, locale, writeLocale, errorLocale);
+        }
+
+        // Otherwise a primitive
+        else {
+            converter = new ConverterPrimitiveTypes(elementType, locale, writeLocale, errorLocale);
+        }
+
         return converter;
     }
 

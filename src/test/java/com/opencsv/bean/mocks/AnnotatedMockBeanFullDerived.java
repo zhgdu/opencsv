@@ -38,7 +38,7 @@ public class AnnotatedMockBeanFullDerived extends AnnotatedMockBeanFull {
      * </ul>
      */
     @CsvBindByName(required = true, column = "int in subclass")
-    @CsvBindByPosition(required = true, position = 51)
+    @CsvBindByPosition(required = true, position = 52)
     private int intInSubclass;
 
     public int getIntInSubclass() {

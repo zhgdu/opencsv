@@ -352,7 +352,7 @@ public class CollectionSplitTest {
     
     @Test
     public void testUnknownElementType() {
-        final String input = "$45";
+        final String input = "America/New_York";
         CsvToBean<UnknownElementType> csv2b = new CsvToBeanBuilder<UnknownElementType>(new StringReader(input))
                 .withType(UnknownElementType.class)
                 .withThrowExceptions(false)
@@ -365,7 +365,7 @@ public class CollectionSplitTest {
         CsvDataTypeMismatchException dtme = (CsvDataTypeMismatchException) csve;
         assertEquals(1, dtme.getLineNumber());
         assertNotNull(dtme.getLine());
-        assertEquals(Currency.class, dtme.getDestinationClass());
+        assertEquals(TimeZone.class, dtme.getDestinationClass());
         assertEquals(input, dtme.getSourceObject());
     }
     
