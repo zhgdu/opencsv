@@ -32,7 +32,7 @@ public class ExceptionHandlerTest {
      * @throws IOException Never
      */
     @Test
-    public synchronized void testReadWithExceptionHandler() throws IOException {
+    public void testReadWithExceptionHandler() throws IOException {
         CsvToBean<AnnotatedMockBeanFull> ctb = new CsvToBeanBuilder<AnnotatedMockBeanFull>(new FileReader("src/test/resources/testinputcase7.csv"))
                 .withSeparator(';')
                 .withType(AnnotatedMockBeanFull.class)
@@ -47,7 +47,7 @@ public class ExceptionHandlerTest {
     }
 
     @Test
-    public synchronized void testLambdaExceptionHandler() throws IOException {
+    public void testLambdaExceptionHandler() throws IOException {
         final String testString = "test";
         CsvToBean<AnnotatedMockBeanFull> ctb = new CsvToBeanBuilder<AnnotatedMockBeanFull>(new FileReader("src/test/resources/testinputcase7.csv"))
                 .withSeparator(';')
@@ -67,7 +67,7 @@ public class ExceptionHandlerTest {
     }
 
     @Test
-    public synchronized void testReadWithQueueThenThrowHandler() throws IOException {
+    public void testReadWithQueueThenThrowHandler() throws IOException {
         BufferedReader inFile = Files.newBufferedReader(FileSystems.getDefault().getPath("src/test/resources/testinputcase85.csv"));
         String goodLine = inFile.readLine();
         String badLine = inFile.readLine();
@@ -112,7 +112,7 @@ public class ExceptionHandlerTest {
      */
     @DisplayName("Test ExceptionHandlerIgnoreThenThrowAfter when the max number of exceptions is less than the actual number of exceptions.")
     @Test
-    public synchronized void testWriteWithIgnoreExceptionHandlerSmallNumberOfExceptions() throws IOException, CsvDataTypeMismatchException {
+    public void testWriteWithIgnoreExceptionHandlerSmallNumberOfExceptions() throws IOException, CsvDataTypeMismatchException {
         ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = TestUtils.createTwoGoodBeans();
         AnnotatedMockBeanFull goodBean = beans.left;
         AnnotatedMockBeanFull badBean = beans.right;
@@ -157,7 +157,7 @@ public class ExceptionHandlerTest {
      */
     @DisplayName("Test ExceptionHandlerIgnoreThenThrowAfter when the max number of exceptions is greater than the actual number of exceptions.")
     @Test
-    public synchronized void testWriteWithIgnoreExceptionHandlerLargeMaxExceptions() throws IOException, CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
+    public void testWriteWithIgnoreExceptionHandlerLargeMaxExceptions() throws IOException, CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
         ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = TestUtils.createTwoGoodBeans();
         AnnotatedMockBeanFull goodBean = beans.left;
         AnnotatedMockBeanFull badBean = beans.right;
@@ -195,7 +195,7 @@ public class ExceptionHandlerTest {
      */
     @DisplayName("Test ExceptionHandlerQueueThenThrowAfter when the max number of exceptions is less than the actual number of exceptions.")
     @Test
-    public synchronized void testWriteWithQueueExceptionHandlerSmallNumberOfExceptions() throws IOException, CsvDataTypeMismatchException {
+    public void testWriteWithQueueExceptionHandlerSmallNumberOfExceptions() throws IOException, CsvDataTypeMismatchException {
         ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = TestUtils.createTwoGoodBeans();
         AnnotatedMockBeanFull goodBean = beans.left;
         AnnotatedMockBeanFull badBean = beans.right;
@@ -242,7 +242,7 @@ public class ExceptionHandlerTest {
      */
     @DisplayName("Test ExceptionHandlerQueueThenThrowAfter when the max number of exceptions is greater than the actual number of exceptions.")
     @Test
-    public synchronized void testWriteWithQueueExceptionHandlerLargeMaxExceptions() throws IOException, CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
+    public void testWriteWithQueueExceptionHandlerLargeMaxExceptions() throws IOException, CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
         ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = TestUtils.createTwoGoodBeans();
         AnnotatedMockBeanFull goodBean = beans.left;
         AnnotatedMockBeanFull badBean = beans.right;
@@ -270,7 +270,7 @@ public class ExceptionHandlerTest {
     }
 
     @Test
-    public synchronized void testQueueThenThrowExceptionHandler() throws IOException, CsvDataTypeMismatchException {
+    public void testQueueThenThrowExceptionHandler() throws IOException, CsvDataTypeMismatchException {
         ImmutablePair<AnnotatedMockBeanFull, AnnotatedMockBeanFull> beans = TestUtils.createTwoGoodBeans();
         AnnotatedMockBeanFull goodBean = beans.left;
         AnnotatedMockBeanFull badBean = beans.right;

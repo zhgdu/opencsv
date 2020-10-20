@@ -18,8 +18,8 @@ package com.opencsv.bean.concurrent;
 import com.opencsv.bean.BeanVerifier;
 import com.opencsv.bean.CsvToBeanFilter;
 import com.opencsv.bean.MappingStrategy;
-import com.opencsv.bean.util.OpencsvUtils;
 import com.opencsv.bean.exceptionhandler.CsvExceptionHandler;
+import com.opencsv.bean.util.OpencsvUtils;
 import com.opencsv.bean.util.OrderedObject;
 import com.opencsv.exceptions.*;
 import org.apache.commons.lang3.ArrayUtils;
@@ -118,20 +118,16 @@ public class ProcessCsvLine<T> implements Runnable {
      * @throws CsvBeanIntrospectionException Thrown on error creating bean.
      * @throws CsvBadConverterException If a custom converter cannot be
      *   initialized properly
-     * @throws CsvDataTypeMismatchException If the source data cannot be
-     *   converted to the type of the destination field
-     * @throws CsvRequiredFieldEmptyException If a mandatory field is empty in
-     *   the input file
-     * @throws CsvConstraintViolationException When the internal structure of
-     *   data would be violated by the data in the CSV file
-     * @throws CsvValidationException If a user-supplied validator declares the
-     *   data to be invalid
+     * @throws CsvFieldAssignmentException A more specific subclass of this
+     *   exception is thrown for any problem decoding and assigning a field
+     *   of the input to a bean field
+     * @throws CsvChainedException If multiple exceptions are thrown for the
+     * same input line
      */
     private T processLine()
             throws CsvBeanIntrospectionException,
-            CsvBadConverterException, CsvDataTypeMismatchException,
-            CsvRequiredFieldEmptyException, CsvConstraintViolationException,
-            CsvValidationException {
+            CsvBadConverterException, CsvFieldAssignmentException,
+            CsvChainedException {
         return mapper.populateNewBean(line);
     }
 }

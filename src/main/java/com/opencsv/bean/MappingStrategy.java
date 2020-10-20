@@ -85,21 +85,16 @@ public interface MappingStrategy<T> {
      * @return A bean containing the converted information from the input
      * @throws CsvBeanIntrospectionException Generally, if some part of the bean cannot
      *   be accessed and used as needed
-     * @throws CsvRequiredFieldEmptyException If the input for a field defined
-     *   as required is empty
-     * @throws CsvDataTypeMismatchException If conversion of the input to a
-     *   field type fails
-     * @throws CsvConstraintViolationException If the value provided for a field
-     *   would in some way compromise the logical integrity of the data as a
-     *   whole
-     * @throws CsvValidationException If a user-supplied validator determines
-     * that the input is invalid
+     * @throws CsvFieldAssignmentException A more specific subclass of this
+     *   exception is thrown for any problem decoding and assigning a field
+     *   of the input to a bean field
+     * @throws CsvChainedException If multiple exceptions are thrown for the
+     * same input line
      * @since 4.2
      */
     T populateNewBean(String[] line)
-            throws CsvBeanIntrospectionException, CsvRequiredFieldEmptyException,
-            CsvDataTypeMismatchException, CsvConstraintViolationException,
-            CsvValidationException;
+            throws CsvBeanIntrospectionException, CsvFieldAssignmentException,
+            CsvChainedException;
     
     /**
      * Sets the locale for all error messages.
@@ -170,10 +165,11 @@ public interface MappingStrategy<T> {
      * @param bean The bean to be transmuted
      * @return The converted values of the bean fields in the correct order,
      *   ready to be passed to a {@link com.opencsv.CSVWriter}
-     * @throws CsvDataTypeMismatchException If expected to convert an
-     *   unsupported data type
-     * @throws CsvRequiredFieldEmptyException If the field is marked as required,
-     *   but is currently empty
+     * @throws CsvFieldAssignmentException A more specific subclass of this
+     *   exception is thrown for any problem decoding and assigning a field
+     *   of the input to a bean field
+     * @throws CsvChainedException If multiple exceptions are thrown for the
+     * same input line
      */
-    String[] transmuteBean(T bean) throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException;
+    String[] transmuteBean(T bean) throws CsvFieldAssignmentException, CsvChainedException;
 }

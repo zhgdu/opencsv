@@ -651,6 +651,29 @@ public class AnnotationTest {
     }
 
     @Test
+    public void testMultipleExceptionsPerLine() throws FileNotFoundException {
+        ColumnPositionMappingStrategy<AnnotatedMockBeanFull> strat =
+                new ColumnPositionMappingStrategy<>();
+        strat.setType(AnnotatedMockBeanFull.class);
+        Reader fin = new FileReader("src/test/resources/testMultipleExceptionsPerLine.csv");
+        CsvToBean<AnnotatedMockBeanFull> ctb = new CsvToBeanBuilder<AnnotatedMockBeanFull>(fin)
+                .withMappingStrategy(strat)
+                .withSeparator(';')
+                .withThrowExceptions(false)
+                .build();
+        ctb.parse();
+        List<CsvException> exceptionList = ctb.getCapturedExceptions();
+        assertNotNull(exceptionList);
+        assertEquals(6, exceptionList.size()); // Two lines, three mistakes per line
+        assertEquals(1, exceptionList.get(0).getLineNumber());
+        assertEquals(1, exceptionList.get(1).getLineNumber());
+        assertEquals(1, exceptionList.get(2).getLineNumber());
+        assertEquals(2, exceptionList.get(3).getLineNumber());
+        assertEquals(2, exceptionList.get(4).getLineNumber());
+        assertEquals(2, exceptionList.get(5).getLineNumber());
+    }
+
+    @Test
     public void testRequiredDateEmptyInput() throws IOException {
         for(String fn : Arrays.asList(
                 "src/test/resources/testinputcase78null.csv",

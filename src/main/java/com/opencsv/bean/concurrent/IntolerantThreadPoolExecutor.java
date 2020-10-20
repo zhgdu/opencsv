@@ -18,6 +18,8 @@ package com.opencsv.bean.concurrent;
 import com.opencsv.ICSVParser;
 import com.opencsv.bean.util.OrderedObject;
 import com.opencsv.exceptions.CsvException;
+import org.apache.commons.collections4.ListValuedMap;
+import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 
@@ -73,8 +75,13 @@ class IntolerantThreadPoolExecutor<T> extends ThreadPoolExecutor implements Spli
     /** A sorted, concurrent map for the beans created. */
     private ConcurrentNavigableMap<Long, T> resultantBeansMap = null;
 
-    /** A sorted, concurrent map for any exceptions captured. */
-    private ConcurrentNavigableMap<Long, CsvException> thrownExceptionsMap = null;
+    /**
+     * A multi-valued map for any exceptions captured.
+     * <p>The multi-valued part is important because the same line can throw more
+     * than one exception.</p>
+     * <p><em>All access to this variable must be synchronized.</em></p>
+     * */
+    private ListValuedMap<Long, CsvException> thrownExceptionsMap = null;
 
     /** A separate thread that accumulates and orders results. */
     protected AccumulateCsvResults<T> accumulateThread = null;
@@ -122,7 +129,7 @@ class IntolerantThreadPoolExecutor<T> extends ThreadPoolExecutor implements Spli
         // processing.
         if(orderedResults) {
             resultantBeansMap = new ConcurrentSkipListMap<>();
-            thrownExceptionsMap = new ConcurrentSkipListMap<>();
+            thrownExceptionsMap = new ArrayListValuedHashMap<>();
 
             // Start the process for accumulating results and cleaning up
             accumulateThread = new AccumulateCsvResults<>(
@@ -167,12 +174,23 @@ class IntolerantThreadPoolExecutor<T> extends ThreadPoolExecutor implements Spli
      * @return All exceptions captured
      */
     public List<CsvException> getCapturedExceptions() {
-        return thrownExceptionsMap == null ?
-                thrownExceptionsQueue.stream()
-                        .filter(Objects::nonNull)
-                        .map(OrderedObject::getElement)
-                        .collect(Collectors.toList()) :
-                new ArrayList<>(thrownExceptionsMap.values());
+        List<CsvException> returnList = null;
+        if(thrownExceptionsMap == null) {
+            returnList = thrownExceptionsQueue.stream()
+                    .filter(Objects::nonNull)
+                    .map(OrderedObject::getElement)
+                    .collect(Collectors.toList());
+        }
+        else {
+            returnList = new LinkedList<>();
+            synchronized (thrownExceptionsMap) {
+                SortedSet<Long> keys = new TreeSet<>(thrownExceptionsMap.keySet());
+                for(Long l : keys) {
+                    returnList.addAll(thrownExceptionsMap.get(l));
+                }
+            }
+        }
+        return returnList;
     }
 
     @Override

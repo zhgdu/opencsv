@@ -16,10 +16,13 @@
 package com.opencsv.bean.concurrent;
 
 import com.opencsv.bean.MappingStrategy;
-import com.opencsv.bean.util.OpencsvUtils;
 import com.opencsv.bean.exceptionhandler.CsvExceptionHandler;
+import com.opencsv.bean.util.OpencsvUtils;
 import com.opencsv.bean.util.OrderedObject;
-import com.opencsv.exceptions.*;
+import com.opencsv.exceptions.CsvChainedException;
+import com.opencsv.exceptions.CsvException;
+import com.opencsv.exceptions.CsvFieldAssignmentException;
+import com.opencsv.exceptions.CsvRuntimeException;
 
 import java.util.SortedSet;
 import java.util.concurrent.BlockingQueue;
@@ -74,7 +77,7 @@ public class ProcessCsvBean<T> implements Runnable {
             OpencsvUtils.queueRefuseToAcceptDefeat(resultantLineQueue,
                     new OrderedObject<>(lineNumber, mappingStrategy.transmuteBean(bean)));
         }
-        catch (CsvException e) {
+        catch (CsvFieldAssignmentException | CsvChainedException e) {
             expectedRecords.remove(lineNumber);
             OpencsvUtils.handleException(e, lineNumber, exceptionHandler, thrownExceptionsQueue);
         }

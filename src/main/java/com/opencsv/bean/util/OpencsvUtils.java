@@ -19,13 +19,12 @@ import com.opencsv.ICSVParser;
 import com.opencsv.bean.*;
 import com.opencsv.bean.exceptionhandler.CsvExceptionHandler;
 import com.opencsv.exceptions.CsvBadConverterException;
+import com.opencsv.exceptions.CsvChainedException;
 import com.opencsv.exceptions.CsvException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 
-import java.util.IllegalFormatException;
-import java.util.Locale;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -115,15 +114,20 @@ public final class OpencsvUtils {
             CsvExceptionHandler exceptionHandler, BlockingQueue<OrderedObject<CsvException>> queue) {
         e.setLineNumber(lineNumber);
         CsvException capturedException = null;
-        try {
-            capturedException = exceptionHandler.handleException(e);
-        } catch (CsvException csve) {
-            capturedException = csve;
-            throw new RuntimeException(csve);
-        } finally {
-            if (capturedException != null) {
-                queueRefuseToAcceptDefeat(queue,
-                        new OrderedObject<>(lineNumber, capturedException));
+        List<CsvException> exceptionList = e instanceof CsvChainedException ?
+                Collections.<CsvException>unmodifiableList(((CsvChainedException)e).getExceptionChain()) :
+                Collections.singletonList(e);
+        for (CsvException iteratedException : exceptionList) {
+            try {
+                capturedException = exceptionHandler.handleException(iteratedException);
+            } catch (CsvException csve) {
+                capturedException = csve;
+                throw new RuntimeException(csve);
+            } finally {
+                if (capturedException != null) {
+                    queueRefuseToAcceptDefeat(queue,
+                            new OrderedObject<>(lineNumber, capturedException));
+                }
             }
         }
     }

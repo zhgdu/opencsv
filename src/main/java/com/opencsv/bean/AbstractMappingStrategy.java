@@ -308,7 +308,7 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
     }
 
     /**
-     * Get the class type that the Strategy is mapping.
+     * Get the class type that the strategy is mapping.
      *
      * @return Class of the object that this {@link MappingStrategy} will create.
      */
@@ -319,13 +319,29 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
     @SuppressWarnings("unchecked")
     @Override
     public T populateNewBean(String[] line)
-            throws CsvBeanIntrospectionException, CsvRequiredFieldEmptyException,
-            CsvDataTypeMismatchException, CsvConstraintViolationException,
-            CsvValidationException {
+            throws CsvBeanIntrospectionException, CsvFieldAssignmentException,
+            CsvChainedException {
         verifyLineLength(line.length);
         Map<Class<?>, Object> beanTree = createBean();
+
+        CsvChainedException chainedException = null;
         for (int col = 0; col < line.length; col++) {
-            setFieldValue(beanTree, line[col], col);
+            try {
+                setFieldValue(beanTree, line[col], col);
+            } catch (CsvFieldAssignmentException e) {
+                if(chainedException != null) {
+                    chainedException.add(e);
+                }
+                else {
+                    chainedException = new CsvChainedException(e);
+                }
+            }
+        }
+        if(chainedException != null) {
+            if(chainedException.getExceptionChain().size() == 1) {
+                throw chainedException.getExceptionChain().get(0);
+            }
+            throw chainedException;
         }
         return (T)beanTree.get(type);
     }
@@ -593,7 +609,7 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
     }
     
     @Override
-    public String[] transmuteBean(T bean) throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
+    public String[] transmuteBean(T bean) throws CsvFieldAssignmentException, CsvChainedException {
         int numColumns = headerIndex.findMaxIndex()+1;
         BeanField<T, K> firstBeanField, subsequentBeanField;
         K firstIndex, subsequentIndex;
@@ -616,15 +632,26 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
             throw csve;
         }
 
-
+        CsvChainedException chainedException = null;
         for(int i = 0; i < numColumns;) {
 
             // Determine the first value
             firstBeanField = findField(i);
             firstIndex = chooseMultivaluedFieldIndexFromHeaderIndex(i);
-            String[] fields = firstBeanField != null
-                    ? firstBeanField.write(instanceMap.get(firstBeanField.getType()), firstIndex)
-                    : ArrayUtils.EMPTY_STRING_ARRAY;
+            String[] fields = ArrayUtils.EMPTY_STRING_ARRAY;
+            if(firstBeanField != null) {
+                try {
+                    fields = firstBeanField.write(instanceMap.get(firstBeanField.getType()), firstIndex);
+                }
+                catch(CsvDataTypeMismatchException | CsvRequiredFieldEmptyException e) {
+                    if(chainedException != null) {
+                        chainedException.add(e);
+                    }
+                    else {
+                        chainedException = new CsvChainedException(e);
+                    }
+                }
+            }
 
             if(fields.length == 0) {
 
@@ -674,6 +701,15 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
                 }
             }
         }
+
+        // If there were exceptions, throw them
+        if(chainedException != null) {
+            if(chainedException.getExceptionChain().size() == 1) {
+                throw chainedException.getExceptionChain().get(0);
+            }
+            throw chainedException;
+        }
+
         return contents.toArray(ArrayUtils.EMPTY_STRING_ARRAY);
     }
 

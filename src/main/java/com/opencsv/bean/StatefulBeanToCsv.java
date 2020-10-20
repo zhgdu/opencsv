@@ -19,11 +19,11 @@ import com.opencsv.CSVWriter;
 import com.opencsv.ICSVParser;
 import com.opencsv.ICSVWriter;
 import com.opencsv.bean.concurrent.BeanExecutor;
-import com.opencsv.bean.util.OrderedObject;
 import com.opencsv.bean.concurrent.ProcessCsvBean;
 import com.opencsv.bean.exceptionhandler.CsvExceptionHandler;
 import com.opencsv.bean.exceptionhandler.ExceptionHandlerThrow;
 import com.opencsv.bean.util.OpencsvUtils;
+import com.opencsv.bean.util.OrderedObject;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
@@ -383,6 +383,7 @@ public class StatefulBeanToCsv<T> {
     public List<CsvException> getCapturedExceptions() {
         List<CsvException> intermediate = capturedExceptions;
         capturedExceptions = new ArrayList<>();
+        intermediate.sort(Comparator.comparingLong(CsvException::getLineNumber));
         return intermediate;
     }
 

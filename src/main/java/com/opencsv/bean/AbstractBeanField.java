@@ -185,9 +185,7 @@ abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
     private String preProcessValue(PreAssignmentProcessor processor, String value) throws CsvValidationException {
         try {
             StringProcessor stringProcessor = processor.processor().newInstance();
-            if (Objects.nonNull(processor.paramString())) {
-                stringProcessor.setParameterString(processor.paramString());
-            }
+            stringProcessor.setParameterString(processor.paramString());
             return stringProcessor.processString(value);
         } catch (InstantiationException | IllegalAccessException e) {
             throw new CsvValidationException(String.format(
@@ -200,9 +198,7 @@ abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
     private void validateValue(PreAssignmentValidator validator, String value) throws CsvValidationException {
         try {
             StringValidator stringValidator = validator.validator().newInstance();
-            if (Objects.nonNull(validator.paramString())) {
-                stringValidator.setParameterString(validator.paramString());
-            }
+            stringValidator.setParameterString(validator.paramString());
             stringValidator.validate(value, this);
         } catch (InstantiationException | IllegalAccessException e) {
             throw new CsvValidationException(String.format(
@@ -364,8 +360,9 @@ abstract public class AbstractBeanField<T, I> implements BeanField<T, I> {
             // rather from write() using isFieldEmptyForWrite() to determine
             // when to throw the exception. But user code is still allowed
             // to override convertToWrite() and throw this exception
+            Class<?> beanClass = bean == null ? null : bean.getClass();
             CsvRequiredFieldEmptyException csve = new CsvRequiredFieldEmptyException(
-                    bean.getClass(), field, e.getMessage());
+                    beanClass, field, e.getMessage());
             csve.initCause(e.getCause());
             throw csve;
         }

@@ -20,6 +20,7 @@ import com.opencsv.TestUtils;
 import com.opencsv.bean.mocks.*;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvException;
+import com.opencsv.exceptions.CsvFieldAssignmentException;
 import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.junit.jupiter.api.AfterEach;
@@ -999,6 +1000,35 @@ public class StatefulBeanToCsvTest {
                 .build();
         btcsv.write(beans.left);
         assertTrue(Pattern.matches(HEADER_NAME_FULL + "\n" + GOOD_DATA_NAME_1 + "\n", writer.toString()));
+    }
+
+    @Test
+    public void writeMultipleExceptionsPerBean() throws CsvFieldAssignmentException {
+        StringWriter writer = new StringWriter();
+        HeaderColumnNameMappingStrategy<WriteLocale> strat = new HeaderColumnNameMappingStrategy<>();
+        strat.setColumnOrderOnWrite(null);
+        strat.setType(WriteLocale.class);
+        StatefulBeanToCsv<WriteLocale> btcsv = new StatefulBeanToCsvBuilder<WriteLocale>(writer)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
+                .withSeparator(';')
+                .withMappingStrategy(strat)
+                .withThrowExceptions(false)
+                .build();
+
+        // Broken beans. Each has multiple required fields.
+        List<WriteLocale> beans = Arrays.asList(new WriteLocale(), new WriteLocale(), new WriteLocale());
+        btcsv.write(beans);
+        List<CsvException> thrownExceptions = btcsv.getCapturedExceptions();
+        assertNotNull(thrownExceptions);
+        assertEquals(12, thrownExceptions.size());
+        final int errorsPerLine = 4;
+        for(int line = 0; line < 3 ; line++) {
+            for(int mistake = 0; mistake < errorsPerLine; mistake++) {
+                CsvException e = thrownExceptions.get(line*errorsPerLine+mistake);
+                assertTrue(e instanceof CsvRequiredFieldEmptyException);
+                assertEquals(line+1, e.getLineNumber());
+            }
+        }
     }
 
     private static class SFirstCollator implements Comparator<String> {

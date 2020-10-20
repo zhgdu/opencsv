@@ -736,8 +736,8 @@ public class AnnotatedMockBeanFull {
      * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByName()}</li>
      * </ul>
      */
-    @CsvBindByName(column = "enum1", required = false)
-    @CsvBindByPosition(position = 50, required = false)
+    @CsvBindByName(column = "enum1")
+    @CsvBindByPosition(position = 50)
     private TestEnum testEnum;
 
     /**
@@ -748,8 +748,8 @@ public class AnnotatedMockBeanFull {
      * <li>{@link com.opencsv.bean.AnnotationTest#testGoodDataByPosition()}</li>
      * </ul>
      */
-    @CsvBindByName(column = "currency1", required = false)
-    @CsvBindByPosition(position = 51, required = false)
+    @CsvBindByName(column = "currency1")
+    @CsvBindByPosition(position = 51)
     private Currency testCurrency;
 
     /**

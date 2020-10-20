@@ -17,6 +17,7 @@ package com.opencsv.bean.concurrent;
 
 import com.opencsv.bean.util.OrderedObject;
 import com.opencsv.exceptions.CsvException;
+import org.apache.commons.collections4.ListValuedMap;
 
 import java.util.SortedSet;
 import java.util.concurrent.BlockingQueue;
@@ -39,8 +40,10 @@ class AccumulateCsvResults<T> extends Thread {
     private final BlockingQueue<OrderedObject<CsvException>> thrownExceptionsQueue;
     private final SortedSet<Long> expectedRecords;
     private final ConcurrentMap<Long, T> resultantBeanMap;
-    private final ConcurrentMap<Long, CsvException> thrownExceptionsMap;
     private boolean mustStop = false;
+
+    /** <em>All access to this variable must be synchronized.</em> */
+    private final ListValuedMap<Long, CsvException> thrownExceptionsMap;
 
     /**
      * The only accepted constructor for the accumulator.
@@ -55,14 +58,15 @@ class AccumulateCsvResults<T> extends Thread {
      *                        while converting can be detected.
      * @param resultantBeanMap The (ordered) map of beans that have been
      *   created. The accumulator inserts into this map.
-     * @param thrownExceptionsMap The (ordered) map of suppressed exceptions
-     *   thrown during bean creation. The accumulator inserts into this map.
+     * @param thrownExceptionsMap The map of suppressed exceptions thrown
+     *   during bean creation. The accumulator inserts into this map. <em>All
+     *   access to this variable must be synchronized.</em>
      */
     AccumulateCsvResults(BlockingQueue<OrderedObject<T>> resultantBeansQueue,
                          BlockingQueue<OrderedObject<CsvException>> thrownExceptionsQueue,
                          SortedSet<Long> expectedRecords,
                          ConcurrentMap<Long, T> resultantBeanMap,
-                         ConcurrentMap<Long, CsvException> thrownExceptionsMap) {
+                         ListValuedMap<Long, CsvException> thrownExceptionsMap) {
         super();
         this.resultantBeansQueue = resultantBeansQueue;
         this.thrownExceptionsQueue = thrownExceptionsQueue;
@@ -123,7 +127,9 @@ class AccumulateCsvResults<T> extends Thread {
             while(!thrownExceptionsQueue.isEmpty()) {
                 OrderedObject<CsvException> capturedException = thrownExceptionsQueue.poll();
                 if(capturedException != null) {
-                    thrownExceptionsMap.put(capturedException.getOrdinal(), capturedException.getElement());
+                    synchronized (thrownExceptionsMap) {
+                        thrownExceptionsMap.put(capturedException.getOrdinal(), capturedException.getElement());
+                    }
                 }
             }
             Thread.yield();

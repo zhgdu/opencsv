@@ -19,10 +19,9 @@ import java.io.StringWriter;
 import java.time.*;
 import java.time.chrono.*;
 import java.time.temporal.Temporal;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static org.junit.Assert.*;
 
@@ -220,27 +219,21 @@ public class TemporalTest {
 
         List<CsvException> exceptions = csvToBean.getCapturedExceptions();
         assertNotNull(exceptions);
-        assertEquals(5, exceptions.size());
 
-        // The exception we're looking for could be the third or fourth
-        assertTrue(verifyEraException(exceptions.get(2), 4, era)
-                || verifyEraException(exceptions.get(3), 5, era)
-                || verifyEraException(exceptions.get(4), 6, era));
-    }
+        // Five lines must show errors
+        assertEquals(5, exceptions.stream()
+                .map(CsvException::getLineNumber)
+                .collect(Collectors.toSet()).size());
 
-    private boolean verifyEraException(CsvException csve, long lineNumber, Class<? extends Era> era) {
-        boolean assertionPassed = true;
-        assertTrue(csve instanceof CsvDataTypeMismatchException);
-        CsvDataTypeMismatchException dtmm = (CsvDataTypeMismatchException) csve;
-        assertNotNull(dtmm.getCause());
-        if(lineNumber != dtmm.getLineNumber()) {
-            assertionPassed = false;
-        }
-        assertNotNull(dtmm.getSourceObject());
-        if(!era.equals(dtmm.getDestinationClass())) {
-            assertionPassed = false;
-        }
-        return assertionPassed;
+        // The exception we're looking for could be in one of three lines
+        Set<Long> possibleLines = new HashSet<>();
+        possibleLines.add(4L); possibleLines.add(5L); possibleLines.add(6L);
+        assertTrue(exceptions.stream()
+                .filter(e -> e.getCause() != null)
+                .filter(e -> e instanceof CsvDataTypeMismatchException)
+                .filter(e -> era.equals(((CsvDataTypeMismatchException)e).getDestinationClass()))
+                .filter(e -> ((CsvDataTypeMismatchException) e).getSourceObject() != null)
+                .anyMatch(e -> possibleLines.contains(e.getLineNumber())));
     }
 
     /**
@@ -272,8 +265,11 @@ public class TemporalTest {
         //   Japanese eras = "Shōwa" and "Taishō"
         // Thus we have three lines of input for every combination and any
         // given version of Java will accept three and throw exceptions for the
-        // other six.
-        assertEquals(6, csvToBean.getCapturedExceptions().size());
+        // other six. But there are either four or six errors per line, as well.
+        Set<Integer> numErrors = new HashSet<>();
+        numErrors.add(24); // Java 9 through 12
+        numErrors.add(36); // Java 8 and 13+
+        assertTrue(numErrors.contains(csvToBean.getCapturedExceptions().size()));
         verifyBeans(beans);
     }
 
@@ -297,8 +293,11 @@ public class TemporalTest {
         //   Japanese eras = "Shōwa" and "Taishō"
         // Thus we have three lines of input for every combination and any
         // given version of Java will accept three and throw exceptions for the
-        // other six.
-        assertEquals(6, csvToBean.getCapturedExceptions().size());
+        // other six. But there are either four or six errors per line, as well.
+        Set<Integer> numErrors = new HashSet<>();
+        numErrors.add(24); // Java 9 through 12
+        numErrors.add(36); // Java 8 and 13+
+        assertTrue(numErrors.contains(csvToBean.getCapturedExceptions().size()));
         verifyBeans(beans);
     }
 
@@ -395,15 +394,13 @@ public class TemporalTest {
         csvToBean.parse();
         List<CsvException> exceptions = csvToBean.getCapturedExceptions();
         assertNotNull(exceptions);
-        assertEquals(2, exceptions.size());
-        for(CsvException e : exceptions) {
-            assertNotNull(e.getCause());
-            assertNotNull(e.getLine());
-            assertTrue(e instanceof CsvDataTypeMismatchException);
-            CsvDataTypeMismatchException csve = (CsvDataTypeMismatchException) e;
-            assertEquals(input.split(",", 2)[0], csve.getSourceObject());
-            assertEquals(IsoEra.class, csve.getDestinationClass());
-        }
+        assertEquals(2, exceptions.stream()
+                .filter(e -> e.getCause() != null)
+                .filter(e -> e.getLine() != null)
+                .filter(e -> e instanceof CsvDataTypeMismatchException)
+                .filter(e -> IsoEra.class.equals(((CsvDataTypeMismatchException)e).getDestinationClass()))
+                .filter(e -> input.split(",", 2)[0].equals(((CsvDataTypeMismatchException)e).getSourceObject()))
+                .count());
     }
 
     @Test
