@@ -338,8 +338,8 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
             }
         }
         if(chainedException != null) {
-            if(chainedException.getExceptionChain().size() == 1) {
-                throw chainedException.getExceptionChain().get(0);
+            if (chainedException.hasOnlyOneException()) {
+                throw chainedException.getFirstException();
             }
             throw chainedException;
         }
@@ -704,8 +704,8 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
 
         // If there were exceptions, throw them
         if(chainedException != null) {
-            if(chainedException.getExceptionChain().size() == 1) {
-                throw chainedException.getExceptionChain().get(0);
+            if (chainedException.hasOnlyOneException()) {
+                throw chainedException.getFirstException();
             }
             throw chainedException;
         }

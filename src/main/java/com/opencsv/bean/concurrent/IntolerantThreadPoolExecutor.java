@@ -184,10 +184,10 @@ class IntolerantThreadPoolExecutor<T> extends ThreadPoolExecutor implements Spli
         else {
             returnList = new LinkedList<>();
             synchronized (thrownExceptionsMap) {
-                SortedSet<Long> keys = new TreeSet<>(thrownExceptionsMap.keySet());
-                for(Long l : keys) {
-                    returnList.addAll(thrownExceptionsMap.get(l));
-                }
+                final List<CsvException> finalReturnList = returnList;
+                thrownExceptionsMap.keySet().stream()
+                        .sorted()
+                        .forEach(l -> finalReturnList.addAll(thrownExceptionsMap.get(l)));
             }
         }
         return returnList;

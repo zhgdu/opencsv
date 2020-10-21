@@ -54,4 +54,24 @@ public class CsvChainedException extends CsvException {
         super.setLineNumber(lineNumber);
         exceptionChain.forEach(e -> e.setLineNumber(lineNumber));
     }
+
+    /**
+     * Convenience method that checks if the chain only has a single exception.
+     *
+     * @return {@code true} if chain has only a single exception,
+     *   {@code false} otherwise
+     */
+    public boolean hasOnlyOneException() {
+        return exceptionChain.size() == 1;
+    }
+
+    /**
+     * Convenience method to return the first exception from the exception chain.
+     *
+     * @return {@link CsvFieldAssignmentException} at the first position in the
+     * list, {@code null} otherwise.
+     */
+    public CsvFieldAssignmentException getFirstException() {
+        return exceptionChain.isEmpty() ? null : exceptionChain.get(0);
+    }
 }
