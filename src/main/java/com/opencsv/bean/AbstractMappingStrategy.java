@@ -802,16 +802,16 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
         private final Map<FieldAccess<Object>, RecursiveType> recursiveMembers = new HashMap<>();
 
         /**
-         * Constructs an RecursiveType with the specified type.
+         * Constructs a {@link RecursiveType} with the specified type.
          *
-         * @param type
+         * @param type Type associated with this branch
          */
         RecursiveType(Class<?> type) {
             this.type = type;
         }
 
         /**
-         * @return the Class type that was passed in the constructor.
+         * @return Type associated with this branch
          */
         public Class<?> getType() {
             return type;
@@ -820,16 +820,15 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
         /**
          * Used to add a recursive type.
          *
-         * @param member     - Field access member to add a recursive type to.
-         * @param memberType - RecursiveType to add
-         * @return - previous RecursiveType stored for the particular member, null if there was no previously stored value.
+         * @param member     Field access member to add a recursive type to
+         * @param memberType {@link RecursiveType} to add
          */
-        public RecursiveType addRecursiveMember(FieldAccess<Object> member, RecursiveType memberType) {
-            return recursiveMembers.put(member, memberType);
+        public void addRecursiveMember(FieldAccess<Object> member, RecursiveType memberType) {
+            recursiveMembers.put(member, memberType);
         }
 
         /**
-         * @return Map of all field access and their recursive type.
+         * @return {@link Map} of field access to {@link RecursiveType}.
          */
         public Map<FieldAccess<Object>, RecursiveType> getRecursiveMembers() {
             return recursiveMembers;
