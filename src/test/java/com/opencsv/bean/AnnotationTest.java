@@ -122,6 +122,26 @@ public class AnnotationTest {
         testGoodData(strat, fin, true);
     }
 
+    /**
+     * "Anonymous headers" is a term someone came up with for empty headers.
+     * If empty fields are converted to {@code null}, these null headers can't
+     * break opencsv. They are not supported, but they can't cause a crash.
+     * @throws FileNotFoundException Never
+     */
+    @Test
+    public void testAnonymousHeaders() throws FileNotFoundException {
+        HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat =
+                new HeaderColumnNameMappingStrategy<>();
+        strat.setType(AnnotatedMockBeanFull.class);
+        FileReader fin = new FileReader("src/test/resources/testAnonymousHeaders.csv");
+        List<AnnotatedMockBeanFull> beanList = new CsvToBeanBuilder<AnnotatedMockBeanFull>(fin)
+                .withSeparator(';')
+                .withMappingStrategy(strat)
+                .withFieldAsNull(CSVReaderNullFieldIndicator.EMPTY_SEPARATORS)
+                .build().parse();
+        assertEquals(2, beanList.size());
+    }
+
     @Test
     public void testCaptureWithNullField() throws FileNotFoundException {
         HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat =

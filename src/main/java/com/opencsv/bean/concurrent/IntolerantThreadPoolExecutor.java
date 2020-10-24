@@ -248,7 +248,7 @@ class IntolerantThreadPoolExecutor<T> extends ThreadPoolExecutor implements Spli
             if(terminalException instanceof CsvException) {
                 CsvException csve = (CsvException) terminalException;
                 throw new RuntimeException(String.format(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("parsing.error.linenumber"),
-                        csve.getLineNumber(), String.join(",", ObjectUtils.defaultIfNull(csve.getLine(), ArrayUtils.EMPTY_STRING_ARRAY))), csve);
+                        csve.getLineNumber(), String.join(",", ArrayUtils.nullToEmpty(csve.getLine()))), csve);
             }
             throw new RuntimeException(terminalException);
         }

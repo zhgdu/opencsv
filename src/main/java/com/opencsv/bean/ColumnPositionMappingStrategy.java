@@ -70,7 +70,7 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
                     .getString("type.unset"));
         }
 
-        String[] firstLine = ObjectUtils.defaultIfNull(reader.peek(), ArrayUtils.EMPTY_STRING_ARRAY);
+        String[] firstLine = ArrayUtils.nullToEmpty(reader.peek());
         fieldMap.setMaxIndex(firstLine.length - 1);
         if (!columnsExplicitlySet) {
             headerIndex.clear();
