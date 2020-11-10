@@ -34,8 +34,8 @@ public class ResultSetHelperService implements ResultSetHelper {
    static final String DEFAULT_TIMESTAMP_FORMAT = "dd-MMM-yyyy HH:mm:ss";
    private static final String DEFAULT_VALUE = StringUtils.EMPTY;
 
-   private String dateFormat = DEFAULT_DATE_FORMAT;
-   private String dateTimeFormat = DEFAULT_TIMESTAMP_FORMAT;
+   protected String dateFormat = DEFAULT_DATE_FORMAT;
+   protected String dateTimeFormat = DEFAULT_TIMESTAMP_FORMAT;
 
    /**
     * Default constructor.
