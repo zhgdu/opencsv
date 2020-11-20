@@ -48,30 +48,38 @@ import java.util.stream.StreamSupport;
  * @param <T> Class to convert the objects to.
  */
 public class CsvToBean<T> implements Iterable<T> {
-    
-   /** A list of all exceptions during parsing and mapping of the input. */
+
+    /**
+     * A list of all exceptions during parsing and mapping of the input.
+     */
     private final List<CsvException> capturedExceptions = new LinkedList<>();
 
-   /** The mapping strategy to be used by this CsvToBean. */
+    /**
+     * The mapping strategy to be used by this CsvToBean.
+     */
     private MappingStrategy<? extends T> mappingStrategy;
 
-   /** The reader this class will use to access the data to be read. */
+    /**
+     * The reader this class will use to access the data to be read.
+     */
     private CSVReader csvReader;
 
-   /** The filter this class will use on the beans it reads. */
+    /**
+     * The filter this class will use on the beans it reads.
+     */
     private CsvToBeanFilter filter = null;
 
     /**
      * Determines how exceptions thrown during processing will be handled.
      */
     private CsvExceptionHandler exceptionHandler = new ExceptionHandlerThrow();
-    
+
     /**
      * Determines whether resulting data sets have to be in the same order as
      * the input.
      */
     private boolean orderedResults = true;
-    
+
     /**
      * The {@link java.util.concurrent.ExecutorService} for parallel processing
      * of beans.
@@ -126,7 +134,7 @@ public class CsvToBean<T> implements Iterable<T> {
      *
      * @return A stream of populated beans based on the input
      * @throws IllegalStateException If either MappingStrategy or CSVReader is
-     *   not specified
+     *                               not specified
      * @see #parse()
      * @see #iterator()
      */
@@ -146,7 +154,7 @@ public class CsvToBean<T> implements Iterable<T> {
      *
      * @return The list of exceptions captured while processing the input file
      * @see #setExceptionHandler(CsvExceptionHandler)
-     * @see #setThrowExceptions(boolean) 
+     * @see #setThrowExceptions(boolean)
      */
     public List<CsvException> getCapturedExceptions() {
         // The exceptions are stored in different places, dependent on
@@ -156,6 +164,7 @@ public class CsvToBean<T> implements Iterable<T> {
 
     /**
      * Sets the mapping strategy to be used by this bean.
+     *
      * @param mappingStrategy Mapping strategy to convert CSV input to a bean
      */
     public void setMappingStrategy(MappingStrategy<? extends T> mappingStrategy) {
@@ -164,6 +173,7 @@ public class CsvToBean<T> implements Iterable<T> {
 
     /**
      * Sets the reader to be used to read in the information from the CSV input.
+     *
      * @param csvReader Reader for input
      */
     public void setCsvReader(CSVReader csvReader) {
@@ -173,6 +183,7 @@ public class CsvToBean<T> implements Iterable<T> {
     /**
      * Sets a filter to selectively remove some lines of input before they
      * become beans.
+     *
      * @param filter A class that filters the input lines
      */
     public void setFilter(CsvToBeanFilter filter) {
@@ -192,14 +203,13 @@ public class CsvToBean<T> implements Iterable<T> {
      * the last call wins.</p>
      *
      * @param throwExceptions Whether or not to throw exceptions during
-     *   processing
+     *                        processing
      * @see #setExceptionHandler(CsvExceptionHandler)
      */
     public void setThrowExceptions(boolean throwExceptions) {
-        if(throwExceptions) {
+        if (throwExceptions) {
             exceptionHandler = new ExceptionHandlerThrow();
-        }
-        else {
+        } else {
             exceptionHandler = new ExceptionHandlerQueue();
         }
     }
@@ -218,11 +228,20 @@ public class CsvToBean<T> implements Iterable<T> {
      * @since 5.2
      */
     public void setExceptionHandler(CsvExceptionHandler handler) {
-        if(handler != null) {
+        if (handler != null) {
             exceptionHandler = handler;
         }
     }
-    
+
+    /**
+     * Package scope method currently used by the CsvToBeanBuilderTest
+     *
+     * @return CsvExceptionHandler used by the CsvToBean object.
+     */
+    CsvExceptionHandler getExceptionHandler() {
+        return exceptionHandler;
+    }
+
     /**
      * Sets whether or not results must be returned in the same order in which
      * they appear in the input.
@@ -231,26 +250,28 @@ public class CsvToBean<T> implements Iterable<T> {
      * {@code orderedResults} to {@code false}. The lack of ordering then also
      * applies to any captured exceptions, if you have chosen not to have
      * exceptions thrown.
+     *
      * @param orderedResults Whether or not the beans returned are in the same
-     *   order they appeared in the input
+     *                       order they appeared in the input
      * @since 4.0
      */
     public void setOrderedResults(boolean orderedResults) {
         this.orderedResults = orderedResults;
     }
-    
+
     /**
      * Sets the locale for error messages.
+     *
      * @param errorLocale Locale for error messages. If null, the default locale
-     *   is used.
+     *                    is used.
      * @since 4.0
      */
     public void setErrorLocale(Locale errorLocale) {
         this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
-        if(csvReader != null) {
+        if (csvReader != null) {
             csvReader.setErrorLocale(this.errorLocale);
         }
-        if(mappingStrategy != null) {
+        if (mappingStrategy != null) {
             mappingStrategy.setErrorLocale(this.errorLocale);
         }
     }
@@ -265,11 +286,11 @@ public class CsvToBean<T> implements Iterable<T> {
     public void setVerifiers(List<BeanVerifier<T>> verifiers) {
         this.verifiers = ObjectUtils.defaultIfNull(verifiers, Collections.<BeanVerifier<T>>emptyList());
     }
-    
+
     private void prepareToReadInput() throws IllegalStateException {
         // First verify that the user hasn't failed to give us the information
         // we need to do his or her work for him or her.
-        if(mappingStrategy == null || csvReader == null) {
+        if (mappingStrategy == null || csvReader == null) {
             throw new IllegalStateException(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("specify.strategy.reader"));
         }
 
@@ -280,7 +301,7 @@ public class CsvToBean<T> implements Iterable<T> {
             throw new RuntimeException(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("header.error"), e);
         }
     }
-    
+
     /**
      * The iterator returned by this method takes one line of input at a time
      * and returns one bean at a time.
@@ -288,6 +309,7 @@ public class CsvToBean<T> implements Iterable<T> {
      * parallel processing, reducing throughput.</p>
      * <p>The iterator respects all aspects of {@link CsvToBean}, including
      * filters and capturing exceptions.</p>
+     *
      * @return An iterator over the beans created from the input
      * @see #parse()
      * @see #stream()
@@ -317,17 +339,17 @@ public class CsvToBean<T> implements Iterable<T> {
         private String[] line = null;
         private long lineProcessed = 0;
         private T bean;
-        
+
         CsvToBeanIterator() {
             resultantBeansQueue = new ArrayBlockingQueue<>(1);
             thrownExceptionsQueue = new ArrayBlockingQueue<>(1);
             readSingleLine();
         }
-        
+
         private void processException() {
             // An exception was thrown
             OrderedObject<CsvException> o = thrownExceptionsQueue.poll();
-            if(o != null && o.getElement() != null) {
+            if (o != null && o.getElement() != null) {
                 capturedExceptions.add(o.getElement());
             }
         }
@@ -335,7 +357,7 @@ public class CsvToBean<T> implements Iterable<T> {
         private void readLineWithPossibleError() throws IOException, CsvValidationException {
             // Read a line
             bean = null;
-            while(bean == null && null != (line = lineReader.readNextLine())) {
+            while (bean == null && null != (line = lineReader.readNextLine())) {
                 lineProcessed = lineReader.getLinesRead();
 
                 // Create a bean
@@ -351,10 +373,10 @@ public class CsvToBean<T> implements Iterable<T> {
                     // No exception, so there really must always be a bean
                     // . . . unless it was filtered
                     OrderedObject<T> o = resultantBeansQueue.poll();
-                    bean = o==null?null:o.getElement();
+                    bean = o == null ? null : o.getElement();
                 }
             }
-            if(line == null) {
+            if (line == null) {
                 // There isn't any more
                 bean = null;
             }
@@ -377,14 +399,14 @@ public class CsvToBean<T> implements Iterable<T> {
 
         @Override
         public T next() {
-            if(bean == null) {
+            if (bean == null) {
                 throw new NoSuchElementException();
             }
             T intermediateBean = bean;
             readSingleLine();
             return intermediateBean;
         }
-        
+
         @Override
         public void remove() {
             throw new UnsupportedOperationException(ResourceBundle
