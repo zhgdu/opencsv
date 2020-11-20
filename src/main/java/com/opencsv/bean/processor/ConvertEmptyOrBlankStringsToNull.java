@@ -5,10 +5,10 @@ package com.opencsv.bean.processor;
  * This is useful when you prefer null in a particular variable.
  * <p>
  * A sample of this can be found in the unit test ProcessorTestBean and is annotated as follows.
- *
+ * <p>
  * <pre>
- *     @PreAssignmentProcessor(processor = ConvertEmptyOrBlankStringsToNull.class)
- *     @CsvBindByName(column = "name")
+ *     &#64;PreAssignmentProcessor(processor = ConvertEmptyOrBlankStringsToNull.class)
+ *     &#64;CsvBindByName(column = "name")
  *     private String beanName;
  *  </pre>
  *
@@ -16,6 +16,13 @@ package com.opencsv.bean.processor;
  * @since 5.4
  */
 public class ConvertEmptyOrBlankStringsToNull implements StringProcessor {
+
+    /**
+     * Default Constructor.
+     */
+    public ConvertEmptyOrBlankStringsToNull() {
+    }
+
     @Override
     public String processString(String value) {
         if (value == null || value.trim().isEmpty()) {

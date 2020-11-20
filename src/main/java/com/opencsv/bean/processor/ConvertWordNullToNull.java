@@ -5,12 +5,11 @@ package com.opencsv.bean.processor;
  * This is useful when you are dealing with csv files that actually use the word null.
  * <p>
  * A sample of this can be found in the Integration tests FR138MockBean and is annotated as follows.
- *
- * <pre>
- *     @PreAssignmentProcessor(processor = ConvertWordNullToNull.class)
- *     private int num;
- *  </pre>
  * <p>
+ * <pre>
+ *     &#64;PreAssignmentProcessor(processor = ConvertWordNullToNull.class)
+ *     private int num;
+ * </pre>
  * Without the annotation an CSVMalformedException is thrown when trying to conver the string "null" to an int.
  * But with it is considered a null String and the int gets a default value of 0.
  *
@@ -18,6 +17,12 @@ package com.opencsv.bean.processor;
  * @since 5.4
  */
 public class ConvertWordNullToNull implements StringProcessor {
+
+    /**
+     * Default Constructor.
+     */
+    public ConvertWordNullToNull() {
+    }
 
     @Override
     public String processString(String value) {

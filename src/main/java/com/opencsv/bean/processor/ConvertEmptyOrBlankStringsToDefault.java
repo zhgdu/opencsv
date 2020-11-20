@@ -5,18 +5,24 @@ package com.opencsv.bean.processor;
  * This is useful when you want a default value.
  * <p>
  * A sample of this can be found in the unit test ProcessorTestBean and is annotated as follows.
- *
+ * <p>
  * <pre>
- *     @PreAssignmentProcessor(processor = ConvertEmptyOrBlankStringsToDefault.class, paramString = "-1")
- *     @CsvBindByName(column = "id")
+ *     &#64;PreAssignmentProcessor(processor = ConvertEmptyOrBlankStringsToDefault.class, paramString = "-1")
+ *     &#64;CsvBindByName(column = "id")
  *     private int beanId;
- *  </pre>
+ * </pre>
  *
  * @author Scott Conway
  * @since 5.4
  */
 public class ConvertEmptyOrBlankStringsToDefault implements StringProcessor {
     String defaultValue;
+
+    /**
+     * Default constructor
+     */
+    public ConvertEmptyOrBlankStringsToDefault() {
+    }
 
     @Override
     public String processString(String value) {
