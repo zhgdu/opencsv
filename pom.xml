@@ -4,7 +4,7 @@
     <groupId>com.opencsv</groupId>
     <artifactId>opencsv</artifactId>
     <packaging>jar</packaging>
-    <version>5.3.1-SNAPSHOT</version>
+    <version>5.4-SNAPSHOT</version>
     <name>opencsv</name>
     <description>A simple library for reading and writing CSV in Java</description>
     <url>http://opencsv.sf.net</url>
@@ -704,7 +704,7 @@
             <plugin>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
-                <version>4.0.4</version>
+                <version>4.1.4</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

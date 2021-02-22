@@ -1,5 +1,6 @@
 package integrationTest.FR138;
 
+import com.opencsv.bean.processor.ConvertWordNullToNull;
 import com.opencsv.bean.processor.PreAssignmentProcessor;
 
 public class FR138MockBean {

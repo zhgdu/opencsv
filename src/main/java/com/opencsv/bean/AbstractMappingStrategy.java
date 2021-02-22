@@ -40,16 +40,16 @@ import java.util.function.Function;
  * assumes through {@link #getBindingAnnotations()} they are not in use.</p>
  * <p>Anyone is welcome to use it as a base class for their own mapping
  * strategies.</p>
- * 
+ *
  * @param <T> Type of object that is being processed.
  * @param <C> The type of the internal many-to-one mapping
  * @param <I> The initializer type used to build the internal many-to-one mapping
  * @param <K> The type of the key used for internal indexing
- * 
+ *
  * @author Andrew Rucker Jones
  * @since 4.2
  */
-abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C extends ComplexFieldMapEntry<I, K, T>, T> implements MappingStrategy<T> {
+public abstract class AbstractMappingStrategy<I, K extends Comparable<K>, C extends ComplexFieldMapEntry<I, K, T>, T> implements MappingStrategy<T> {
 
     /**
      * Set of classes where recursion is not allowed.   Using HashSet because, given the large number of types, the
@@ -89,20 +89,20 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
     /**
      * For {@link BeanField#indexAndSplitMultivaluedField(java.lang.Object, java.lang.Object)}
      * it is necessary to determine which index to pass in.
-     * 
+     *
      * @param index The current column position while transmuting a bean to CSV
-     *   output
+     *              output
      * @return The index to be used for this mapping strategy for
-     *   {@link BeanField#indexAndSplitMultivaluedField(java.lang.Object, java.lang.Object) }
+     * {@link BeanField#indexAndSplitMultivaluedField(java.lang.Object, java.lang.Object) }
      */
-    abstract protected K chooseMultivaluedFieldIndexFromHeaderIndex(int index);
-    
+    protected abstract K chooseMultivaluedFieldIndexFromHeaderIndex(int index);
+
     /**
      * Returns the {@link FieldMap} associated with this mapping strategy.
-     * 
+     *
      * @return The {@link FieldMap} used by this strategy
      */
-    abstract protected FieldMap<I,K,? extends C,T> getFieldMap();
+    protected abstract FieldMap<I, K, ? extends C, T> getFieldMap();
 
     /**
      * Returns a set of the annotations that are used for binding in this
@@ -140,16 +140,17 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
      *               processed
      * @since 5.0
      */
-    abstract protected void loadUnadornedFieldMap(ListValuedMap<Class<?>, Field> fields);
+    protected abstract void loadUnadornedFieldMap(ListValuedMap<Class<?>, Field> fields);
 
     /**
      * Creates an empty binding-type-specific field map that can be filled in
      * later steps.
      * <p>This method may be called multiple times and must erase any state
      * information from previous calls.</p>
+     *
      * @since 5.0
      */
-    abstract protected void initializeFieldMap();
+    protected abstract void initializeFieldMap();
 
     /**
      * Gets the field for a given column position.
@@ -160,7 +161,7 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
      * @throws CsvBadConverterException If a custom converter for a field cannot
      *                                  be initialized
      */
-    abstract protected BeanField<T, K> findField(int col);
+    protected abstract BeanField<T, K> findField(int col);
 
     /**
      * Must be called once the length of input for a line/record is known to
@@ -177,7 +178,7 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
      * @throws CsvRequiredFieldEmptyException If a required column is missing
      * @since 4.0
      */
-    abstract protected void verifyLineLength(int numberOfFields) throws CsvRequiredFieldEmptyException;
+    protected abstract void verifyLineLength(int numberOfFields) throws CsvRequiredFieldEmptyException;
     
     /**
      * Implementation will return a bean of the type of object being mapped.
@@ -264,11 +265,11 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
      * Gets the name (or position number) of the header for the given column
      * number.
      * The column numbers are zero-based.
-     * 
+     *
      * @param col The column number for which the header is sought
      * @return The name of the header
      */
-    abstract public String findHeader(int col);
+    public abstract String findHeader(int col);
 
     /**
      * This method generates a header that can be used for writing beans of the
@@ -382,10 +383,10 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
         else {
             ignoredFields = fields;
             MapIterator<Class<?>, Field> it = ignoredFields.mapIterator();
-            it.forEachRemaining(type -> {
+            it.forEachRemaining(t -> {
                 final Field f = it.getValue();
-                if(type == null || f == null
-                        || !f.getDeclaringClass().isAssignableFrom(type)) {
+                if (t == null || f == null
+                        || !f.getDeclaringClass().isAssignableFrom(t)) {
                     throw new IllegalArgumentException(ResourceBundle.getBundle(
                             ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
                             .getString("ignore.field.inconsistent"));
@@ -818,10 +819,14 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
         }
 
         // Or an enumeration
-        else if(elementType.isEnum()) {
+        else if (elementType.isEnum()) {
             converter = new ConverterEnum(elementType, locale, writeLocale, errorLocale);
         }
 
+        // or an UUID
+        else if (elementType.equals(UUID.class)) {
+            converter = new ConverterUUID(errorLocale);
+        }
         // Otherwise a primitive
         else {
             converter = new ConverterPrimitiveTypes(elementType, locale, writeLocale, errorLocale);

@@ -17,7 +17,6 @@ package com.opencsv.bean;
 
 import com.opencsv.*;
 import com.opencsv.bean.exceptionhandler.CsvExceptionHandler;
-import com.opencsv.bean.exceptionhandler.ExceptionHandlerQueue;
 import com.opencsv.bean.exceptionhandler.ExceptionHandlerThrow;
 import com.opencsv.bean.util.OpencsvUtils;
 import com.opencsv.enums.CSVReaderNullFieldIndicator;
@@ -76,8 +75,10 @@ public class CsvToBeanBuilder<T> {
    /** @see CsvToBean#filter */
    private CsvToBeanFilter filter = null;
    
-   /** @see CsvToBean#throwExceptions */
-   private CsvExceptionHandler exceptionHandler = new ExceptionHandlerThrow();
+   /**
+    * @see CsvToBean#throwExceptions
+    */
+   private CsvExceptionHandler exceptionHandler = null;
    
    /** @see com.opencsv.CSVParser#nullFieldIndicator */
    private CSVReaderNullFieldIndicator nullFieldIndicator = null;
@@ -99,15 +100,26 @@ public class CsvToBeanBuilder<T> {
    
    /** @see com.opencsv.CSVParser#escape */
    private Character escapeChar = null;
-   
-   /** @see com.opencsv.CSVParser#strictQuotes */
-   private Boolean strictQuotes = null;
-   
-   /** @see com.opencsv.CSVParser#ignoreLeadingWhiteSpace */
-   private Boolean ignoreLeadingWhiteSpace = null;
-   
-   /** @see com.opencsv.CSVParser#ignoreQuotations */
-   private Boolean ignoreQuotations = null;
+
+    /**
+     * @see com.opencsv.CSVParser#strictQuotes
+     */
+    private Boolean strictQuotes = null;
+
+    /**
+     * @see com.opencsv.CSVParser#ignoreLeadingWhiteSpace
+     */
+    private Boolean ignoreLeadingWhiteSpace = null;
+
+    /**
+     * @see com.opencsv.CSVParser#ignoreQuotations
+     */
+    private Boolean ignoreQuotations = null;
+
+    /**
+     * @see com.opencsv.bean.CsvToBean#setThrowExceptions(boolean)
+     */
+    private Boolean throwsExceptions = true;
 
     /**
      * @see HeaderColumnNameMappingStrategy#type
@@ -146,7 +158,7 @@ public class CsvToBeanBuilder<T> {
 
     /** @see com.opencsv.bean.AbstractMappingStrategy#profile */
     private String profile = StringUtils.EMPTY;
-   
+
    /**
     * Constructor with the one parameter that is most definitely mandatory, and
     * always will be.
@@ -190,7 +202,7 @@ public class CsvToBeanBuilder<T> {
         if(mappingStrategy == null && type == null) {
             throw new IllegalStateException(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("strategy.type.missing"));
         }
-        
+
         // Build Parser and Reader
         CsvToBean<T> bean = new CsvToBean<>();
 
@@ -202,11 +214,19 @@ public class CsvToBeanBuilder<T> {
         }
 
         // Set variables in CsvToBean itself
-        bean.setExceptionHandler(exceptionHandler);
+
+        if (exceptionHandler != null) {
+            bean.setExceptionHandler(exceptionHandler);
+        } else {
+            bean.setThrowExceptions(throwsExceptions);
+        }
+
         bean.setOrderedResults(orderedResults);
-        if(filter != null) { bean.setFilter(filter); }
+        if (filter != null) {
+            bean.setFilter(filter);
+        }
         bean.setVerifiers(verifiers);
-        
+
         // Now find the mapping strategy and ignore irrelevant fields.
         // It's possible the mapping strategy has already been primed, so only
         // pass on our data if the user actually gave us something.
@@ -303,24 +323,24 @@ public class CsvToBeanBuilder<T> {
     }
 
     /**
+     * Sets how the CsvToBean will act when an exception occurs.   If both withThrowsExcpetion and
+     * {@link #withExceptionHandler(CsvExceptionHandler)} are used then the withExceptionHandler takes
+     * precedence and is used.
+     *
      * @see CsvToBean#setThrowExceptions(boolean)
      * @see #withExceptionHandler(CsvExceptionHandler)
      * @param throwExceptions Please see the "See Also" section
      * @return {@code this}
      */
     public CsvToBeanBuilder<T> withThrowExceptions(boolean throwExceptions) {
-        if(throwExceptions) {
-            this.exceptionHandler = new ExceptionHandlerThrow();
-        }
-        else {
-            this.exceptionHandler = new ExceptionHandlerQueue();
-        }
+        this.throwsExceptions = throwExceptions;
         return this;
     }
 
     /**
      * Sets the handler for recoverable exceptions raised during processing of
-     * records.
+     * records. If both {@link #withThrowExceptions(boolean)} and withExceptionHandler are used then the
+     * withExceptionHandler takes precedence and is used.
      * <p>If neither this method nor {@link #withThrowExceptions(boolean)} is
      * called, the default exception handler is
      * {@link ExceptionHandlerThrow}.</p>

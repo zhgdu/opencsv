@@ -122,7 +122,7 @@ public class ResultSetColumnNameHelperService extends ResultSetHelperService imp
         if (columnNamePositionMap.isEmpty()) {
             populateColumnData(rs);
         }
-        String[] realColumnValues = super.getColumnValues(rs, false, DEFAULT_DATE_FORMAT, DEFAULT_TIMESTAMP_FORMAT);
+        String[] realColumnValues = super.getColumnValues(rs, false, dateFormat, dateTimeFormat);
         return getColumnValueSubset(realColumnValues);
     }
 
@@ -139,7 +139,7 @@ public class ResultSetColumnNameHelperService extends ResultSetHelperService imp
         if (columnNamePositionMap.isEmpty()) {
             populateColumnData(rs);
         }
-        String[] realColumnValues = super.getColumnValues(rs, trim, DEFAULT_DATE_FORMAT, DEFAULT_TIMESTAMP_FORMAT);
+        String[] realColumnValues = super.getColumnValues(rs, trim, dateFormat, dateTimeFormat);
         return getColumnValueSubset(realColumnValues);
     }
 
