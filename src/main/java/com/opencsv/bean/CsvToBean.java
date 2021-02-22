@@ -151,6 +151,8 @@ public class CsvToBean<T> implements Iterable<T> {
     /**
      * Returns the list of all exceptions that would have been thrown during the
      * import, but were queued by the exception handler.
+     * <p>The results returned by this method are not consistent until parsing
+     * is concluded.</p>
      *
      * @return The list of exceptions captured while processing the input file
      * @see #setExceptionHandler(CsvExceptionHandler)
