@@ -34,6 +34,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -344,15 +345,16 @@ public class CsvToBean<T> implements Iterable<T> {
 
         CsvToBeanIterator() {
             resultantBeansQueue = new ArrayBlockingQueue<>(1);
-            thrownExceptionsQueue = new ArrayBlockingQueue<>(1);
+            thrownExceptionsQueue = new LinkedBlockingQueue<>();
             readSingleLine();
         }
 
         private void processException() {
-            // An exception was thrown
+            // At least one exception was thrown
             OrderedObject<CsvException> o = thrownExceptionsQueue.poll();
-            if (o != null && o.getElement() != null) {
+            while (o != null && o.getElement() != null) {
                 capturedExceptions.add(o.getElement());
+                o = thrownExceptionsQueue.poll();
             }
         }
 

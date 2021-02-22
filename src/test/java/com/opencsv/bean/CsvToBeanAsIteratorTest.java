@@ -26,9 +26,7 @@ import com.opencsv.exceptions.CsvRequiredFieldEmptyException;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.io.IOException;
-import java.io.Reader;
-import java.io.StringReader;
+import java.io.*;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -280,5 +278,29 @@ public class CsvToBeanAsIteratorTest {
             assertNotNull(re.getCause());
             assertTrue(re.getCause() instanceof IOException);
         }
+    }
+
+    @Test
+    public void testMultipleExceptionsPerLine() throws FileNotFoundException {
+        ColumnPositionMappingStrategy<AnnotatedMockBeanFull> strat =
+                new ColumnPositionMappingStrategy<>();
+        strat.setType(AnnotatedMockBeanFull.class);
+        Reader fin = new FileReader("src/test/resources/testMultipleExceptionsPerLine.csv");
+        CsvToBean<AnnotatedMockBeanFull> ctb = new CsvToBeanBuilder<AnnotatedMockBeanFull>(fin)
+                .withMappingStrategy(strat)
+                .withSeparator(';')
+                .withThrowExceptions(false)
+                .build();
+        Iterator<AnnotatedMockBeanFull> it = ctb.iterator();
+        while(it.hasNext()) { it.next(); }
+        List<CsvException> exceptionList = ctb.getCapturedExceptions();
+        assertNotNull(exceptionList);
+        assertEquals(6, exceptionList.size()); // Two lines, three mistakes per line
+        assertEquals(1, exceptionList.get(0).getLineNumber());
+        assertEquals(1, exceptionList.get(1).getLineNumber());
+        assertEquals(1, exceptionList.get(2).getLineNumber());
+        assertEquals(2, exceptionList.get(3).getLineNumber());
+        assertEquals(2, exceptionList.get(4).getLineNumber());
+        assertEquals(2, exceptionList.get(5).getLineNumber());
     }
 }
