@@ -15,7 +15,7 @@
  */
 package com.opencsv.bean;
 
-import com.opencsv.bean.mocks.*;
+import com.opencsv.bean.mocks.number.*;
 import com.opencsv.exceptions.CsvBadConverterException;
 import com.opencsv.exceptions.CsvDataTypeMismatchException;
 import com.opencsv.exceptions.CsvException;

@@ -50,8 +50,7 @@ public class HeaderColumnNameMappingStrategy<T> extends HeaderNameBaseMappingStr
             columnName = localField.getName().toUpperCase();
         }
         @SuppressWarnings("unchecked")
-        Class<? extends AbstractBeanField<T, String>> converter = (Class<? extends AbstractBeanField<T, String>>)localField
-                .getAnnotation(CsvCustomBindByName.class)
+        Class<? extends AbstractBeanField<T, String>> converter = (Class<? extends AbstractBeanField<T, String>>)annotation
                 .converter();
         BeanField<T, String> bean = instantiateCustomConverter(converter);
         bean.setType(localType);
@@ -169,27 +168,46 @@ public class HeaderColumnNameMappingStrategy<T> extends HeaderNameBaseMappingStr
             Field localField = classField.getValue();
 
             // Always check for a custom converter first.
-            if (localField.isAnnotationPresent(CsvCustomBindByName.class)) {
-                registerCustomBinding(localField.getAnnotation(CsvCustomBindByName.class),
-                        localType, localField);
+            if (localField.isAnnotationPresent(CsvCustomBindByName.class)
+                    || localField.isAnnotationPresent(CsvCustomBindByNames.class)) {
+                CsvCustomBindByName annotation = selectAnnotationForProfile(
+                        localField.getAnnotationsByType(CsvCustomBindByName.class),
+                        CsvCustomBindByName::profiles);
+                if(annotation != null) {
+                    registerCustomBinding(annotation, localType, localField);
+                }
             }
 
             // Then check for a collection
-            else if(localField.isAnnotationPresent(CsvBindAndSplitByName.class)) {
-                registerSplitBinding(localField.getAnnotation(CsvBindAndSplitByName.class),
-                        localType, localField);
+            else if(localField.isAnnotationPresent(CsvBindAndSplitByName.class)
+                    || localField.isAnnotationPresent(CsvBindAndSplitByNames.class)) {
+                CsvBindAndSplitByName annotation = selectAnnotationForProfile(
+                        localField.getAnnotationsByType(CsvBindAndSplitByName.class),
+                        CsvBindAndSplitByName::profiles);
+                if (annotation != null) {
+                    registerSplitBinding(annotation, localType, localField);
+                }
             }
 
             // Then for a multi-column annotation
-            else if(localField.isAnnotationPresent(CsvBindAndJoinByName.class)) {
-                registerJoinBinding(localField.getAnnotation(CsvBindAndJoinByName.class),
-                        localType, localField);
+            else if(localField.isAnnotationPresent(CsvBindAndJoinByName.class)
+                    || localField.isAnnotationPresent(CsvBindAndJoinByNames.class)) {
+                CsvBindAndJoinByName annotation = selectAnnotationForProfile(
+                        localField.getAnnotationsByType(CsvBindAndJoinByName.class),
+                        CsvBindAndJoinByName::profiles);
+                if (annotation != null) {
+                    registerJoinBinding(annotation, localType, localField);
+                }
             }
 
             // Otherwise it must be CsvBindByName.
             else {
-                registerBinding(localField.getAnnotation(CsvBindByName.class),
-                        localType, localField);
+                CsvBindByName annotation = selectAnnotationForProfile(
+                        localField.getAnnotationsByType(CsvBindByName.class),
+                        CsvBindByName::profiles);
+                if (annotation != null) {
+                    registerBinding(annotation, localType, localField);
+                }
             }
         }
     }
@@ -208,6 +226,10 @@ public class HeaderColumnNameMappingStrategy<T> extends HeaderNameBaseMappingStr
     protected Set<Class<? extends Annotation>> getBindingAnnotations() {
         // With Java 9 this can be done more easily with Set.of()
         return new HashSet<>(Arrays.asList(
+                CsvBindByNames.class,
+                CsvCustomBindByNames.class,
+                CsvBindAndSplitByNames.class,
+                CsvBindAndJoinByNames.class,
                 CsvBindByName.class,
                 CsvCustomBindByName.class,
                 CsvBindAndSplitByName.class,

@@ -311,8 +311,8 @@ public class CsvToBean<T> implements Iterable<T> {
      * A private inner class for implementing an iterator for the input data.
      */
     private class CsvToBeanIterator implements Iterator<T> {
-        private BlockingQueue<OrderedObject<T>> resultantBeansQueue;
-        private BlockingQueue<OrderedObject<CsvException>> thrownExceptionsQueue;
+        private final BlockingQueue<OrderedObject<T>> resultantBeansQueue;
+        private final BlockingQueue<OrderedObject<CsvException>> thrownExceptionsQueue;
         private final SingleLineReader lineReader = new SingleLineReader(csvReader, ignoreEmptyLines);
         private String[] line = null;
         private long lineProcessed = 0;

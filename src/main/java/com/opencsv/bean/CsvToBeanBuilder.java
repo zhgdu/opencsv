@@ -25,6 +25,7 @@ import org.apache.commons.collections4.ListValuedMap;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.Reader;
 import java.lang.reflect.Field;
@@ -142,6 +143,9 @@ public class CsvToBeanBuilder<T> {
      * @see com.opencsv.bean.AbstractMappingStrategy#ignoredFields
      */
     private final ListValuedMap<Class<?>, Field> ignoredFields = new ArrayListValuedHashMap<>();
+
+    /** @see com.opencsv.bean.AbstractMappingStrategy#profile */
+    private String profile = StringUtils.EMPTY;
    
    /**
     * Constructor with the one parameter that is most definitely mandatory, and
@@ -207,7 +211,7 @@ public class CsvToBeanBuilder<T> {
         // It's possible the mapping strategy has already been primed, so only
         // pass on our data if the user actually gave us something.
         if(mappingStrategy == null) {
-            mappingStrategy = OpencsvUtils.determineMappingStrategy(type, errorLocale);
+            mappingStrategy = OpencsvUtils.determineMappingStrategy(type, errorLocale, profile);
         }
         if(!ignoredFields.isEmpty()) {
             mappingStrategy.ignoreFields(ignoredFields);
@@ -539,6 +543,19 @@ public class CsvToBeanBuilder<T> {
      */
     public CsvToBeanBuilder<T> withIgnoreEmptyLine(boolean ignore) {
         this.ignoreEmptyLines = ignore;
+        return this;
+    }
+
+    /**
+     * Selects a profile for deciding which configurations to use for the bean
+     * fields.
+     *
+     * @param profile The name of the profile to be used
+     * @return {@code this}
+     * @since 5.4
+     */
+    public CsvToBeanBuilder<T> withProfile(String profile) {
+        this.profile = profile;
         return this;
     }
 }

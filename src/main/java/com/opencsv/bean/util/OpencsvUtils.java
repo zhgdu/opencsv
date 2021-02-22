@@ -58,9 +58,11 @@ public final class OpencsvUtils {
      * @param type The class of the bean for which the mapping strategy is sought
      * @param errorLocale The locale to use for all error messages. If null, the
      *   default locale is used.
+     * @param profile The profile to use when configuring bean fields
      * @return A functional mapping strategy for the bean in question
      */
-    public static <T> MappingStrategy<T> determineMappingStrategy(Class<? extends T> type, Locale errorLocale) {
+    public static <T> MappingStrategy<T> determineMappingStrategy(
+            Class<? extends T> type, Locale errorLocale, String profile) {
         // Check for annotations
         boolean positionAnnotationsPresent = Stream.of(FieldUtils.getAllFields(type)).anyMatch(
                 f -> f.isAnnotationPresent(CsvBindByPosition.class)
@@ -73,6 +75,7 @@ public final class OpencsvUtils {
                 new ColumnPositionMappingStrategy<>() :
                 new HeaderColumnNameMappingStrategy<>();
         mappingStrategy.setErrorLocale(errorLocale);
+        mappingStrategy.setProfile(profile);
         mappingStrategy.setType(type);
         return mappingStrategy;
     }

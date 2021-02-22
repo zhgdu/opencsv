@@ -20,6 +20,7 @@ import com.opencsv.exceptions.*;
 import org.apache.commons.collections4.ListValuedMap;
 import org.apache.commons.collections4.MapIterator;
 import org.apache.commons.collections4.MultiValuedMap;
+import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -30,8 +31,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.function.Function;
 
 /**
  * This class collects as many generally useful parts of the implementation
@@ -82,6 +82,9 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
 
     /** Locale for error messages. */
     protected Locale errorLocale = Locale.getDefault();
+
+    /** The profile for configuring bean fields. */
+    protected String profile = StringUtils.EMPTY;
 
     /**
      * For {@link BeanField#indexAndSplitMultivaluedField(java.lang.Object, java.lang.Object)}
@@ -359,6 +362,16 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
         loadFieldMap();
     }
 
+    /**
+     * Sets the profile this mapping strategy will use when configuring bean
+     * fields.
+     */
+    // The rest of the Javadoc is inherited.
+    @Override
+    public void setProfile(String profile) {
+        this.profile = StringUtils.defaultString(profile);
+    }
+
     @Override
     public void ignoreFields(MultiValuedMap<Class<?>, Field> fields)  throws IllegalArgumentException {
 
@@ -396,9 +409,19 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
      * @return A list of fields that exist for opencsv
      */
     protected List<Field> filterIgnoredFields(final Class<?> type, Field[] fields) {
-        return Stream.of(fields)
-                .filter(f -> !ignoredFields.containsMapping(type, f) && !f.isAnnotationPresent(CsvIgnore.class))
-                .collect(Collectors.toList());
+        final List<Field> filteredFields = new LinkedList<>();
+        for(Field f : fields) {
+            CsvIgnore ignoreAnnotation = f.getAnnotation(CsvIgnore.class);
+            Set<String> ignoredProfiles = ignoreAnnotation == null ?
+                    SetUtils.<String>emptySet() :
+                    new HashSet<String>(Arrays.asList(ignoreAnnotation.profiles())); // This is easier in Java 9 with Set.of()
+            if(!ignoredFields.containsMapping(type, f) &&
+                    !ignoredProfiles.contains(profile) &&
+                    !ignoredProfiles.contains(StringUtils.EMPTY)) {
+                filteredFields.add(f);
+            }
+        }
+        return filteredFields;
     }
 
     /**
@@ -753,8 +776,15 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
         }
 
         // Perhaps a date instead
-        else if (field.isAnnotationPresent(CsvDate.class)) {
-            CsvDate annotation = field.getAnnotation(CsvDate.class);
+        else if (field.isAnnotationPresent(CsvDate.class) || field.isAnnotationPresent(CsvDates.class)) {
+            CsvDate annotation = selectAnnotationForProfile(
+                    field.getAnnotationsByType(CsvDate.class),
+                    CsvDate::profiles);
+            if(annotation == null) {
+                throw new CsvBadConverterException(CsvDate.class, String.format(
+                        ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME).getString("profile.not.found.date"),
+                        profile));
+            }
             String readFormat = annotation.value();
             String writeFormat = annotation.writeFormatEqualsReadFormat()
                     ? readFormat : annotation.writeFormat();
@@ -766,8 +796,15 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
         }
 
         // Or a number
-        else if(field.isAnnotationPresent(CsvNumber.class)) {
-            CsvNumber annotation = field.getAnnotation(CsvNumber.class);
+        else if(field.isAnnotationPresent(CsvNumber.class) || field.isAnnotationPresent(CsvNumbers.class)) {
+            CsvNumber annotation = selectAnnotationForProfile(
+                    field.getAnnotationsByType(CsvNumber.class),
+                    CsvNumber::profiles);
+            if(annotation == null) {
+                throw new CsvBadConverterException(CsvNumber.class, String.format(
+                        ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME).getString("profile.not.found.number"),
+                        profile));
+            }
             String readFormat = annotation.value();
             String writeFormat = annotation.writeFormatEqualsReadFormat()
                     ? readFormat : annotation.writeFormat();
@@ -791,6 +828,38 @@ abstract public class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
         }
 
         return converter;
+    }
+
+    /**
+     * Determines which one of a list of annotations applies to the currently
+     * selected profile.
+     * If no annotation specific to the profile is found, the annotation for
+     * the default profile is returned. If neither is found, {@code null} is
+     * returned.
+     *
+     * @param annotations All annotations of a given type
+     * @param getProfiles A function mapping an annotation of type {@code A} to
+     *                    the list of profiles it applies to
+     * @param <A> The annotation type being tested
+     * @return The annotation with the appropriate profile or {@code null} if
+     *   nothing appropriate is found
+     * @since 5.4
+     */
+    protected <A extends Annotation> A selectAnnotationForProfile(A[] annotations, Function<A, String[]> getProfiles) {
+        A defaultAnnotation = null;
+        String[] profilesForAnnotation;
+        for(A annotation : annotations) {
+            profilesForAnnotation = getProfiles.apply(annotation);
+            for(String p : profilesForAnnotation) {
+                if(profile.equals(p)) {
+                    return annotation; // I know. Bad style. I think we can live with it once.
+                }
+                if(StringUtils.EMPTY.equals(p)) {
+                    defaultAnnotation = annotation;
+                }
+            }
+        }
+        return defaultAnnotation;
     }
 
     /**

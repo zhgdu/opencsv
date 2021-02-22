@@ -648,7 +648,7 @@ the index type to MultiValuedMap must be Integer. Values are saved under the
 index of the column position they were found in.
 
 The last thing to notice is that as long as new column positions are added to
-the end of the file and these are all new tracks, they will all be placed in the
+the end of the file, and these are all new tracks, they will all be placed in the
 variable "tracks" because the column position definition from the
 CsvBindAndJoinByPosition annotation defines an open range starting at index 7.
 
@@ -803,6 +803,125 @@ constructor, or they must be created by the enclosing bean.
 
 Access to subordinate beans is accomplished the same way it is in the rest of
 opencsv: accessor methods where available, and Reflection otherwise.
+
+====== Profiles
+
+There may be times when you receive differently formatted input files that
+nonetheless have the same data, and you will want to map them to the same
+bean. Here are two example inputs:
+
+This from customer 1:
+
+----
+last name,first name,middle initial,salary,height
+Jones,Andrew,R,50000.00,188
+----
+
+Compared to this from customer 2:
+
+----
+surname,given name,annual salary,height
+Jones,Andrew,5.0E5,188cm
+----
+
+As you can see, the inputs have mostly the same information, but the formats
+are incompatible for the purposes of using exactly one bean.
+
+Profiles allow you to resolve these superficial differences and use the same
+data bean for both inputs. All annotations save CsvRecurse include a "profiles"
+parameter for this purpose. CsvRecurse does not include the parameter because
+all annotations in recursively included beans are likewise subject to profile
+selection.
+
+The bean for our two inputs (and possibly more) could look like this:
+
+----
+public class Person {
+
+  @CsvBindByNames({
+    @CsvBindByName(column = "last name"),
+    @CsvBindByName(profiles = {"customer 2", "customer 5"})
+  })
+  private String surname;
+
+  @CsvBindByNames({
+    @CsvBindByName,
+    @CsvBindByName(column = "first name", profiles = "customer 1"),
+    @CsvBindByName(column = "given name", profiles = "customer 2")
+  })
+  private String name;
+
+  @CsvIgnore(profiles = "customer 2")
+  @CsvBindByName(column = "middle initial")
+  private char initial;
+
+  @CsvBindByName(column = "salary", profiles = "customer 1")
+  @CsvBindByName(column = "annual salary", profiles = "customer 2")
+  @CsvNumber(value = "#0.00", profiles = "customer 1")
+  @CsvNumber(value = "0.0#E0", profiles = "customer 2")
+  private float salaryInUSD;
+
+  @CsvBindByName(column = "height")
+  @CsvNumbers({
+    @CsvNumber("000"),
+    @CsvNumber(value = "000cm", profiles = "customer 2")
+  })
+  private int heightInCentimeters
+
+  // Accessor methods go here.
+}
+----
+
+To use this, your code might look like this:
+
+----
+List<Person> beans = new CsvToBeanBuilder<Person>(inputfile)
+  .withProfile("customer 1")
+  .withType(Person.class)
+  .build()
+  .parse();
+----
+
+The field "surname" is annotated with two CsvBindByName annotations, enclosed
+in a CsvBindByNames annotation, though the enclosure is optional. The first
+annotation does not specify any profiles, so it is used when no annotation
+for a specific profile is found, or when no profile is specified on
+parsing. It says that the default setting is to find a column named
+"last name" to bind to the field. The second annotation stipulates it is to
+be used with the profiles "customer 2" and "customer 5" (whose data we have
+not seen in this example). It does not name a column, so the typical fallback
+for header naming is used: the name of the field. In this case, that's
+"surname".
+
+The field "name" is annotated with three CsvBindByName annotations. The
+first does just what one would expect: it binds the field "name" to the
+column "name" from the input. We don't have an input like this in our
+example files, but perhaps such data come from other customers, like customer
+5. This annotation does not specify a profile, so it is the default profile.
+The second annotation is only for the profile "customer 1", and it binds
+the field to the input column named "first name". The third annotation is
+similar in function.
+
+The field "initial" is annotated with only one CsvBindByName, which binds the
+input column "middle initial" to the field. It uses the default profile. This
+field is also annotated with a CsvIgnore which says the field will be
+ignored for the profile "customer 2".
+
+The field "salaryInUSD" is annotated with two CsvBindByName annotations that
+should be self-explanatory by now. It is worth noting, though, that both are
+connected to one named profile each. If a different profile is specified
+for parsing, e.g. "customer 5", this field will simply not be bound at all
+— in other words, it will be ignored. The field is also annotated with two
+CsvNumber annotations: one each for the profiles specified in the
+CsvBindByName annotations, as it would happen. The two annotations simply
+provide different format strings for the input numbers.
+
+The field "heightInCentimeters" has only one CsvBindByName annotation to
+bind the field to the input column "height" independent of profile (since
+it is the default profile, and no other binding annotations exist for the
+field). After that come two CsvNumber annotations that demonstrate the
+same principle as the binding annotations: the first is for the default
+profile, the second is only for the profile "customer 2".
 
 ===== Reading into beans without annotations
 

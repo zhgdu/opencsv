@@ -109,7 +109,10 @@ public interface MappingStrategy<T> {
    
     /**
      * Sets the class type that is being mapped.
-     * May perform additional initialization tasks.
+     * May perform additional initialization tasks. If instantiating a
+     * mapping strategy, this method should be called after any other
+     * initialization, for example a call to
+     * {@link #setErrorLocale(Locale)} or {@link #setProfile(String)}.
      *
      * @param type Class type.
      * @throws CsvBadConverterException If a field in the bean is annotated
@@ -118,6 +121,19 @@ public interface MappingStrategy<T> {
      *   safe to catch this exception and ignore it.
      */
     void setType(Class<? extends T> type) throws CsvBadConverterException;
+
+    /**
+     * Sets the profile this mapping strategy will use when configuring bean
+     * fields.
+     * <p>The default implementation throws
+     * {@link UnsupportedOperationException}.</p>
+     *
+     * @param profile The profile to use
+     * @since 5.4
+     */
+    default void setProfile(String profile) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * <p>

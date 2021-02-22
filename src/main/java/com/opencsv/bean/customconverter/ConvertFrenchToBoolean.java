@@ -16,7 +16,7 @@
 package com.opencsv.bean.customconverter;
 
 /**
- * This class converts common German representations of boolean values into a
+ * This class converts common French representations of boolean values into a
  * {@link Boolean}.
  * This class also demonstrates how to localize booleans for any other language.
  *
@@ -24,26 +24,26 @@ package com.opencsv.bean.customconverter;
  * @param <I> Type of the index into multivalued fields
  * 
  * @author Andrew Rucker Jones
- * @since 3.8
+ * @since 5.4
  */
-public class ConvertGermanToBoolean<T, I> extends ConverterLanguageToBoolean<T, I> {
-    
-    private static final String WAHR = "wahr";
-    private static final String FALSCH = "falsch";
-    private static final String[] TRUE_STRINGS = {WAHR, "ja", "j", "1", "w"};
-    private static final String[] FALSE_STRINGS = {FALSCH, "nein", "n", "0", "f"};
+public class ConvertFrenchToBoolean<T, I> extends ConverterLanguageToBoolean<T, I> {
 
     /**
      * Silence code style checker by adding a useless constructor.
      */
-    public ConvertGermanToBoolean() {
+    public ConvertFrenchToBoolean() {
     }
 
-    @Override
-    protected String getLocalizedTrue() { return WAHR; }
+    private static final String VRAI = "vrai";
+    private static final String FAUX = "faux";
+    private static final String[] TRUE_STRINGS = {VRAI, "oui", "o", "1", "v"};
+    private static final String[] FALSE_STRINGS = {FAUX, "non", "n", "0", "f"};
 
     @Override
-    protected String getLocalizedFalse() { return FALSCH; }
+    protected String getLocalizedTrue() { return VRAI; }
+
+    @Override
+    protected String getLocalizedFalse() { return FAUX; }
 
     @Override
     protected String[] getAllLocalizedTrueValues() { return TRUE_STRINGS; }

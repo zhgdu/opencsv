@@ -252,27 +252,46 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
             Field localField = classAndField.getValue();
 
             // Custom converters always have precedence.
-            if (localField.isAnnotationPresent(CsvCustomBindByPosition.class)) {
-                registerCustomBinding(localField.getAnnotation(CsvCustomBindByPosition.class),
-                        localType, localField);
+            if (localField.isAnnotationPresent(CsvCustomBindByPosition.class)
+                    || localField.isAnnotationPresent(CsvCustomBindByPositions.class)) {
+                CsvCustomBindByPosition annotation = selectAnnotationForProfile(
+                        localField.getAnnotationsByType(CsvCustomBindByPosition.class),
+                        CsvCustomBindByPosition::profiles);
+                if (annotation != null) {
+                    registerCustomBinding(annotation, localType, localField);
+                }
             }
 
             // Then check for a collection
-            else if (localField.isAnnotationPresent(CsvBindAndSplitByPosition.class)) {
-                registerSplitBinding(localField.getAnnotation(CsvBindAndSplitByPosition.class),
-                        localType, localField);
+            else if (localField.isAnnotationPresent(CsvBindAndSplitByPosition.class)
+                    || localField.isAnnotationPresent(CsvBindAndSplitByPositions.class)) {
+                CsvBindAndSplitByPosition annotation = selectAnnotationForProfile(
+                        localField.getAnnotationsByType(CsvBindAndSplitByPosition.class),
+                        CsvBindAndSplitByPosition::profiles);
+                if (annotation != null) {
+                    registerSplitBinding(annotation, localType, localField);
+                }
             }
 
             // Then check for a multi-column annotation
-            else if (localField.isAnnotationPresent(CsvBindAndJoinByPosition.class)) {
-                registerJoinBinding(localField.getAnnotation(CsvBindAndJoinByPosition.class),
-                        localType, localField);
+            else if (localField.isAnnotationPresent(CsvBindAndJoinByPosition.class)
+                    || localField.isAnnotationPresent(CsvBindAndJoinByPositions.class)) {
+                CsvBindAndJoinByPosition annotation = selectAnnotationForProfile(
+                        localField.getAnnotationsByType(CsvBindAndJoinByPosition.class),
+                        CsvBindAndJoinByPosition::profiles);
+                if (annotation != null) {
+                    registerJoinBinding(annotation, localType, localField);
+                }
             }
 
             // Then it must be a bind by position.
             else {
-                registerBinding(localField.getAnnotation(CsvBindByPosition.class),
-                        localType, localField);
+                CsvBindByPosition annotation = selectAnnotationForProfile(
+                        localField.getAnnotationsByType(CsvBindByPosition.class),
+                        CsvBindByPosition::profiles);
+                if (annotation != null) {
+                    registerBinding(annotation, localType, localField);
+                }
             }
         }
     }
@@ -305,6 +324,10 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
     protected Set<Class<? extends Annotation>> getBindingAnnotations() {
         // With Java 9 this can be done more easily with Set.of()
         return new HashSet<>(Arrays.asList(
+                CsvBindByPositions.class,
+                CsvCustomBindByPositions.class,
+                CsvBindAndJoinByPositions.class,
+                CsvBindAndSplitByPositions.class,
                 CsvBindByPosition.class,
                 CsvCustomBindByPosition.class,
                 CsvBindAndJoinByPosition.class,

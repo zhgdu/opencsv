@@ -25,6 +25,7 @@ import org.apache.commons.collections4.ListValuedMap;
 import org.apache.commons.collections4.MultiValuedMap;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.Writer;
 import java.lang.reflect.Field;
@@ -53,6 +54,7 @@ public class StatefulBeanToCsvBuilder<T> {
     private Locale errorLocale = Locale.getDefault();
     private boolean applyQuotesToAll = true;
     private final ListValuedMap<Class<?>, Field> ignoredFields = new ArrayListValuedHashMap<>();
+    private String profile = StringUtils.EMPTY;
     
     /**
      * Default constructor - Being stateful the writer is required by the builder at the start and not added in later.
@@ -249,7 +251,20 @@ public class StatefulBeanToCsvBuilder<T> {
         }
         return this;
     }
-    
+
+    /**
+     * Selects a profile for deciding which configurations to use for the bean
+     * fields.
+     *
+     * @param profile The name of the profile to be used
+     * @return {@code this}
+     * @since 5.4
+     */
+    public StatefulBeanToCsvBuilder<T> withProfile(String profile) {
+        this.profile = profile;
+        return this;
+    }
+
     /**
      * Builds a StatefulBeanToCsv from the information provided, filling in
      * default values where none have been specified.
@@ -260,10 +275,10 @@ public class StatefulBeanToCsvBuilder<T> {
         if (writer != null) {
             sbtcsv = new StatefulBeanToCsv<>(escapechar, lineEnd,
                     mappingStrategy, quotechar, separator, exceptionHandler,
-                    writer, applyQuotesToAll, ignoredFields);
+                    writer, applyQuotesToAll, ignoredFields, profile);
         } else {
             sbtcsv = new StatefulBeanToCsv<>(mappingStrategy, exceptionHandler,
-                    applyQuotesToAll, csvWriter, ignoredFields);
+                    applyQuotesToAll, csvWriter, ignoredFields, profile);
         }
 
         sbtcsv.setOrderedResults(orderedResults);
