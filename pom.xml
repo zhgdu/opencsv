@@ -493,6 +493,9 @@
                 <version>3.2.0</version>
                 <configuration>
                     <archive>
+                        <manifestEntries>
+                            <Automatic-Module-Name>com.opencsv</Automatic-Module-Name>
+                        </manifestEntries>
                         <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
                     </archive>
                 </configuration>
