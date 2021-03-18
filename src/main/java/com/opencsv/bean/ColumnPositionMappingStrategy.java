@@ -49,8 +49,25 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
 
     /**
      * Default constructor.
+     * @deprecated Please use {@link #ColumnPositionMappingStrategy(Class, Locale, String)}
      */
+    @Deprecated
     public ColumnPositionMappingStrategy() {
+    }
+
+    /**
+     * Initializes the mapping strategy.
+     *
+     * @param type The type of the bean being processed
+     * @param errorLocale Locale for error messages. If {@code null}, the
+     *                    default locale is used.
+     * @param profile The profile to use. If {@code null}, the default profile
+     *                is used.
+     *
+     * @since 5.5
+     */
+    public ColumnPositionMappingStrategy(Class<? extends T> type, Locale errorLocale, String profile) {
+        super(type, errorLocale, profile);
     }
 
     /**

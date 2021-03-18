@@ -104,7 +104,11 @@ public interface MappingStrategy<T> {
      * @param errorLocale Locale for error messages. If null, the default locale
      *   is used.
      * @since 4.0
+     *
+     * @deprecated Please use the constructor for the appropriate mapping
+     *   strategy class.
      */
+    @Deprecated
     default void setErrorLocale(Locale errorLocale) {}
    
     /**
@@ -119,7 +123,11 @@ public interface MappingStrategy<T> {
      *   with a custom converter that cannot be initialized. If you are not
      *   using custom converters that you have written yourself, it should be
      *   safe to catch this exception and ignore it.
+     *
+     * @deprecated Please use the constructor for the appropriate mapping
+     *   strategy class.
      */
+    @Deprecated
     void setType(Class<? extends T> type) throws CsvBadConverterException;
 
     /**
@@ -130,7 +138,11 @@ public interface MappingStrategy<T> {
      *
      * @param profile The profile to use
      * @since 5.4
+     *
+     * @deprecated Please use the constructor for the appropriate mapping
+     *   strategy class.
      */
+    @Deprecated
     default void setProfile(String profile) {
         throw new UnsupportedOperationException();
     }

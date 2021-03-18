@@ -179,6 +179,30 @@ public abstract class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
      * @since 4.0
      */
     protected abstract void verifyLineLength(int numberOfFields) throws CsvRequiredFieldEmptyException;
+
+    /**
+     * Default constructor.
+     * @deprecated Simply do not use.
+     */
+    @Deprecated
+    AbstractMappingStrategy() {}
+
+    /**
+     * Initializes the mapping strategy.
+     *
+     * @param type The type of the bean being processed
+     * @param errorLocale Locale for error messages. If {@code null}, the
+     *                    default locale is used.
+     * @param profile The profile to use. If {@code null}, the default profile
+     *                is used.
+     *
+     * @since 5.5
+     */
+    AbstractMappingStrategy(Class<? extends T> type, Locale errorLocale, String profile) {
+        setErrorLocale(errorLocale);
+        setProfile(profile);
+        setType(type);
+    }
     
     /**
      * Implementation will return a bean of the type of object being mapped.
@@ -358,6 +382,7 @@ public abstract class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
      */
     // The rest of the Javadoc is inherited.
     @Override
+    @Deprecated
     public void setType(Class<? extends T> type) throws CsvBadConverterException {
         this.type = type;
         loadFieldMap();
@@ -369,6 +394,7 @@ public abstract class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
      */
     // The rest of the Javadoc is inherited.
     @Override
+    @Deprecated
     public void setProfile(String profile) {
         this.profile = StringUtils.defaultString(profile);
     }
@@ -590,6 +616,7 @@ public abstract class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
     }
 
     @Override
+    @Deprecated
     public void setErrorLocale(Locale errorLocale) {
         this.errorLocale = ObjectUtils.defaultIfNull(errorLocale, Locale.getDefault());
         

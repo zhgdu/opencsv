@@ -1,6 +1,8 @@
 package com.opencsv.bean;
 
+import javax.swing.*;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /*
@@ -33,8 +35,26 @@ public class HeaderColumnNameTranslateMappingStrategy<T> extends HeaderNameBaseM
 
     /**
      * Default constructor.
+     * @deprecated Please use {@link #HeaderColumnNameTranslateMappingStrategy(Class, Locale, String)}
      */
+    @Deprecated
     public HeaderColumnNameTranslateMappingStrategy() {
+        columnMapping = new HashMap<>();
+    }
+
+    /**
+     * Initializes the mapping strategy.
+     *
+     * @param type The type of the bean being processed
+     * @param errorLocale Locale for error messages. If {@code null}, the
+     *                    default locale is used.
+     * @param profile The profile to use. If {@code null}, the default profile
+     *                is used.
+     *
+     * @since 5.5
+     */
+    public HeaderColumnNameTranslateMappingStrategy(Class<? extends T> type, Locale errorLocale, String profile) {
+        super(type, errorLocale, profile);
         columnMapping = new HashMap<>();
     }
 

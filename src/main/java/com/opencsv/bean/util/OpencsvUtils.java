@@ -71,13 +71,9 @@ public final class OpencsvUtils {
                 || f.isAnnotationPresent(CsvCustomBindByPosition.class));
 
         // Set the mapping strategy according to what we've found.
-        MappingStrategy<T> mappingStrategy = positionAnnotationsPresent ?
-                new ColumnPositionMappingStrategy<>() :
-                new HeaderColumnNameMappingStrategy<>();
-        mappingStrategy.setErrorLocale(errorLocale);
-        mappingStrategy.setProfile(profile);
-        mappingStrategy.setType(type);
-        return mappingStrategy;
+        return positionAnnotationsPresent ?
+                new ColumnPositionMappingStrategy<>(type, errorLocale, profile) :
+                new HeaderColumnNameMappingStrategy<>(type, errorLocale, profile);
     }
 
     /**

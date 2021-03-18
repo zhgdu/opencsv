@@ -33,8 +33,25 @@ public class HeaderColumnNameMappingStrategy<T> extends HeaderNameBaseMappingStr
 
     /**
      * Default constructor.
+     * @deprecated Please use {@link #HeaderColumnNameMappingStrategy(Class, Locale, String)}
      */
+    @Deprecated
     public HeaderColumnNameMappingStrategy() {
+    }
+
+    /**
+     * Initializes the mapping strategy.
+     *
+     * @param type The type of the bean being processed
+     * @param errorLocale Locale for error messages. If {@code null}, the
+     *                    default locale is used.
+     * @param profile The profile to use. If {@code null}, the default profile
+     *                is used.
+     *
+     * @since 5.5
+     */
+    public HeaderColumnNameMappingStrategy(Class<? extends T> type, Locale errorLocale, String profile) {
+        super(type, errorLocale, profile);
     }
 
     /**

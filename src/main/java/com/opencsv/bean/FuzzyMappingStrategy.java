@@ -8,10 +8,7 @@ import org.apache.commons.text.similarity.LevenshteinDistance;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -26,9 +23,26 @@ import java.util.stream.Stream;
 public class FuzzyMappingStrategy<T> extends HeaderColumnNameMappingStrategy<T> {
 
     /**
-     * Nullary constructor to make the style checker happy.
+     * Nullary constructor.
+     * @deprecated Please use {@link #FuzzyMappingStrategy(Class, Locale, String)}
      */
+    @Deprecated
     public FuzzyMappingStrategy() {
+    }
+
+    /**
+     * Initializes the mapping strategy.
+     *
+     * @param type The type of the bean being processed
+     * @param errorLocale Locale for error messages. If {@code null}, the
+     *                    default locale is used.
+     * @param profile The profile to use. If {@code null}, the default profile
+     *                is used.
+     *
+     * @since 5.5
+     */
+    public FuzzyMappingStrategy(Class<? extends T> type, Locale errorLocale, String profile) {
+        super(type, errorLocale, profile);
     }
 
     /**

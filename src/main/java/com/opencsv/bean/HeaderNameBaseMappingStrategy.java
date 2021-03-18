@@ -27,10 +27,32 @@ abstract public class HeaderNameBaseMappingStrategy<T> extends AbstractMappingSt
      * Given a header name, this map allows one to find the corresponding
      * {@link BeanField}.
      */
-    protected FieldMapByName<T> fieldMap = null;
+    protected FieldMapByName<T> fieldMap;
 
     /** Holds a {@link java.util.Comparator} to sort columns on writing. */
     protected Comparator<String> writeOrder = null;
+
+    /**
+     * Default constructor.
+     * @deprecated Simply do not use.
+     */
+    @Deprecated
+    HeaderNameBaseMappingStrategy() {}
+
+    /**
+     * Initializes the mapping strategy.
+     *
+     * @param type The type of the bean being processed
+     * @param errorLocale Locale for error messages. If {@code null}, the
+     *                    default locale is used.
+     * @param profile The profile to use. If {@code null}, the default profile
+     *                is used.
+     *
+     * @since 5.5
+     */
+    HeaderNameBaseMappingStrategy(Class<? extends T> type, Locale errorLocale, String profile) {
+        super(type, errorLocale, profile);
+    }
 
     @Override
     public void captureHeader(CSVReader reader) throws IOException, CsvRequiredFieldEmptyException {
