@@ -105,6 +105,22 @@ public class CsvToBeanTest {
         assertTrue(beanList.contains(new MockBean("jimmy", null, "def098765", 456, 0.0)));
     }
 
+    @DisplayName("Blank lines are ignored when withIgnoreEmptyLine is set to true and withFieldAsNull is set to EMPTY_SEPARATORS.")
+    @Test
+    public void parseBeanWithIgnoreEmptyLinesAndEmptyIsNull() {
+        HeaderColumnNameMappingStrategy<MockBean> strategy = new HeaderColumnNameMappingStrategy<>();
+        strategy.setType(MockBean.class);
+        List<MockBean> beanList = new CsvToBeanBuilder<MockBean>(new StringReader(TEST_STRING_WITH_BLANK_LINES))
+                .withMappingStrategy(strategy)
+                .withIgnoreEmptyLine(true)
+                .withFieldAsNull(CSVReaderNullFieldIndicator.EMPTY_SEPARATORS)
+                .build().parse();
+
+        assertEquals(2, beanList.size());
+        assertTrue(beanList.contains(new MockBean("kyle", null, "abc123456", 123, 0.0)));
+        assertTrue(beanList.contains(new MockBean("jimmy", null, "def098765", 456, 0.0)));
+    }
+
     @Test
     public void bug133ShouldNotThrowNullPointerExceptionWhenProcessingEmptyWithNoAnnotations() {
         HeaderColumnNameMappingStrategy<Bug133Bean> strategy = new HeaderColumnNameMappingStrategy<>();

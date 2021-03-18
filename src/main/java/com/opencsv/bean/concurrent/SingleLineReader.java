@@ -3,6 +3,7 @@ package com.opencsv.bean.concurrent;
 import com.opencsv.CSVReader;
 import com.opencsv.bean.CsvToBean;
 import com.opencsv.exceptions.CsvValidationException;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
 
@@ -31,7 +32,7 @@ public class SingleLineReader {
     }
 
     private boolean isCurrentLineEmpty() {
-        return line.length == 0 || (line.length == 1 && line[0].isEmpty());
+        return line.length == 0 || (line.length == 1 && StringUtils.isEmpty(line[0]));
     }
 
     /**
