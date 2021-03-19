@@ -35,7 +35,7 @@ import java.text.RuleBasedCollator;
 import java.util.*;
 import java.util.regex.Pattern;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests {@link StatefulBeanToCsv}.
@@ -1018,16 +1018,43 @@ public class StatefulBeanToCsvTest {
         // Broken beans. Each has multiple required fields.
         List<WriteLocale> beans = Arrays.asList(new WriteLocale(), new WriteLocale(), new WriteLocale());
         btcsv.write(beans);
+        final int errorsPerLine = 4;
+        final int totalLines = 3;
         List<CsvException> thrownExceptions = btcsv.getCapturedExceptions();
         assertNotNull(thrownExceptions);
-        assertEquals(12, thrownExceptions.size());
-        final int errorsPerLine = 4;
-        for(int line = 0; line < 3 ; line++) {
+        assertEquals(errorsPerLine*totalLines, thrownExceptions.size());
+        for(int line = 0; line < totalLines ; line++) {
             for(int mistake = 0; mistake < errorsPerLine; mistake++) {
                 CsvException e = thrownExceptions.get(line*errorsPerLine+mistake);
                 assertTrue(e instanceof CsvRequiredFieldEmptyException);
                 assertEquals(line+1, e.getLineNumber());
             }
+        }
+    }
+
+    @Test
+    public void writeMultipleExceptionsOneBean() throws CsvFieldAssignmentException {
+        StringWriter writer = new StringWriter();
+        HeaderColumnNameMappingStrategy<WriteLocale> strat = new HeaderColumnNameMappingStrategy<>();
+        strat.setColumnOrderOnWrite(null);
+        strat.setType(WriteLocale.class);
+        StatefulBeanToCsv<WriteLocale> btcsv = new StatefulBeanToCsvBuilder<WriteLocale>(writer)
+                .withQuotechar(ICSVWriter.NO_QUOTE_CHARACTER)
+                .withSeparator(';')
+                .withMappingStrategy(strat)
+                .withThrowExceptions(false)
+                .build();
+
+        // Broken beans. Each has multiple required fields.
+        btcsv.write(new WriteLocale());
+        List<CsvException> thrownExceptions = btcsv.getCapturedExceptions();
+        assertNotNull(thrownExceptions);
+        final int errorsPerLine = 4;
+        assertEquals(errorsPerLine, thrownExceptions.size());
+        for(int mistake = 0; mistake < errorsPerLine; mistake++) {
+            CsvException e = thrownExceptions.get(mistake);
+            assertTrue(e instanceof CsvRequiredFieldEmptyException);
+            assertEquals(1, e.getLineNumber());
         }
     }
 
