@@ -39,6 +39,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
@@ -203,7 +204,7 @@ public class StatefulBeanToCsv<T> {
 
             // Process the bean
             BlockingQueue<OrderedObject<String[]>> resultantLineQueue = new ArrayBlockingQueue<>(1);
-            BlockingQueue<OrderedObject<CsvException>> thrownExceptionsQueue = new ArrayBlockingQueue<>(1);
+            BlockingQueue<OrderedObject<CsvException>> thrownExceptionsQueue = new LinkedBlockingQueue<>();
             ProcessCsvBean<T> proc = new ProcessCsvBean<>(++lineNumber,
                     mappingStrategy, bean, resultantLineQueue,
                     thrownExceptionsQueue, new TreeSet<>(), exceptionHandler);
@@ -230,8 +231,9 @@ public class StatefulBeanToCsv<T> {
             // Write out the result
             if (!thrownExceptionsQueue.isEmpty()) {
                 OrderedObject<CsvException> o = thrownExceptionsQueue.poll();
-                if (o != null && o.getElement() != null) {
+                while (o != null && o.getElement() != null) {
                     capturedExceptions.add(o.getElement());
+                    o = thrownExceptionsQueue.poll();
                 }
             } else {
                 // No exception, so there really must always be a string
