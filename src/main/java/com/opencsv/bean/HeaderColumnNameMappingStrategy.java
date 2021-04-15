@@ -179,9 +179,9 @@ public class HeaderColumnNameMappingStrategy<T> extends HeaderNameBaseMappingStr
      * relevant annotation is found on a member variable.</p>
      */
     @Override
-    protected void loadAnnotatedFieldMap(ListValuedMap<Class<?>, Field> fields) {
-        for (Map.Entry<Class<?>, Field> classField : fields.entries()) {
-            Class<?> localType = classField.getKey();
+    protected void loadAnnotatedFieldMap(ListValuedMap<BeanDissector<?>, Field> fields) {
+        for (Map.Entry<BeanDissector<?>, Field> classField : fields.entries()) {
+            BeanDissector<?> localType = classField.getKey();
             Field localField = classField.getValue();
 
             // Always check for a custom converter first.
@@ -191,7 +191,7 @@ public class HeaderColumnNameMappingStrategy<T> extends HeaderNameBaseMappingStr
                         localField.getAnnotationsByType(CsvCustomBindByName.class),
                         CsvCustomBindByName::profiles);
                 if(annotation != null) {
-                    registerCustomBinding(annotation, localType, localField);
+                    registerCustomBinding(annotation, localType.getType(), localField);
                 }
             }
 
@@ -202,7 +202,7 @@ public class HeaderColumnNameMappingStrategy<T> extends HeaderNameBaseMappingStr
                         localField.getAnnotationsByType(CsvBindAndSplitByName.class),
                         CsvBindAndSplitByName::profiles);
                 if (annotation != null) {
-                    registerSplitBinding(annotation, localType, localField);
+                    registerSplitBinding(annotation, localType.getType(), localField);
                 }
             }
 
@@ -213,7 +213,7 @@ public class HeaderColumnNameMappingStrategy<T> extends HeaderNameBaseMappingStr
                         localField.getAnnotationsByType(CsvBindAndJoinByName.class),
                         CsvBindAndJoinByName::profiles);
                 if (annotation != null) {
-                    registerJoinBinding(annotation, localType, localField);
+                    registerJoinBinding(annotation, localType.getType(), localField);
                 }
             }
 
@@ -223,7 +223,7 @@ public class HeaderColumnNameMappingStrategy<T> extends HeaderNameBaseMappingStr
                         localField.getAnnotationsByType(CsvBindByName.class),
                         CsvBindByName::profiles);
                 if (annotation != null) {
-                    registerBinding(annotation, localType, localField);
+                    registerBinding(annotation, localType.getType(), localField);
                 }
             }
         }

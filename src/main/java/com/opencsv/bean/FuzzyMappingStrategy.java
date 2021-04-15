@@ -51,7 +51,7 @@ public class FuzzyMappingStrategy<T> extends HeaderColumnNameMappingStrategy<T> 
      * question.
      */
     @Override
-    protected void loadUnadornedFieldMap(ListValuedMap<Class<?>, Field> fields) {}
+    protected void loadUnadornedFieldMap(ListValuedMap<BeanDissector<?>, Field> fields) {}
 
     @Override
     public void captureHeader(CSVReader reader) throws IOException, CsvRequiredFieldEmptyException {
@@ -64,7 +64,7 @@ public class FuzzyMappingStrategy<T> extends HeaderColumnNameMappingStrategy<T> 
                 .collect(Collectors.toSet());
 
         // Find all non-annotated fields
-        final ListValuedMap<Class<?>, Field> unusedFields = partitionFields().get(Boolean.FALSE);
+        final ListValuedMap<BeanDissector<?>, Field> unusedFields = partitionFields().get(Boolean.FALSE);
 
         // Calculate distances and sort
         LevenshteinDistance levenshtein = LevenshteinDistance.getDefaultInstance();
@@ -73,7 +73,7 @@ public class FuzzyMappingStrategy<T> extends HeaderColumnNameMappingStrategy<T> 
             unusedFields.entries().forEach(f -> {
                 comparisons.add(new FuzzyComparison(
                         levenshtein.apply(h.toUpperCase(), f.getValue().getName().toUpperCase()),
-                        h, f.getKey(), f.getValue()));
+                        h, f.getKey().getType(), f.getValue()));
             });
         });
         comparisons.sort(null);

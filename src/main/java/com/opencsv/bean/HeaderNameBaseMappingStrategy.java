@@ -57,7 +57,8 @@ abstract public class HeaderNameBaseMappingStrategy<T> extends AbstractMappingSt
     @Override
     public void captureHeader(CSVReader reader) throws IOException, CsvRequiredFieldEmptyException {
         // Validation
-        if(type == null) {
+        // TODO: Fix error message
+        if(dissector == null) {
             throw new IllegalStateException(ResourceBundle
                     .getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
                     .getString("type.unset"));
@@ -94,7 +95,7 @@ abstract public class HeaderNameBaseMappingStrategy<T> extends AbstractMappingSt
             }
             String missingRequiredFields = String.join(", ", requiredHeaderNames);
             String allHeaders = String.join(",", header);
-            CsvRequiredFieldEmptyException e = new CsvRequiredFieldEmptyException(type, requiredFields,
+            CsvRequiredFieldEmptyException e = new CsvRequiredFieldEmptyException(dissector.getType(), requiredFields,
                     String.format(
                             ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
                                     .getString("header.required.field.absent"),
@@ -114,7 +115,7 @@ abstract public class HeaderNameBaseMappingStrategy<T> extends AbstractMappingSt
     public void verifyLineLength(int numberOfFields) throws CsvRequiredFieldEmptyException {
         if(!headerIndex.isEmpty()) {
             if (numberOfFields != headerIndex.getHeaderIndexLength()) {
-                throw new CsvRequiredFieldEmptyException(type, ResourceBundle
+                throw new CsvRequiredFieldEmptyException(dissector.getType(), ResourceBundle
                         .getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
                         .getString("header.data.mismatch"));
             }
@@ -151,12 +152,12 @@ abstract public class HeaderNameBaseMappingStrategy<T> extends AbstractMappingSt
      * </ol></p>
      */
     @Override
-    protected void loadUnadornedFieldMap(ListValuedMap<Class<?>, Field> fields) {
-        for(Map.Entry<Class<?>, Field> classFieldEntry : fields.entries()) {
-            if(!(Serializable.class.isAssignableFrom(classFieldEntry.getKey()) && "serialVersionUID".equals(classFieldEntry.getValue().getName()))) {
+    protected void loadUnadornedFieldMap(ListValuedMap<BeanDissector<?>, Field> fields) {
+        for(Map.Entry<BeanDissector<?>, Field> classFieldEntry : fields.entries()) {
+            if(!(Serializable.class.isAssignableFrom(classFieldEntry.getKey().getType()) && "serialVersionUID".equals(classFieldEntry.getValue().getName()))) {
                 CsvConverter converter = determineConverter(classFieldEntry.getValue(), classFieldEntry.getValue().getType(), null, null, null);
                 fieldMap.put(classFieldEntry.getValue().getName().toUpperCase(), new BeanFieldSingleValue<>(
-                        classFieldEntry.getKey(), classFieldEntry.getValue(),
+                        classFieldEntry.getKey().getType(), classFieldEntry.getValue(),
                         false, errorLocale, converter, null, null));
             }
         }

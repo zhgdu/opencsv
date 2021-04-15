@@ -18,14 +18,11 @@ package com.opencsv.bean;
 import com.opencsv.ICSVParser;
 import com.opencsv.exceptions.*;
 import org.apache.commons.collections4.ListValuedMap;
-import org.apache.commons.collections4.MapIterator;
 import org.apache.commons.collections4.MultiValuedMap;
-import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.collections4.multimap.ArrayListValuedHashMap;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.reflect.FieldUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -61,7 +58,8 @@ public abstract class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
             Integer.TYPE, Float.TYPE, Double.TYPE, Boolean.TYPE, Long.TYPE, Character.TYPE));
 
     /** This is the class of the bean to be manipulated. */
-    protected Class<? extends T> type;
+//    protected Class<? extends T> type;
+    protected BeanDissector<T> dissector;
     
     /**
      * Maintains a bi-directional mapping between column position(s) and header
@@ -127,7 +125,7 @@ public abstract class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
      *               in the bean to be processed
      * @since 5.0
      */
-    protected void loadAnnotatedFieldMap(ListValuedMap<Class<?>, Field> fields) {}
+    protected void loadAnnotatedFieldMap(ListValuedMap<BeanDissector<?>, Field> fields) {}
 
     /**
      * Creates a map of fields in the bean to be processed that have no
@@ -140,7 +138,7 @@ public abstract class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
      *               processed
      * @since 5.0
      */
-    protected abstract void loadUnadornedFieldMap(ListValuedMap<Class<?>, Field> fields);
+    protected abstract void loadUnadornedFieldMap(ListValuedMap<BeanDissector<?>, Field> fields);
 
     /**
      * Creates an empty binding-type-specific field map that can be filled in
@@ -214,17 +212,18 @@ public abstract class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
      */
     protected Map<Class<?>, Object> createBean()
             throws CsvBeanIntrospectionException, IllegalStateException {
-        if(type == null) {
+        if(dissector == null) {
+            // TODO: Fix error message
             throw new IllegalStateException(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale).getString("type.unset"));
         }
 
         // Create the root bean and all beans underneath it
         Map<Class<?>, Object> instanceMap = new HashMap<>();
         try {
-            T rootBean = type.newInstance();
-            instanceMap.put(type, rootBean);
+            T rootBean = dissector.newInstance();
+            instanceMap.put(dissector.getType(), rootBean);
             createSubordinateBeans(recursiveTypeTree, instanceMap, rootBean);
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+        } catch (ReflectiveOperationException e) {
             CsvBeanIntrospectionException csve = new CsvBeanIntrospectionException(
                     ResourceBundle.getBundle(
                             ICSVParser.DEFAULT_BUNDLE_NAME,
@@ -238,14 +237,14 @@ public abstract class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
     }
 
     private static void createSubordinateBeans(RecursiveType typeTree, Map<Class<?>, Object> instanceMap, Object containingObject)
-            throws InstantiationException, IllegalAccessException, InvocationTargetException {
+            throws ReflectiveOperationException {
         for(Map.Entry<FieldAccess<Object>, RecursiveType> entry : typeTree.getRecursiveMembers().entrySet()) {
             Object childObject = entry.getKey().getField(containingObject);
             if(childObject == null) {
-                childObject = entry.getValue().type.newInstance();
+                childObject = entry.getValue().dissector.newInstance();
                 entry.getKey().setField(containingObject, childObject);
             }
-            instanceMap.put(entry.getValue().getType(), childObject);
+            instanceMap.put(entry.getValue().getDissector().getType(), childObject);
             createSubordinateBeans(entry.getValue(), instanceMap, childObject);
         }
     }
@@ -262,15 +261,15 @@ public abstract class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
      * subordinate bean
      * @since 5.0
      */
-    protected Map<Class<?>, Object> indexBean(T bean)
+    protected Map<BeanDissector<?>, Object> indexBean(T bean)
             throws IllegalAccessException, InvocationTargetException {
-        Map<Class<?>, Object> instanceMap = new HashMap<>();
-        instanceMap.put(type, bean);
+        Map<BeanDissector<?>, Object> instanceMap = new HashMap<>();
+        instanceMap.put(dissector, bean);
         indexSubordinateBeans(recursiveTypeTree, instanceMap, bean);
         return instanceMap;
     }
 
-    private static void indexSubordinateBeans(RecursiveType typeTree, Map<Class<?>, Object> instanceMap, Object containingObject)
+    private static void indexSubordinateBeans(RecursiveType typeTree, Map<BeanDissector<?>, Object> instanceMap, Object containingObject)
             throws IllegalAccessException, InvocationTargetException {
         for(Map.Entry<FieldAccess<Object>, RecursiveType> entry : typeTree.getRecursiveMembers().entrySet()) {
             Object childObject;
@@ -280,7 +279,7 @@ public abstract class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
             else {
                 childObject = entry.getKey().getField(containingObject);
             }
-            instanceMap.put(entry.getValue().getType(), childObject);
+            instanceMap.put(entry.getValue().getDissector(), childObject);
             indexSubordinateBeans(entry.getValue(), instanceMap, childObject);
         }
     }
@@ -306,7 +305,8 @@ public abstract class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
     // The rest of the Javadoc is inherited
     @Override
     public String[] generateHeader(T bean) throws CsvRequiredFieldEmptyException {
-        if(type == null) {
+        if(dissector == null) {
+            // TODO: Fix error message
             throw new IllegalStateException(ResourceBundle
                     .getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
                     .getString("type.before.header"));
@@ -341,7 +341,7 @@ public abstract class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
      * @return Class of the object that this {@link MappingStrategy} will create.
      */
     public Class<? extends T> getType() {
-        return type;
+        return dissector==null?null:dissector.getType();
     }
 
     @SuppressWarnings("unchecked")
@@ -371,7 +371,7 @@ public abstract class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
             }
             throw chainedException;
         }
-        return (T)beanTree.get(type);
+        return (T)beanTree.get(dissector.getType());
     }
     
     /**
@@ -384,7 +384,8 @@ public abstract class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
     @Override
     @Deprecated
     public void setType(Class<? extends T> type) throws CsvBadConverterException {
-        this.type = type;
+        this.dissector = new AnnotationDissector<>(type, errorLocale, profile);
+        dissector.ignoreFields(ignoredFields);
         loadFieldMap();
     }
 
@@ -401,54 +402,13 @@ public abstract class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
 
     @Override
     public void ignoreFields(MultiValuedMap<Class<?>, Field> fields)  throws IllegalArgumentException {
-
-        // Check input for consistency
-        if(fields == null) {
-            ignoredFields = new ArrayListValuedHashMap<>();
-        }
-        else {
-            ignoredFields = fields;
-            MapIterator<Class<?>, Field> it = ignoredFields.mapIterator();
-            it.forEachRemaining(t -> {
-                final Field f = it.getValue();
-                if (t == null || f == null
-                        || !f.getDeclaringClass().isAssignableFrom(t)) {
-                    throw new IllegalArgumentException(ResourceBundle.getBundle(
-                            ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
-                            .getString("ignore.field.inconsistent"));
-                }
-            });
-        }
+        ignoredFields = fields;
 
         // Reload field map
-        if(this.type != null) {
+        if(dissector != null) {
+            dissector.ignoreFields(fields);
             loadFieldMap();
         }
-    }
-
-    /**
-     * Filters all fields that opencsv has been instructed to ignore and
-     * returns a list of the rest.
-     * @param type The class from which {@code fields} come. This must be the
-     *             class as opencsv would seek to instantiate it, which in the
-     *             case of inheritance is not necessarily the declaring class.
-     * @param fields The fields to be filtered
-     * @return A list of fields that exist for opencsv
-     */
-    protected List<Field> filterIgnoredFields(final Class<?> type, Field[] fields) {
-        final List<Field> filteredFields = new LinkedList<>();
-        for(Field f : fields) {
-            CsvIgnore ignoreAnnotation = f.getAnnotation(CsvIgnore.class);
-            Set<String> ignoredProfiles = ignoreAnnotation == null ?
-                    SetUtils.<String>emptySet() :
-                    new HashSet<String>(Arrays.asList(ignoreAnnotation.profiles())); // This is easier in Java 9 with Set.of()
-            if(!ignoredFields.containsMapping(type, f) &&
-                    !ignoredProfiles.contains(profile) &&
-                    !ignoredProfiles.contains(StringUtils.EMPTY)) {
-                filteredFields.add(f);
-            }
-        }
-        return filteredFields;
     }
 
     /**
@@ -463,10 +423,10 @@ public abstract class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
         initializeFieldMap();
 
         // Deal with embedded classes through recursion
-        recursiveTypeTree = loadRecursiveClasses(this.type, new HashSet<>());
+        recursiveTypeTree = loadRecursiveClasses(dissector, new HashSet<>());
 
         // Populate the field map according to annotations or not
-        Map<Boolean, ListValuedMap<Class<?>, Field>> partitionedFields = partitionFields();
+        Map<Boolean, ListValuedMap<BeanDissector<?>, Field>> partitionedFields = partitionFields();
         if(!partitionedFields.get(Boolean.TRUE).isEmpty()) {
             loadAnnotatedFieldMap(partitionedFields.get(Boolean.TRUE));
         }
@@ -476,13 +436,13 @@ public abstract class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
     }
 
     /**
-     * @param type Class to be checked
-     * @return Whether the type may be recursed into ({@code false}), or
+     * @param dissector Class to be checked
+     * @return Whether the dissector may be recursed into ({@code false}), or
      *   must be considered a leaf node for recursion ({@code true}). This
      *   implementation considers the boxed primitives forbidden.
      */
-    protected boolean isForbiddenClassForRecursion(Class<?> type) {
-        return FORBIDDEN_CLASSES_FOR_RECURSION.contains(type);
+    protected boolean isForbiddenClassForRecursion(BeanDissector<?> dissector) {
+        return FORBIDDEN_CLASSES_FOR_RECURSION.contains(dissector.getType());
     }
 
     /**
@@ -501,27 +461,27 @@ public abstract class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
      * variable annotated with {@link CsvRecurse} is also annotated with a
      * binding annotation
      */
-    protected RecursiveType loadRecursiveClasses(Class<?> newType, Set<Class<?>> encounteredTypes) {
+    protected RecursiveType loadRecursiveClasses(BeanDissector<?> newType, Set<BeanDissector<?>> encounteredTypes) {
 
         // We cannot recurse into primitive types
         if (isForbiddenClassForRecursion(newType)) {
             throw new CsvRecursionException(
                     ResourceBundle.getBundle(
                             ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
-                            .getString("recursion.on.primitive"), newType);
+                            .getString("recursion.on.primitive"), newType.getType());
         }
 
         // Guard against the same type being used twice
         if(encounteredTypes.contains(newType)) {
             throw new CsvRecursionException(String.format(ResourceBundle
                     .getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
-                    .getString("recursive.type.encountered.twice"), newType.toString()), newType);
+                    .getString("recursive.type.encountered.twice"), newType), newType.getType());
         }
         encounteredTypes.add(newType);
 
         // Find types to recurse through
         RecursiveType localRecursiveTypeTree = new RecursiveType(newType);
-        for(Field f : filterIgnoredFields(newType, FieldUtils.getFieldsWithAnnotation(newType, CsvRecurse.class))) {
+        for(Field f : newType.getFieldsWithRecursiveBinding()) {
 
             // Types that are recursed into cannot also be bound
             Set<Class<? extends Annotation>> bindingAnnotations = getBindingAnnotations();
@@ -536,7 +496,7 @@ public abstract class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
             // Recurse into that type
             localRecursiveTypeTree.addRecursiveMember(
                     new FieldAccess<>(f),
-                    loadRecursiveClasses(f.getType(), encounteredTypes));
+                    loadRecursiveClasses(newType.newDissector(f.getType()), encounteredTypes));
         }
 
         return localRecursiveTypeTree;
@@ -551,8 +511,8 @@ public abstract class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
      *                          in the new representation. This collection will
      *                          be added to and is the result of this method.
      */
-    private void assembleCompleteFieldList(RecursiveType root, final ListValuedMap<Class<?>, Field> encounteredFields) {
-        encounteredFields.putAll(root.type, filterIgnoredFields(root.type, FieldUtils.getAllFields(root.type)));
+    private void assembleCompleteFieldList(RecursiveType root, final ListValuedMap<BeanDissector<?>, Field> encounteredFields) {
+        encounteredFields.putAll(root.dissector, root.dissector.getAllFields());
         root.getRecursiveMembers().values().forEach(f -> assembleCompleteFieldList(f, encounteredFields));
     }
 
@@ -566,9 +526,9 @@ public abstract class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
      * all non-annotated fields are mapped under {@link Boolean#FALSE}.
      * @since 5.0
      */
-    protected Map<Boolean, ListValuedMap<Class<?>, Field>> partitionFields() {
+    protected Map<Boolean, ListValuedMap<BeanDissector<?>, Field>> partitionFields() {
         // Get a flat list of all fields
-        ListValuedMap<Class<?>, Field> allFields = new ArrayListValuedHashMap<>();
+        ListValuedMap<BeanDissector<?>, Field> allFields = new ArrayListValuedHashMap<>();
         assembleCompleteFieldList(recursiveTypeTree, allFields);
 
         // Determine which annotations need be considered
@@ -576,7 +536,7 @@ public abstract class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
 
         // Split the fields (with associated types) into annotated and
         // non-annotated
-        Map<Boolean, ListValuedMap<Class<?>, Field>> returnValue = new TreeMap<>();
+        Map<Boolean, ListValuedMap<BeanDissector<?>, Field>> returnValue = new TreeMap<>();
         returnValue.put(Boolean.TRUE, new ArrayListValuedHashMap<>());
         returnValue.put(Boolean.FALSE, new ArrayListValuedHashMap<>());
         allFields.entries().stream()
@@ -667,9 +627,9 @@ public abstract class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
         List<String> contents = new ArrayList<>(Math.max(numColumns, 0));
 
         // Create a map of types to instances of subordinate beans
-        Map<Class<?>, Object> instanceMap;
+        final Map<Class<?>, Object> instanceMap = new HashMap<>();
         try {
-            instanceMap = indexBean(bean);
+            indexBean(bean).forEach((k,v) -> instanceMap.put(k.getType(), v));
         }
         catch(IllegalAccessException | InvocationTargetException e) {
             // Our testing indicates these exceptions probably can't be thrown,
@@ -899,23 +859,23 @@ public abstract class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
      * recursed into.
      */
     protected static class RecursiveType {
-        private final Class<?> type;
+        private final BeanDissector<?> dissector;
         private final Map<FieldAccess<Object>, RecursiveType> recursiveMembers = new HashMap<>();
 
         /**
          * Constructs a {@link RecursiveType} with the specified type.
          *
-         * @param type Type associated with this branch
+         * @param dissector Dissector associated with this branch
          */
-        RecursiveType(Class<?> type) {
-            this.type = type;
+        RecursiveType(BeanDissector<?> dissector) {
+            this.dissector = dissector;
         }
 
         /**
          * @return Type associated with this branch
          */
-        public Class<?> getType() {
-            return type;
+        public BeanDissector<?> getDissector() {
+            return dissector;
         }
 
         /**

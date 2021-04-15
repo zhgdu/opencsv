@@ -79,7 +79,8 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
     @Override
     public void captureHeader(CSVReader reader) throws IOException {
         // Validation
-        if (type == null) {
+        // TODO: Fix error message
+        if (dissector == null) {
             throw new IllegalStateException(ResourceBundle
                     .getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
                     .getString("type.unset"));
@@ -263,9 +264,9 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
      * relevant annotation is found on a member variable.</p>
      */
     @Override
-    protected void loadAnnotatedFieldMap(ListValuedMap<Class<?>, Field> fields) {
-        for (Map.Entry<Class<?>, Field> classAndField : fields.entries()) {
-            Class<?> localType = classAndField.getKey();
+    protected void loadAnnotatedFieldMap(ListValuedMap<BeanDissector<?>, Field> fields) {
+        for (Map.Entry<BeanDissector<?>, Field> classAndField : fields.entries()) {
+            BeanDissector<?> localType = classAndField.getKey();
             Field localField = classAndField.getValue();
 
             // Custom converters always have precedence.
@@ -275,7 +276,7 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
                         localField.getAnnotationsByType(CsvCustomBindByPosition.class),
                         CsvCustomBindByPosition::profiles);
                 if (annotation != null) {
-                    registerCustomBinding(annotation, localType, localField);
+                    registerCustomBinding(annotation, localType.getType(), localField);
                 }
             }
 
@@ -286,7 +287,7 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
                         localField.getAnnotationsByType(CsvBindAndSplitByPosition.class),
                         CsvBindAndSplitByPosition::profiles);
                 if (annotation != null) {
-                    registerSplitBinding(annotation, localType, localField);
+                    registerSplitBinding(annotation, localType.getType(), localField);
                 }
             }
 
@@ -297,7 +298,7 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
                         localField.getAnnotationsByType(CsvBindAndJoinByPosition.class),
                         CsvBindAndJoinByPosition::profiles);
                 if (annotation != null) {
-                    registerJoinBinding(annotation, localType, localField);
+                    registerJoinBinding(annotation, localType.getType(), localField);
                 }
             }
 
@@ -307,22 +308,22 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
                         localField.getAnnotationsByType(CsvBindByPosition.class),
                         CsvBindByPosition::profiles);
                 if (annotation != null) {
-                    registerBinding(annotation, localType, localField);
+                    registerBinding(annotation, localType.getType(), localField);
                 }
             }
         }
     }
 
     @Override
-    protected void loadUnadornedFieldMap(ListValuedMap<Class<?>, Field> fields) {
-        for(Map.Entry<Class<?>, Field> classAndField : fields.entries()) {
-            Class<?> localType = classAndField.getKey();
+    protected void loadUnadornedFieldMap(ListValuedMap<BeanDissector<?>, Field> fields) {
+        for(Map.Entry<BeanDissector<?>, Field> classAndField : fields.entries()) {
+            BeanDissector<?> localType = classAndField.getKey();
             Field localField = classAndField.getValue();
             CsvConverter converter = determineConverter(localField, localField.getType(), null, null, null);
             int[] indices = headerIndex.getByName(localField.getName());
             if(indices.length != 0) {
                 fieldMap.put(indices[0], new BeanFieldSingleValue<>(
-                        localType, localField, false, errorLocale, converter, null, null));
+                        localType.getType(), localField, false, errorLocale, converter, null, null));
             }
         }
     }
@@ -373,7 +374,7 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
                 }
             }
             if (sb != null) {
-                throw new CsvRequiredFieldEmptyException(type, sb.toString());
+                throw new CsvRequiredFieldEmptyException(dissector.getType(), sb.toString());
             }
         }
     }

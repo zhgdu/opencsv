@@ -71,7 +71,7 @@ public interface FieldMap<I, K extends Comparable<K>, C extends ComplexFieldMapE
      * key, the return value is undefined.
      * 
      * @param key The key under which to search for a {@link BeanField}
-     * @return The {@link BeanField} found, or null if none is present
+     * @return The {@link BeanField} found, or {@code null} if none is present
      */
     BeanField<T, K> get(K key);
 
