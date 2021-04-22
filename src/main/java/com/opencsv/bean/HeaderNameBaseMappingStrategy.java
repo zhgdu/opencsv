@@ -137,27 +137,28 @@ abstract public class HeaderNameBaseMappingStrategy<T> extends AbstractMappingSt
     }
 
     /**
-     * Creates a map of fields in the bean to be processed that have no
+     * Creates a map of fields in the bean to be processed that have no binding
      * annotations.
      * <p>This method is called by {@link #loadFieldMap()} when absolutely no
-     * annotations that are relevant for this mapping strategy are found in the
-     * type of bean being processed. It is then assumed that every field is to
-     * be included, and that the name of the member variable must exactly match
-     * the header name of the input.</p>
+     * binding annotations that are relevant for this mapping strategy are
+     * found in the type of bean being processed. It is then assumed that every
+     * field is to be included, and that the name of the member variable must
+     * exactly match the header name of the input.</p>
      * <p>Two exceptions are made to the rule that everything is written:<ol>
      *     <li>Any field annotated with {@link CsvIgnore} will be
      *     ignored on writing</li>
      *     <li>Any field named "serialVersionUID" will be ignored if the
      *     enclosing class implements {@link java.io.Serializable}.</li>
      * </ol></p>
+     * <p>{@link CsvRecurse} is respected.</p>
      */
     @Override
-    protected void loadUnadornedFieldMap(ListValuedMap<BeanDissector<?>, Field> fields) {
-        for(Map.Entry<BeanDissector<?>, Field> classFieldEntry : fields.entries()) {
-            if(!(Serializable.class.isAssignableFrom(classFieldEntry.getKey().getType()) && "serialVersionUID".equals(classFieldEntry.getValue().getName()))) {
+    protected void loadUnadornedFieldMap(ListValuedMap<Class<?>, Field> fields) {
+        for(Map.Entry<Class<?>, Field> classFieldEntry : fields.entries()) {
+            if(!(Serializable.class.isAssignableFrom(classFieldEntry.getKey()) && "serialVersionUID".equals(classFieldEntry.getValue().getName()))) {
                 CsvConverter converter = determineConverter(classFieldEntry.getValue(), classFieldEntry.getValue().getType(), null, null, null);
                 fieldMap.put(classFieldEntry.getValue().getName().toUpperCase(), new BeanFieldSingleValue<>(
-                        classFieldEntry.getKey().getType(), classFieldEntry.getValue(),
+                        classFieldEntry.getKey(), classFieldEntry.getValue(),
                         false, errorLocale, converter, null, null));
             }
         }
