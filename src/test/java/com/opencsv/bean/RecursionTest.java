@@ -35,6 +35,25 @@ public class RecursionTest {
         return bean;
     }
 
+    private RecursionMockLevelZeroNoAnnotations oneGoodMockNoAnnotations() {
+        RecursionMockLevelZeroNoAnnotations bean = new RecursionMockLevelZeroNoAnnotations();
+        bean.setIntLevelZero(10);
+        RecursionMockLevelOneNoAnnotations l1 = new RecursionMockLevelOneNoAnnotations();
+        l1.setStringLevelOne("11");
+        bean.setLevelOne(l1);
+        RecursionMockLevelTwoNoAnnotations l2 = new RecursionMockLevelTwoNoAnnotations();
+        l2.setCharLevelTwo('c');
+        l1.setLevelTwo(l2);
+        l2.procureTheThirdLevelPointZero().setFloatLevelThree(4.0f);
+        RecursionMockLevelThreePointOneNoAnnotations l3point1 = new RecursionMockLevelThreePointOneNoAnnotations();
+        l3point1.setBooleanLevelThree(true);
+        l2.setLevelThreePointOne(l3point1);
+        RecursionMockLevelThreePointTwoNoAnnotations l3point2 = new RecursionMockLevelThreePointTwoNoAnnotations();
+        l3point2.setShortLevelThree((short)32);
+        l2.setLevelThreePointTwo(l3point2);
+        return bean;
+    }
+
     private void checkReadingResults(List<RecursionMockLevelZero> beans) {
         assertNotNull(beans);
         assertEquals(1, beans.size());
@@ -55,6 +74,29 @@ public class RecursionTest {
         assertTrue(b3point1.isBooleanLevelThree());
 
         RecursionMockLevelThreePointTwo b3point2 = b2.getLevelThreePointTwo();
+        assertEquals((short)32, b3point2.getShortLevelThree());
+    }
+
+    private void checkReadingResultsNoAnnotations(List<RecursionMockLevelZeroNoAnnotations> beans) {
+        assertNotNull(beans);
+        assertEquals(1, beans.size());
+
+        RecursionMockLevelZeroNoAnnotations b0 = beans.get(0);
+        assertEquals(10, b0.getIntLevelZero());
+
+        RecursionMockLevelOneNoAnnotations b1 = b0.getLevelOne();
+        assertEquals("11", b1.getStringLevelOne());
+
+        RecursionMockLevelTwoNoAnnotations b2 = b1.getLevelTwo();
+        assertEquals('c', b2.getCharLevelTwo());
+
+        RecursionMockLevelThreePointZeroNoAnnotations b3point0 = b2.procureTheThirdLevelPointZero();
+        assertEquals(4.0f, b3point0.getFloatLevelThree());
+
+        RecursionMockLevelThreePointOneNoAnnotations b3point1 = b2.getLevelThreePointOne();
+        assertTrue(b3point1.isBooleanLevelThree());
+
+        RecursionMockLevelThreePointTwoNoAnnotations b3point2 = b2.getLevelThreePointTwo();
         assertEquals((short)32, b3point2.getShortLevelThree());
     }
 
@@ -215,6 +257,20 @@ public class RecursionTest {
     }
 
     @Test
+    public void testReadingHeaderNamesNoAnnotations() {
+        CsvToBean<RecursionMockLevelZeroNoAnnotations> csvToBean =
+                new CsvToBeanBuilder<RecursionMockLevelZeroNoAnnotations>(new StringReader(
+                        HEADER + DATA))
+                        .withType(RecursionMockLevelZeroNoAnnotations.class)
+                        .build();
+        List<RecursionMockLevelZeroNoAnnotations> beans = csvToBean.parse();
+        List<CsvException> exceptions = csvToBean.getCapturedExceptions();
+        assertNotNull(exceptions);
+        assertTrue(exceptions.isEmpty());
+        checkReadingResultsNoAnnotations(beans);
+    }
+
+    @Test
     public void testReadingColumnPositions() {
         CsvToBean<RecursionMockLevelZero> csvToBean =
                 new CsvToBeanBuilder<RecursionMockLevelZero>(new StringReader(DATA))
@@ -256,6 +312,17 @@ public class RecursionTest {
                 .withApplyQuotesToAll(false)
                 .build();
         b2c.write(oneGoodMock());
+        assertEquals("BOOLEANLEVELTHREE,CHARLEVELTWO,FLOATLEVELTHREE,INTLEVELZERO,SHORTLEVELTHREE,STRINGLEVELONE\n" +
+                "true,c,4.0,10,32,11\n", w.toString());
+    }
+
+    @Test
+    public void testWritingHeaderNamesNoAnnotations() throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
+        StringWriter w = new StringWriter();
+        StatefulBeanToCsv<RecursionMockLevelZeroNoAnnotations> b2c = new StatefulBeanToCsvBuilder<RecursionMockLevelZeroNoAnnotations>(w)
+                .withApplyQuotesToAll(false)
+                .build();
+        b2c.write(oneGoodMockNoAnnotations());
         assertEquals("BOOLEANLEVELTHREE,CHARLEVELTWO,FLOATLEVELTHREE,INTLEVELZERO,SHORTLEVELTHREE,STRINGLEVELONE\n" +
                 "true,c,4.0,10,32,11\n", w.toString());
     }
