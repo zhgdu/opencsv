@@ -153,15 +153,16 @@ abstract public class HeaderNameBaseMappingStrategy<T> extends AbstractMappingSt
      * <p>{@link CsvRecurse} is respected.</p>
      */
     @Override
-    protected void loadUnadornedFieldMap(ListValuedMap<Class<?>, Field> fields) {
-        for(Map.Entry<Class<?>, Field> classFieldEntry : fields.entries()) {
-            if(!(Serializable.class.isAssignableFrom(classFieldEntry.getKey()) && "serialVersionUID".equals(classFieldEntry.getValue().getName()))) {
-                CsvConverter converter = determineConverter(classFieldEntry.getValue(), classFieldEntry.getValue().getType(), null, null, null);
-                fieldMap.put(classFieldEntry.getValue().getName().toUpperCase(), new BeanFieldSingleValue<>(
-                        classFieldEntry.getKey(), classFieldEntry.getValue(),
-                        false, errorLocale, converter, null, null));
-            }
-        }
+    protected void loadUnadornedFieldMap(ListValuedMap<BeanDissector<?>, Field> fields) {
+        fields.entries().stream()
+                .filter(entry -> !(Serializable.class.isAssignableFrom(entry.getKey().getType()) && "serialVersionUID".equals(entry.getValue().getName())))
+                .filter(entry -> !entry.getValue().isAnnotationPresent(CsvRecurse.class))
+                .forEach(entry -> {
+                    final CsvConverter converter = determineConverter(entry.getValue(), entry.getValue().getType(), null, null, null);
+                    fieldMap.put(entry.getValue().getName().toUpperCase(), new BeanFieldSingleValue<>(
+                            entry.getKey().getType(), entry.getValue(),
+                            false, errorLocale, converter, null, null));
+                });
     }
 
     @Override
