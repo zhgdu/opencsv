@@ -17,7 +17,7 @@ public class NonPrimitiveConversionTest {
     private static final String UUID_STRING = "7F804F85-0064-4E96-8260-3FD47EA6A8BB";
     private static final UUID EXPECTED_UUID = UUID.fromString(UUID_STRING);
 
-    public static Stream<Arguments> buildLeagalUUIDValues() {
+    public static Stream<Arguments> buildLegalUUIDValues() {
         return Stream.of(
                 Arguments.of(UUID_STRING),
                 Arguments.of(UUID_STRING.toLowerCase()),
@@ -30,7 +30,7 @@ public class NonPrimitiveConversionTest {
 
     @DisplayName("Can convert UUID values.")
     @ParameterizedTest
-    @MethodSource("buildLeagalUUIDValues")
+    @MethodSource("buildLegalUUIDValues")
     public void convertUUID(String uuidValue) {
         MockDataBuilder builder = new MockDataBuilder();
         builder.setHeaderString("id,uuid");

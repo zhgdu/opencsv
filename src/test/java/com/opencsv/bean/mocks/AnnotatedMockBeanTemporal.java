@@ -155,7 +155,7 @@ public class AnnotatedMockBeanTemporal {
             value = "G yyyy MMMM dd HH mm ss z",
             writeFormatEqualsReadFormat = false,
             writeFormat = "G yyyy MMMM dd HH mm ss")
-    private ChronoLocalDateTime chronoLocalDateTime;
+    private ChronoLocalDateTime<LocalDate> chronoLocalDateTime;
 
     /**
      * Field for {@link java.time.temporal.TemporalAccessor}-based annotation
@@ -175,7 +175,7 @@ public class AnnotatedMockBeanTemporal {
             value = "G yyyy MMMM dd HH mm ss z",
             writeFormatEqualsReadFormat = false,
             writeFormat = "G yyyy MMMM dd HH mm ss")
-    private ChronoLocalDateTime chronoLocalDateTimeLocale;
+    private ChronoLocalDateTime<LocalDate> chronoLocalDateTimeLocale;
 
     /**
      * Field for {@link java.time.temporal.TemporalAccessor}-based annotation
@@ -232,7 +232,7 @@ public class AnnotatedMockBeanTemporal {
     @CsvBindByName
     @CsvBindByPosition(position = 10)
     @CsvDate("G yyyy MMMM dd HH mm ss z")
-    private ChronoZonedDateTime chronoZonedDateTime;
+    private ChronoZonedDateTime<LocalDate> chronoZonedDateTime;
 
     /**
      * Field for {@link java.time.temporal.TemporalAccessor}-based annotation
@@ -249,7 +249,7 @@ public class AnnotatedMockBeanTemporal {
     @CsvBindByName(locale = "de")
     @CsvBindByPosition(position = 11, locale = "de")
     @CsvDate("G yyyy MMMM dd HH mm ss z")
-    private ChronoZonedDateTime chronoZonedDateTimeLocale;
+    private ChronoZonedDateTime<LocalDate> chronoZonedDateTimeLocale;
 
     /**
      * Field for {@link java.time.temporal.TemporalAccessor}-based annotation
@@ -1167,19 +1167,19 @@ public class AnnotatedMockBeanTemporal {
         this.localDateLocale = localDateLocale;
     }
 
-    public ChronoLocalDateTime getChronoLocalDateTime() {
+    public ChronoLocalDateTime<LocalDate> getChronoLocalDateTime() {
         return chronoLocalDateTime;
     }
 
-    public void setChronoLocalDateTime(ChronoLocalDateTime chronoLocalDateTime) {
+    public void setChronoLocalDateTime(ChronoLocalDateTime<LocalDate> chronoLocalDateTime) {
         this.chronoLocalDateTime = chronoLocalDateTime;
     }
 
-    public ChronoLocalDateTime getChronoLocalDateTimeLocale() {
+    public ChronoLocalDateTime<LocalDate> getChronoLocalDateTimeLocale() {
         return chronoLocalDateTimeLocale;
     }
 
-    public void setChronoLocalDateTimeLocale(ChronoLocalDateTime chronoLocalDateTimeLocale) {
+    public void setChronoLocalDateTimeLocale(ChronoLocalDateTime<LocalDate> chronoLocalDateTimeLocale) {
         this.chronoLocalDateTimeLocale = chronoLocalDateTimeLocale;
     }
 
@@ -1199,19 +1199,19 @@ public class AnnotatedMockBeanTemporal {
         this.localDateTimeLocale = localDateTimeLocale;
     }
 
-    public ChronoZonedDateTime getChronoZonedDateTime() {
+    public ChronoZonedDateTime<LocalDate> getChronoZonedDateTime() {
         return chronoZonedDateTime;
     }
 
-    public void setChronoZonedDateTime(ChronoZonedDateTime chronoZonedDateTime) {
+    public void setChronoZonedDateTime(ChronoZonedDateTime<LocalDate> chronoZonedDateTime) {
         this.chronoZonedDateTime = chronoZonedDateTime;
     }
 
-    public ChronoZonedDateTime getChronoZonedDateTimeLocale() {
+    public ChronoZonedDateTime<LocalDate> getChronoZonedDateTimeLocale() {
         return chronoZonedDateTimeLocale;
     }
 
-    public void setChronoZonedDateTimeLocale(ChronoZonedDateTime chronoZonedDateTimeLocale) {
+    public void setChronoZonedDateTimeLocale(ChronoZonedDateTime<LocalDate> chronoZonedDateTimeLocale) {
         this.chronoZonedDateTimeLocale = chronoZonedDateTimeLocale;
     }
 

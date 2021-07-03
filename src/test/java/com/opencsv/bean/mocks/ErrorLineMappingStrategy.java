@@ -16,14 +16,10 @@
 package com.opencsv.bean.mocks;
 
 import com.opencsv.CSVReader;
-import com.opencsv.bean.BeanField;
 import com.opencsv.bean.MappingStrategy;
 import com.opencsv.exceptions.CsvBadConverterException;
 import com.opencsv.exceptions.CsvBeanIntrospectionException;
 import org.apache.commons.lang3.ArrayUtils;
-
-import java.beans.PropertyDescriptor;
-import java.util.Locale;
 
 public class ErrorLineMappingStrategy<T> implements MappingStrategy<T> {
     @Override
@@ -36,7 +32,7 @@ public class ErrorLineMappingStrategy<T> implements MappingStrategy<T> {
     }
     
     @Override
-    public void setType(Class type) throws CsvBadConverterException {}
+    public void setType(Class<? extends T> type) throws CsvBadConverterException {}
 
     @Override
     public T populateNewBean(String[] line) throws CsvBeanIntrospectionException {

@@ -25,10 +25,10 @@ import org.junit.jupiter.api.*;
 import java.io.*;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.Locale;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CSVReaderTest {
 
@@ -52,7 +52,6 @@ public class CSVReaderTest {
         Locale.setDefault(Locale.US);
         MockDataBuilder builder = new MockDataBuilder();
 
-        StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
         builder.addDataRow("a,b,c");   // standard case
         builder.addDataRow("a,\"b,b,b\",c");  // quoted elements
         builder.addDataRow(",,"); // empty elements
@@ -166,8 +165,8 @@ public class CSVReaderTest {
         assertEquals("Glen \"The Man\" Smith", nextLine[0]);
 
         nextLine = csvr.readNext();
-        assertTrue(nextLine[0].equals("\"\"")); // check the tricky situation
-        assertTrue(nextLine[1].equals("test")); // make sure we didn't ruin the next field..
+        assertEquals("\"\"", nextLine[0]); // check the tricky situation
+        assertEquals("test", nextLine[1]); // make sure we didn't ruin the next field..
 
         nextLine = csvr.readNext();
         assertEquals(4, nextLine.length);
@@ -375,7 +374,7 @@ public class CSVReaderTest {
 
         assertEquals("a", nextLine[0]);
         assertEquals(1, nextLine[1].length());
-        assertEquals("\'", nextLine[1]);
+        assertEquals("'", nextLine[1]);
         assertEquals("c", nextLine[2]);
     }
 
@@ -657,11 +656,11 @@ public class CSVReaderTest {
 
     @Test
     public void issue108ReaderPlaysWellWithChannels() throws IOException, CsvException {
-        byte[] bytes = "name\r\nvalue\r\n".getBytes("UTF-8");
+        byte[] bytes = "name\r\nvalue\r\n".getBytes(StandardCharsets.UTF_8);
         ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
         ReadableByteChannel ch = Channels.newChannel(bais);
         InputStream in = Channels.newInputStream(ch);
-        InputStreamReader reader = new InputStreamReader(in, Charset.forName("UTF-8"));
+        InputStreamReader reader = new InputStreamReader(in, StandardCharsets.UTF_8);
         CSVReaderBuilder builder = new CSVReaderBuilder(reader);
         CSVReader csv = builder.withVerifyReader(false).build();
         assertEquals(2, csv.readAll().size());
@@ -692,7 +691,7 @@ public class CSVReaderTest {
 
         CSVReader csvReader = builder.withFieldAsNull(CSVReaderNullFieldIndicator.EMPTY_SEPARATORS).build();
 
-        String item[] = csvReader.readNext();
+        String[] item = csvReader.readNext();
 
         assertEquals(5, item.length);
         assertNull(item[0]);
@@ -710,7 +709,7 @@ public class CSVReaderTest {
         CSVReaderBuilder builder = new CSVReaderBuilder(mockDataBuilder.buildStringReader());
         CSVReader csvReader = builder.withFieldAsNull(CSVReaderNullFieldIndicator.EMPTY_QUOTES).build();
 
-        String item[] = csvReader.readNext();
+        String[] item = csvReader.readNext();
 
         assertEquals(5, item.length);
         assertEquals("", item[0]);
@@ -726,7 +725,7 @@ public class CSVReaderTest {
         CSVReaderBuilder builder = new CSVReaderBuilder(mockDataBuilder.buildStringReader());
         CSVReader csvReader = builder.withFieldAsNull(CSVReaderNullFieldIndicator.BOTH).build();
 
-        String item[] = csvReader.readNext();
+        String[] item = csvReader.readNext();
 
         assertEquals(5, item.length);
         assertNull(item[0]);
@@ -740,9 +739,7 @@ public class CSVReaderTest {
     public void testMultilineLimit() {
         CSVReader r = new CSVReaderBuilder(new StringReader("This,is,a,\"test\na\",test"))
                 .withMultilineLimit(1).build();
-        Assertions.assertThrows(IOException.class, () -> {
-            r.readNext();
-        });
+        Assertions.assertThrows(IOException.class, () -> r.readNext());
     }
 
     @Test

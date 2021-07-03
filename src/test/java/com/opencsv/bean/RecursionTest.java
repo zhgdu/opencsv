@@ -350,7 +350,7 @@ public class RecursionTest {
     }
 
     @Test
-    public void testNullMemberVariableRequired() throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
+    public void testNullMemberVariableRequired() throws CsvDataTypeMismatchException {
         StringWriter w = new StringWriter();
         StatefulBeanToCsv<RecursionMockLevelZero> b2c = new StatefulBeanToCsvBuilder<RecursionMockLevelZero>(w)
                 .withApplyQuotesToAll(false)

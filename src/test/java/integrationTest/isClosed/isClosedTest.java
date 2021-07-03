@@ -11,7 +11,7 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * I created this class to test out all the issues that is being seen with the isClosed

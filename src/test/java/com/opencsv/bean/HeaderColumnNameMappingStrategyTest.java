@@ -26,7 +26,7 @@ import java.io.StringReader;
 import java.util.List;
 import java.util.Locale;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class HeaderColumnNameMappingStrategyTest {
 
@@ -147,7 +147,7 @@ public class HeaderColumnNameMappingStrategyTest {
    }
 
     @Test
-   public void throwsIllegalStateExceptionIfTypeNotSetBeforeGenerateHeaders() throws CsvRequiredFieldEmptyException {
+   public void throwsIllegalStateExceptionIfTypeNotSetBeforeGenerateHeaders() {
       strat = new HeaderColumnNameMappingStrategy<>();
         Assertions.assertThrows(IllegalStateException.class, () -> {
             strat.generateHeader(new MockBean());

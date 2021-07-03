@@ -36,7 +36,7 @@ public class RowMustHaveSameNumberOfColumnsAsFirstRowValidatorTest {
 
     @Test
     @DisplayName("RowValidator validate with three rows first")
-    public void validateThreeRowsFirst() throws CsvValidationException {
+    public void validateThreeRowsFirst() {
         Assertions.assertDoesNotThrow(() -> validator.validate(THREE_COLUMNS));
         Assertions.assertDoesNotThrow(() -> validator.validate(THREE_COLUMNS));
         Assertions.assertThrows(CsvValidationException.class, () -> validator.validate(FOUR_COLUMNS));

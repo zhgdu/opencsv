@@ -20,9 +20,10 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.sql.*;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.GregorianCalendar;
 
-import static org.junit.Assert.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -284,7 +285,7 @@ public class ResultSetHelperServiceTest {
    @Test
    public void getDateFromResultSet() throws SQLException, IOException {
 
-      Date date = new Date(new GregorianCalendar(2009, 11, 15).getTimeInMillis());
+      Date date = new Date(new GregorianCalendar(2009, Calendar.DECEMBER, 15).getTimeInMillis());
       long dateInMilliSeconds = date.getTime();
       SimpleDateFormat dateFormat = new SimpleDateFormat(ResultSetHelperService.DEFAULT_DATE_FORMAT);
 
@@ -306,7 +307,7 @@ public class ResultSetHelperServiceTest {
    public void getDateFromResultSetUsingCustomFormat() throws SQLException, IOException {
 
       String customDateFormat = "mm/dd/yy";
-      Date date = new Date(new GregorianCalendar(2009, 11, 15).getTimeInMillis());
+      Date date = new Date(new GregorianCalendar(2009, Calendar.DECEMBER, 15).getTimeInMillis());
       long dateInMilliSeconds = date.getTime();
       SimpleDateFormat dateFormat = new SimpleDateFormat(customDateFormat);
 
@@ -328,7 +329,7 @@ public class ResultSetHelperServiceTest {
    public void setDateFormat() throws SQLException, IOException {
 
       String customDateFormat = "mm/dd/yy";
-      Date date = new Date(new GregorianCalendar(2009, 11, 15).getTimeInMillis());
+      Date date = new Date(new GregorianCalendar(2009, Calendar.DECEMBER, 15).getTimeInMillis());
       long dateInMilliSeconds = date.getTime();
       SimpleDateFormat dateFormat = new SimpleDateFormat(customDateFormat);
 
@@ -370,7 +371,7 @@ public class ResultSetHelperServiceTest {
 
    @Test
    public void getTimestampFromResultSet() throws SQLException, IOException {
-      Timestamp date = new Timestamp(new GregorianCalendar(2009, 11, 15, 12, 0, 0).getTimeInMillis());
+      Timestamp date = new Timestamp(new GregorianCalendar(2009, Calendar.DECEMBER, 15, 12, 0, 0).getTimeInMillis());
       long dateInMilliSeconds = date.getTime();
       SimpleDateFormat timeFormat = new SimpleDateFormat(ResultSetHelperService.DEFAULT_TIMESTAMP_FORMAT);
 
@@ -390,7 +391,7 @@ public class ResultSetHelperServiceTest {
 
    @Test
    public void getTimestampFromResultSetWithCustomFormat() throws SQLException, IOException {
-      Timestamp date = new Timestamp(new GregorianCalendar(2009, 11, 15, 12, 0, 0).getTimeInMillis());
+      Timestamp date = new Timestamp(new GregorianCalendar(2009, Calendar.DECEMBER, 15, 12, 0, 0).getTimeInMillis());
       long dateInMilliSeconds = date.getTime();
       String customFormat = "mm/dd/yy HH:mm:ss";
       SimpleDateFormat timeFormat = new SimpleDateFormat(customFormat);
@@ -411,7 +412,7 @@ public class ResultSetHelperServiceTest {
 
    @Test
    public void setDateTimeFormat() throws SQLException, IOException {
-      Timestamp date = new Timestamp(new GregorianCalendar(2009, 11, 15, 12, 0, 0).getTimeInMillis());
+      Timestamp date = new Timestamp(new GregorianCalendar(2009, Calendar.DECEMBER, 15, 12, 0, 0).getTimeInMillis());
       long dateInMilliSeconds = date.getTime();
       String customFormat = "mm/dd/yy HH:mm:ss";
       SimpleDateFormat timeFormat = new SimpleDateFormat(customFormat);
@@ -549,7 +550,7 @@ public class ResultSetHelperServiceTest {
       }
 
       if (substrsize > 0) {
-         sb.append(BUILDSTRING.substring(0, substrsize));
+         sb.append(BUILDSTRING, 0, substrsize);
       }
 
       return sb.toString();

@@ -106,33 +106,25 @@ public class CsvReaderHeaderAwareTest {
     }
 
     @Test
-    public void shouldFailForInvalidColumn() throws IOException {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            csvr.readNext("fourth");
-        });
+    public void shouldFailForInvalidColumn() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> csvr.readNext("fourth"));
     }
 
     @Test
-    public void shouldFailForInvalidColumnEvenAmongstValidOnes() throws IOException {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            csvr.readNext("first", "third", "fourth");
-        });
+    public void shouldFailForInvalidColumnEvenAmongstValidOnes() {
+        Assertions.assertThrows(IllegalArgumentException.class, () -> csvr.readNext("first", "third", "fourth"));
     }
 
     @Test
     public void shouldFailWhenNumberOfDataItemsIsLessThanHeader() throws IOException {
         csvr.skip(7);
-        Assertions.assertThrows(IOException.class, () -> {
-            csvr.readNext("second");
-        });
+        Assertions.assertThrows(IOException.class, () -> csvr.readNext("second"));
     }
 
     @Test
     public void shouldFailWhenNumberOfDataItemsIsGreaterThanHeader() throws IOException {
         csvr.skip(6);
-        Assertions.assertThrows(IOException.class, () -> {
-            csvr.readNext("second");
-        });
+        Assertions.assertThrows(IOException.class, () -> csvr.readNext("second"));
     }
 
     @Test
@@ -159,9 +151,7 @@ public class CsvReaderHeaderAwareTest {
 
         csvr.skip(5);
 
-        Assertions.assertThrows(IOException.class, () -> {
-            csvr.readMap();
-        });
+        Assertions.assertThrows(IOException.class, () -> csvr.readMap());
     }
 
     @Test
@@ -173,9 +163,7 @@ public class CsvReaderHeaderAwareTest {
 
         csvr.skip(6);
 
-        Assertions.assertThrows(IOException.class, () -> {
-            csvr.readMap();
-        });
+        Assertions.assertThrows(IOException.class, () -> csvr.readMap());
     }
 
     @Test

@@ -16,7 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
  * The purpose of these tests is to write an array of data using the CSVWriter then read
@@ -47,7 +47,7 @@ public class WriteThenReadTest {
 
         System.out.println(listToString(rows));
         icsvWriter.writeAll(rows);
-        System.out.println(writer.toString());
+        System.out.println(writer);
 
         Reader reader = new StringReader(writer.toString());
         CSVReaderBuilder readerBuilder = new CSVReaderBuilder(reader);
@@ -56,7 +56,7 @@ public class WriteThenReadTest {
         List<String[]> readRows = csvReader.readAll();
         String originalString = listToString(rows);
         String readString = listToString(readRows);
-        assertEquals(String.format("Expected: %s     | Actual: %s    |", originalString, readString), originalString, readString);
+        assertEquals(originalString, readString, String.format("Expected: %s     | Actual: %s    |", originalString, readString));
     }
 
     private String listToString(List<String[]> rows) {

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.*;
 import java.io.Reader;
 import java.util.Locale;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
 public class CSVReaderBuilderTest {
@@ -54,9 +54,7 @@ public class CSVReaderBuilderTest {
 
     @Test
    public void testNullReader() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            builder = new CSVReaderBuilder(null);
-        });
+        Assertions.assertThrows(IllegalArgumentException.class, () -> new CSVReaderBuilder(null));
    }
 
    @Test

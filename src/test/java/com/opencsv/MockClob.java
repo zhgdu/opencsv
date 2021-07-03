@@ -17,7 +17,6 @@ package com.opencsv;
 
 import java.io.*;
 import java.sql.Clob;
-import java.sql.SQLException;
 
 public class MockClob implements Clob {
 

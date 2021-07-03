@@ -381,7 +381,7 @@ public class IgnoreTest {
      *     <li>Calling {@link MappingStrategy#setType(Class)} before
      *     {@link MappingStrategy#ignoreFields(MultiValuedMap)}</li>
      * </ul></p>
-     * @throws NoSuchFieldException
+     * @throws NoSuchFieldException Never
      */
     @Test
     public void testRemappingOnIgnore() throws NoSuchFieldException {

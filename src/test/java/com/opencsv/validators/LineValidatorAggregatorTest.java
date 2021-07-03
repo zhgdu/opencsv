@@ -53,7 +53,7 @@ public class LineValidatorAggregatorTest {
         );
 
 
-        Assertions.assertTrue(aggregator.isValid(line) == "valid".equals(valid));
+        assertEquals(aggregator.isValid(line), "valid".equals(valid));
 
         String testLine = preprocessLine(line);
 
@@ -68,8 +68,8 @@ public class LineValidatorAggregatorTest {
             }
             String exceptionMessage = ex.getMessage();
             Assertions.assertAll("Exception message is incorrect",
-                    () -> assertTrue("will".equals(willHaveAwful) == exceptionMessage.contains(lineDoesNotHaveAwfulString.getMessage()), "Supposed to have Awful message."),
-                    () -> assertTrue("will".equals(willHaveBadString) == exceptionMessage.contains(lineDoesNotHaveBadString.getMessage()), "Supposed to have Bad message."));
+                    () -> assertEquals("will".equals(willHaveAwful), exceptionMessage.contains(lineDoesNotHaveAwfulString.getMessage()), "Supposed to have Awful message."),
+                    () -> assertEquals("will".equals(willHaveBadString), exceptionMessage.contains(lineDoesNotHaveBadString.getMessage()), "Supposed to have Bad message."));
         }
     }
 

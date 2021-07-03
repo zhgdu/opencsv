@@ -10,8 +10,8 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.List;
 
-import static org.junit.Assert.assertArrayEquals;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class UniCodeTest {
    private static final String COMPOUND_STRING = "??,??";
@@ -27,8 +27,7 @@ public class UniCodeTest {
    @Test
    public void canParseUnicode() throws IOException {
       csvParser = new CSVParser();
-      String simpleString = COMPOUND_STRING;
-      String[] items = csvParser.parseLine(simpleString);
+      String[] items = csvParser.parseLine(COMPOUND_STRING);
       assertEquals(2, items.length);
       assertEquals(FIRST_STRING, items[0]);
       assertEquals(SECOND_STRING, items[1]);

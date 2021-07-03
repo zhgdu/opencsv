@@ -3,9 +3,8 @@ package integrationTest.issue3402853;
 import org.apache.commons.lang3.StringUtils;
 
 public class MockUserBean {
-    public static final String DEFAULT_BLANK_FIELD = "";
-    private String first_name = DEFAULT_BLANK_FIELD;
-    private String last_name = DEFAULT_BLANK_FIELD;
+    private String first_name = StringUtils.EMPTY;
+    private String last_name = StringUtils.EMPTY;
     private String profile_id = "";
     private String email = "";
     private String secondary_email = "";
@@ -58,7 +57,7 @@ public class MockUserBean {
     }
 
     public boolean equals(Object obj) {
-        if ((null == obj) || !(obj instanceof MockUserBean)) {
+        if (!(obj instanceof MockUserBean)) {
             return false;
         }
 
@@ -78,7 +77,7 @@ public class MockUserBean {
     }
 
     private boolean isNameEmpty(String name) {
-        return name == null || name.length() == 0 || DEFAULT_BLANK_FIELD.equals(name);
+        return name == null || name.length() == 0 || StringUtils.EMPTY.equals(name);
 
     }
 

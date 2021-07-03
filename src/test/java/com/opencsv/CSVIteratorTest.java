@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.util.Locale;
 import java.util.NoSuchElementException;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -39,13 +39,11 @@ public class CSVIteratorTest {
     @Test
     public void readerExceptionCausesRunTimeException() throws IOException, CsvValidationException {
         when(mockReader.readNext()).thenThrow(new IOException("reader threw test exception"));
-        Assertions.assertThrows(NoSuchElementException.class, () -> {
-            iterator.next();
-        });
+        Assertions.assertThrows(NoSuchElementException.class, () -> iterator.next());
     }
 
     @Test
-    public void removethrowsUnsupportedOperationException() {
+    public void removeThrowsUnsupportedOperationException() {
         String englishErrorMessage = null;
         try {
             iterator.remove();

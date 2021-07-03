@@ -27,7 +27,7 @@ import java.io.StringReader;
 import java.util.List;
 import java.util.Locale;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ColumnPositionMappingStrategyTest {
    private ColumnPositionMappingStrategy<MockBean> strat;

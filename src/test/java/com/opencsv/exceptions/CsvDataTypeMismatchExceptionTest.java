@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 import java.io.*;
 import java.lang.reflect.Field;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CsvDataTypeMismatchExceptionTest {
     private static final String TEST_MESSAGE = "some test message";

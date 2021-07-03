@@ -42,7 +42,7 @@ import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
@@ -476,13 +476,12 @@ public class CollectionSplitTest {
         StatefulBeanToCsv<AnnotatedMockBeanCollectionSplit> b2csv =
                 new StatefulBeanToCsvBuilder<AnnotatedMockBeanCollectionSplit>(writer).build();
         AnnotatedMockBeanCollectionSplit bean = new AnnotatedMockBeanCollectionSplit();
-        SortedSet<Integer> sortedSet = new TreeSet<>();
-        sortedSet.addAll(Arrays.asList(2, 2, 1, 3, 3, 3));
+        SortedSet<Integer> sortedSet = new TreeSet<>(Arrays.asList(2, 2, 1, 3, 3, 3));
         bean.setSortedSetType(sortedSet);
         Set<Date> set = new HashSet<>();
-        Calendar cal = new GregorianCalendar(1978, 0, 15);
+        Calendar cal = new GregorianCalendar(1978, Calendar.JANUARY, 15);
         set.add(cal.getTime());
-        cal = new GregorianCalendar(2018, 0, 1);
+        cal = new GregorianCalendar(2018, Calendar.JANUARY, 1);
         set.add(cal.getTime());
         bean.setSetType(set);
         b2csv.write(bean);

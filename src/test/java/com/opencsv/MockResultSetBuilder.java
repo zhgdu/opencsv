@@ -72,7 +72,7 @@ public class MockResultSetBuilder {
          case Types.INTEGER:
          case Types.TINYINT:
          case Types.SMALLINT:
-            when(rs.getInt(index)).thenReturn(value != null ? new Integer(value) : 0);
+            when(rs.getInt(index)).thenReturn(value != null ? Integer.parseInt(value) : 0);
             wnrl.add(value == null);
             break;
          case Types.NVARCHAR:
@@ -124,7 +124,7 @@ public class MockResultSetBuilder {
       if (value == null) {
          date = null;
       } else {
-         Long milliseconds = Long.valueOf(value);
+         long milliseconds = Long.parseLong(value);
          date = new Date(milliseconds);
       }
       return date;
@@ -136,7 +136,7 @@ public class MockResultSetBuilder {
       if (value == null) {
          time = null;
       } else {
-         Long milliseconds = Long.valueOf(value);
+         long milliseconds = Long.parseLong(value);
          time = new Time(milliseconds);
       }
       return time;
@@ -148,7 +148,7 @@ public class MockResultSetBuilder {
       if (value == null) {
          timestamp = null;
       } else {
-         Long milliseconds = Long.valueOf(value);
+         long milliseconds = Long.parseLong(value);
          timestamp = new Timestamp(milliseconds);
       }
       return timestamp;

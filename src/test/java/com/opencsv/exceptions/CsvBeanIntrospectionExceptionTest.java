@@ -1,13 +1,12 @@
 package com.opencsv.exceptions;
 
-
 import com.opencsv.bean.mocks.MockBean;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
 import java.lang.reflect.Field;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CsvBeanIntrospectionExceptionTest {
     private static final String TEST_MESSAGE = "some test message";

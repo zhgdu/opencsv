@@ -712,7 +712,6 @@ public class ProfileTest {
         ProfileNameNoDefault b;
         List<ProfileNameNoDefault> beans;
         List<Float> floats;
-        Collection<LocalDate> dates;
 
         beans = new CsvToBeanBuilder<ProfileNameNoDefault>(new FileReader("src/test/resources/testNameProfile1.csv"))
                 .withType(ProfileNameNoDefault.class)
@@ -738,7 +737,6 @@ public class ProfileTest {
         ProfilePositionNoDefault b;
         List<ProfilePositionNoDefault> beans;
         List<Float> floats;
-        Collection<LocalDate> dates;
 
         beans = new CsvToBeanBuilder<ProfilePositionNoDefault>(new FileReader("src/test/resources/testPositionProfile1.csv"))
                 .withType(ProfilePositionNoDefault.class)

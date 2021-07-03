@@ -13,7 +13,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 public class CSVReaderWithRowProcessorTest {
-    private static RowProcessor ROW_PROCESSOR = new BlankColumnsBecomeNull();
+    private static final RowProcessor ROW_PROCESSOR = new BlankColumnsBecomeNull();
     private static final String LINES = "a,, \n, ,\n";
 
     @DisplayName("CSVReader with RowProcessor with good string")

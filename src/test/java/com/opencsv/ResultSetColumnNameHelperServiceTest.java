@@ -5,10 +5,11 @@ import org.junit.jupiter.api.*;
 import java.io.IOException;
 import java.sql.*;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.Locale;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -123,9 +124,7 @@ public class ResultSetColumnNameHelperServiceTest {
         String[] columnHeaders = {"Column Name 1", "Column Name 2", "Column Name 3"};
 
         ResultSetColumnNameHelperService service = new ResultSetColumnNameHelperService();
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
-            service.setColumnNames(desiredColumnNames, columnHeaders);
-        });
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> service.setColumnNames(desiredColumnNames, columnHeaders));
     }
 
     @Test
@@ -134,9 +133,7 @@ public class ResultSetColumnNameHelperServiceTest {
         String[] columnHeaders = {"Column Name 1", "Column Name 2", "Column Name 3"};
 
         ResultSetColumnNameHelperService service = new ResultSetColumnNameHelperService();
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
-            service.setColumnNames(desiredColumnNames, columnHeaders);
-        });
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> service.setColumnNames(desiredColumnNames, columnHeaders));
     }
 
     @Test
@@ -145,9 +142,7 @@ public class ResultSetColumnNameHelperServiceTest {
         String[] columnHeaders = {"Column Name 1", "Column Name 2", "Column Name 3"};
 
         ResultSetColumnNameHelperService service = new ResultSetColumnNameHelperService();
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
-            service.setColumnNames(desiredColumnNames, columnHeaders);
-        });
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> service.setColumnNames(desiredColumnNames, columnHeaders));
     }
 
     @Test
@@ -156,9 +151,7 @@ public class ResultSetColumnNameHelperServiceTest {
         String[] columnHeaders = {"Column Name 1", null, "Column Name 3"};
 
         ResultSetColumnNameHelperService service = new ResultSetColumnNameHelperService();
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
-            service.setColumnNames(desiredColumnNames, columnHeaders);
-        });
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> service.setColumnNames(desiredColumnNames, columnHeaders));
     }
 
     @Test
@@ -167,9 +160,7 @@ public class ResultSetColumnNameHelperServiceTest {
         String[] columnHeaders = {"Column Name 1", "", "Column Name 3"};
 
         ResultSetColumnNameHelperService service = new ResultSetColumnNameHelperService();
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
-            service.setColumnNames(desiredColumnNames, columnHeaders);
-        });
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> service.setColumnNames(desiredColumnNames, columnHeaders));
     }
 
     @Test
@@ -178,9 +169,7 @@ public class ResultSetColumnNameHelperServiceTest {
         String[] columnHeaders = {"Column Name 1", "     ", "Column Name 3"};
 
         ResultSetColumnNameHelperService service = new ResultSetColumnNameHelperService();
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
-            service.setColumnNames(desiredColumnNames, columnHeaders);
-        });
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> service.setColumnNames(desiredColumnNames, columnHeaders));
     }
 
     @Test
@@ -200,9 +189,7 @@ public class ResultSetColumnNameHelperServiceTest {
 
         // end expects
 
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
-            service.getColumnNames(resultSet);
-        });
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> service.getColumnNames(resultSet));
     }
 
     @Test
@@ -282,7 +269,7 @@ public class ResultSetColumnNameHelperServiceTest {
 
     @Test
     public void getTimestampFromResultSetWithCustomFormat() throws SQLException, IOException {
-        Timestamp date = new Timestamp(new GregorianCalendar(2009, 11, 15, 12, 0, 0).getTimeInMillis());
+        Timestamp date = new Timestamp(new GregorianCalendar(2009, Calendar.DECEMBER, 15, 12, 0, 0).getTimeInMillis());
         long dateInMilliSeconds = date.getTime();
         String customFormat = "mm/dd/yy HH:mm:ss";
         SimpleDateFormat timeFormat = new SimpleDateFormat(customFormat);
@@ -303,7 +290,7 @@ public class ResultSetColumnNameHelperServiceTest {
 
     @Test
     public void getSubsetFromResultSetWithCustomFormat() throws SQLException, IOException {
-        Timestamp date = new Timestamp(new GregorianCalendar(2009, 11, 15, 12, 0, 0).getTimeInMillis());
+        Timestamp date = new Timestamp(new GregorianCalendar(2009, Calendar.DECEMBER, 15, 12, 0, 0).getTimeInMillis());
         long dateInMilliSeconds = date.getTime();
         String customFormat = "mm/dd/yy HH:mm:ss";
         SimpleDateFormat timeFormat = new SimpleDateFormat(customFormat);
@@ -330,7 +317,7 @@ public class ResultSetColumnNameHelperServiceTest {
     @DisplayName("Bug#215: DateTimeFormat that are set are not being used.")
     @Test
     public void setDateTimeFormat() throws SQLException, IOException {
-        Timestamp date = new Timestamp(new GregorianCalendar(2009, 11, 15, 12, 0, 0).getTimeInMillis());
+        Timestamp date = new Timestamp(new GregorianCalendar(2009, Calendar.DECEMBER, 15, 12, 0, 0).getTimeInMillis());
         long dateInMilliSeconds = date.getTime();
         String customFormat = "mm/dd/yy HH:mm:ss";
         SimpleDateFormat timeFormat = new SimpleDateFormat(customFormat);
@@ -358,7 +345,7 @@ public class ResultSetColumnNameHelperServiceTest {
     @DisplayName("Bug#215: DateTime that are set are not being used.")
     @Test
     public void setDateFormat() throws SQLException, IOException {
-        Timestamp date = new Timestamp(new GregorianCalendar(2009, 11, 15).getTimeInMillis());
+        Timestamp date = new Timestamp(new GregorianCalendar(2009, Calendar.DECEMBER, 15).getTimeInMillis());
         long dateInMilliSeconds = date.getTime();
         String customFormat = "mm/dd/yy";
         SimpleDateFormat timeFormat = new SimpleDateFormat(customFormat);
