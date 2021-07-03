@@ -32,9 +32,25 @@ import java.util.*;
 public class HeaderColumnNameMappingStrategy<T> extends HeaderNameBaseMappingStrategy<T> {
 
     /**
-     * Default constructor.
+     * Default constructor. Considered stable.
+     * @see HeaderColumnNameMappingStrategyBuilder
      */
     public HeaderColumnNameMappingStrategy() {
+    }
+
+    /**
+     * Constructor to allow setting options for header name mapping.
+     * Not considered stable. As new options are introduced for the mapping
+     * strategy, they will be introduced here. You are encouraged to use
+     * {@link HeaderColumnNameMappingStrategyBuilder}.
+     *
+     * @param forceCorrectRecordLength If set, every record will be shortened
+     *                                 or lengthened to match the number of
+     *                                 headers
+     * @see HeaderColumnNameMappingStrategyBuilder
+     */
+    public HeaderColumnNameMappingStrategy(boolean forceCorrectRecordLength) {
+        super(forceCorrectRecordLength);
     }
 
     /**

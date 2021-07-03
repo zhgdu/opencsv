@@ -32,9 +32,26 @@ public class HeaderColumnNameTranslateMappingStrategy<T> extends HeaderNameBaseM
     private final Map<String, String> columnMapping;
 
     /**
-     * Default constructor.
+     * Default constructor. Considered stable.
+     * @see HeaderColumnNameTranslateMappingStrategyBuilder
      */
     public HeaderColumnNameTranslateMappingStrategy() {
+        columnMapping = new HashMap<>();
+    }
+
+    /**
+     * Constructor to allow setting options for header name mapping.
+     * Not considered stable. As new options are introduced for the mapping
+     * strategy, they will be introduced here. You are encouraged to use
+     * {@link HeaderColumnNameTranslateMappingStrategyBuilder}.
+     *
+     * @param forceCorrectRecordLength If set, every record will be shortened
+     *                                 or lengthened to match the number of
+     *                                 headers
+     * @see HeaderColumnNameTranslateMappingStrategyBuilder
+     */
+    public HeaderColumnNameTranslateMappingStrategy(boolean forceCorrectRecordLength) {
+        super(forceCorrectRecordLength);
         columnMapping = new HashMap<>();
     }
 

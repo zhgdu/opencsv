@@ -32,6 +32,25 @@ abstract public class HeaderNameBaseMappingStrategy<T> extends AbstractMappingSt
     /** Holds a {@link java.util.Comparator} to sort columns on writing. */
     protected Comparator<String> writeOrder = null;
 
+    /** If set, every record will be shortened or lengthened to match the number of headers. */
+    protected final boolean forceCorrectRecordLength;
+
+    /** Nullary constructor for compatibility. */
+    HeaderNameBaseMappingStrategy() {
+        this.forceCorrectRecordLength = false;
+    }
+
+    /**
+     * Constructor to allow setting options for header name mapping.
+     *
+     * @param forceCorrectRecordLength If set, every record will be shortened
+     *                                 or lengthened to match the number of
+     *                                 headers
+     */
+    HeaderNameBaseMappingStrategy(boolean forceCorrectRecordLength) {
+        this.forceCorrectRecordLength = forceCorrectRecordLength;
+    }
+
     @Override
     public void captureHeader(CSVReader reader) throws IOException, CsvRequiredFieldEmptyException {
         // Validation
@@ -91,7 +110,7 @@ abstract public class HeaderNameBaseMappingStrategy<T> extends AbstractMappingSt
     @Override
     public void verifyLineLength(int numberOfFields) throws CsvRequiredFieldEmptyException {
         if(!headerIndex.isEmpty()) {
-            if (numberOfFields != headerIndex.getHeaderIndexLength()) {
+            if (numberOfFields != headerIndex.getHeaderIndexLength() && !forceCorrectRecordLength) {
                 throw new CsvRequiredFieldEmptyException(type, ResourceBundle
                         .getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, errorLocale)
                         .getString("header.data.mismatch"));

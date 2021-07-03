@@ -220,11 +220,11 @@ the pieces fit together for reading:
 . The MappingStrategy and the Reader or CSVReader and optionally the CsvToBeanFilter or BeanVerifier are passed to a CsvToBean, which uses them to parse input and populate beans.
 . If you have any custom converters, they are called for each bean field as CsvToBean is populating the bean fields.
 
-For writing it's a little simpler:
+For writing, it's a little simpler:
 
 . You must provide a Writer. This can be any Writer, but a FileWriter or a StringWriter are the most common options.
 . The Writer is wrapped in a CSVWriter. This is always done for you.
-. Create a MappingStrategy if you need to. Otherwise opencsv will automatically determine one.
+. Create a MappingStrategy if you need to. (Use the appropriate builder.) Otherwise opencsv will automatically determine one.
 . Create a StatefulBeanToCsv, give it the MappingStrategy and the Writer.
 . If you have any custom converters, they are called for each bean field as the field is written out to the CSV file.
 
@@ -233,10 +233,10 @@ Opencsv has the concept of a mapping strategy. This is what translates a column 
 a field in a bean or vice versa. As we have already implied in the documentation of the
 annotations, there are two basic mapping strategies: Mapping by header name and
 mapping by column position. These are incarnated in HeaderColumnNameMappingStrategy
-and ColumnPositionMappingStrategy respectively. There is one more addendum to
-the header name mapping strategy: If you need to translate names from the input
-file to field names and you are not using annotations, you will need to use
-HeaderColumnNameTranslateMappingStrategy.
+and ColumnPositionMappingStrategy respectively. If you need to translate names from the input
+file to field names, and you are not using annotations, you will need to use
+HeaderColumnNameTranslateMappingStrategy. FuzzyMappingStrategy maps from input column
+names to bean fields as intelligently as possible based on name.
 
 If you use annotations and CsvToBeanBuilder (for reading) or StatefulBeanToCsv(Builder)
 (for writing), an appropriate mapping strategy is automatically determined, and

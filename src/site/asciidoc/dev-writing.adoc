@@ -73,7 +73,7 @@ to name for header name-based mappings.You can change this order, if you must.
 ----
       // List<MyBean> beans comes from somewhere earlier in your code.
       Writer writer = new FileWriter("yourfile.csv");
-      HeaderColumnNameMappingStrategy<MyBean> strategy = new HeaderColumnNameMappingStrategy<>();
+      HeaderColumnNameMappingStrategy<MyBean> strategy = new HeaderColumnNameMappingStrategyBuilder<MyBean>().build();
       strategy.setType(MyBean.class);
       strategy.setColumnOrderOnWrite(new MyComparator());
       StatefulBeanToCsv beanToCsv = StatefulBeanToCsvBuilder(writer)
@@ -83,8 +83,8 @@ to name for header name-based mappings.You can change this order, if you must.
       writer.close();
 ----
 The same method exists for ColumnPositionMappingStrategy.If you wish to use
-your own ordering, you must instantiate your own mapping strategy and pass it
-in to StatefulBeanToCsvBuilder.
+your own ordering, you must instantiate your own mapping strategy (through
+the appropriate builder) and pass it in to StatefulBeanToCsvBuilder.
 
 We expect there will be plenty of people who find using a Comparator
 uncomfortable, because they have an exact order that they need that has nothing
