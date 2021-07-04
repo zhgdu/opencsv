@@ -43,6 +43,7 @@ public class CSVParserBuilder {
     private boolean ignoreQuotations = ICSVParser.DEFAULT_IGNORE_QUOTATIONS;
     private CSVReaderNullFieldIndicator nullFieldIndicator = CSVReaderNullFieldIndicator.NEITHER;
     private Locale errorLocale = Locale.getDefault();
+    private boolean keepQuotes = ICSVParser.DEFAULT_KEEP_QUOTATIONS;
 
 
     /**
@@ -127,6 +128,16 @@ public class CSVParserBuilder {
         this.ignoreQuotations = ignoreQuotations;
         return this;
     }
+    
+    /**
+     * Enables the CSVParser to keep surrounding quotations for quoted fields.
+     *
+     * @param keepQuotes true or false: keep surrounding quotes
+     */
+    public CSVParserBuilder withKeepQuotations(final boolean keepQuotes) {
+        this.keepQuotes = keepQuotes;
+        return this;
+    }
 
     /**
      * Constructs CSVParser.
@@ -143,7 +154,8 @@ public class CSVParserBuilder {
                 ignoreLeadingWhiteSpace,
                 ignoreQuotations,
                 nullFieldIndicator,
-                errorLocale);
+                errorLocale,
+                keepQuotes);
     }
 
     /**
@@ -187,6 +199,13 @@ public class CSVParserBuilder {
     public boolean isIgnoreQuotations() {
         return ignoreQuotations;
     }
+    
+    /**
+     * @return The defined keepQuotations setting.
+     */
+    public boolean isKeepQuotations() {
+        return keepQuotes;
+    }
 
     /**
      * Sets the NullFieldIndicator.
@@ -217,4 +236,5 @@ public class CSVParserBuilder {
     public CSVReaderNullFieldIndicator nullFieldIndicator() {
         return nullFieldIndicator;
     }
+    
 }
