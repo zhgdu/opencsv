@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class StatefulBeanToCsvPerformanceTest {
     private static final String SEPARATOR_LINE = "===============================================================================";
@@ -87,7 +87,7 @@ public class StatefulBeanToCsvPerformanceTest {
         btcsv.write(beanList);
         watch.stop();
         if (displayData) {
-            System.out.println("Time taken to write " + numBeans + " beans, ordered: " + watch.toString());
+            System.out.println("Time taken to write " + numBeans + " beans, ordered: " + watch);
         }
 
         // Writing, unordered
@@ -105,7 +105,7 @@ public class StatefulBeanToCsvPerformanceTest {
         btcsv.write(beanList);
         watch.stop();
         if (displayData) {
-            System.out.println("Time taken to write " + numBeans + " beans, unordered: " + watch.toString());
+            System.out.println("Time taken to write " + numBeans + " beans, unordered: " + watch);
         }
 
         // Reading, ordered
@@ -121,7 +121,7 @@ public class StatefulBeanToCsvPerformanceTest {
         watch.stop();
         assertEquals(numBeans, beans.size());
         if (displayData) {
-            System.out.println("Time taken to read " + numBeans + " beans, ordered: " + watch.toString());
+            System.out.println("Time taken to read " + numBeans + " beans, ordered: " + watch);
         }
 
         // Reading, ordered
@@ -138,7 +138,7 @@ public class StatefulBeanToCsvPerformanceTest {
         watch.stop();
         assertEquals(numBeans, beans.size());
         if (displayData) {
-            System.out.println("Time taken to read " + numBeans + " beans, unordered: " + watch.toString());
+            System.out.println("Time taken to read " + numBeans + " beans, unordered: " + watch);
         }
     }
 
@@ -168,7 +168,7 @@ public class StatefulBeanToCsvPerformanceTest {
         btcsv.write(beanList);
         watch.stop();
         if (displayData) {
-            System.out.println("Time taken to write " + numBeans + " beans, ordered: " + watch.toString());
+            System.out.println("Time taken to write " + numBeans + " beans, ordered: " + watch);
         }
 
         // Writing, unordered
@@ -183,7 +183,7 @@ public class StatefulBeanToCsvPerformanceTest {
         btcsv.write(beanList);
         watch.stop();
         if (displayData) {
-            System.out.println("Time taken to write " + numBeans + " beans, unordered: " + watch.toString());
+            System.out.println("Time taken to write " + numBeans + " beans, unordered: " + watch);
         }
 
         // Reading, ordered
@@ -196,7 +196,7 @@ public class StatefulBeanToCsvPerformanceTest {
         watch.stop();
         assertEquals(numBeans, beans.size());
         if (displayData) {
-            System.out.println("Time taken to read " + numBeans + " beans, ordered: " + watch.toString());
+            System.out.println("Time taken to read " + numBeans + " beans, ordered: " + watch);
         }
 
         // Reading, ordered
@@ -210,7 +210,7 @@ public class StatefulBeanToCsvPerformanceTest {
         watch.stop();
         assertEquals(numBeans, beans.size());
         if (displayData) {
-            System.out.println("Time taken to read " + numBeans + " beans, unordered: " + watch.toString());
+            System.out.println("Time taken to read " + numBeans + " beans, unordered: " + watch);
         }
     }
 

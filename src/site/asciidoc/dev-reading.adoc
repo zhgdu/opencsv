@@ -934,7 +934,7 @@ Here's how you can map to a bean based on the field positions in your CSV file:
 
 [source, java]
 ----
-    ColumnPositionMappingStrategy strat = new ColumnPositionMappingStrategy();
+    ColumnPositionMappingStrategy<YourOrderBean> strat = new ColumnPositionMappingStrategyBuilder<YourOrderBean>().build();
     strat.setType(YourOrderBean.class);
     String[] columns = new String[] {"name", "orderNumber", "id"}; // the fields to bind to in your bean
     strat.setColumnMapping(columns);
@@ -992,7 +992,7 @@ And use this code for reading:
 
 [source, java]
 ----
-MappingStrategy<MyBean> strategy = new FuzzyMappingStrategy<>();
+MappingStrategy<MyBean> strategy = new FuzzyMappingStrategyBuilder<MyBean>().build();
 strategy.setType(MyBean.class);
 List<MyBean> beans = new CsvToBeanBuilder(new FileReader("yourfile.csv"))
     .withMappingStrategy(strategy)
@@ -1029,7 +1029,7 @@ variable, no matter how poor the match. If you need to get around this, the
 best way is to annotate the member variable to be skipped and map it to a
 fictitious but optional header.
 
-Nonetheless, if you know your data and a mismapping will not cause catastrophic
+Nonetheless, if you know your data, and a mismapping will not cause catastrophic
 failure of a critical system, this mapping strategy can save you some
 burdensome annotating for obvious mappings.
 

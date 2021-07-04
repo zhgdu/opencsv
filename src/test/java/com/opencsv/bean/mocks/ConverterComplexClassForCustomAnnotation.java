@@ -37,7 +37,7 @@ public class ConverterComplexClassForCustomAnnotation<T, I> extends AbstractBean
         } else {
             o = new ComplexClassForCustomAnnotation();
         }
-        o.i = Integer.valueOf(sa[0]);
+        o.i = Integer.parseInt(sa[0]);
         o.c = sa[1].charAt(0);
         o.s = sa[2];
         return o;

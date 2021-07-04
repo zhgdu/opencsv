@@ -15,10 +15,10 @@ public class CsvToBeanBuilderTest {
 
     private static final String TEST_STRING = "Some string not really parsed but I needed a reader.";
 
-    private CsvToBean throwsExceptionFirst;
-    private CsvToBean withExceptionHandlerFirst;
+    private CsvToBean<MockBean> throwsExceptionFirst;
+    private CsvToBean<MockBean> withExceptionHandlerFirst;
 
-    private CsvExceptionHandler exceptionHandler = new JunkExceptionHandler();
+    private final CsvExceptionHandler exceptionHandler = new JunkExceptionHandler();
 
     @BeforeEach
     public void setUp() {
@@ -43,10 +43,10 @@ public class CsvToBeanBuilderTest {
         assertTrue(withExceptionHandlerFirst.getExceptionHandler() instanceof JunkExceptionHandler);
     }
 
-    private class JunkExceptionHandler implements CsvExceptionHandler {
+    private static class JunkExceptionHandler implements CsvExceptionHandler {
 
         @Override
-        public CsvException handleException(CsvException e) throws CsvException {
+        public CsvException handleException(CsvException e) {
             return null;
         }
     }

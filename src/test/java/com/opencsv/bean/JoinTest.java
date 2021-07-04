@@ -39,7 +39,7 @@ import java.util.*;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  *
@@ -128,39 +128,39 @@ public class JoinTest {
         assertEquals(3, map.keySet().size());
         Collection<Date> values = map.get("date1");
         assertEquals(1, values.size());
-        assertTrue(values.contains(new GregorianCalendar(1978, 11, 15).getTime()));
+        assertTrue(values.contains(new GregorianCalendar(1978, Calendar.DECEMBER, 15).getTime()));
         values = map.get("date2");
         assertEquals(1, values.size());
-        assertTrue(values.contains(new GregorianCalendar(1974, 1, 27).getTime()));
+        assertTrue(values.contains(new GregorianCalendar(1974, Calendar.FEBRUARY, 27).getTime()));
         values = map.get("date3");
         assertEquals(1, values.size());
-        assertTrue(values.contains(new GregorianCalendar(2013, 3, 13).getTime()));
+        assertTrue(values.contains(new GregorianCalendar(2013, Calendar.APRIL, 13).getTime()));
         
         map = beans.get(1).getMap2();
         assertNotNull(map);
         assertEquals(3, map.keySet().size());
         values = map.get("date1");
         assertEquals(1, values.size());
-        assertTrue(values.contains(new GregorianCalendar(1978, 11, 16).getTime()));
+        assertTrue(values.contains(new GregorianCalendar(1978, Calendar.DECEMBER, 16).getTime()));
         values = map.get("date2");
         assertEquals(1, values.size());
-        assertTrue(values.contains(new GregorianCalendar(1974, 1, 28).getTime()));
+        assertTrue(values.contains(new GregorianCalendar(1974, Calendar.FEBRUARY, 28).getTime()));
         values = map.get("date3");
         assertEquals(1, values.size());
-        assertTrue(values.contains(new GregorianCalendar(2013, 3, 14).getTime()));
+        assertTrue(values.contains(new GregorianCalendar(2013, Calendar.APRIL, 14).getTime()));
         
         map = beans.get(2).getMap2();
         assertNotNull(map);
         assertEquals(3, map.keySet().size());
         values = map.get("date1");
         assertEquals(1, values.size());
-        assertTrue(values.contains(new GregorianCalendar(1978, 11, 17).getTime()));
+        assertTrue(values.contains(new GregorianCalendar(1978, Calendar.DECEMBER, 17).getTime()));
         values = map.get("date2");
         assertEquals(1, values.size());
-        assertTrue(values.contains(new GregorianCalendar(1974, 2, 1).getTime()));
+        assertTrue(values.contains(new GregorianCalendar(1974, Calendar.MARCH, 1).getTime()));
         values = map.get("date3");
         assertEquals(1, values.size());
-        assertTrue(values.contains(new GregorianCalendar(2013, 3, 15).getTime()));
+        assertTrue(values.contains(new GregorianCalendar(2013, Calendar.APRIL, 15).getTime()));
     }
     
     // Test with CsvBindByName taking the same name as CsvBindAndJoinByName
@@ -528,39 +528,39 @@ public class JoinTest {
         assertEquals(3, map.keySet().size());
         Collection<Date> values = map.get(1);
         assertEquals(1, values.size());
-        assertTrue(values.contains(new GregorianCalendar(1978, 11, 15).getTime()));
+        assertTrue(values.contains(new GregorianCalendar(1978, Calendar.DECEMBER, 15).getTime()));
         values = map.get(16);
         assertEquals(1, values.size());
-        assertTrue(values.contains(new GregorianCalendar(1974, 1, 27).getTime()));
+        assertTrue(values.contains(new GregorianCalendar(1974, Calendar.FEBRUARY, 27).getTime()));
         values = map.get(17);
         assertEquals(1, values.size());
-        assertTrue(values.contains(new GregorianCalendar(2013, 3, 13).getTime()));
+        assertTrue(values.contains(new GregorianCalendar(2013, Calendar.APRIL, 13).getTime()));
         
         map = beans.get(1).showMeTheSecondMap();
         assertNotNull(map);
         assertEquals(3, map.keySet().size());
         values = map.get(1);
         assertEquals(1, values.size());
-        assertTrue(values.contains(new GregorianCalendar(1978, 11, 16).getTime()));
+        assertTrue(values.contains(new GregorianCalendar(1978, Calendar.DECEMBER, 16).getTime()));
         values = map.get(16);
         assertEquals(1, values.size());
-        assertTrue(values.contains(new GregorianCalendar(1974, 1, 28).getTime()));
+        assertTrue(values.contains(new GregorianCalendar(1974, Calendar.FEBRUARY, 28).getTime()));
         values = map.get(17);
         assertEquals(1, values.size());
-        assertTrue(values.contains(new GregorianCalendar(2013, 3, 14).getTime()));
+        assertTrue(values.contains(new GregorianCalendar(2013, Calendar.APRIL, 14).getTime()));
         
         map = beans.get(2).showMeTheSecondMap();
         assertNotNull(map);
         assertEquals(3, map.keySet().size());
         values = map.get(1);
         assertEquals(1, values.size());
-        assertTrue(values.contains(new GregorianCalendar(1978, 11, 17).getTime()));
+        assertTrue(values.contains(new GregorianCalendar(1978, Calendar.DECEMBER, 17).getTime()));
         values = map.get(16);
         assertEquals(1, values.size());
-        assertTrue(values.contains(new GregorianCalendar(1974, 2, 1).getTime()));
+        assertTrue(values.contains(new GregorianCalendar(1974, Calendar.MARCH, 1).getTime()));
         values = map.get(17);
         assertEquals(1, values.size());
-        assertTrue(values.contains(new GregorianCalendar(2013, 3, 15).getTime()));
+        assertTrue(values.contains(new GregorianCalendar(2013, Calendar.APRIL, 15).getTime()));
     }
     
     /**
@@ -878,8 +878,8 @@ public class JoinTest {
         map1.put("index", 3);
         bean.setMap1(map1);
         MultiValuedMap<String, Date> map2 = new ArrayListValuedHashMap<>();
-        map2.put("date1", new GregorianCalendar(1978, 0, 15).getTime());
-        map2.put("date2", new GregorianCalendar(2018, 1, 7).getTime());
+        map2.put("date1", new GregorianCalendar(1978, Calendar.JANUARY, 15).getTime());
+        map2.put("date2", new GregorianCalendar(2018, Calendar.FEBRUARY, 7).getTime());
         bean.setMap2(map2);
         MultiValuedMap<String, String> map3 = new ArrayListValuedHashMap<>();
         map3.put("test", "string1");
@@ -897,8 +897,8 @@ public class JoinTest {
         // Third value is missing; "required" applies to the bean field, not every column
         bean.setMap1(map1);
         map2 = new ArrayListValuedHashMap<>();
-        map2.put("date1", new GregorianCalendar(1978, 0, 16).getTime());
-        map2.put("date2", new GregorianCalendar(2018, 1, 8).getTime());
+        map2.put("date1", new GregorianCalendar(1978, Calendar.JANUARY, 16).getTime());
+        map2.put("date2", new GregorianCalendar(2018, Calendar.FEBRUARY, 8).getTime());
         bean.setMap2(map2);
         map3 = new ArrayListValuedHashMap<>();
         map3.put("test", "string2");
@@ -918,8 +918,8 @@ public class JoinTest {
         map1.put("unknown header", -1); // Different headers from first bean will be ignored
         bean.setMap1(map1);
         map2 = new ArrayListValuedHashMap<>();
-        map2.put("date1", new GregorianCalendar(1978, 0, 17).getTime());
-        map2.put("date2", new GregorianCalendar(2018, 1, 9).getTime());
+        map2.put("date1", new GregorianCalendar(1978, Calendar.JANUARY, 17).getTime());
+        map2.put("date2", new GregorianCalendar(2018, Calendar.FEBRUARY, 9).getTime());
         bean.setMap2(map2);
         map3 = new ArrayListValuedHashMap<>();
         map3.put("test", "string3");
@@ -934,8 +934,8 @@ public class JoinTest {
         map1.put("index", 12);
         bean.setMap1(map1);
         map2 = new ArrayListValuedHashMap<>();
-        map2.put("date1", new GregorianCalendar(1978, 0, 18).getTime());
-        map2.put("date2", new GregorianCalendar(2018, 1, 10).getTime());
+        map2.put("date1", new GregorianCalendar(1978, Calendar.JANUARY, 18).getTime());
+        map2.put("date2", new GregorianCalendar(2018, Calendar.FEBRUARY, 10).getTime());
         bean.setMap2(map2);
         map3 = new ArrayListValuedHashMap<>();
         map3.put("test", "string4");
@@ -953,13 +953,13 @@ public class JoinTest {
         map1.put("index", 15);
         bean.setMap1(map1);
         map2 = new ArrayListValuedHashMap<>();
-        map2.put("date1", new GregorianCalendar(1978, 0, 19).getTime());
-        map2.put("date2", new GregorianCalendar(2018, 1, 11).getTime());
+        map2.put("date1", new GregorianCalendar(1978, Calendar.JANUARY, 19).getTime());
+        map2.put("date2", new GregorianCalendar(2018, Calendar.FEBRUARY, 11).getTime());
         bean.setMap2(map2);
         map3 = new ArrayListValuedHashMap<>();
         map3.put("test", "string5");
         bean.setMap3(map3);
-        bean.setMap4(new ArrayListValuedHashMap<String, Integer>());
+        bean.setMap4(new ArrayListValuedHashMap<>());
         beanList.add(bean);
         
         StringWriter w = new StringWriter();
@@ -998,8 +998,8 @@ public class JoinTest {
         map1.put(0, 11); // Two values for one position can never work
         bean.setMap1(map1);
         MultiValuedMap<Integer, Date> map2 = new HashSetValuedHashMap<>();
-        map2.put(1, new GregorianCalendar(1978, 0, 15).getTime());
-        map2.put(16, new GregorianCalendar(2018, 2, 6).getTime());
+        map2.put(1, new GregorianCalendar(1978, Calendar.JANUARY, 15).getTime());
+        map2.put(16, new GregorianCalendar(2018, Calendar.MARCH, 6).getTime());
         bean.setMap2(map2);
         ArrayListValuedHashMap<Integer, String> map4 = new ArrayListValuedHashMap<>();
         map4.put(4, "string4");
@@ -1025,8 +1025,8 @@ public class JoinTest {
         map1.put(0, 12);
         bean.setMap1(map1);
         map2 = new HashSetValuedHashMap<>();
-        map2.put(1, new GregorianCalendar(1978, 0, 16).getTime());
-        map2.put(16, new GregorianCalendar(2018, 2, 7).getTime());
+        map2.put(1, new GregorianCalendar(1978, Calendar.JANUARY, 16).getTime());
+        map2.put(16, new GregorianCalendar(2018, Calendar.MARCH, 7).getTime());
         bean.setMap2(map2);
         map4 = new ArrayListValuedHashMap<>();
         map4.put(4, "string42");
@@ -1060,8 +1060,8 @@ public class JoinTest {
             GoodJoinByNameAnnotations bean = new GoodJoinByNameAnnotations();
             bean.setMap1(map1); // Required
             MultiValuedMap<String, Date> map2 = new ArrayListValuedHashMap<>();
-            map2.put("date1", new GregorianCalendar(1978, 0, 15).getTime());
-            map2.put("date2", new GregorianCalendar(2018, 1, 7).getTime());
+            map2.put("date1", new GregorianCalendar(1978, Calendar.JANUARY, 15).getTime());
+            map2.put("date2", new GregorianCalendar(2018, Calendar.FEBRUARY, 7).getTime());
             bean.setMap2(map2);
             MultiValuedMap<String, String> map3 = new ArrayListValuedHashMap<>();
             map3.put("test", "string1");
@@ -1097,8 +1097,8 @@ public class JoinTest {
             map1.put("index", 3);
             bean.setMap1(map1);
             MultiValuedMap<String, Date> map2 = new ArrayListValuedHashMap<>();
-            map2.put("date1", new GregorianCalendar(1978, 0, 15).getTime());
-            map2.put("date2", new GregorianCalendar(2018, 1, 7).getTime());
+            map2.put("date1", new GregorianCalendar(1978, Calendar.JANUARY, 15).getTime());
+            map2.put("date2", new GregorianCalendar(2018, Calendar.FEBRUARY, 7).getTime());
             bean.setMap2(map2);
             MultiValuedMap<String, Integer> map4 = new ArrayListValuedHashMap<>();
             map4.put("conversion", 10000);
@@ -1109,8 +1109,8 @@ public class JoinTest {
             bean = new GoodJoinByNameAnnotations();
             bean.setMap1(map1version2);
             map2 = new ArrayListValuedHashMap<>();
-            map2.put("date1", new GregorianCalendar(1978, 0, 16).getTime());
-            map2.put("date2", new GregorianCalendar(2018, 1, 8).getTime());
+            map2.put("date1", new GregorianCalendar(1978, Calendar.JANUARY, 16).getTime());
+            map2.put("date2", new GregorianCalendar(2018, Calendar.FEBRUARY, 8).getTime());
             bean.setMap2(map2);
             map4 = new ArrayListValuedHashMap<>();
             map4.put("conversion", 10001);
@@ -1139,9 +1139,9 @@ public class JoinTest {
         map1.put(0, Integer.MIN_VALUE);
         bean.setMap1(map1);
         ArrayListValuedHashMap<Integer, Date> map2 = new ArrayListValuedHashMap<>();
-        map2.put(1, new GregorianCalendar(1974, 1, 27).getTime());
-        map2.put(16, new GregorianCalendar(1978, 0, 15).getTime());
-        map2.put(17, new GregorianCalendar(2003, 3, 13).getTime());
+        map2.put(1, new GregorianCalendar(1974, Calendar.FEBRUARY, 27).getTime());
+        map2.put(16, new GregorianCalendar(1978, Calendar.JANUARY, 15).getTime());
+        map2.put(17, new GregorianCalendar(2003, Calendar.APRIL, 13).getTime());
         bean.setMap2(map2);
         
         StringWriter w = new StringWriter();

@@ -22,14 +22,14 @@ import org.junit.jupiter.api.Test;
 import java.io.*;
 import java.lang.reflect.Field;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CsvRequiredFieldEmptyExceptionTest {
     private static final String TEST_MESSAGE = "some test message";
     
     @Test
     public void codeCoverageConstructors() throws NoSuchFieldException {
-        Class c = TestCase80.class;
+        Class<TestCase80> c = TestCase80.class;
         Field f = c.getField("test");
         CsvRequiredFieldEmptyException e1 = new CsvRequiredFieldEmptyException(c, f);
         assertEquals(TestCase80.class, e1.getBeanClass());

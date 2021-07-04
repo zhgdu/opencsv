@@ -9,8 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CsvToBeanFilterTest {
 
@@ -67,7 +67,7 @@ public class CsvToBeanFilterTest {
    }
 
    // This would be better done with the BeanVerifier.
-   private class NonProductionFilter implements CsvToBeanFilter {
+   private static class NonProductionFilter implements CsvToBeanFilter {
 
       @Override
       public boolean allowLine(String[] line) {
@@ -84,11 +84,11 @@ public class CsvToBeanFilterTest {
               .withFilter(new NonProductionFilter())
               .build();
       List<Feature> list = csvToBean.parse();
-      assertEquals("Parsing resulted in the wrong number of items.", 2, list.size());
-      assertEquals("The first item has the wrong name.", "calc age", list.get(0).getName());
-      assertEquals("The first item has the wrong state.", "beta", list.get(0).getState());
-      assertEquals("The second item has the wrong name.", "wash dishes", list.get(1).getName());
-      assertEquals("The second item has the wrong state.", "alpha", list.get(1).getState());
+      assertEquals(2, list.size(), "Parsing resulted in the wrong number of items.");
+      assertEquals("calc age", list.get(0).getName(), "The first item has the wrong name.");
+      assertEquals("beta", list.get(0).getState(), "The first item has the wrong state.");
+      assertEquals("wash dishes", list.get(1).getName(), "The second item has the wrong name.");
+      assertEquals("alpha", list.get(1).getState(), "The second item has the wrong state.");
    }
 
    @Test
@@ -111,11 +111,11 @@ public class CsvToBeanFilterTest {
               .withMappingStrategy(strategy)
               .withFilter(new NonProductionFilter())
               .build().parse();
-      assertEquals("Parsing resulted in the wrong number of items.", 2, list.size());
-      assertEquals("The first item has the wrong name.", "calc age", list.get(0).getName());
-      assertEquals("The first item has the wrong state.", "beta", list.get(0).getState());
-      assertEquals("The second item has the wrong name.", "wash dishes", list.get(1).getName());
-      assertEquals("The second item has the wrong state.", "alpha", list.get(1).getState());
+      assertEquals(2, list.size(), "Parsing resulted in the wrong number of items.");
+      assertEquals("calc age", list.get(0).getName(), "The first item has the wrong name.");
+      assertEquals("beta", list.get(0).getState(), "The first item has the wrong state.");
+      assertEquals("wash dishes", list.get(1).getName(), "The second item has the wrong name.");
+      assertEquals("alpha", list.get(1).getState(), "The second item has the wrong state.");
    }
 
    @Test
@@ -128,10 +128,10 @@ public class CsvToBeanFilterTest {
               .build();
       List<Feature> list = new ArrayList<>(2);
       for(Feature f : ctb) { list.add(f); }
-      assertEquals("Parsing resulted in the wrong number of items.", 2, list.size());
-      assertEquals("The first item has the wrong name.", "calc age", list.get(0).getName());
-      assertEquals("The first item has the wrong state.", "beta", list.get(0).getState());
-      assertEquals("The second item has the wrong name.", "wash dishes", list.get(1).getName());
-      assertEquals("The second item has the wrong state.", "alpha", list.get(1).getState());
+      assertEquals(2, list.size(), "Parsing resulted in the wrong number of items.");
+      assertEquals("calc age", list.get(0).getName(), "The first item has the wrong name.");
+      assertEquals("beta", list.get(0).getState(), "The first item has the wrong state.");
+      assertEquals("wash dishes", list.get(1).getName(), "The second item has the wrong name.");
+      assertEquals("alpha", list.get(1).getState(), "The second item has the wrong state.");
    }
 }

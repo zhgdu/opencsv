@@ -9,13 +9,13 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.lang.reflect.Field;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 
 public class CSVWriterBuilderTest {
     private CSVWriterBuilder builder;
     private Writer writer;
-    private ICSVParser mockParser = mock(ICSVParser.class);
+    private final ICSVParser mockParser = mock(ICSVParser.class);
 
     @BeforeEach
     public void setup() {
@@ -47,16 +47,12 @@ public class CSVWriterBuilderTest {
 
     @Test
     public void withSeparatorFailsIfParserSet() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            builder.withParser(mockParser).withSeparator(ICSVParser.DEFAULT_SEPARATOR);
-        });
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.withParser(mockParser).withSeparator(ICSVParser.DEFAULT_SEPARATOR));
     }
 
     @Test
     public void withParserFailsIfSeparatorSet() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            builder.withSeparator(ICSVParser.DEFAULT_SEPARATOR).withParser(mockParser);
-        });
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.withSeparator(ICSVParser.DEFAULT_SEPARATOR).withParser(mockParser));
     }
 
     @Test
@@ -69,16 +65,12 @@ public class CSVWriterBuilderTest {
 
     @Test
     public void withQuoteCharFailsIfParserSet() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            builder.withParser(mockParser).withQuoteChar(ICSVParser.DEFAULT_SEPARATOR);
-        });
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.withParser(mockParser).withQuoteChar(ICSVParser.DEFAULT_SEPARATOR));
     }
 
     @Test
     public void withParserFailsIfQuoteCharSet() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            builder.withQuoteChar(ICSVParser.DEFAULT_SEPARATOR).withParser(mockParser);
-        });
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.withQuoteChar(ICSVParser.DEFAULT_SEPARATOR).withParser(mockParser));
     }
 
     @Test
@@ -91,16 +83,12 @@ public class CSVWriterBuilderTest {
 
     @Test
     public void withEscapeCharFailsIfParserSet() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            builder.withParser(mockParser).withEscapeChar(ICSVParser.DEFAULT_ESCAPE_CHARACTER);
-        });
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.withParser(mockParser).withEscapeChar(ICSVParser.DEFAULT_ESCAPE_CHARACTER));
     }
 
     @Test
     public void withParserFailsIfEscapeCharSet() {
-        Assertions.assertThrows(IllegalArgumentException.class, () -> {
-            builder.withEscapeChar(ICSVParser.DEFAULT_ESCAPE_CHARACTER).withParser(mockParser);
-        });
+        Assertions.assertThrows(IllegalArgumentException.class, () -> builder.withEscapeChar(ICSVParser.DEFAULT_ESCAPE_CHARACTER).withParser(mockParser));
     }
 
     @Test

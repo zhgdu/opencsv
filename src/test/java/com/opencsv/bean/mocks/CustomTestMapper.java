@@ -33,7 +33,7 @@ public class CustomTestMapper<T, I> extends AbstractBeanField<T, I> {
     @Override
     protected Object convert(String value)
             throws CsvDataTypeMismatchException {
-        Class fieldType = field.getType();
+        Class<?> fieldType = field.getType();
         if (fieldType.equals(Boolean.TYPE) || fieldType.equals(Boolean.class))
             return Boolean.TRUE;
         if (fieldType.equals(Byte.TYPE) || fieldType.equals(Byte.class))

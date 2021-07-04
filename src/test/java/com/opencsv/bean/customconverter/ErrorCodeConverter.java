@@ -59,7 +59,7 @@ public class ErrorCodeConverter extends AbstractCsvConverter {
     @Override
     public String convertToWrite(Object value) {
         ErrorCode ec = (ErrorCode) value;
-        StringBuffer sb = new StringBuffer();
+        StringBuilder sb = new StringBuilder();
         sb.append(ec.errorCode);
         sb.append("default.error");
         return sb.toString();

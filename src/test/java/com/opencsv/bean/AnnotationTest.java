@@ -22,10 +22,7 @@ import com.opencsv.enums.CSVReaderNullFieldIndicator;
 import com.opencsv.exceptions.*;
 import org.apache.commons.beanutils.ConversionException;
 import org.apache.commons.lang3.StringUtils;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 
 import java.io.*;
 import java.math.BigDecimal;
@@ -33,7 +30,7 @@ import java.math.BigInteger;
 import java.text.ParseException;
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * This class tests all annotation-based mapping except
@@ -226,7 +223,7 @@ public class AnnotationTest {
     @Test
     public void testGoodDerivedDataByPosition() throws IOException {
         ColumnPositionMappingStrategy<AnnotatedMockBeanFullDerived> stratd =
-                new ColumnPositionMappingStrategy<>();
+                new ColumnPositionMappingStrategyBuilder<AnnotatedMockBeanFullDerived>().build();
         stratd.setType(AnnotatedMockBeanFullDerived.class);
         FileReader fin = new FileReader("src/test/resources/testinputposderivedgood.csv");
         List<AnnotatedMockBeanFull> beanList = testGoodData(stratd, fin, true);
@@ -319,8 +316,8 @@ public class AnnotationTest {
             assertEquals("1978-01-15", bean.getSqldateDefaultLocale().toString());
             assertEquals("1978-01-15", bean.getSqldateSetLocale().toString());
             assertEquals("test string", bean.getStringClass());
-            assertEquals(new GregorianCalendar(1978, 0, 15).getTimeInMillis(), bean.getGcalFormatDefaultLocale().getTimeInMillis());
-            assertEquals(new GregorianCalendar(2018, 11, 13).getTimeInMillis(), bean.getGcalFormatSetLocale().getTimeInMillis());
+            assertEquals(new GregorianCalendar(1978, Calendar.JANUARY, 15).getTimeInMillis(), bean.getGcalFormatDefaultLocale().getTimeInMillis());
+            assertEquals(new GregorianCalendar(2018, Calendar.DECEMBER, 13).getTimeInMillis(), bean.getGcalFormatSetLocale().getTimeInMillis());
             assertEquals(1.01, bean.getFloatBadLocale(), 0.001);
             assertEquals(TestEnum.TEST1, bean.getTestEnum());
             assertEquals(Currency.getInstance("EUR"), bean.getTestCurrency());
@@ -482,7 +479,7 @@ public class AnnotationTest {
         assertEquals("inside custom converter", bean.getRequiredWithCustom());
 
         bean = beanList.get(1);
-        assertEquals(Arrays.asList("really"), bean.getComplexString());
+        assertEquals(Collections.singletonList("really"), bean.getComplexString());
         assertTrue(bean.getComplexClass2() instanceof ComplexClassForCustomAnnotation);
         assertTrue(bean.getComplexClass2() instanceof ComplexDerivedClassForCustomAnnotation);
         assertEquals(Integer.MAX_VALUE - 5, bean.getComplexClass2().i);
@@ -632,8 +629,8 @@ public class AnnotationTest {
         auxiliaryTestUnbindableField(strat, read, 1);
     }
 
-    private void auxiliaryTestUnbindableField(MappingStrategy strat, CSVReader read, long expectedLineNumber) {
-        CsvToBean ctb = new CsvToBeanBuilder(read).withMappingStrategy(strat).build();
+    private <T> void auxiliaryTestUnbindableField(MappingStrategy<T> strat, CSVReader read, long expectedLineNumber) {
+        CsvToBean<T> ctb = new CsvToBeanBuilder<T>(read).withMappingStrategy(strat).build();
         try {
             ctb.parse();
             fail("The parse should have thrown an Exception.");
@@ -710,15 +707,15 @@ public class AnnotationTest {
                 ctb.parse();
                 fail("Expected parse to throw exception. Input filename: " + fn);
             } catch (RuntimeException e) {
-                assertTrue("Input filename: " + fn,
-                        e.getCause() instanceof CsvRequiredFieldEmptyException);
+                assertTrue(e.getCause() instanceof CsvRequiredFieldEmptyException,
+                        "Input filename: " + fn);
                 CsvRequiredFieldEmptyException csve = (CsvRequiredFieldEmptyException) e.getCause();
-                assertEquals("Input filename: " + fn, 2, csve.getLineNumber());
+                assertEquals(2, csve.getLineNumber(), "Input filename: " + fn);
                 assertNotNull(csve.getLine());
-                assertEquals("Input filename: " + fn,
-                        AnnotatedMockBeanFull.class, csve.getBeanClass());
-                assertEquals("Input filename: " + fn, "dateDefaultLocale",
-                        csve.getDestinationField().getName());
+                assertEquals(AnnotatedMockBeanFull.class, csve.getBeanClass(),
+                        "Input filename: " + fn);
+                assertEquals("dateDefaultLocale",
+                        csve.getDestinationField().getName(), "Input filename: " + fn);
             }
         }
     }
@@ -1211,5 +1208,34 @@ public class AnnotationTest {
             assertEquals(1L, csve.getLineNumber());
             assertFalse(StringUtils.isEmpty(csve.getMessage()));
         }
+    }
+
+    /**
+     * Checks that columns are padded or lopped off if checking is turned off.
+     *
+     * @throws FileNotFoundException Never
+     */
+    @Test
+    public void testWrongNumberOfColumnsAllowedByName() throws FileNotFoundException {
+        HeaderColumnNameMappingStrategy<AnnotatedMockBeanFull> strat =
+                new HeaderColumnNameMappingStrategyBuilder<AnnotatedMockBeanFull>()
+                        .withForceCorrectRecordLength(true)
+                        .build();
+        strat.setType(AnnotatedMockBeanFull.class);
+        FileReader fin = new FileReader("src/test/resources/testinputfullwrongcolumnnumber.csv");
+        List<AnnotatedMockBeanFull> beanList = new CsvToBeanBuilder<AnnotatedMockBeanFull>(fin)
+                .withSeparator(';')
+                .withOrderedResults(true)
+                .withMappingStrategy(strat)
+                .build().parse();
+        assertEquals(4, beanList.size());
+        assertEquals(TestEnum.TEST1, beanList.get(0).getTestEnum());
+        assertEquals(Currency.getInstance("EUR"), beanList.get(0).getTestCurrency());
+        assertEquals(TestEnum.TEST1, beanList.get(2).getTestEnum());
+        assertEquals(Currency.getInstance("EUR"), beanList.get(2).getTestCurrency());
+        assertNull(beanList.get(1).getTestEnum());
+        assertNull(beanList.get(1).getTestCurrency());
+        assertNull(beanList.get(3).getTestEnum());
+        assertNull(beanList.get(3).getTestCurrency());
     }
 }

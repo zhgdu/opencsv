@@ -17,7 +17,6 @@ package com.opencsv;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import java.io.*;
@@ -25,7 +24,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.*;
@@ -211,17 +210,14 @@ public class CSVWriterTest {
       @SuppressWarnings("unchecked")
       Iterable<String[]> iterable = mock(Iterable.class);
 
-      Answer<Iterator> iteratorAnswer = new Answer<Iterator>() {
-         @Override
-         public Iterator answer(InvocationOnMock invocationOnMock) {
-            @SuppressWarnings("unchecked")
-            Iterator<String[]> iterator = mock(Iterator.class);
-            when(iterator.hasNext()).thenReturn(true).thenReturn(true).thenReturn(true)
-                    .thenReturn(false);
-            when(iterator.next()).thenReturn(line1).thenReturn(line2).thenReturn(line3)
-                    .thenThrow(NoSuchElementException.class);
-            return iterator;
-         }
+      Answer<Iterator<String[]>> iteratorAnswer = invocationOnMock -> {
+         @SuppressWarnings("unchecked")
+         Iterator<String[]> iterator = mock(Iterator.class);
+         when(iterator.hasNext()).thenReturn(true).thenReturn(true).thenReturn(true)
+                 .thenReturn(false);
+         when(iterator.next()).thenReturn(line1).thenReturn(line2).thenReturn(line3)
+                 .thenThrow(NoSuchElementException.class);
+         return iterator;
       };
       when(iterable.iterator()).then(iteratorAnswer);
 
@@ -361,14 +357,12 @@ public class CSVWriterTest {
    }
 
    @Test
-   public void flushWillThrowIOException() throws IOException {
+   public void flushWillThrowIOException() {
       String[] line = {"Foo", "bar's"};
       StringWriter sw = new StringWriter();
       ICSVWriter csvw = new CSVWriterExceptionThrower(sw);
       csvw.writeNext(line);
-      Assertions.assertThrows(IOException.class, () -> {
-         csvw.flush();
-      });
+      Assertions.assertThrows(IOException.class, csvw::flush);
    }
 
    @Test
@@ -759,7 +753,7 @@ public class CSVWriterTest {
       verify(csvWriter).writeNext(any(String[].class), anyBoolean(), any(StringBuilder.class));
 
       IOException storedException = csvWriter.getException();
-      assertEquals("Expected Exception is not returned by getException", ioException, storedException);
+      assertEquals(ioException, storedException, "Expected Exception is not returned by getException");
    }
 
    @Test
@@ -779,7 +773,7 @@ public class CSVWriterTest {
       verify(csvWriter).writeNext(any(String[].class), anyBoolean(), any(StringBuilder.class));
 
       IOException storedException = csvWriter.getException();
-      assertEquals("Expected Exception is not returned by getException", ioException, storedException);
+      assertEquals(ioException, storedException, "Expected Exception is not returned by getException");
    }
 
    @Test
@@ -795,11 +789,11 @@ public class CSVWriterTest {
       csvWriter.writeNext(SIMPLE_STRING_ARRAY);
 
       IOException storedException = csvWriter.getException();
-      assertEquals("Expected Exception is not returned by getException", ioException, storedException);
+      assertEquals(ioException, storedException, "Expected Exception is not returned by getException");
 
       csvWriter.resetError();
 
-      assertNull("Exception has not been removed", csvWriter.getException());
+      assertNull(csvWriter.getException(), "Exception has not been removed");
 
       csvWriter.close();
 
@@ -818,11 +812,11 @@ public class CSVWriterTest {
 
       csvWriter.writeNext(SIMPLE_STRING_ARRAY);
 
-      assertTrue("Error has not occurred initially", csvWriter.checkError());
+      assertTrue(csvWriter.checkError(), "Error has not occurred initially");
 
       csvWriter.resetError();
 
-      assertFalse("Error has not been removed", csvWriter.checkError());
+      assertFalse(csvWriter.checkError(), "Error has not been removed");
 
       csvWriter.close();
 

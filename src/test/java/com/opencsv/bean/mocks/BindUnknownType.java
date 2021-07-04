@@ -31,7 +31,7 @@ public class BindUnknownType {
             new BindByNameUnknownTypeInnerClass(TOSTRING);
     public BindByNameUnknownTypeInnerClass getTest() {return test;}
     
-    private class BindByNameUnknownTypeInnerClass {
+    private static class BindByNameUnknownTypeInnerClass {
         private final String s;
         public BindByNameUnknownTypeInnerClass(String s) {
             this.s = s;

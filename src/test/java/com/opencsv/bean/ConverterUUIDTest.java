@@ -28,7 +28,7 @@ public class ConverterUUIDTest {
         converter = new ConverterUUID(Locale.getDefault());
     }
 
-    public static Stream<Arguments> buildLeagalUUIDValues() {
+    public static Stream<Arguments> buildLegalUUIDValues() {
         return Stream.of(
                 Arguments.of(UUID_STRING),
                 Arguments.of(UUID_STRING.toLowerCase()),
@@ -41,7 +41,7 @@ public class ConverterUUIDTest {
 
     @DisplayName("Can convert UUID values to an java.util.UUID object.")
     @ParameterizedTest
-    @MethodSource("buildLeagalUUIDValues")
+    @MethodSource("buildLegalUUIDValues")
     public void convertToRead(String uuidValue) throws CsvDataTypeMismatchException {
         assertEquals(EXPECTED_UUID, converter.convertToRead(uuidValue));
     }
@@ -58,7 +58,7 @@ public class ConverterUUIDTest {
         assertEquals("", converter.convertToWrite(null));
     }
 
-    public static Stream<Arguments> buildIlleagalUUIDValues() {
+    public static Stream<Arguments> buildIllegalUUIDValues() {
         return Stream.of(
                 Arguments.of("17F804F85-0064-4E96-8260-3FD47EA6A8BB"),
                 Arguments.of("7F804F85-10064-4E96-8260-3FD47EA6A8BB"),
@@ -74,7 +74,7 @@ public class ConverterUUIDTest {
 
     @DisplayName("convertToRead handles illegal values.")
     @ParameterizedTest
-    @MethodSource("buildIlleagalUUIDValues")
+    @MethodSource("buildIllegalUUIDValues")
     public void convertToReadWithBadValues(String uuidValue) {
         UUID uuid = null;
         boolean pass = false;

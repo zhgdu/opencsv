@@ -7,8 +7,8 @@ import org.junit.jupiter.api.Test;
 import java.io.StringReader;
 import java.util.List;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
  * This test was created based on an question posted on stack overflow
@@ -24,11 +24,7 @@ public class CsvToBeanDoubleTest {
             "jimmy,def098765,1.0023E+13 ";
 
     private CSVReader createReader() {
-        return createReader(TEST_STRING);
-    }
-
-    private CSVReader createReader(String testString) {
-        StringReader reader = new StringReader(testString);
+        StringReader reader = new StringReader(TEST_STRING);
         return new CSVReader(reader);
     }
 

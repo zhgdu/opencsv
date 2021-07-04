@@ -28,7 +28,7 @@ public class IntegerSetSortedToString extends HashSet<Integer> {
     @Override
     public String toString() {
         TextStringBuilder sb = new TextStringBuilder("[");
-        Integer[] intArray = this.toArray(new Integer[this.size()]);
+        Integer[] intArray = this.toArray(new Integer[0]);
         Arrays.sort(intArray);
         sb.appendWithSeparators(intArray, ",");
         sb.append(']');

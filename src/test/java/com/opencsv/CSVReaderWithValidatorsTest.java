@@ -22,9 +22,7 @@ public class CSVReaderWithValidatorsTest {
     private LineDoesNotHaveForbiddenString lineDoesNotHaveBadString;
     private LineDoesNotHaveForbiddenString lineDoesNotHaveAwfulString;
 
-    private static final Function<String[], Boolean> ROW_MUST_HAVE_THREE_COLUMNS = (x) -> {
-        return x.length == 3;
-    };
+    private static final Function<String[], Boolean> ROW_MUST_HAVE_THREE_COLUMNS = (x) -> x.length == 3;
     private static final RowValidator THREE_COLUMNS_ROW_VALIDATOR = new RowFunctionValidator(ROW_MUST_HAVE_THREE_COLUMNS, "Row must have three columns!");
 
     @BeforeEach
@@ -52,7 +50,7 @@ public class CSVReaderWithValidatorsTest {
 
     @DisplayName("CSVReader with LineValidator with bad string")
     @Test
-    public void readerWithLineValidatorWithBadString() throws IOException {
+    public void readerWithLineValidatorWithBadString() {
         String lines = "a,b,c\nd,bad,f\n";
         StringReader stringReader = new StringReader(lines);
         CSVReaderBuilder builder = new CSVReaderBuilder(stringReader);
@@ -62,14 +60,12 @@ public class CSVReaderWithValidatorsTest {
                 .withLineValidator(lineDoesNotHaveBadString)
                 .build();
 
-        assertThrows(CsvValidationException.class, () -> {
-            List<String[]> rows = csvReader.readAll();
-        });
+        assertThrows(CsvValidationException.class, csvReader::readAll);
     }
 
     @DisplayName("CSVReader with LineValidator with bad first string")
     @Test
-    public void readerWithLineValidatorWithBadFirstString() throws IOException {
+    public void readerWithLineValidatorWithBadFirstString() {
         String lines = "d,bad,f\na,b,c\n";
         StringReader stringReader = new StringReader(lines);
         CSVReaderBuilder builder = new CSVReaderBuilder(stringReader);
@@ -91,7 +87,7 @@ public class CSVReaderWithValidatorsTest {
 
     @DisplayName("CSVReader populates line number of exception thrown by LineValidatorAggregator")
     @Test
-    public void readerWithLineValidatorExceptionContainsLineNumber() throws IOException {
+    public void readerWithLineValidatorExceptionContainsLineNumber() {
         String lines = "a,b,c\nd,bad,f\n";
         StringReader stringReader = new StringReader(lines);
         CSVReaderBuilder builder = new CSVReaderBuilder(stringReader);
@@ -122,9 +118,7 @@ public class CSVReaderWithValidatorsTest {
                 .withRowValidator(THREE_COLUMNS_ROW_VALIDATOR)
                 .build();
 
-        assertThrows(CsvValidationException.class, () -> {
-            List<String[]> rows = csvReader.readAll();
-        });
+        assertThrows(CsvValidationException.class, csvReader::readAll);
     }
 
     @DisplayName("CSVReader populates line number of exception thrown by RowValidatorAggregator")
@@ -139,7 +133,7 @@ public class CSVReaderWithValidatorsTest {
                 .build();
 
         try {
-            List<String[]> rows = csvReader.readAll();
+            csvReader.readAll();
             fail("Expected a CsvValidationException to be thrown!");
         } catch (CsvValidationException cve) {
             assertEquals(2, cve.getLineNumber());

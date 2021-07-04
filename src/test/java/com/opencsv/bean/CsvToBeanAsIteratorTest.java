@@ -31,7 +31,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CsvToBeanAsIteratorTest {
 
@@ -40,11 +40,7 @@ public class CsvToBeanAsIteratorTest {
             + "jimmy,def098765,456 ";
 
     private CSVReader createReader() {
-        return createReader(TEST_STRING);
-    }
-
-    private CSVReader createReader(String testString) {
-        StringReader reader = new StringReader(testString);
+        StringReader reader = new StringReader(TEST_STRING);
         return new CSVReader(reader);
     }
 

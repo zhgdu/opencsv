@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CsvToBeanTest {
     private static final String TEST_STRING = "name,orderNumber,num\n" +
@@ -249,7 +249,7 @@ public class CsvToBeanTest {
         assertEquals(resultList, resultStream);
     }
 
-    private class BegToBeFiltered implements CsvToBeanFilter {
+    private static class BegToBeFiltered implements CsvToBeanFilter {
 
         @Override
         public boolean allowLine(String[] line) {
@@ -398,10 +398,10 @@ public class CsvToBeanTest {
         StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
         String dateString = "19780115T063209";
         sb.append("BYTE1,BYTE2,BYTE3,DATE1\n");
-        sb.append("1,2,3," + dateString + "\n");
-        sb.append("4,5,6," + dateString + "\n");
+        sb.append("1,2,3,").append(dateString).append("\n");
+        sb.append("4,5,6,").append(dateString).append("\n");
         sb.append("7\n");
-        sb.append("8,9,10," + dateString + "\n");
+        sb.append("8,9,10,").append(dateString).append("\n");
         try {
             new CsvToBeanBuilder<AnnotatedMockBeanFull>(new StringReader(sb.toString()))
                     .withType(AnnotatedMockBeanFull.class)

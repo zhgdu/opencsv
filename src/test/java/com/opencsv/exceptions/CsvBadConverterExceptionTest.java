@@ -21,14 +21,14 @@ import org.junit.jupiter.api.Test;
 
 import java.io.*;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CsvBadConverterExceptionTest {
     private static final String TEST_MESSAGE = "some test message";
     
     @Test
     public void codeCoverageConstructors() {
-        Class c = TestCase80.class;
+        Class<TestCase80> c = TestCase80.class;
 
         CsvBadConverterException e3 = new CsvBadConverterException();
         assertNull(e3.getConverterClass());

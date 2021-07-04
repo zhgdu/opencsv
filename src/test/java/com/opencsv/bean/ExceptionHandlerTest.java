@@ -18,7 +18,7 @@ import java.nio.file.Files;
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class ExceptionHandlerTest {
 
@@ -96,7 +96,7 @@ public class ExceptionHandlerTest {
             assertEquals(1, csve.getLineNumber() % 10);
             List<CsvException> capturedExceptions = ctb.getCapturedExceptions();
             assertNotNull(capturedExceptions);
-            assertFalse("Expected exceptions in the captured exceptions but there were none.", capturedExceptions.isEmpty());
+            assertFalse(capturedExceptions.isEmpty(), "Expected exceptions in the captured exceptions but there were none.");
         }
     }
 

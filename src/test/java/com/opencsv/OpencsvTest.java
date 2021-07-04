@@ -24,7 +24,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class OpencsvTest {
 
@@ -54,13 +54,13 @@ public class OpencsvTest {
 
       String[] line;
       for (int row = 0; (line = reader.readNext()) != null; row++) {
-         assertTrue(line.length == data[row].length);
+         assertEquals(line.length, data[row].length);
 
          for (int col = 0; col < line.length; col++) {
             if (data[row][col] == null) {
-               assertTrue(line[col].equals(""));
+               assertEquals("", line[col]);
             } else {
-               assertTrue(line[col].equals(data[row][col]));
+               assertEquals(line[col], data[row][col]);
             }
          }
       }

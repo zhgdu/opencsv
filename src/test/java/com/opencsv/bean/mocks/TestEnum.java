@@ -1,5 +1,5 @@
 package com.opencsv.bean.mocks;
 
 public enum TestEnum {
-    TEST1, Test2, test3;
+    TEST1, Test2, test3
 }

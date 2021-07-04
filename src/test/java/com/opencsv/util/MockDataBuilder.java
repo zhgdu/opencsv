@@ -16,7 +16,7 @@ import java.util.List;
 public class MockDataBuilder {
 
     private String headerString;
-    private List<String> dataRows = new ArrayList<>();
+    private final List<String> dataRows = new ArrayList<>();
     RFC4180Parser parser = new RFC4180Parser();
 
     public void setHeaderString(String headerString) {

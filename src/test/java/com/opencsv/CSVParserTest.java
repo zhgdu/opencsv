@@ -9,8 +9,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.Locale;
 
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CSVParserTest {
 
@@ -349,15 +348,13 @@ public class CSVParserTest {
     }
 
     @Test
-    public void testFalseIgnoreQuotations() throws IOException {
+    public void testFalseIgnoreQuotations() {
         csvParser = new CSVParserBuilder()
                 .withIgnoreQuotations(false)
                 .build();
         String testString = "Bob,test\",Beaumont,TX";
 
-        Assertions.assertThrows(IOException.class, () -> {
-            csvParser.parseLine(testString);
-        });
+        Assertions.assertThrows(IOException.class, () -> csvParser.parseLine(testString));
     }
 
     /**
@@ -604,9 +601,7 @@ public class CSVParserTest {
 
     @Test
     public void separatorCharacterCannotBeNull() {
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> {
-            new CSVParserBuilder().withSeparator(ICSVParser.NULL_CHARACTER).build();
-        });
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> new CSVParserBuilder().withSeparator(ICSVParser.NULL_CHARACTER).build());
     }
 
     @Test
@@ -663,7 +658,7 @@ public class CSVParserTest {
             fail("UnsupportedOperationException should have been thrown.");
         }
         catch(UnsupportedOperationException e) {
-            assertThat(e.getLocalizedMessage(), is("O separador, delimitador de texto e caractere de escape precisam ser diferentes!"));
+            assertEquals("O separador, delimitador de texto e caractere de escape precisam ser diferentes!", e.getLocalizedMessage());
         }
     }
 

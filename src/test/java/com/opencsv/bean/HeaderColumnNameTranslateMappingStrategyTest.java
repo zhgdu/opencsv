@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class HeaderColumnNameTranslateMappingStrategyTest {
 
@@ -59,7 +59,7 @@ public class HeaderColumnNameTranslateMappingStrategyTest {
       String s = "n,o,foo\n" +
               "kyle,123456,emp123\n" +
               "jimmy,abcnum,cust09878";
-      HeaderColumnNameTranslateMappingStrategy<MockBean> strat = new HeaderColumnNameTranslateMappingStrategy<>();
+      HeaderColumnNameTranslateMappingStrategy<MockBean> strat = new HeaderColumnNameTranslateMappingStrategyBuilder<MockBean>().build();
       strat.setType(MockBean.class);
       Map<String, String> map = new HashMap<>();
       map.put("n", "name");
@@ -83,7 +83,9 @@ public class HeaderColumnNameTranslateMappingStrategyTest {
         String s = "n,o,foo,name,id,orderNumber,num,doubleNum\n" +
                 "kyle,123456,emp123,aName,aId,aOrderNumber,22,3.14\n" +
                 "jimmy,abcnum,cust09878,bName,bId,bOrderNumber,44,8.3";
-        HeaderColumnNameTranslateMappingStrategy<MockBean> strat = new HeaderColumnNameTranslateMappingStrategy<>();
+        HeaderColumnNameTranslateMappingStrategy<MockBean> strat = new HeaderColumnNameTranslateMappingStrategyBuilder<MockBean>()
+                .withForceCorrectRecordLength(true)
+                .build();
         strat.setType(MockBean.class);
         Map<String, String> map = new HashMap<>();
         map.put("n", "name");

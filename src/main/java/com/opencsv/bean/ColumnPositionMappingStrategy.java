@@ -48,7 +48,8 @@ public class ColumnPositionMappingStrategy<T> extends AbstractMappingStrategy<St
     private Integer[] columnIndexForWriting = null;
 
     /**
-     * Default constructor.
+     * Default constructor. Considered stable.
+     * @see ColumnPositionMappingStrategyBuilder
      */
     public ColumnPositionMappingStrategy() {
     }

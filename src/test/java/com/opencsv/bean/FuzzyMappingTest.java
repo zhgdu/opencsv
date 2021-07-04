@@ -71,7 +71,7 @@ public class FuzzyMappingTest {
      */
     @Test
     public void testReadingFuzzyWithAnnotations() {
-        MappingStrategy<FuzzyMock> strategy = new FuzzyMappingStrategy<>();
+        MappingStrategy<FuzzyMock> strategy = new FuzzyMappingStrategyBuilder<FuzzyMock>().build();
         strategy.setType(FuzzyMock.class);
         StringReader input = new StringReader(HEADERS + DATA);
         List<FuzzyMock> beans = new CsvToBeanBuilder<FuzzyMock>(input)
@@ -86,7 +86,9 @@ public class FuzzyMappingTest {
 
     @Test
     public void testHeadersUnmatched() {
-        MappingStrategy<FuzzyMock> strategy = new FuzzyMappingStrategy<>();
+        MappingStrategy<FuzzyMock> strategy = new FuzzyMappingStrategyBuilder<FuzzyMock>()
+                .withForceCorrectRecordLength(true)
+                .build();
         strategy.setType(FuzzyMock.class);
         final String data = "potentially unmatched data";
         StringReader input = new StringReader("potentially unmatched header," + HEADERS + data + "," + DATA);

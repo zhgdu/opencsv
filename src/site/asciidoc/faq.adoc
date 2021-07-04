@@ -29,7 +29,7 @@ Add a dependency element to your pom:
   <dependency>
      <groupId>com.opencsv</groupId>
      <artifactId>opencsv</artifactId>
-     <version>4.5</version>
+     <version>5.5</version>
   </dependency>
 ----
 

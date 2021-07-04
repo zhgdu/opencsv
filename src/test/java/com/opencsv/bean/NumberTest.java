@@ -34,7 +34,7 @@ import java.math.BigInteger;
 import java.util.List;
 import java.util.Locale;
 
-import static org.junit.Assert.*;
+import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * Tests of the {@link CsvNumber} annotation.
@@ -354,7 +354,7 @@ public class NumberTest {
     @Test
     public void testNonNumber() {
         try {
-            CsvToBean<NumberNonNumber> csvToBean = new CsvToBeanBuilder<NumberNonNumber>(new StringReader("test\\nteststring"))
+            new CsvToBeanBuilder<NumberNonNumber>(new StringReader("test\\nteststring"))
                     .withType(NumberNonNumber.class)
                     .build();
             fail("Exception should have been thrown");

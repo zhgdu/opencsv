@@ -30,7 +30,7 @@ public class BeanFieldProcessorTest {
     private CsvToBean<ProcessorTestBean> createBuilderForString(String csvStrings) {
         Reader stringReader = new StringReader(csvStrings);
 
-        CsvToBeanBuilder<ProcessorTestBean> builder = new CsvToBeanBuilder(stringReader);
+        CsvToBeanBuilder<ProcessorTestBean> builder = new CsvToBeanBuilder<>(stringReader);
 
         return builder.withType(ProcessorTestBean.class).build();
     }
@@ -43,7 +43,7 @@ public class BeanFieldProcessorTest {
         return builder.toString();
     }
 
-    private static Stream<Arguments> createArguements() {
+    private static Stream<Arguments> createArguments() {
         return Stream.of(
                 Arguments.of("1,able,300", 1, "able", 300),
                 Arguments.of(",,", DEFAULT_ID, null, DEFAULT_BIG_NUMBER),
@@ -53,7 +53,7 @@ public class BeanFieldProcessorTest {
 
     @DisplayName("Test out preassignment processor")
     @ParameterizedTest
-    @MethodSource("createArguements")
+    @MethodSource("createArguments")
     public void testProcessor(String line, int id, String name, long bigNumber) {
         String testString = createTestString(line);
         CsvToBean<ProcessorTestBean> csvToBean = createBuilderForString(testString);

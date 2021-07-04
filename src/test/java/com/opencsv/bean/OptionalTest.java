@@ -51,7 +51,7 @@ public class OptionalTest {
     @Test
     public void testWriteWithOptionalNull() throws CsvDataTypeMismatchException, CsvRequiredFieldEmptyException {
         OptionalMock b = new OptionalMock();
-        b.setField(Optional.ofNullable(null));
+        b.setField(Optional.empty());
         Writer w = new StringWriter();
         StatefulBeanToCsv<OptionalMock> b2csv = new StatefulBeanToCsvBuilder<OptionalMock>(w)
                 .withApplyQuotesToAll(false)

@@ -26,9 +26,25 @@ import java.util.stream.Stream;
 public class FuzzyMappingStrategy<T> extends HeaderColumnNameMappingStrategy<T> {
 
     /**
-     * Nullary constructor to make the style checker happy.
+     * Nullary constructor. Considered stable.
+     * @see FuzzyMappingStrategyBuilder
      */
     public FuzzyMappingStrategy() {
+    }
+
+    /**
+     * Constructor to allow setting options for header name mapping.
+     * Not considered stable. As new options are introduced for the mapping
+     * strategy, they will be introduced here. You are encouraged to use
+     * {@link FuzzyMappingStrategyBuilder}.
+     *
+     * @param forceCorrectRecordLength If set, every record will be shortened
+     *                                 or lengthened to match the number of
+     *                                 headers
+     * @see FuzzyMappingStrategyBuilder
+     */
+    public FuzzyMappingStrategy(boolean forceCorrectRecordLength) {
+        super(forceCorrectRecordLength);
     }
 
     /**
