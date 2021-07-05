@@ -14,6 +14,7 @@ import java.util.ResourceBundle;
  * values have been or should be localized to a specific language.
  * @param <T> Type of the bean to be manipulated
  * @param <I> Type of the index into multivalued fields
+ * @author Andrew Rucker Jones
  */
 abstract public class ConverterLanguageToBoolean<T, I> extends AbstractBeanField<T, I> {
 

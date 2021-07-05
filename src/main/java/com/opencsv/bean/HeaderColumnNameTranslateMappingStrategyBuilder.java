@@ -8,6 +8,7 @@ package com.opencsv.bean;
  *
  * @param <T> The type of the bean being processed
  * @since 5.5
+ * @author Andrew Rucker Jones
  */
 public class HeaderColumnNameTranslateMappingStrategyBuilder<T> {
 

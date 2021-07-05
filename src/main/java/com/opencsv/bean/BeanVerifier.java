@@ -10,6 +10,7 @@ import com.opencsv.exceptions.CsvConstraintViolationException;
  *
  * @param <T> The type of bean being verified
  * @since 4.4
+ * @author Andrew Rucker Jones
  */
 public interface BeanVerifier<T> {
 

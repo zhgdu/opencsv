@@ -35,6 +35,7 @@ import java.util.List;
  * @param <T> The type to be sorted
  *
  * @since 4.3
+ * @author Andrew Rucker Jones
  * @deprecated This exact behavior can be had using comparators from Apache
  * Commons Collections, which opencsv includes as a dependency. The following
  * code gives the same result:

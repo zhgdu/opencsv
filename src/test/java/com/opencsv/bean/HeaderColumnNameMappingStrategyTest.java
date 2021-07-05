@@ -149,8 +149,6 @@ public class HeaderColumnNameMappingStrategyTest {
     @Test
    public void throwsIllegalStateExceptionIfTypeNotSetBeforeGenerateHeaders() {
       strat = new HeaderColumnNameMappingStrategy<>();
-        Assertions.assertThrows(IllegalStateException.class, () -> {
-            strat.generateHeader(new MockBean());
-        });
+        Assertions.assertThrows(IllegalStateException.class, () -> strat.generateHeader(new MockBean()));
    }
 }

@@ -12,7 +12,7 @@ import java.io.IOException;
  * This class allows the user to determine if they wish to keep or
  * remove them from the data being read.
  *
- * @author scott
+ * @author Scott Conway
  * @since 3.3
  */
 
