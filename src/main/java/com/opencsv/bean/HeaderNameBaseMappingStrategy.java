@@ -36,7 +36,7 @@ abstract public class HeaderNameBaseMappingStrategy<T> extends AbstractMappingSt
     protected final boolean forceCorrectRecordLength;
 
     /** Nullary constructor for compatibility. */
-    HeaderNameBaseMappingStrategy() {
+    public HeaderNameBaseMappingStrategy() {
         this.forceCorrectRecordLength = false;
     }
 
@@ -47,7 +47,7 @@ abstract public class HeaderNameBaseMappingStrategy<T> extends AbstractMappingSt
      *                                 or lengthened to match the number of
      *                                 headers
      */
-    HeaderNameBaseMappingStrategy(boolean forceCorrectRecordLength) {
+    public HeaderNameBaseMappingStrategy(boolean forceCorrectRecordLength) {
         this.forceCorrectRecordLength = forceCorrectRecordLength;
     }
 
