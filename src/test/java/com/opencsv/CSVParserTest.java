@@ -3,6 +3,7 @@ package com.opencsv;
 import com.opencsv.enums.CSVReaderNullFieldIndicator;
 import com.opencsv.exceptions.CsvMultilineLimitBrokenException;
 import com.opencsv.exceptions.CsvValidationException;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.jupiter.api.*;
 
 import java.io.FileReader;
@@ -85,6 +86,37 @@ public class CSVParserTest {
     }
 
     @Test
+    public void parseEscapingTheFirstCharacter() throws IOException {
+
+        // Escaping a separator
+        String[] nextLine = csvParser.parseLine("\\,a,b,c,d");
+        assertEquals(4, nextLine.length);
+        assertEquals(",a", nextLine[0]);
+        assertEquals("b", nextLine[1]);
+        assertEquals("c", nextLine[2]);
+        assertEquals("d", nextLine[3]);
+        assertFalse(csvParser.isPending());
+
+        // Escaping an escape
+        nextLine = csvParser.parseLine("\\\\a,b,c,d");
+        assertEquals(4, nextLine.length);
+        assertEquals("\\a", nextLine[0]);
+        assertEquals("b", nextLine[1]);
+        assertEquals("c", nextLine[2]);
+        assertEquals("d", nextLine[3]);
+        assertFalse(csvParser.isPending());
+
+        // Escaping a quotation character
+        nextLine = csvParser.parseLine("\\\"a,b,c,d");
+        assertEquals(4, nextLine.length);
+        assertEquals("\"a", nextLine[0]);
+        assertEquals("b", nextLine[1]);
+        assertEquals("c", nextLine[2]);
+        assertEquals("d", nextLine[3]);
+        assertFalse(csvParser.isPending());
+    }
+
+    @Test
     public void parseSimpleQuotedString() throws IOException {
 
         String[] nextLine = csvParser.parseLine("\"a\",\"b\",\"c\"");
@@ -116,7 +148,7 @@ public class CSVParserTest {
      * @throws IOException if bad things happen
      */
     @Test
-    public void testParsedLineWithInternalQuota() throws IOException {
+    public void testParsedLineWithInternalQuote() throws IOException {
 
         String[] nextLine = csvParser.parseLine("a,123\"4\"567,c");
         assertEquals(3, nextLine.length);

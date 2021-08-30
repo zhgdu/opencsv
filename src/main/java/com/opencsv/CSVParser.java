@@ -36,7 +36,7 @@ import java.util.ResourceBundle;
  *
  * <p>The CSVParser has grown organically based on user requests and does not truly match
  * any current requirements (though it can be configured to match or come close).  There
- * is no plans to change this as it will break existing requirements.  Consider using
+ * are no plans to change this as it will break existing requirements.  Consider using
  * the RFC4180Parser for less configurability but closer match to the RFC4180 requirements.</p>
  *
  * @author Glen Smith
@@ -170,8 +170,8 @@ public class CSVParser extends AbstractCSVParser {
         boolean containsSeparatorChar = StringUtils.contains(testValue, getSeparator());
         boolean surroundWithQuotes = applyQuotestoAll || isSurroundWithQuotes(value, containsSeparatorChar);
 
-        String convertedString = !containsQuoteChar ? testValue : testValue.replaceAll(Character.toString(getQuotechar()), Character.toString(getQuotechar()) + Character.toString(getQuotechar()));
-        convertedString = !containsEscapeChar ? convertedString : convertedString.replace(Character.toString(getEscape()), Character.toString(getEscape()) + Character.toString(getEscape()));
+        String convertedString = !containsQuoteChar ? testValue : testValue.replaceAll(Character.toString(getQuotechar()), Character.toString(getQuotechar()) + getQuotechar());
+        convertedString = !containsEscapeChar ? convertedString : convertedString.replace(Character.toString(getEscape()), Character.toString(getEscape()) + getEscape());
 
         if (surroundWithQuotes) {
             builder.append(getQuotechar());
@@ -214,6 +214,9 @@ public class CSVParser extends AbstractCSVParser {
         while (!sfc.isEmptyInput()) {
             final char c = sfc.takeInput();
             if (c == this.escape) {
+                if (!strictQuotes) {
+                    inField = true; // For the unusual case of escaping the first character
+                }
                 handleEscapeCharacter(nextLine, sfc, inQuotes);
             } else if (c == quotechar) {
                 if (isNextCharacterEscapedQuote(nextLine, inQuotes(inQuotes), sfc.i - 1)) {
@@ -316,7 +319,7 @@ public class CSVParser extends AbstractCSVParser {
     /**
      * Determines if we can process as if we were in quotes.
      *
-     * @param inQuotes Are we currently in quotes.
+     * @param inQuotes Are we currently in quotes?
      * @return True if we should process as if we are inside quotes.
      */
     private boolean inQuotes(boolean inQuotes) {
