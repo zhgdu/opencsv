@@ -156,6 +156,13 @@ public class CSVReaderHeaderAwareBuilder extends CSVReaderBaseBuilder<CSVReaderH
         return this;
     }
 
+    /**
+     * Creates the {@link CSVReaderHeaderAware}.
+     * @return The {@link CSVReaderHeaderAware} based on the set criteria.
+     * @throws RuntimeException If the header mapping cannot be initialized
+     *   from the first line of data
+     */
+    @Override
     public CSVReaderHeaderAware build() throws RuntimeException {
         final ICSVParser parser = getOrCreateCsvParser();
         try {
