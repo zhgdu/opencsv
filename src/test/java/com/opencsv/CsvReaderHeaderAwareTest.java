@@ -2,6 +2,7 @@ package com.opencsv;
 
 import com.opencsv.enums.CSVReaderNullFieldIndicator;
 import com.opencsv.exceptions.CsvValidationException;
+import com.opencsv.processor.RowProcessor;
 import com.opencsv.validators.LineValidatorAggregator;
 import com.opencsv.validators.RowValidatorAggregator;
 import org.junit.jupiter.api.Assertions;
@@ -183,7 +184,13 @@ public class CsvReaderHeaderAwareTest {
         ICSVParser parser = mock(ICSVParser.class);
         when(parser.parseLineMulti(anyString())).thenReturn(new String[]{"myHeader"});
         CSVReaderHeaderAware reader = new CSVReaderHeaderAware(createReader(), 0, parser, false, false, 1, Locale.getDefault(),
-                new LineValidatorAggregator(), new RowValidatorAggregator());
+                new LineValidatorAggregator(), new RowValidatorAggregator(), new RowProcessor() {
+            @Override
+            public String processColumnItem(String column) {return column;}
+
+            @Override
+            public void processRow(String[] row) {}
+        });
         assertThat(reader.readMap().keySet().iterator().next(), is("myHeader"));
     }
 

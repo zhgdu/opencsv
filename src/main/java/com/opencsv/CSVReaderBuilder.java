@@ -29,7 +29,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 /**
- * Builder for creating a CSVReader.
+ * Builder for creating a {@link CSVReader}.
  * <p>This should be the preferred method of creating a Reader as there are so many
  * possible values to be set it is impossible to have constructors for all of
  * them and keep backwards compatibility with previous constructors.<br>
@@ -49,20 +49,7 @@ import java.util.ResourceBundle;
  *
  * @see com.opencsv.CSVReader
  */
-public class CSVReaderBuilder {
-
-    private final CSVParserBuilder parserBuilder = new CSVParserBuilder();
-    private final Reader reader;
-    private int skipLines = CSVReader.DEFAULT_SKIP_LINES;
-    private ICSVParser icsvParser = null;
-    private boolean keepCR;
-    private boolean verifyReader = CSVReader.DEFAULT_VERIFY_READER;
-    private CSVReaderNullFieldIndicator nullFieldIndicator = CSVReaderNullFieldIndicator.NEITHER;
-    private int multilineLimit = CSVReader.DEFAULT_MULTILINE_LIMIT;
-    private Locale errorLocale = Locale.getDefault();
-    private LineValidatorAggregator lineValidatorAggregator = new LineValidatorAggregator();
-    private RowValidatorAggregator rowValidatorAggregator = new RowValidatorAggregator();
-    private RowProcessor rowProcessor = null;
+public class CSVReaderBuilder extends CSVReaderBaseBuilder<CSVReader> {
 
     /**
      * Sets the reader to an underlying CSV source.
@@ -71,46 +58,10 @@ public class CSVReaderBuilder {
      */
     public CSVReaderBuilder(
             final Reader reader) {
+        super(reader);
         if (reader == null) {
             throw new IllegalArgumentException(ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME).getString("reader.null"));
         }
-        this.reader = reader;
-    }
-
-    /**
-     * Used by unit tests.
-     *
-     * @return The reader.
-     */
-    protected Reader getReader() {
-        return reader;
-    }
-
-    /**
-     * Used by unit tests.
-     *
-     * @return The set number of lines to skip
-     */
-    protected int getSkipLines() {
-        return skipLines;
-    }
-
-    /**
-     * Used by unit tests.
-     *
-     * @return The CSVParser used by the builder.
-     */
-    protected ICSVParser getCsvParser() {
-        return icsvParser;
-    }
-
-    /**
-     * Used by unit tests.
-     *
-     * @return The upper limit on lines in multiline records.
-     */
-    protected int getMultilineLimit() {
-        return multilineLimit;
     }
 
     /**
@@ -125,7 +76,6 @@ public class CSVReaderBuilder {
         return this;
     }
 
-
     /**
      * Sets the parser to use to parse the input.
      *
@@ -138,10 +88,9 @@ public class CSVReaderBuilder {
         return this;
     }
 
-
     /**
-     * Creates the CSVReader.
-     * @return The CSVReader based on the set criteria.
+     * Creates the {@link CSVReader}.
+     * @return The {@link CSVReader} based on the set criteria.
      */
     public CSVReader build() {
         final ICSVParser parser = getOrCreateCsvParser();
@@ -161,29 +110,7 @@ public class CSVReaderBuilder {
     }
 
     /**
-     * Returns if the reader built will keep or discard carriage returns.
-     *
-     * @return {@code true} if the reader built will keep carriage returns,
-     * {@code false} otherwise
-     */
-    protected boolean keepCarriageReturn() {
-        return this.keepCR;
-    }
-
-    /**
-     * Creates a new {@link ICSVParser} if the class does't already hold one.
-     * @return The injected {@link ICSVParser} or a default parser.
-     */
-    protected ICSVParser getOrCreateCsvParser() {
-        return ObjectUtils.defaultIfNull(icsvParser,
-                parserBuilder
-                        .withFieldAsNull(nullFieldIndicator)
-                        .withErrorLocale(errorLocale)
-                        .build());
-    }
-
-    /**
-     * Checks to see if the CSVReader should verify the reader state before
+     * Checks to see if the {@link CSVReader} should verify the reader state before
      * reads or not.
      *
      * <p>This should be set to false if you are using some form of asynchronous
@@ -191,7 +118,7 @@ public class CSVReaderBuilder {
      *
      * <p>The default value is true.</p>
      *
-     * @param verifyReader True if CSVReader should verify reader before each read, false otherwise.
+     * @param verifyReader True if {@link CSVReader} should verify reader before each read, false otherwise.
      * @return {@code this}
      */
     public CSVReaderBuilder withVerifyReader(boolean verifyReader) {
@@ -200,16 +127,9 @@ public class CSVReaderBuilder {
     }
 
     /**
-     * @return The flag indicating whether the reader should be verified before each read.
-     */
-    public boolean isVerifyReader() {
-        return verifyReader;
-    }
-
-    /**
      * Checks to see if it should treat a field with two separators, two quotes, or both as a null field.
      *
-     * @param indicator CSVReaderNullFieldIndicator set to what should be considered a null field.
+     * @param indicator {@link CSVReaderNullFieldIndicator} set to what should be considered a null field.
      * @return {@code this}
      */
     public CSVReaderBuilder withFieldAsNull(CSVReaderNullFieldIndicator indicator) {
@@ -243,31 +163,10 @@ public class CSVReaderBuilder {
     }
 
     /**
-     * @return The locale for error messages
-     */
-    public Locale getErrorLocale() {
-        return errorLocale;
-    }
-
-    /**
-     * @return The LineValidatorAggragator for custom defined LineValidators.
-     */
-    public LineValidatorAggregator getLineValidatorAggregator() {
-        return lineValidatorAggregator;
-    }
-
-    /**
-     * @return The RowValidatorAggregator for the custom defined RowValidators.
-     */
-    public RowValidatorAggregator getRowValidatorAggregator() {
-        return rowValidatorAggregator;
-    }
-
-    /**
-     * Adds a LineValidator to the CSVReader.
-     * Multiple LineValidators can be added with multiple calls.
+     * Adds a {@link LineValidator} to the {@link CSVReader}.
+     * Multiple {@link LineValidator}s can be added with multiple calls.
      *
-     * @param lineValidator LineValidator to inject.
+     * @param lineValidator {@link LineValidator} to inject.
      * @return {@code this}
      * @since 5.0
      */
@@ -277,10 +176,10 @@ public class CSVReaderBuilder {
     }
 
     /**
-     * Adds a RowValidator to the CSVReader.
-     * Multiple RowValidators can be added with multiple calls.
+     * Adds a {@link RowValidator} to the {@link CSVReader}.
+     * Multiple {@link RowValidator}s can be added with multiple calls.
      *
-     * @param rowValidator RowValidator to inject
+     * @param rowValidator {@link RowValidator} to inject
      * @return {@code this}
      * @since 5.0
      */
@@ -290,11 +189,11 @@ public class CSVReaderBuilder {
     }
 
     /**
-     * Adds a RowProcessor to the CSVReader.
-     * Only a single RowProcessor can be added so multiple calls will overwrite
-     * the previously set RowProcessor.
+     * Adds a {@link RowProcessor} to the {@link CSVReader}.
+     * Only a single {@link RowProcessor} can be added so multiple calls will overwrite
+     * the previously set {@link RowProcessor}.
      *
-     * @param rowProcessor RowProcessor to inject
+     * @param rowProcessor {@link RowProcessor} to inject
      * @return {@code this}
      * @since 5.0
      */

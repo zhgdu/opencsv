@@ -1,6 +1,7 @@
 package com.opencsv;
 
 import com.opencsv.exceptions.CsvValidationException;
+import com.opencsv.processor.RowProcessor;
 import com.opencsv.validators.LineValidatorAggregator;
 import com.opencsv.validators.RowValidatorAggregator;
 
@@ -50,8 +51,8 @@ public class CSVReaderHeaderAware extends CSVReader {
      */
     CSVReaderHeaderAware(Reader reader, int skipLines, ICSVParser parser, boolean keepCR, boolean verifyReader,
                          int multilineLimit, Locale errorLocale, LineValidatorAggregator lineValidatorAggregator,
-                         RowValidatorAggregator rowValidatorAggregator) throws IOException {
-        super(reader, skipLines, parser, keepCR, verifyReader, multilineLimit, errorLocale, lineValidatorAggregator, rowValidatorAggregator, null);
+                         RowValidatorAggregator rowValidatorAggregator, RowProcessor rowProcessor) throws IOException {
+        super(reader, skipLines, parser, keepCR, verifyReader, multilineLimit, errorLocale, lineValidatorAggregator, rowValidatorAggregator, rowProcessor);
         initializeHeader();
     }
 
