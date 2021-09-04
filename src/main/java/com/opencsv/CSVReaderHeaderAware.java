@@ -47,6 +47,7 @@ public class CSVReaderHeaderAware extends CSVReader {
      * @param errorLocale    Set the locale for error messages. If null, the default locale is used.
      * @param lineValidatorAggregator contains all the custom defined line validators.
      * @param rowValidatorAggregator  contains all the custom defined row validators.
+     * @param rowProcessor            Custom row processor to run on all columns on a csv record.
      * @throws IOException   If bad things happen while initializing the header
      */
     CSVReaderHeaderAware(Reader reader, int skipLines, ICSVParser parser, boolean keepCR, boolean verifyReader,

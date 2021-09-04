@@ -19,9 +19,7 @@ package com.opencsv;
 import com.opencsv.enums.CSVReaderNullFieldIndicator;
 import com.opencsv.processor.RowProcessor;
 import com.opencsv.validators.LineValidator;
-import com.opencsv.validators.LineValidatorAggregator;
 import com.opencsv.validators.RowValidator;
-import com.opencsv.validators.RowValidatorAggregator;
 import org.apache.commons.lang3.ObjectUtils;
 
 import java.io.Reader;

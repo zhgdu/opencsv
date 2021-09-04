@@ -30,7 +30,12 @@ abstract public class CSVReaderBaseBuilder<T> {
     protected Locale errorLocale = Locale.getDefault();
     protected RowProcessor rowProcessor = null;
 
-    public CSVReaderBaseBuilder(final Reader reader) {
+    /**
+     * Base Constructor
+     *
+     * @param reader The reader to an underlying CSV source.
+     */
+    protected CSVReaderBaseBuilder(final Reader reader) {
         this.reader = reader;
     }
 

@@ -21,10 +21,11 @@ public abstract class AbstractCSVWriter implements ICSVWriter {
 
     /**
      * Constructor to initialize the common values.
-     * @param writer Writer used for output of csv data.
+     *
+     * @param writer  Writer used for output of csv data.
      * @param lineEnd String to append at end of data (either "\n" or "\r\n").
      */
-    public AbstractCSVWriter(Writer writer, String lineEnd) {
+    protected AbstractCSVWriter(Writer writer, String lineEnd) {
         this.writer = writer;
         this.lineEnd = lineEnd;
     }
