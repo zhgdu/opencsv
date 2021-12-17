@@ -19,10 +19,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.TextStringBuilder;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.sql.*;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Function;
 
 /**
  * Helper class for processing JDBC ResultSet objects.
@@ -36,7 +38,8 @@ public class ResultSetHelperService implements ResultSetHelper {
 
    protected String dateFormat = DEFAULT_DATE_FORMAT;
    protected String dateTimeFormat = DEFAULT_TIMESTAMP_FORMAT;
-
+   protected Optional<NumberFormat> integerFormat = Optional.empty();
+   protected Optional<NumberFormat> floatingPointFormat = Optional.empty();
    /**
     * Default constructor.
     */
@@ -59,6 +62,24 @@ public class ResultSetHelperService implements ResultSetHelper {
     */
    public void setDateTimeFormat(String dateTimeFormat) {
       this.dateTimeFormat = dateTimeFormat;
+   }
+
+   /**
+    * Set a default number formatter for floating point numbers that will be used by the service.
+    *
+    * @param format Desired number format. Should not be null
+    */
+   public void setIntegerFormat(NumberFormat format) {
+      this.integerFormat = Optional.of(format);
+   }
+
+   /**
+    * Set a default number formatter for integer numbers that will be used by the service.
+    *
+    * @param format Desired number format. Should not be null
+    */
+   public void setFloatingPointFormat(NumberFormat format) {
+      this.floatingPointFormat = Optional.of(format);
    }
 
    @Override
@@ -119,24 +140,24 @@ public class ResultSetHelperService implements ResultSetHelper {
             value = handleClob(rs, colIndex);
             break;
          case Types.BIGINT:
-            BigDecimal d = rs.getBigDecimal(colIndex);
-            value = Objects.toString(d!=null?d.toBigInteger():null);
+            value = applyFormatter(integerFormat, rs, rs.getBigDecimal(colIndex), 
+               d -> Objects.toString(d!=null?d.toBigInteger():null));
             break;
          case Types.DECIMAL:
          case Types.REAL:
          case Types.NUMERIC:
-            value = Objects.toString(rs.getBigDecimal(colIndex), DEFAULT_VALUE);
+            value = applyFormatter(floatingPointFormat, rs, rs.getBigDecimal(colIndex));
             break;
          case Types.DOUBLE:
-            value = Objects.toString(rs.getDouble(colIndex));
+            value = applyFormatter(floatingPointFormat, rs, rs.getDouble(colIndex));
             break;
          case Types.FLOAT:
-            value = Objects.toString(rs.getFloat(colIndex));
+            value = applyFormatter(floatingPointFormat, rs, rs.getFloat(colIndex));
             break;
          case Types.INTEGER:
          case Types.TINYINT:
          case Types.SMALLINT:
-            value = Objects.toString(rs.getInt(colIndex));
+            value = applyFormatter(integerFormat, rs, rs.getInt(colIndex));
             break;
          case Types.DATE:
             value = handleDate(rs, colIndex, dateFormatString);
@@ -171,6 +192,30 @@ public class ResultSetHelperService implements ResultSetHelper {
       return value;
    }
 
+   private <T extends Number> String applyFormatter(
+		   Optional<NumberFormat> formatter, 
+		   ResultSet rs, 
+		   Number value
+		   ) throws SQLException {
+	  return applyFormatter(formatter, rs, value, Objects::toString);
+   }
+   
+   private <T extends Number> String applyFormatter(
+		   Optional<NumberFormat> formatter, 
+		   ResultSet rs, 
+		   T value, 
+		   Function<T, String> defaultFormatter
+		   ) throws SQLException {
+      if (value == null || rs.wasNull()) {
+         return DEFAULT_VALUE;
+      }
+      if (formatter.isPresent()) {
+	     return formatter.get().format(value);
+      }
+      
+      return defaultFormatter.apply(value); 
+   }
+   
    /**
     * retrieves the data from an VarChar in a result set
     *
