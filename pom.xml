@@ -19,8 +19,8 @@
         <commons-lang3.version>3.12.0</commons-lang3.version>
         <commons-collections4.version>4.4</commons-collections4.version>
         <argLine>-Dfile.encoding=UTF-8</argLine>
-        <junit.version>5.7.2</junit.version>
-        <junit.platform.version>1.7.2</junit.platform.version>
+        <junit.version>5.8.2</junit.version>
+        <junit.platform.version>1.8.2</junit.platform.version>
         <asciidoctor.maven.plugin.version>2.1.0</asciidoctor.maven.plugin.version>
         <asciidoctorj.version>2.5.1</asciidoctorj.version>
         <jruby.version>9.2.19.0</jruby.version>
@@ -615,7 +615,7 @@
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-core</artifactId>
-            <version>3.11.2</version>
+            <version>3.12.4</version>
             <scope>test</scope>
         </dependency>
         <dependency>
