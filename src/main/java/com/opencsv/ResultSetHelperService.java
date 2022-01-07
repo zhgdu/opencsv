@@ -131,7 +131,7 @@ public class ResultSetHelperService implements ResultSetHelper {
 
       switch (colType) {
          case Types.BOOLEAN:
-            value = Objects.toString(rs.getBoolean(colIndex));
+            value = handleBoolean(rs, colIndex);
             break;
          case Types.NCLOB:
             value = handleNClob(rs, colIndex);
@@ -185,7 +185,7 @@ public class ResultSetHelperService implements ResultSetHelper {
       }
 
 
-      if (rs.wasNull() || value == null) {
+      if (value == null) {
          value = DEFAULT_VALUE;
       }
 
@@ -311,6 +311,23 @@ public class ResultSetHelperService implements ResultSetHelper {
          TextStringBuilder sb = new TextStringBuilder();
          sb.readFrom(nc.getCharacterStream());
          value = sb.toString();
+      }
+      return value;
+   }
+   
+   /**
+    * retrieves the data out of a boolean
+    *
+    * @param rs       - result set
+    * @param colIndex - column location of the data in the result set
+    * @return the data in the boolean as a string.
+    * @throws SQLException
+    */
+   protected String handleBoolean(ResultSet rs, int colIndex) throws SQLException {
+      String value = DEFAULT_VALUE;
+      boolean b = rs.getBoolean(colIndex);
+      if (!rs.wasNull()) {
+         value = Objects.toString(b);
       }
       return value;
    }
