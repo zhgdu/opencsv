@@ -38,8 +38,6 @@ public class MockResultSetBuilder {
             when(rs.getBoolean(index)).thenReturn(Boolean.valueOf(value));
             break;
          case BIGINT:
-            when(rs.getBigDecimal(index)).thenReturn(value != null ? new BigDecimal(value) : null);
-            break;
          case Types.DECIMAL:
          case Types.REAL:
          case Types.NUMERIC:
@@ -177,7 +175,7 @@ public class MockResultSetBuilder {
       return new ResultSet()  {
          int lastColumn = 0;
 
-         public boolean wasNull() throws SQLException {
+         public boolean wasNull() {
             return columnValues[lastColumn - 1] == null;
          }
           

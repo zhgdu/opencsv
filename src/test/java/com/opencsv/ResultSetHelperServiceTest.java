@@ -90,7 +90,7 @@ public class ResultSetHelperServiceTest {
    public void getBooleanFromResultSet() throws SQLException, IOException {
       String[] expectedNames = {"true", "false", "TRUE", "FALSE", "Null"};
       String[] realValues = {"true", "false", "TRUE", "FALSE", null};
-      String[] expectedValues = {"true", "false", "true", "false", ""};
+      String[] expectedValues = {"true", "false", "true", "false", "false"};
       int[] expectedTypes = {Types.BOOLEAN, Types.BOOLEAN, Types.BOOLEAN, Types.BOOLEAN, Types.BOOLEAN};
 
       ResultSetMetaData metaData = MockResultSetMetaDataBuilder.buildMetaData(expectedNames, expectedTypes);

@@ -23,8 +23,6 @@ import java.sql.*;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.function.Function;
 
 /**
  * Helper class for processing JDBC ResultSet objects.
@@ -38,8 +36,8 @@ public class ResultSetHelperService implements ResultSetHelper {
 
    protected String dateFormat = DEFAULT_DATE_FORMAT;
    protected String dateTimeFormat = DEFAULT_TIMESTAMP_FORMAT;
-   protected Optional<NumberFormat> integerFormat = Optional.empty();
-   protected Optional<NumberFormat> floatingPointFormat = Optional.empty();
+   protected NumberFormat integerFormat = null;
+   protected NumberFormat floatingPointFormat = null;
    /**
     * Default constructor.
     */
@@ -67,19 +65,19 @@ public class ResultSetHelperService implements ResultSetHelper {
    /**
     * Set a default number formatter for floating point numbers that will be used by the service.
     *
-    * @param format Desired number format. Should not be null
+    * @param format Desired number format
     */
    public void setIntegerFormat(NumberFormat format) {
-      this.integerFormat = Optional.of(format);
+      this.integerFormat = format;
    }
 
    /**
     * Set a default number formatter for integer numbers that will be used by the service.
     *
-    * @param format Desired number format. Should not be null
+    * @param format Desired number format
     */
    public void setFloatingPointFormat(NumberFormat format) {
-      this.floatingPointFormat = Optional.of(format);
+      this.floatingPointFormat = format;
    }
 
    @Override
@@ -131,7 +129,7 @@ public class ResultSetHelperService implements ResultSetHelper {
 
       switch (colType) {
          case Types.BOOLEAN:
-            value = handleBoolean(rs, colIndex);
+            value = Objects.toString(rs.getBoolean(colIndex));
             break;
          case Types.NCLOB:
             value = handleNClob(rs, colIndex);
@@ -140,8 +138,7 @@ public class ResultSetHelperService implements ResultSetHelper {
             value = handleClob(rs, colIndex);
             break;
          case Types.BIGINT:
-            value = applyFormatter(integerFormat, rs, rs.getBigDecimal(colIndex), 
-               d -> Objects.toString(d!=null?d.toBigInteger():null));
+            value = applyFormatter(integerFormat, rs, rs.getBigDecimal(colIndex));
             break;
          case Types.DECIMAL:
          case Types.REAL:
@@ -192,38 +189,25 @@ public class ResultSetHelperService implements ResultSetHelper {
       return value;
    }
 
-   private <T extends Number> String applyFormatter(
-		   Optional<NumberFormat> formatter, 
+   private String applyFormatter(
+		   NumberFormat formatter,
 		   ResultSet rs, 
 		   Number value
-		   ) throws SQLException {
-	  return applyFormatter(formatter, rs, value, Objects::toString);
-   }
-   
-   private <T extends Number> String applyFormatter(
-		   Optional<NumberFormat> formatter, 
-		   ResultSet rs, 
-		   T value, 
-		   Function<T, String> defaultFormatter
 		   ) throws SQLException {
       if (value == null || rs.wasNull()) {
          return DEFAULT_VALUE;
       }
-      if (formatter.isPresent()) {
-	     return formatter.get().format(value);
-      }
-      
-      return defaultFormatter.apply(value); 
+      return formatter != null?formatter.format(value):Objects.toString(value);
    }
    
    /**
-    * retrieves the data from an VarChar in a result set
+    * Retrieves the data from an VarChar in a result set.
     *
-    * @param rs       - result set
-    * @param colIndex - column location of the data in the result set
-    * @param trim     - should the value be trimmed before being returned
-    * @return a string representing the VarChar from the result set
-    * @throws SQLException
+    * @param rs Result set
+    * @param colIndex Column location of the data in the result set
+    * @param trim Whether the value should be trimmed before being returned
+    * @return A string representing the VarChar from the result set
+    * @throws SQLException If there was an SQL error
     */
    protected String handleVarChar(ResultSet rs, int colIndex, boolean trim) throws SQLException {
       String value;
@@ -237,13 +221,13 @@ public class ResultSetHelperService implements ResultSetHelper {
    }
 
    /**
-    * retrieves the data from an NVarChar in a result set
+    * Retrieves the data from an NVarChar in a result set.
     *
-    * @param rs       - result set
-    * @param colIndex - column location of the data in the result set
-    * @param trim     - should the value be trimmed before being returned
-    * @return a string representing the NVarChar from the result set
-    * @throws SQLException
+    * @param rs Result set
+    * @param colIndex Column location of the data in the result set
+    * @param trim Whether the value should be trimmed before being returned
+    * @return A string representing the NVarChar from the result set
+    * @throws SQLException If there was an SQL error
     */
    protected String handleNVarChar(ResultSet rs, int colIndex, boolean trim) throws SQLException {
       String value;
@@ -257,13 +241,13 @@ public class ResultSetHelperService implements ResultSetHelper {
    }
 
    /**
-    * retrieves an date from a result set
+    * Retrieves a date from a result set.
     *
-    * @param rs               - result set
-    * @param colIndex         - column location of the data in the result set
-    * @param dateFormatString - desired format of the date
-    * @return - a string representing the data from the result set in the format set in dateFomratString.
-    * @throws SQLException
+    * @param rs Result set
+    * @param colIndex Column location of the data in the result set
+    * @param dateFormatString Desired format of the date
+    * @return A string representing the data from the result set in the format set in {@code dateFormatString}
+    * @throws SQLException If there was an SQL error
     */
    protected String handleDate(ResultSet rs, int colIndex, String dateFormatString) throws SQLException {
       String value = DEFAULT_VALUE;
@@ -276,13 +260,13 @@ public class ResultSetHelperService implements ResultSetHelper {
    }
 
    /**
-    * retrieves the data out of a CLOB
+    * Retrieves the data out of a CLOB.
     *
-    * @param rs       - result set
-    * @param colIndex - column location of the data in the result set
-    * @return the data in the Clob as a string.
-    * @throws SQLException
-    * @throws IOException
+    * @param rs Result set
+    * @param colIndex Column location of the data in the result set
+    * @return The data in the Clob as a string
+    * @throws SQLException If there was an SQL error
+    * @throws IOException If data cannot be read from the Clob
     */
    protected String handleClob(ResultSet rs, int colIndex) throws SQLException, IOException {
       String value = DEFAULT_VALUE;
@@ -296,13 +280,13 @@ public class ResultSetHelperService implements ResultSetHelper {
    }
 
    /**
-    * retrieves the data out of a NCLOB
+    * Retrieves the data out of a NCLOB.
     *
-    * @param rs       - result set
-    * @param colIndex - column location of the data in the result set
-    * @return the data in the NCLOB as a string.
-    * @throws SQLException
-    * @throws IOException
+    * @param rs Result set
+    * @param colIndex Column location of the data in the result set
+    * @return The data in the NCLOB as a string
+    * @throws SQLException If there was an SQL error
+    * @throws IOException If data cannot be read from the NClob
     */
    protected String handleNClob(ResultSet rs, int colIndex) throws SQLException, IOException {
       String value = DEFAULT_VALUE;
@@ -311,23 +295,6 @@ public class ResultSetHelperService implements ResultSetHelper {
          TextStringBuilder sb = new TextStringBuilder();
          sb.readFrom(nc.getCharacterStream());
          value = sb.toString();
-      }
-      return value;
-   }
-   
-   /**
-    * retrieves the data out of a boolean
-    *
-    * @param rs       - result set
-    * @param colIndex - column location of the data in the result set
-    * @return the data in the boolean as a string.
-    * @throws SQLException
-    */
-   protected String handleBoolean(ResultSet rs, int colIndex) throws SQLException {
-      String value = DEFAULT_VALUE;
-      boolean b = rs.getBoolean(colIndex);
-      if (!rs.wasNull()) {
-         value = Objects.toString(b);
       }
       return value;
    }
