@@ -19,9 +19,12 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.sql.*;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.mockito.Mockito.mock;
@@ -555,4 +558,76 @@ public class ResultSetHelperServiceTest {
 
       return sb.toString();
    }
+   
+   @Test
+   public void formatNumbersIntPrimitives() throws SQLException, IOException {
+      String[] expectedNames = {"Integer", "tinyint", "smallint", "Null"};
+      String[] realValues = {"1", "2", "3", null};
+      String[] expectedValues = {"001", "002", "003", ""};
+      int[] expectedTypes = {Types.INTEGER, Types.TINYINT, Types.SMALLINT, Types.INTEGER};
+
+      ResultSetMetaData metaData = MockResultSetMetaDataBuilder.buildMetaData(expectedNames, expectedTypes);
+      ResultSet resultSet = MockResultSetBuilder.buildResultSet(metaData, realValues, expectedTypes);
+
+      ResultSetHelperService service = new ResultSetHelperService();
+      service.setIntegerFormat(new DecimalFormat("000"));
+      service.setFloatingPointFormat(new DecimalFormat("0.00", new DecimalFormatSymbols(Locale.ENGLISH)));
+
+      String[] columnValues = service.getColumnValues(resultSet);
+      assertArrayEquals(expectedValues, columnValues);
+   }
+
+   @Test
+   public void formatNumbersFloatPrimitives() throws SQLException, IOException {
+      String[] expectedNames = {"double", "float"};
+      String[] realValues = {"2.2", "3.3"};
+      String[] expectedValues = {"2.20", "3.30"};
+      int[] expectedTypes = {Types.DOUBLE, Types.FLOAT};
+
+      ResultSetMetaData metaData = MockResultSetMetaDataBuilder.buildMetaData(expectedNames, expectedTypes);
+      ResultSet resultSet = MockResultSetBuilder.buildResultSet(metaData, realValues, expectedTypes);
+
+      ResultSetHelperService service = new ResultSetHelperService();
+      service.setIntegerFormat(new DecimalFormat("000"));
+      service.setFloatingPointFormat(new DecimalFormat("0.00", new DecimalFormatSymbols(Locale.ENGLISH)));
+
+      String[] columnValues = service.getColumnValues(resultSet);
+      assertArrayEquals(expectedValues, columnValues);
+   }
+
+   @Test
+   public void formatNumbersObjects() throws SQLException, IOException {
+      String[] expectedNames = {"Decimal", "real", "numeric", "Null"};
+      String[] realValues = {"1.1", "4.4", "5.5", null};
+      String[] expectedValues = {"1.10", "4.40", "5.50", ""};
+      int[] expectedTypes = {Types.DECIMAL, Types.REAL, Types.NUMERIC, Types.DECIMAL};
+
+      ResultSetMetaData metaData = MockResultSetMetaDataBuilder.buildMetaData(expectedNames, expectedTypes);
+      ResultSet resultSet = MockResultSetBuilder.buildResultSet(metaData, realValues, expectedTypes);
+
+      ResultSetHelperService service = new ResultSetHelperService();
+      service.setIntegerFormat(new DecimalFormat("000"));
+      service.setFloatingPointFormat(new DecimalFormat("0.00", new DecimalFormatSymbols(Locale.ENGLISH)));
+
+      String[] columnValues = service.getColumnValues(resultSet);
+      assertArrayEquals(expectedValues, columnValues);
+   }
+
+   @Test
+   public void formatBigInt() throws SQLException, IOException {
+      String[] expectedNames = {"BigInt", "Null BigInt"};
+      String[] realValues = {"11772935803167061222", null};
+      String[] expectedValues = {"1.177E19", ""};
+      int[] expectedTypes = {Types.BIGINT, Types.BIGINT};
+
+      ResultSetMetaData metaData = MockResultSetMetaDataBuilder.buildMetaData(expectedNames, expectedTypes);
+      ResultSet resultSet = MockResultSetBuilder.buildResultSet(metaData, realValues, expectedTypes);
+
+      ResultSetHelperService service = new ResultSetHelperService();
+      service.setIntegerFormat(new DecimalFormat("0.###E0", new DecimalFormatSymbols(Locale.ENGLISH)));
+
+      String[] columnValues = service.getColumnValues(resultSet);
+      assertArrayEquals(expectedValues, columnValues);
+   }
+   
 }
