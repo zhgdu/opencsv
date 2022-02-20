@@ -1,11 +1,11 @@
 package com.opencsv;
 
 import javax.sql.rowset.serial.SerialClob;
-
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
 import java.net.URL;
+import java.sql.SQLXML;
 import java.sql.*;
 import java.util.Calendar;
 import java.util.Map;
@@ -38,6 +38,8 @@ public class MockResultSetBuilder {
             when(rs.getBoolean(index)).thenReturn(Boolean.valueOf(value));
             break;
          case BIGINT:
+            when(rs.getBigDecimal(index)).thenReturn(value != null ? new BigDecimal(value) : null);
+            break;
          case Types.DECIMAL:
          case Types.REAL:
          case Types.NUMERIC:
@@ -175,7 +177,7 @@ public class MockResultSetBuilder {
       return new ResultSet()  {
          int lastColumn = 0;
 
-         public boolean wasNull() {
+         public boolean wasNull() throws SQLException {
             return columnValues[lastColumn - 1] == null;
          }
           
