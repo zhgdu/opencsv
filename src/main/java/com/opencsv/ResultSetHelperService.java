@@ -36,8 +36,9 @@ public class ResultSetHelperService implements ResultSetHelper {
 
    protected String dateFormat = DEFAULT_DATE_FORMAT;
    protected String dateTimeFormat = DEFAULT_TIMESTAMP_FORMAT;
-   protected NumberFormat integerFormat = null;
-   protected NumberFormat floatingPointFormat = null;
+   protected NumberFormat integerFormat;
+   protected NumberFormat floatingPointFormat;
+
    /**
     * Default constructor.
     */
@@ -65,7 +66,7 @@ public class ResultSetHelperService implements ResultSetHelper {
    /**
     * Set a default number formatter for floating point numbers that will be used by the service.
     *
-    * @param format Desired number format
+    * @param format Desired number format. Should not be null
     */
    public void setIntegerFormat(NumberFormat format) {
       this.integerFormat = format;
@@ -74,7 +75,7 @@ public class ResultSetHelperService implements ResultSetHelper {
    /**
     * Set a default number formatter for integer numbers that will be used by the service.
     *
-    * @param format Desired number format
+    * @param format Desired number format. Should not be null
     */
    public void setFloatingPointFormat(NumberFormat format) {
       this.floatingPointFormat = format;
@@ -138,23 +139,23 @@ public class ResultSetHelperService implements ResultSetHelper {
             value = handleClob(rs, colIndex);
             break;
          case Types.BIGINT:
-            value = applyFormatter(integerFormat, rs, rs.getBigDecimal(colIndex));
+            value = applyFormatter(integerFormat, rs.getBigDecimal(colIndex));
             break;
          case Types.DECIMAL:
          case Types.REAL:
          case Types.NUMERIC:
-            value = applyFormatter(floatingPointFormat, rs, rs.getBigDecimal(colIndex));
+            value = applyFormatter(floatingPointFormat, rs.getBigDecimal(colIndex));
             break;
          case Types.DOUBLE:
-            value = applyFormatter(floatingPointFormat, rs, rs.getDouble(colIndex));
+            value = applyFormatter(floatingPointFormat, rs.getDouble(colIndex));
             break;
          case Types.FLOAT:
-            value = applyFormatter(floatingPointFormat, rs, rs.getFloat(colIndex));
+            value = applyFormatter(floatingPointFormat, rs.getFloat(colIndex));
             break;
          case Types.INTEGER:
          case Types.TINYINT:
          case Types.SMALLINT:
-            value = applyFormatter(integerFormat, rs, rs.getInt(colIndex));
+            value = applyFormatter(integerFormat, rs.getInt(colIndex));
             break;
          case Types.DATE:
             value = handleDate(rs, colIndex, dateFormatString);
@@ -182,32 +183,28 @@ public class ResultSetHelperService implements ResultSetHelper {
       }
 
 
-      if (value == null) {
+      if (rs.wasNull() || value == null) {
          value = DEFAULT_VALUE;
       }
 
       return value;
    }
 
-   private String applyFormatter(
-		   NumberFormat formatter,
-		   ResultSet rs, 
-		   Number value
-		   ) throws SQLException {
-      if (value == null || rs.wasNull()) {
-         return DEFAULT_VALUE;
+   private String applyFormatter(NumberFormat formatter, Number value) {
+      if (value != null && formatter != null) {
+         return formatter.format(value);
       }
-      return formatter != null?formatter.format(value):Objects.toString(value);
+      return Objects.toString(value, DEFAULT_VALUE);
    }
-   
+
    /**
-    * Retrieves the data from an VarChar in a result set.
+    * retrieves the data from an VarChar in a result set
     *
-    * @param rs Result set
-    * @param colIndex Column location of the data in the result set
-    * @param trim Whether the value should be trimmed before being returned
-    * @return A string representing the VarChar from the result set
-    * @throws SQLException If there was an SQL error
+    * @param rs       - result set
+    * @param colIndex - column location of the data in the result set
+    * @param trim     - should the value be trimmed before being returned
+    * @return a string representing the VarChar from the result set
+    * @throws SQLException
     */
    protected String handleVarChar(ResultSet rs, int colIndex, boolean trim) throws SQLException {
       String value;
@@ -221,13 +218,13 @@ public class ResultSetHelperService implements ResultSetHelper {
    }
 
    /**
-    * Retrieves the data from an NVarChar in a result set.
+    * retrieves the data from an NVarChar in a result set
     *
-    * @param rs Result set
-    * @param colIndex Column location of the data in the result set
-    * @param trim Whether the value should be trimmed before being returned
-    * @return A string representing the NVarChar from the result set
-    * @throws SQLException If there was an SQL error
+    * @param rs       - result set
+    * @param colIndex - column location of the data in the result set
+    * @param trim     - should the value be trimmed before being returned
+    * @return a string representing the NVarChar from the result set
+    * @throws SQLException
     */
    protected String handleNVarChar(ResultSet rs, int colIndex, boolean trim) throws SQLException {
       String value;
@@ -241,13 +238,13 @@ public class ResultSetHelperService implements ResultSetHelper {
    }
 
    /**
-    * Retrieves a date from a result set.
+    * retrieves an date from a result set
     *
-    * @param rs Result set
-    * @param colIndex Column location of the data in the result set
-    * @param dateFormatString Desired format of the date
-    * @return A string representing the data from the result set in the format set in {@code dateFormatString}
-    * @throws SQLException If there was an SQL error
+    * @param rs               - result set
+    * @param colIndex         - column location of the data in the result set
+    * @param dateFormatString - desired format of the date
+    * @return - a string representing the data from the result set in the format set in dateFomratString.
+    * @throws SQLException
     */
    protected String handleDate(ResultSet rs, int colIndex, String dateFormatString) throws SQLException {
       String value = DEFAULT_VALUE;
@@ -260,13 +257,13 @@ public class ResultSetHelperService implements ResultSetHelper {
    }
 
    /**
-    * Retrieves the data out of a CLOB.
+    * retrieves the data out of a CLOB
     *
-    * @param rs Result set
-    * @param colIndex Column location of the data in the result set
-    * @return The data in the Clob as a string
-    * @throws SQLException If there was an SQL error
-    * @throws IOException If data cannot be read from the Clob
+    * @param rs       - result set
+    * @param colIndex - column location of the data in the result set
+    * @return the data in the Clob as a string.
+    * @throws SQLException
+    * @throws IOException
     */
    protected String handleClob(ResultSet rs, int colIndex) throws SQLException, IOException {
       String value = DEFAULT_VALUE;
@@ -280,13 +277,13 @@ public class ResultSetHelperService implements ResultSetHelper {
    }
 
    /**
-    * Retrieves the data out of a NCLOB.
+    * retrieves the data out of a NCLOB
     *
-    * @param rs Result set
-    * @param colIndex Column location of the data in the result set
-    * @return The data in the NCLOB as a string
-    * @throws SQLException If there was an SQL error
-    * @throws IOException If data cannot be read from the NClob
+    * @param rs       - result set
+    * @param colIndex - column location of the data in the result set
+    * @return the data in the NCLOB as a string.
+    * @throws SQLException
+    * @throws IOException
     */
    protected String handleNClob(ResultSet rs, int colIndex) throws SQLException, IOException {
       String value = DEFAULT_VALUE;
