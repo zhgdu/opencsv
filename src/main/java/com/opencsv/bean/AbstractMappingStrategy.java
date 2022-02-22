@@ -306,7 +306,7 @@ public abstract class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
      * @return The column name or null if the position is larger than the
      * header array or there are no headers defined.
      */
-    String getColumnName(int col) {
+    protected String getColumnName(int col) {
         // headerIndex is never null because it's final
         return headerIndex.getByPosition(col);
     }
