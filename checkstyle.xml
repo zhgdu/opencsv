@@ -7,7 +7,7 @@
 <module name="Checker">
     <module name="TreeWalker">
         <module name="JavadocMethod">
-            <property name="scope" value="package"/>
+            <property name="accessModifiers" value="package"/>
         </module>
         <module name="MissingJavadocMethod">
             <property name="scope" value="package"/>
