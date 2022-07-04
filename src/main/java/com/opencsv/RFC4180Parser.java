@@ -234,16 +234,6 @@ public class RFC4180Parser extends AbstractCSVParser {
         }
         return ret;
     }
-
-    @Override
-    public CSVReaderNullFieldIndicator nullFieldIndicator() {
-        return nullFieldIndicator;
-    }
-    
-    @Override
-    public String getPendingText() {
-        return StringUtils.defaultString(pending);
-    }
     
     @Override
     public void setErrorLocale(Locale errorLocale) {
