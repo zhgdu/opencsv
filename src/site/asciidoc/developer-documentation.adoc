@@ -2,7 +2,7 @@
 
 Here is an overview of how to use opencsv in your project.
 
-   * <<Quick start>>
+* <<Quick start>>
    * <<Upgrading from 4.x to 5.x>>
    * <<Upgrading from 3.x to 4.x>>
    * <<Core concepts>>
@@ -152,9 +152,9 @@ What do you get for that?
 Here is a list of the improvements in opencsv 4.0.
 
 * We have rewritten the bean code to be multi-threaded so that reading from an input directly into beans is significantly faster.
-Performance benefits depend largely on your data and hardware, but our non-rigorous tests indicate that reading now takes a <em>third</em> of the time it used to.
+Performance benefits depend largely on your data and hardware, but our non-rigorous tests indicate that reading now takes a _third_ of the time it used to.
 * We have rewritten the bean code to be multi-threaded so that writing from a list of beans is significantly faster.
-Performance benefits depend largely on your data and hardware, but our non-rigorous tests indicate that writing now takes <em>half</em> of the time it used to.
+Performance benefits depend largely on your data and hardware, but our non-rigorous tests indicate that writing now takes _half_ of the time it used to.
 * There is a new iterator available for iterating through the input into beans.
 This iterator is consistent in every way with the behavior of the code that reads all data sets at once into a list of beans.
 The old iterator did not support all features, like locales and custom converters.
@@ -164,12 +164,12 @@ Otherwise, look for the withErrorLocale() and setErrorLocale() methods in variou
 Localizations are provided for American English and German.
 Further submissions are welcome, but with a submission you enter into a life-long contract to provide updates for any new messages for the language(s) you submit.
 If you break this contract, you forefit your soul.
-   * Support for national character sets was added to ResultSetHelperService (NClob, NVarchar, NChar, LongNVarchar).
+* Support for national character sets was added to ResultSetHelperService (NClob, NVarchar, NChar, LongNVarchar).
 
 Here are the things you can expect to encounter during an upgrade and what to
 do about them.
 
-   * Java 7 is now the minimum supported version. Tough noogies.
+* Java 7 is now the minimum supported version. Tough noogies.
    * Everything that was deprecated has been removed.
       * BeanToCsv is no more. Please use StatefulBeanToCsv instead. The quick start guide above gives you an example.
       * @CsvBind was replaced with @CsvBindByName. It really is as simple as search and replace.
@@ -190,7 +190,7 @@ do about them.
 And we have a new list of things that we have deprecated and plan to remove in
 5.0, as well as what you can do about it.
 
-   * IterableCSVToBean and IterableCSVToBeanBuilder have both been deprecated. CsvToBean itself is now iterable; use it instead.
+* IterableCSVToBean and IterableCSVToBeanBuilder have both been deprecated. CsvToBean itself is now iterable; use it instead.
    * All constructors except the ones with the smallest (often nullary, using defaults for all values) and largest argument lists (which often have only package access) have been deprecated. The constructors in between have grown over the years as opencsv has added features, and they've become unwieldy. We encourage all of our users to use the builders we provide instead of the constructors.
    * All variants of CsvToBean.parse() except the no-argument variant. Please use the builder we provide.
    * MappingStrategy.findDescriptor() will no longer be necessary in 5.0 because the plan is to move to reflection completely and no longer use introspection.
