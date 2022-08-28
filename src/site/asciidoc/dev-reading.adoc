@@ -44,7 +44,7 @@ which is escaped by a double quote).
 At the most basic, you can use opencsv to parse an input and return a String[], thus:
 [source, java]
 ----
-     CSVReader reader = new CSVReader(new FileReader("yourfile.csv"));
+     CSVReader reader = new CSVReaderBuilder(new FileReader("yourfile.csv")).build();
      String [] nextLine;
      while ((nextLine = reader.readNext()) != null) {
         // nextLine[] is an array of values from the line
@@ -55,14 +55,15 @@ At the most basic, you can use opencsv to parse an input and return a String[], 
 One step up is reading all lines of the input file at once into a List<String[]>, thus:
 [source, java]
 ----
-     CSVReader reader = new CSVReader(new FileReader("yourfile.csv"));
+     CSVReader reader = new CSVReaderBuilder(new FileReader("yourfile.csv")).build();
      List<String[]> myEntries = reader.readAll();
 ----
 
 The last option for getting at an array of strings is to use an iterator:
 [source, java]
 ----
-     CSVIterator iterator = new CSVIterator(new CSVReader(new FileReader("yourfile.csv")));
+    CSVReader reader = new CSVReaderBuilder(new FileReader("yourfile.csv")).build();
+     CSVIterator iterator = new CSVIterator(reader);
      for(String[] nextLine : iterator) {
         // nextLine[] is an array of values from the line
         System.out.println(nextLine[0] + nextLine[1] + "etc...");
@@ -72,7 +73,7 @@ The last option for getting at an array of strings is to use an iterator:
 or:
 [source, java]
 ----
-     CSVReader reader = new CSVReader(new FileReader("yourfile.csv"));
+     CSVReader reader = new CSVReaderBuilder(new FileReader("yourfile.csv")).build();
      for(String[] nextLine : reader.iterator()) {
         // nextLine[] is an array of values from the line
         System.out.println(nextLine[0] + nextLine[1] + "etc...");
@@ -1048,7 +1049,13 @@ So, for example, you can skip the first two lines by doing:
 
 [source, java]
 ----
-     CSVReader reader = new CSVReader(new FileReader("yourfile.csv"), '\t', '\'', 2);
+    CSVReader c = new CSVReaderBuilder(new FileReader("yourfile.csv"))
+                .withCSVParser(new CSVParserBuilder()
+                        .withQuoteChar('\'')
+                        .withSeparator('\t')
+                        .build())
+                .withSkipLines(2)
+                .build();
 ----
 
 or for reading with annotations:

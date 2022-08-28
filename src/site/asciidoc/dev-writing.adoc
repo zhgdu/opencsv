@@ -15,7 +15,9 @@ CSVWriter follows the same semantics as the CSVReader. For example, to write a t
 
 [source, java]
 ----
-     CSVWriter writer = new CSVWriter(new FileWriter("yourfile.csv"), '\t');
+     CSVWriter writer = new CSVWriterBuilder(new FileWriter("yourfile.csv"))
+        .withSeparator('\t')
+        .build();
      // feed in your array (or convert your data to an array)
      String[] entries = "first#second#third".split("#");
      writer.writeNext(entries);

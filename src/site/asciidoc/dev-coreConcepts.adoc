@@ -15,7 +15,11 @@ Say you're using a tab for your separator, you can do something like this:
 
 [source,java]
 ----
-     CSVReader reader = new CSVReader(new FileReader("yourfile.csv"), '\t');
+    CSVReader reader = new FileReader("yourfile.csv"))
+                .withCSVParser(new CSVParserBuilder()
+                        .withSeparator('\t')
+                        .build())
+                .build();
 ----
 
 or for reading with annotations:
@@ -30,7 +34,12 @@ And if you single-quoted your escaped characters rather than double-quoting them
 
 [source,java]
 ----
-     CSVReader reader = new CSVReader(new FileReader("yourfile.csv"), '\t', '\'');
+    CSVReader c = new CSVReaderBuilder(new FileReader("yourfile.csv"))
+                .withCSVParser(new CSVParserBuilder()
+                        .withQuoteChar('\'')
+                        .withSeparator('\t')
+                        .build())
+                .build();
 ----
 
 or for reading with annotations:
