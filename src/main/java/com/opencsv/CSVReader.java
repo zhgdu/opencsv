@@ -278,6 +278,18 @@ public class CSVReader implements Closeable, Iterable<String[]> {
             }
 
         } while (parser.isPending());
+
+        /*
+         for bug #233 (https://sourceforge.net/p/opencsv/bugs/233/) if we want to keep carriage returns we ONLY
+         want to keep the carriage returns in the data and not from the end of lines if we were in a Windows system.
+         */
+
+        if (keepCR) {
+            int lastItemIndex = peekedLine.length - 1;
+            if (peekedLine[lastItemIndex] != null && peekedLine[lastItemIndex].endsWith("\r")) {
+                peekedLine[lastItemIndex] = peekedLine[lastItemIndex].substring(0, peekedLine[lastItemIndex].length() - 1);
+            }
+        }
     }
 
     /**

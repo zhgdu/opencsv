@@ -520,6 +520,33 @@ public class CSVReaderTest {
     }
 
     @Test
+    public void bug233KeepCarriageReturnShouldRemoveCRAtEndOfLine() throws IOException, CsvValidationException {
+         StringBuilder sb = new StringBuilder(ICSVParser.INITIAL_READ_SIZE);
+
+        sb.append("\"a\",\"123\r\n4567\",c");
+        sb.append("\r\n");
+
+        // public CSVReader(Reader reader, char separator, char quotechar, char escape, int line, boolean strictQuotes,
+        // boolean ignoreLeadingWhiteSpace, boolean keepCarriageReturn)
+        CSVReader c = new CSVReaderBuilder(new StringReader(sb.toString()))
+                .withCSVParser(new CSVParserBuilder()
+                        .withStrictQuotes(false)
+                        .build())
+                .withKeepCarriageReturn(true)
+                .build();
+
+        String[] nextLine = c.readNext();
+        assertEquals(3, nextLine.length);
+
+        assertEquals("a", nextLine[0]);
+        assertEquals(1, nextLine[0].length());
+
+        assertEquals("123\r\n4567", nextLine[1]);
+        assertFalse(nextLine[2].endsWith("\r"));
+        assertEquals("c", nextLine[2]);
+    }
+
+    @Test
     public void testIssue2992134OutOfPlaceQuotes() throws IOException, CsvValidationException {
         mockDataBuilder.addDataRow("a,b,c,ddd\\\"eee\nf,g,h,\"iii,jjj\"");
 
