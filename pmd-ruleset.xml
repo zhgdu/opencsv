@@ -8,12 +8,10 @@
     <rule ref="category/java/bestpractices.xml/AvoidPrintStackTrace"/>
     <rule ref="category/java/bestpractices.xml/AvoidReassigningParameters"/>
     <rule ref="category/java/bestpractices.xml/LooseCoupling"/>
-    <rule ref="category/java/bestpractices.xml/UnusedImports"/>
     <rule ref="category/java/bestpractices.xml/UnusedFormalParameter"/>
     <rule ref="category/java/bestpractices.xml/UnusedLocalVariable"/>
     <rule ref="category/java/bestpractices.xml/UnusedPrivateField"/>
     <rule ref="category/java/bestpractices.xml/UnusedPrivateMethod"/>
-    <rule ref="category/java/codestyle.xml/DuplicateImports"/>
     <rule ref="category/java/errorprone.xml/UnnecessaryConversionTemporary"/>
     <rule ref="category/java/performance.xml/UseStringBufferForStringAppends"/>
     <rule ref="category/java/performance.xml/UseArraysAsList"/>

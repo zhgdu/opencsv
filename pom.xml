@@ -19,12 +19,12 @@
         <commons-lang3.version>3.12.0</commons-lang3.version>
         <commons-collections4.version>4.4</commons-collections4.version>
         <argLine>-Dfile.encoding=UTF-8</argLine>
-        <junit.version>5.8.2</junit.version>
-        <junit.platform.version>1.8.2</junit.platform.version>
+        <junit.version>5.9.0</junit.version>
+        <junit.platform.version>1.9.0</junit.platform.version>
         <asciidoctor.maven.plugin.version>2.2.2</asciidoctor.maven.plugin.version>
-        <asciidoctorj.version>2.5.3</asciidoctorj.version>
-        <jruby.version>9.2.19.0</jruby.version>
-        <asciidoctorj.diagram.version>2.2.1</asciidoctorj.diagram.version>
+        <asciidoctorj.version>2.5.5</asciidoctorj.version>
+        <jruby.version>9.3.7.0</jruby.version>
+        <asciidoctorj.diagram.version>2.2.3</asciidoctorj.diagram.version>
     </properties>
 
     <licenses>
@@ -357,7 +357,7 @@
                     <dependency>
                         <groupId>org.codehaus.groovy</groupId>
                         <artifactId>groovy</artifactId>
-                        <version>3.0.8</version>
+                        <version>3.0.12</version>
                         <exclusions>
                             <exclusion>
                                 <artifactId>junit-dep</artifactId>
@@ -514,7 +514,7 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-                <version>5.1.4</version>
+                <version>5.1.8</version>
                 <extensions>true</extensions>
                 <executions>
                     <execution>
@@ -678,7 +678,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
-                <version>3.16.0</version>
+                <version>3.18.0</version>
                 <configuration>
                     <rulesets>
                         <ruleset>pmd-ruleset.xml</ruleset>
@@ -720,6 +720,9 @@
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
                 <version>4.6.0.0</version>
+                <configuration>
+                    <excludeFilterFile>spotbugs-suppressions.xml</excludeFilterFile>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

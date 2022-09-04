@@ -226,7 +226,7 @@ A StringValidator is assigned to a field using the PreAssignmentValidator annota
 
 Example
 
-[source]
+[source, java]
 ====
     @PreAssignmentValidator(validator = MustMatchRegexExpression.class, paramString = "^[0-9]{3,6}$")
     @CsvBindByName(column = "id")
@@ -335,7 +335,7 @@ public class ConvertEmptyOrBlankStringsToDefault implements StringProcessor {
 
 And an example of its use:
 
-[source]
+[source,java]
 ====
     @PreAssignmentProcessor(processor = ConvertEmptyOrBlankStringsToDefault.class, paramString = "31415926")
     @CsvBindByName(column = "big number", capture = "^[A-Za-z ]*value: (.*)$", format = "value: %s")
