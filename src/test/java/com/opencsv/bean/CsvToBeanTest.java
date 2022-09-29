@@ -527,14 +527,16 @@ public class CsvToBeanTest {
             new CsvToBeanBuilder<SingleNumber>(new StringReader(BAD_NUMBERS))
                     .withType(SingleNumber.class)
                     .withVerifier(new PositiveOddsOnly())
-                    .withThrowExceptions(false)
+                    .withThrowExceptions(true)
                     .withOrderedResults(true)
                     .build().parse();
+
+            fail("Expecting exception thrown in parse.");
         } catch (RuntimeException re) {
             Throwable e = re.getCause();
             assertTrue(e instanceof CsvConstraintViolationException);
             CsvConstraintViolationException csve = (CsvConstraintViolationException) e;
-            assertEquals(4, csve.getLineNumber());
+            assertEquals(5, csve.getLineNumber());
             assertNotNull(csve.getLine());
         }
     }
@@ -555,11 +557,12 @@ public class CsvToBeanTest {
                 .withIgnoreLeadingWhiteSpace(true)
                 .withQuoteChar('"')
                 .withSeparator(',')
-                .withThrowExceptions(false)
+                .withThrowExceptions(true)
                 .build();
 
         try {
             csvToBean.parse();
+            fail("Expected exception to be thrown.");
         } catch (Exception e) {
             assertEquals(expectedString, e.getMessage());
         }
