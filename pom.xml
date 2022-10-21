@@ -12,18 +12,18 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.surefire.version>2.22.2</maven.surefire.version>
-        <maven.site.version>3.12.0</maven.site.version>
+        <maven.site.version>3.12.1</maven.site.version>
         <jacoco.version>0.8.8</jacoco.version>
         <maven.javadoc.version>3.4.0</maven.javadoc.version>
         <maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
         <commons-collections4.version>4.4</commons-collections4.version>
         <argLine>-Dfile.encoding=UTF-8</argLine>
-        <junit.version>5.9.0</junit.version>
-        <junit.platform.version>1.9.0</junit.platform.version>
+        <junit.version>5.9.1</junit.version>
+        <junit.platform.version>1.9.1</junit.platform.version>
         <asciidoctor.maven.plugin.version>2.2.2</asciidoctor.maven.plugin.version>
-        <asciidoctorj.version>2.5.5</asciidoctorj.version>
-        <jruby.version>9.3.7.0</jruby.version>
+        <asciidoctorj.version>2.5.6</asciidoctorj.version>
+        <jruby.version>9.3.8.0</jruby.version>
         <asciidoctorj.diagram.version>2.2.3</asciidoctorj.diagram.version>
     </properties>
 
@@ -267,7 +267,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-checkstyle-plugin</artifactId>
-                    <version>3.1.2</version>
+                    <version>3.2.0</version>
                     <dependencies>
                         <dependency>
                             <groupId>com.puppycrawl.tools</groupId>
@@ -357,7 +357,7 @@
                     <dependency>
                         <groupId>org.codehaus.groovy</groupId>
                         <artifactId>groovy</artifactId>
-                        <version>3.0.12</version>
+                        <version>3.0.13</version>
                         <exclusions>
                             <exclusion>
                                 <artifactId>junit-dep</artifactId>
@@ -599,7 +599,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
-            <version>1.9</version>
+            <version>1.10.0</version>
         </dependency>
         <dependency>
             <groupId>commons-beanutils</groupId>
