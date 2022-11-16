@@ -14,7 +14,7 @@
         <maven.surefire.version>2.22.2</maven.surefire.version>
         <maven.site.version>3.12.1</maven.site.version>
         <jacoco.version>0.8.8</jacoco.version>
-        <maven.javadoc.version>3.4.0</maven.javadoc.version>
+        <maven.javadoc.version>3.4.1</maven.javadoc.version>
         <maven-assembly-plugin.version>3.3.0</maven-assembly-plugin.version>
         <commons-lang3.version>3.12.0</commons-lang3.version>
         <commons-collections4.version>4.4</commons-collections4.version>
@@ -22,8 +22,8 @@
         <junit.version>5.9.1</junit.version>
         <junit.platform.version>1.9.1</junit.platform.version>
         <asciidoctor.maven.plugin.version>2.2.2</asciidoctor.maven.plugin.version>
-        <asciidoctorj.version>2.5.6</asciidoctorj.version>
-        <jruby.version>9.3.8.0</jruby.version>
+        <asciidoctorj.version>2.5.7</asciidoctorj.version>
+        <jruby.version>9.3.9.0</jruby.version>
         <asciidoctorj.diagram.version>2.2.3</asciidoctorj.diagram.version>
     </properties>
 
@@ -335,7 +335,7 @@
             <plugin>
                 <groupId>org.codehaus.gmavenplus</groupId>
                 <artifactId>gmavenplus-plugin</artifactId>
-                <version>1.13.1</version>
+                <version>2.1.0</version>
                 <configuration>
                     <testSources>
                         <testSource>
@@ -620,7 +620,7 @@
         <dependency>
             <groupId>org.spockframework</groupId>
             <artifactId>spock-core</artifactId>
-            <version>2.0-groovy-3.0</version>
+            <version>2.3-groovy-3.0</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>
@@ -670,7 +670,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-project-info-reports-plugin</artifactId>
-                <version>3.3.0</version>
+                <version>3.4.1</version>
                 <configuration>
                     <dependencyDetailsEnabled>false</dependencyDetailsEnabled>
                 </configuration>
@@ -678,7 +678,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-pmd-plugin</artifactId>
-                <version>3.18.0</version>
+                <version>3.19.0</version>
                 <configuration>
                     <rulesets>
                         <ruleset>pmd-ruleset.xml</ruleset>
@@ -689,7 +689,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-checkstyle-plugin</artifactId>
-                <version>3.1.2</version>
+                <version>3.2.0</version>
                 <configuration>
                     <suppressionsLocation>checkstyle-suppressions.xml</suppressionsLocation>
                     <suppressionsFileExpression>checkstyle.suppressions.file</suppressionsFileExpression>
@@ -735,7 +735,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jxr-plugin</artifactId>
-                <version>3.2.0</version>
+                <version>3.3.0</version>
             </plugin>
         </plugins>
     </reporting>
