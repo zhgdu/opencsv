@@ -39,7 +39,7 @@ public class ConverterEnum extends AbstractCsvConverter {
             o = EnumUtils.getEnumIgnoreCase((Class<Enum>)type, value);
             if(o==null) {
                 throw new CsvDataTypeMismatchException(value, type, String.format(
-                        ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME).getString("illegal.enum.value"),
+                        ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, this.errorLocale).getString("illegal.enum.value"),
                         value, type.getName()));
             }
         }

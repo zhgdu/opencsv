@@ -37,7 +37,7 @@ public class ConverterCurrency extends AbstractCsvConverter {
                 c = Currency.getInstance(value);
             } catch (IllegalArgumentException e) {
                 CsvDataTypeMismatchException csve = new CsvDataTypeMismatchException(value, type, String.format(
-                        ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME).getString("invalid.currency.value"),
+                        ResourceBundle.getBundle(ICSVParser.DEFAULT_BUNDLE_NAME, this.errorLocale).getString("invalid.currency.value"),
                         value, type.getName()));
                 csve.initCause(e);
                 throw csve;
