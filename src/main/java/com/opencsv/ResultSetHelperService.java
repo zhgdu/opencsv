@@ -191,7 +191,7 @@ public class ResultSetHelperService implements ResultSetHelper {
    }
 
    private String applyFormatter(NumberFormat formatter, Number value) {
-      if (value != null && formatter != null) {
+      if (formatter != null && value != null) {
          return formatter.format(value);
       }
       return Objects.toString(value, DEFAULT_VALUE);
