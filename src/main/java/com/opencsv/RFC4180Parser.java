@@ -7,7 +7,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.regex.Pattern;
 
 /**
  * This Parser is meant to parse according to the RFC4180 specification.
@@ -36,21 +35,6 @@ import java.util.regex.Pattern;
 public class RFC4180Parser extends AbstractCSVParser {
 
     /**
-     * This is needed by the split command in case the separator character is a regex special character.
-     */
-    private static final Pattern SPECIAL_REGEX_CHARS = Pattern.compile("[{}()\\[\\].+*?^$\\\\|]");
-
-    /**
-     * Separator character as String (used for split command).
-     */
-    private final String separatorAsString;
-
-    /**
-     * Quotation character as String (used for split command).
-     */
-    private final String quoteCharString;
-
-    /**
      * Default constructor for the RFC4180Parser.  Uses values from the ICSVParser.
      */
     public RFC4180Parser() {
@@ -66,18 +50,16 @@ public class RFC4180Parser extends AbstractCSVParser {
      */
     RFC4180Parser(char quoteChar, char separator, CSVReaderNullFieldIndicator nullFieldIndicator) {
         super(separator, quoteChar, nullFieldIndicator);
-        this.separatorAsString = SPECIAL_REGEX_CHARS.matcher(Character.toString(separator)).replaceAll("\\\\$0");
-        this.quoteCharString = Character.toString(quoteChar);
     }
 
     @Override
     protected String convertToCsvValue(String value, boolean applyQuotesToAll) {
         String testValue = (value == null && !nullFieldIndicator.equals(CSVReaderNullFieldIndicator.NEITHER)) ? "" : value;
         StringBuilder builder = new StringBuilder(testValue == null ? MAX_SIZE_FOR_EMPTY_FIELD : (testValue.length() * 2));
-        boolean containsQuoteChar = testValue != null && testValue.contains(Character.toString(getQuotechar()));
+        boolean containsQuoteChar = testValue != null && testValue.contains(getQuotecharAsString());
         boolean surroundWithQuotes = applyQuotesToAll || isSurroundWithQuotes(value, containsQuoteChar);
 
-        String convertedString = !containsQuoteChar ? testValue : testValue.replaceAll(Character.toString(getQuotechar()), Character.toString(getQuotechar()) + Character.toString(getQuotechar()));
+        String convertedString = !containsQuoteChar ? testValue : testValue.replaceAll(getQuotecharAsString(), getQuotecharAsString() + getQuotecharAsString());
 
         if (surroundWithQuotes) {
             builder.append(getQuotechar());
@@ -196,7 +178,7 @@ public class RFC4180Parser extends AbstractCSVParser {
     }
 
     private boolean startsButDoesNotEndWithQuote(String lastElement) {
-        return lastElement.startsWith(Character.toString(quotechar)) && !lastElement.endsWith(Character.toString(quotechar));
+        return lastElement.startsWith(getQuotecharAsString()) && !lastElement.endsWith(getQuotecharAsString());
     }
 
     private int findEndOfFieldFromPosition(String nextLine, int currentPosition) {
@@ -224,11 +206,11 @@ public class RFC4180Parser extends AbstractCSVParser {
     private String handleQuotes(String element) {
         String ret = element;
 
-        if (!hasOnlyOneQuote(ret) && ret.startsWith(quoteCharString)) {
-            ret = StringUtils.removeStart(ret, quoteCharString);
-            ret = StringUtils.removeEnd(ret, quoteCharString);
+        if (!hasOnlyOneQuote(ret) && ret.startsWith(getQuotecharAsString())) {
+            ret = StringUtils.removeStart(ret, getQuotecharAsString());
+            ret = StringUtils.removeEnd(ret, getQuotecharAsString());
         }
-        ret = StringUtils.replace(ret, quoteCharString + quoteCharString, quoteCharString);
+        ret = StringUtils.replace(ret, getQuotecharAsString() + getQuotecharAsString(), getQuotecharAsString());
         if (ret.isEmpty() && (nullFieldIndicator == CSVReaderNullFieldIndicator.BOTH || nullFieldIndicator == CSVReaderNullFieldIndicator.EMPTY_QUOTES)) {
             ret = null;
         }

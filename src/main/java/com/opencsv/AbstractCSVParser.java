@@ -4,6 +4,7 @@ import com.opencsv.enums.CSVReaderNullFieldIndicator;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -13,13 +14,25 @@ import java.util.stream.Stream;
  */
 public abstract class AbstractCSVParser implements ICSVParser {
     /**
+     * This is needed by the split command in case the separator character is a regex special character.
+     */
+    protected static final Pattern SPECIAL_REGEX_CHARS = Pattern.compile("[{}()\\[\\].+*?^$\\\\|]");
+    /**
      * This is the character that the CSVParser will treat as the separator.
      */
     protected final char separator;
     /**
+     * This is the separator in Stirng form to reduce the number of calls to toString.
+     */
+    protected final String separatorAsString;
+    /**
      * This is the character that the CSVParser will treat as the quotation character.
      */
     protected final char quotechar;
+    /**
+     * This is the quotechar in String form to reduce the number of calls to toString.
+     */
+    protected final String quotecharAsString;
     /**
      * Determines the handling of null fields.
      *
@@ -41,7 +54,10 @@ public abstract class AbstractCSVParser implements ICSVParser {
      */
     public AbstractCSVParser(char separator, char quotechar, CSVReaderNullFieldIndicator nullFieldIndicator) {
         this.separator = separator;
+        this.separatorAsString = SPECIAL_REGEX_CHARS.matcher(Character.toString(separator)).replaceAll("\\\\$0");
+        ;
         this.quotechar = quotechar;
+        this.quotecharAsString = Character.toString(quotechar);
         this.nullFieldIndicator = nullFieldIndicator;
     }
 
@@ -50,9 +66,23 @@ public abstract class AbstractCSVParser implements ICSVParser {
         return separator;
     }
 
+    /**
+     * @return String version of separator to reduce number of calls to toString.
+     */
+    public String getSeparatorAsString() {
+        return separatorAsString;
+    }
+
     @Override
     public char getQuotechar() {
         return quotechar;
+    }
+
+    /**
+     * @return String version of quotechar to reduce the number of calls to toString.
+     */
+    public String getQuotecharAsString() {
+        return quotecharAsString;
     }
 
     @Override
@@ -75,7 +105,7 @@ public abstract class AbstractCSVParser implements ICSVParser {
     public String parseToLine(String[] values, boolean applyQuotesToAll) {
         return Stream.of(values)
                 .map(v -> convertToCsvValue(v, applyQuotesToAll))
-                .collect(Collectors.joining(Character.toString(getSeparator())));
+                .collect(Collectors.joining(getSeparatorAsString()));
     }
 
     /**
@@ -102,7 +132,7 @@ public abstract class AbstractCSVParser implements ICSVParser {
             return true;
         }
 
-        return forceSurround || value.contains(Character.toString(getSeparator())) || value.contains(NEWLINE);
+        return forceSurround || value.contains(getSeparatorAsString()) || value.contains(NEWLINE);
     }
 
     /**

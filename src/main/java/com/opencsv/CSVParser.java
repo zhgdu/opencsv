@@ -170,7 +170,7 @@ public class CSVParser extends AbstractCSVParser {
         boolean containsSeparatorChar = StringUtils.contains(testValue, getSeparator());
         boolean surroundWithQuotes = applyQuotestoAll || isSurroundWithQuotes(value, containsSeparatorChar);
 
-        String convertedString = !containsQuoteChar ? testValue : testValue.replaceAll(Character.toString(getQuotechar()), Character.toString(getQuotechar()) + getQuotechar());
+        String convertedString = !containsQuoteChar ? testValue : testValue.replaceAll(getQuotecharAsString(), getQuotecharAsString() + getQuotecharAsString());
         convertedString = !containsEscapeChar ? convertedString : convertedString.replace(Character.toString(getEscape()), Character.toString(getEscape()) + getEscape());
 
         if (surroundWithQuotes) {
