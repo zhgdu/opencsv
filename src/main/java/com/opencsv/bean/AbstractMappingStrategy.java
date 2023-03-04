@@ -880,7 +880,7 @@ public abstract class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
          *
          * @param type Type associated with this branch
          */
-        RecursiveType(Class<?> type) {
+        protected RecursiveType(Class<?> type) {
             this.type = type;
         }
 
