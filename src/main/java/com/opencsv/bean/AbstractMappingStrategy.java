@@ -75,7 +75,7 @@ public abstract class AbstractMappingStrategy<I, K extends Comparable<K>, C exte
      * These are only the types (and associated fields) specifically annotated
      * with {@link CsvRecurse}.
      */
-    private RecursiveType recursiveTypeTree;
+    protected RecursiveType recursiveTypeTree;
 
     /** Storage for all manually excluded class/field pairs. */
     private MultiValuedMap<Class<?>, Field> ignoredFields = new ArrayListValuedHashMap<>();
