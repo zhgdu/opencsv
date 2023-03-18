@@ -33,6 +33,18 @@ public abstract class AbstractCSVParser implements ICSVParser {
      * This is the quotechar in String form to reduce the number of calls to toString.
      */
     protected final String quotecharAsString;
+
+    /**
+     * This is quotecharAsString+quotecharAsString - used in replaceAll to reduce the number of strings being created.
+     */
+    protected final String quoteDoubledAsString;
+
+    /**
+     * pattern created to match quotechars - optimizaion of the String.replaceAll.
+     */
+    protected final Pattern quoteMatcherPattern;
+
+
     /**
      * Determines the handling of null fields.
      *
@@ -55,9 +67,12 @@ public abstract class AbstractCSVParser implements ICSVParser {
     public AbstractCSVParser(char separator, char quotechar, CSVReaderNullFieldIndicator nullFieldIndicator) {
         this.separator = separator;
         this.separatorAsString = SPECIAL_REGEX_CHARS.matcher(Character.toString(separator)).replaceAll("\\\\$0");
-        ;
+
         this.quotechar = quotechar;
         this.quotecharAsString = Character.toString(quotechar);
+        this.quoteDoubledAsString = this.quotecharAsString + this.quotecharAsString;
+        this.quoteMatcherPattern = Pattern.compile(quotecharAsString);
+
         this.nullFieldIndicator = nullFieldIndicator;
     }
 

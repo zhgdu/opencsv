@@ -59,7 +59,7 @@ public class RFC4180Parser extends AbstractCSVParser {
         boolean containsQuoteChar = testValue != null && testValue.contains(getQuotecharAsString());
         boolean surroundWithQuotes = applyQuotesToAll || isSurroundWithQuotes(value, containsQuoteChar);
 
-        String convertedString = !containsQuoteChar ? testValue : testValue.replaceAll(getQuotecharAsString(), getQuotecharAsString() + getQuotecharAsString());
+        String convertedString = !containsQuoteChar ? testValue : quoteMatcherPattern.matcher(testValue).replaceAll(quoteDoubledAsString);
 
         if (surroundWithQuotes) {
             builder.append(getQuotechar());

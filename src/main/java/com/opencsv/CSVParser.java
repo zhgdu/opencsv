@@ -49,6 +49,17 @@ public class CSVParser extends AbstractCSVParser {
      * This is the character that the CSVParser will treat as the escape character.
      */
     private final char escape;
+
+    /**
+     * String of escape character - optimization for replaceAll
+     */
+    private final String escapeAsString;
+
+    /**
+     * String escapeAsString+escapeAsString - optimization for replaceAll
+     */
+    private final String escapeDoubleAsString;
+
     /**
      * Determines if the field is between quotes (true) or between separators (false).
      */
@@ -104,6 +115,8 @@ public class CSVParser extends AbstractCSVParser {
             throw new UnsupportedOperationException(ResourceBundle.getBundle(DEFAULT_BUNDLE_NAME, this.errorLocale).getString("define.separator"));
         }
         this.escape = escape;
+        this.escapeAsString = Character.toString(escape);
+        this.escapeDoubleAsString = escapeAsString + escapeAsString;
         this.strictQuotes = strictQuotes;
         this.ignoreLeadingWhiteSpace = ignoreLeadingWhiteSpace;
         this.ignoreQuotations = ignoreQuotations;
@@ -170,7 +183,7 @@ public class CSVParser extends AbstractCSVParser {
         boolean containsSeparatorChar = StringUtils.contains(testValue, getSeparator());
         boolean surroundWithQuotes = applyQuotestoAll || isSurroundWithQuotes(value, containsSeparatorChar);
 
-        String convertedString = !containsQuoteChar ? testValue : testValue.replaceAll(getQuotecharAsString(), getQuotecharAsString() + getQuotecharAsString());
+        String convertedString = !containsQuoteChar ? testValue : quoteMatcherPattern.matcher(testValue).replaceAll(quoteDoubledAsString);
         convertedString = !containsEscapeChar ? convertedString : convertedString.replace(Character.toString(getEscape()), Character.toString(getEscape()) + getEscape());
 
         if (surroundWithQuotes) {
