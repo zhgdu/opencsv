@@ -1,6 +1,7 @@
 package com.opencsv.bean;
 
 import com.opencsv.CSVReader;
+import com.opencsv.enums.CSVReaderNullFieldIndicator;
 import org.junit.jupiter.api.Test;
 
 import java.io.StringReader;
@@ -9,8 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class CsvToBeanFilterTest {
 
@@ -25,6 +25,12 @@ public class CsvToBeanFilterTest {
                    "hello world,    ,3228\n" +
                    "calc age,,74\n" +
                    "wash dishes,    ,3";
+
+   private static final String TEST_EMPTY_STRING_NO_STATE =
+           "FEATURE_NAME,USER_COUNT\n" +
+                   "hello world,3228\n" +
+                   "calc age,74\n" +
+                   "wash dishes,3";
 
    private CSVReader createReader() {
       StringReader reader = new StringReader(TEST_STRING);
@@ -78,6 +84,29 @@ public class CsvToBeanFilterTest {
    }
 
    @Test
+   public void testWithNullString() {
+      CsvToBean<Feature> csvToBean = new CsvToBeanBuilder<Feature>(new StringReader(TEST_EMPTY_STRING))
+              .withMappingStrategy(createMappingStrategy())
+              .withFieldAsNull(CSVReaderNullFieldIndicator.NEITHER)
+              .build();
+      List<Feature> list = csvToBean.parse();
+      assertEquals("    ", list.get(0).getState());
+      assertNull(list.get(1).getState());
+      assertEquals("    ", list.get(2).getState());
+   }
+
+   @Test
+   public void testWithNullStringNoState() {
+      CsvToBean<Feature> csvToBean = new CsvToBeanBuilder<Feature>(new StringReader(TEST_EMPTY_STRING_NO_STATE))
+              .withMappingStrategy(createMappingStrategy())
+              .build();
+      List<Feature> list = csvToBean.parse();
+      assertNull(list.get(0).getState());
+      assertNull(list.get(1).getState());
+      assertNull(list.get(2).getState());
+   }
+
+   @Test
    public void testColumnNameTranslationWithLineFiltering() {
       CsvToBean<Feature> csvToBean = new CsvToBeanBuilder<Feature>(createReader())
               .withMappingStrategy(createMappingStrategy())
@@ -102,6 +131,7 @@ public class CsvToBeanFilterTest {
       assertTrue(list.get(1).getState().isEmpty());
       assertEquals("    ", list.get(2).getState());
    }
+
 
    @Test
    public void testFilterWithParallelParsing() {
