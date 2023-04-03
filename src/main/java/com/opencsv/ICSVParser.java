@@ -124,11 +124,6 @@ public interface ICSVParser {
      * Essentially a "Reverse parse" where an array of values are concatenating to a
      * csv delimited string.
      *
-     * NOTE: as of the 4.1 release this functionality is not considered production ready and
-     * has not been fully tested (and the ability to add a parser to the CSVWriter has not
-     * been implemented yet.   I am adding this now because because I need to do the 4.1
-     * release because of the number of defect fixes and I do not want to strip this out.
-     *
      * @param values List of elements to parse.
      * @param applyQuotesToAll - If true all strings in the array will have quotes if it needs it or not.
      *                         If false then it will only have quotes if it needs it (i.e. contains a quote character).
@@ -138,10 +133,25 @@ public interface ICSVParser {
     String parseToLine(String[] values, boolean applyQuotesToAll);
 
     /**
+     * Essentially a "Reverse parse" where an array of values are concatenating to a
+     * csv delimited string.
+     * <p>
+     * NOTE: This functionality is for testing only in the 5.7.2 release in an effort to optimize the number of
+     * strings created when parsing large files.
+     *
+     * @param values           List of elements to parse.
+     * @param applyQuotesToAll - If true all strings in the array will have quotes if it needs it or not.
+     *                         If false then it will only have quotes if it needs it (i.e. contains a quote character).
+     * @param appendable       The Appendable that the parsed values will be appended to
+     * @since 5.7.2
+     */
+    void parseToLine(String[] values, boolean applyQuotesToAll, Appendable appendable) throws IOException;
+
+    /**
      * @return The null field indicator.
      */
     CSVReaderNullFieldIndicator nullFieldIndicator();
-    
+
     /**
      * If a parser is in the middle of parsing a multiline field, this will
      * return the text collected so far.

@@ -4,6 +4,7 @@ import com.opencsv.enums.CSVReaderNullFieldIndicator;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -50,6 +51,27 @@ public class RFC4180Parser extends AbstractCSVParser {
      */
     RFC4180Parser(char quoteChar, char separator, CSVReaderNullFieldIndicator nullFieldIndicator) {
         super(separator, quoteChar, nullFieldIndicator);
+    }
+
+    @Override
+    protected void convertToCsvValue(String value, boolean applyQuotesToAll, Appendable appendable) throws IOException {
+
+        String testValue = (value == null && !nullFieldIndicator.equals(CSVReaderNullFieldIndicator.NEITHER)) ? "" : value;
+        boolean containsQuoteChar = testValue != null && testValue.contains(getQuotecharAsString());
+        boolean surroundWithQuotes = applyQuotesToAll || isSurroundWithQuotes(value, containsQuoteChar);
+
+        String convertedString = !containsQuoteChar ? testValue : quoteMatcherPattern.matcher(testValue).replaceAll(quoteDoubledAsString);
+
+        if (surroundWithQuotes) {
+            appendable.append(getQuotechar());
+        }
+
+        appendable.append(convertedString);
+
+        if (surroundWithQuotes) {
+            appendable.append(getQuotechar());
+        }
+
     }
 
     @Override

@@ -123,15 +123,43 @@ public abstract class AbstractCSVParser implements ICSVParser {
                 .collect(Collectors.joining(getSeparatorAsString()));
     }
 
+    @Override
+    public void parseToLine(String[] values, boolean applyQuotesToAll, Appendable appendable) throws IOException {
+        boolean first = true;
+        for (String value : values) {
+            if (!first) {
+                appendable.append(getSeparator());
+            } else {
+                first = false;
+            }
+            convertToCsvValue(value, applyQuotesToAll, appendable);
+        }
+    }
+
     /**
      * Used when reverse parsing an array of strings to a single string.  Handles the application of quotes around
      * the string and handling any quotes within the string.
      *
-     * @param value            String to be tested
+     * @param value            String to be converted
      * @param applyQuotestoAll All values should be surrounded with quotes
      * @return String that will go into the CSV string
      */
     protected abstract String convertToCsvValue(String value, boolean applyQuotestoAll);
+
+    /**
+     * Used when reverse parsing an array of strings to a single string.  Handles the application of quotes around
+     * the string and handling any quotes within the string.
+     * <p>
+     * NOTE: as of 5.7.2 most objects will be inheriting a solution that calls the existing convertToCsvValue and thus
+     * will not receive much benefit.
+     *
+     * @param value            String to be converted
+     * @param applyQuotesToAll All values should be surrounded with quotes
+     * @param appendable       Appendable object that the converted values are added to.
+     */
+    protected void convertToCsvValue(String value, boolean applyQuotesToAll, Appendable appendable) throws IOException {
+        appendable.append(convertToCsvValue(value, applyQuotesToAll));
+    }
 
     /**
      * Used by reverse parsing to determine if a value should be surrounded by quote characters.
